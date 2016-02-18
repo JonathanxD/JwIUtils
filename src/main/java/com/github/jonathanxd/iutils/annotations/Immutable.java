@@ -16,25 +16,20 @@
  *     You should have received a copy of the GNU Affero General Public License
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.jonathanxd.iutils.iterator;
+package com.github.jonathanxd.iutils.annotations;
 
-import java.util.Iterator;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 /**
- * Created by jonathan on 08/02/16.
+ * Created by jonathan on 17/02/16.
  */
-public class IteratorUtil {
 
-    public static void goTo(Iterator<?> iterator, int index) {
-        int x = 0;
-        while(x != index) {
-            if(!iterator.hasNext()) {
-                throw new IndexOutOfBoundsException("Index out of bounds!");
-            }
-            iterator.next();
-            ++x;
-        }
-    }
-
-
+/**
+ * Indicates that the element is Immutable (like Lists)
+ */
+@Documented
+@Retention(RetentionPolicy.RUNTIME)
+public @interface Immutable {
 }

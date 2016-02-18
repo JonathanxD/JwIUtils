@@ -101,7 +101,11 @@ public class ReferenceData {
         throw new RuntimeException("Cannot construct data! Error: '" + error + "'");
     }
 
-    private Optional<Object> getDataAssignable(Class<?> dataClass) {
+    public void removeData(Reference<?> reference) {
+        dataSet.remove(reference);
+    }
+
+    public Optional<Object> getDataAssignable(Class<?> dataClass) {
 
         for (Reference<?> data : dataSet) {
 
@@ -175,4 +179,11 @@ public class ReferenceData {
         return Optional.empty();
     }
 
+    public void migrateFrom(ReferenceData data) {
+        this.dataSet.addAll(data.dataSet);
+    }
+
+    public void migrateTo(ReferenceData data) {
+        data.dataSet.addAll(this.dataSet);
+    }
 }
