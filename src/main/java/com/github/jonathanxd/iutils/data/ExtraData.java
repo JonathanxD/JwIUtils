@@ -38,7 +38,7 @@ import java.util.function.Supplier;
 /**
  * Created by jonathan on 13/02/16.
  */
-public class ExtraData {
+public class ExtraData implements Cloneable {
 
     private final Set<Object> dataSet = new HashSet<>();
 
@@ -137,16 +137,16 @@ public class ExtraData {
         return ExtraData.construct(this, dataClass, e -> true);
     }
 
-    public Object invoke(Class<?> dataClass) {
-        return ExtraData.invoke(this, dataClass, e -> true);
+    public Object invoke(Object object) {
+        return ExtraData.invoke(this, object, e -> true);
     }
 
     public Object construct(Class<?> dataClass, Predicate<Constructor<?>> constructorPredicate) {
         return ExtraData.construct(this, dataClass, constructorPredicate);
     }
 
-    public Object invoke(Class<?> dataClass, Predicate<Method> methodPredicate) {
-        return ExtraData.invoke(this, dataClass, methodPredicate);
+    public Object invoke(Object object, Predicate<Method> methodPredicate) {
+        return ExtraData.invoke(this, object, methodPredicate);
     }
 
     public void registerData(Object data) {
@@ -219,4 +219,11 @@ public class ExtraData {
         return Optional.empty();
     }
 
+    @Override
+    public ExtraData clone() throws CloneNotSupportedException {
+        super.clone();
+        ExtraData data = new ExtraData();
+        data.dataSet.addAll(this.dataSet);
+        return data;
+    }
 }

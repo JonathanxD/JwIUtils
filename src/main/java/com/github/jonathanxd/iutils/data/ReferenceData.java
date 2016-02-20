@@ -31,7 +31,7 @@ import com.github.jonathanxd.iutils.object.Reference;
 /**
  * Created by jonathan on 13/02/16.
  */
-public class ReferenceData {
+public class ReferenceData implements Cloneable {
 
     private final Set<Reference<?>> dataSet = new HashSet<>();
 
@@ -186,4 +186,13 @@ public class ReferenceData {
     public void migrateTo(ReferenceData data) {
         data.dataSet.addAll(this.dataSet);
     }
+
+    @Override
+    public ReferenceData clone() throws CloneNotSupportedException {
+        super.clone();
+        ReferenceData data = new ReferenceData();
+        data.dataSet.addAll(this.dataSet);
+        return data;
+    }
+
 }
