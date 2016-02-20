@@ -23,6 +23,7 @@ import com.github.jonathanxd.iutils.object.TwoValues;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -31,6 +32,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 /**
@@ -40,7 +42,7 @@ public class ExtraData {
 
     private final Set<Object> dataSet = new HashSet<>();
 
-    public static <E extends Executable> Object match(ExtraData extraData, Class<?> dataClass, Supplier<E[]> supplyElements, BiFunction<E, Object[], Object> function) {
+    public static <E extends Executable> Object match(ExtraData extraData, Class<?> dataClass, Supplier<E[]> supplyElements, BiFunction<E, Object[], Object> function, Predicate<E> accept) {
 
         List<String> errorMessages = new ArrayList<>();
 
@@ -52,6 +54,9 @@ public class ExtraData {
 
 
         for (E element : array) {
+
+            if(!accept.test(element))
+                continue;
 
             boolean fail = false;
 
@@ -100,7 +105,7 @@ public class ExtraData {
     }
 
 
-    public static Object construct(ExtraData extraData, Class<?> dataClass) {
+    public static Object construct(ExtraData extraData, Class<?> dataClass, Predicate<Constructor<?>> test) {
 
         return match(extraData, dataClass, dataClass::getDeclaredConstructors, (e, args) -> {
             try {
@@ -109,10 +114,10 @@ public class ExtraData {
                 e1.printStackTrace();
             }
             return null;
-        });
+        }, test);
     }
 
-    public static Object invoke(ExtraData extraData, Object object) {
+    public static Object invoke(ExtraData extraData, Object object, Predicate<Method> methodPredicate) {
 
         return match(extraData, object.getClass(), object.getClass()::getDeclaredMethods, (e, args) -> {
             try {
@@ -121,7 +126,7 @@ public class ExtraData {
                 e1.printStackTrace();
             }
             return null;
-        });
+        }, methodPredicate);
     }
 
     private static void constructError(String error) {
@@ -129,7 +134,19 @@ public class ExtraData {
     }
 
     public Object construct(Class<?> dataClass) {
-        return ExtraData.construct(this, dataClass);
+        return ExtraData.construct(this, dataClass, e -> true);
+    }
+
+    public Object invoke(Class<?> dataClass) {
+        return ExtraData.invoke(this, dataClass, e -> true);
+    }
+
+    public Object construct(Class<?> dataClass, Predicate<Constructor<?>> constructorPredicate) {
+        return ExtraData.construct(this, dataClass, constructorPredicate);
+    }
+
+    public Object invoke(Class<?> dataClass, Predicate<Method> methodPredicate) {
+        return ExtraData.invoke(this, dataClass, methodPredicate);
     }
 
     public void registerData(Object data) {
