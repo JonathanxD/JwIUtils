@@ -1,6 +1,6 @@
 /*
  * 	JwIUtils - Utility Library for Java
- *     Copyright (C) 2016 TheRealBuggy/JonathanxD (https://github.com/JonathanxD/) <jonathan.scripter@programmer.net>
+ *     Copyright (C) TheRealBuggy/JonathanxD (https://github.com/JonathanxD/) https://github.com/JonathanxD/ <jonathan.scripter@programmer.net>
  *
  * 	GNU GPLv3
  *

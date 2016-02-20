@@ -1,6 +1,6 @@
 /*
  * 	JwIUtils - Utility Library for Java
- *     Copyright (C) 2016 TheRealBuggy/JonathanxD (https://github.com/JonathanxD/) <jonathan.scripter@programmer.net>
+ *     Copyright (C) TheRealBuggy/JonathanxD (https://github.com/JonathanxD/) https://github.com/JonathanxD/ <jonathan.scripter@programmer.net>
  *
  * 	GNU GPLv3
  *
@@ -18,7 +18,10 @@
  */
 package com.github.jonathanxd.iutils.data;
 
+import com.github.jonathanxd.iutils.object.TwoValues;
+
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Executable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -26,6 +29,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
+import java.util.function.Supplier;
 
 /**
  * Created by jonathan on 13/02/16.
@@ -34,19 +40,22 @@ public class ExtraData {
 
     private final Set<Object> dataSet = new HashSet<>();
 
-    public static Object construct(ExtraData extraData, Class<?> dataClass) {
+    public static <E extends Executable> Object match(ExtraData extraData, Class<?> dataClass, Supplier<E[]> supplyElements, BiFunction<E, Object[], Object> function) {
 
         List<String> errorMessages = new ArrayList<>();
 
         List<Object> parameterList = new ArrayList<>();
 
-        Constructor<?> validConstructor = null;
+        E valid = null;
 
-        for (Constructor<?> constructor : dataClass.getDeclaredConstructors()) {
+        E[] array = supplyElements.get();
+
+
+        for (E element : array) {
 
             boolean fail = false;
 
-            for (Class<?> parameterType : constructor.getParameterTypes()) {
+            for (Class<?> parameterType : element.getParameterTypes()) {
 
 
                 Optional<Object> objOpt = extraData.getData(parameterType);
@@ -74,26 +83,45 @@ public class ExtraData {
             if (fail) {
                 parameterList.clear();
             } else {
-                validConstructor = constructor;
+                valid = element;
                 break;
             }
 
         }
 
-        if (validConstructor == null) {
+        if (valid == null) {
             errorMessages.forEach(ExtraData::constructError);
         } else {
             Object[] args = parameterList.toArray(new Object[parameterList.size()]);
-
-            try {
-                return validConstructor.newInstance(args);
-            } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-                e.printStackTrace();
-            }
+            return function.apply(valid, args);
         }
 
-
         return null;
+    }
+
+
+    public static Object construct(ExtraData extraData, Class<?> dataClass) {
+
+        return match(extraData, dataClass, dataClass::getDeclaredConstructors, (e, args) -> {
+            try {
+                return e.newInstance(args);
+            } catch (InstantiationException | IllegalAccessException | InvocationTargetException e1) {
+                e1.printStackTrace();
+            }
+            return null;
+        });
+    }
+
+    public static Object invoke(ExtraData extraData, Object object) {
+
+        return match(extraData, object.getClass(), object.getClass()::getDeclaredMethods, (e, args) -> {
+            try {
+                return e.invoke(object, args);
+            } catch (IllegalAccessException | InvocationTargetException e1) {
+                e1.printStackTrace();
+            }
+            return null;
+        });
     }
 
     private static void constructError(String error) {

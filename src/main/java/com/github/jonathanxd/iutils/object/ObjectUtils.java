@@ -1,6 +1,6 @@
 /*
  * 	JwIUtils - Utility Library for Java
- *     Copyright (C) 2016 TheRealBuggy/JonathanxD (https://github.com/JonathanxD/) <jonathan.scripter@programmer.net>
+ *     Copyright (C) TheRealBuggy/JonathanxD (https://github.com/JonathanxD/) https://github.com/JonathanxD/ <jonathan.scripter@programmer.net>
  *
  * 	GNU GPLv3
  *
@@ -25,6 +25,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.Field;
 import java.util.Collection;
+import java.util.StringJoiner;
+import java.util.function.Function;
 
 import com.github.jonathanxd.iutils.arrays.Arrays;
 import com.github.jonathanxd.iutils.arrays.Arrays.PrimitiveArray;
@@ -101,5 +103,29 @@ public class ObjectUtils {
 
         return helper;
     }
+
+    public static boolean isInstanceOfAny(Object source, Class<?>... instanceOfObjects) {
+        for(Class<?> instanceOf : instanceOfObjects) {
+            if(instanceOf.isAssignableFrom(source.getClass())) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public static <E> String strip(E[] elements, Function<E, String> elementStringFactory) {
+
+        StringJoiner sj = new StringJoiner("\n");
+
+        sj.add("");
+
+        for(E element : elements) {
+            sj.add(elementStringFactory.apply(element));
+        }
+
+        return sj.toString();
+    }
+
 
 }

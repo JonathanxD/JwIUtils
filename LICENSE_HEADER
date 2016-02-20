@@ -1,5 +1,5 @@
 	${name} - ${description}
-    Copyright (C) ${year} ${organization} <${email}>
+    Copyright (C) ${organization} ${url} <${email}>
 
 	GNU GPLv3
 
