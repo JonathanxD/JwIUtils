@@ -21,12 +21,16 @@ package com.github.jonathanxd.iutils.object;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.StringJoiner;
 import java.util.function.Function;
+import java.util.zip.DeflaterOutputStream;
+import java.util.zip.InflaterInputStream;
 
 import com.github.jonathanxd.iutils.arrays.Arrays;
 import com.github.jonathanxd.iutils.arrays.Arrays.PrimitiveArray;
@@ -54,6 +58,17 @@ public class ObjectUtils {
         }
 
         return bytes;
+    }
+
+    public static byte[] getObjectBytesArray(Object object) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream oos = new ObjectOutputStream(baos);
+
+        oos.writeObject(object);
+        oos.flush();
+        oos.close();
+
+        return baos.toByteArray();
     }
 
     public static <T> T objectFromBytes(Arrays<Byte> bytes) throws IOException, ClassNotFoundException {
@@ -127,5 +142,30 @@ public class ObjectUtils {
         return sj.toString();
     }
 
+    public static byte[] compress(byte[] bytes) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try {
+            OutputStream out = new DeflaterOutputStream(baos);
+            out.write(bytes);
+            out.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return baos.toByteArray();
+    }
+
+    public static byte[] decompress(byte[] bytes) {
+        InputStream in = new InflaterInputStream(new ByteArrayInputStream(bytes));
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try {
+            byte[] buffer = new byte[8192];
+            int len;
+            while((len = in.read(buffer))>0)
+                baos.write(buffer, 0, len);
+            return baos.toByteArray();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
 }

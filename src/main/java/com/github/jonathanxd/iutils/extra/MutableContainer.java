@@ -21,6 +21,9 @@ package com.github.jonathanxd.iutils.extra;
 import com.github.jonathanxd.iutils.exceptions.ContainerMakeException;
 import com.github.jonathanxd.iutils.reflection.Reflection;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -32,6 +35,8 @@ public class MutableContainer<T> implements IMutableContainer<T> {
 	private static BaseContainer<?> empty = new MutableContainer<>();
 	
 	private T value;
+	private boolean historyEnabled = false;
+	private final List<T> valueHistory = new ArrayList<>();
 	private BiFunction<BaseContainer<T>, T, T> applier = null;
 	
 	public MutableContainer() {
@@ -39,7 +44,7 @@ public class MutableContainer<T> implements IMutableContainer<T> {
 	}
 
 	public MutableContainer(T value) {
-		this.value = value;
+		setValue(value);
 	}
 	
 	@Override
@@ -49,7 +54,7 @@ public class MutableContainer<T> implements IMutableContainer<T> {
 	
 	@Override
 	public void apply(T value){		
-		this.value = this.applier.apply(this, value);
+		setValue(this.applier.apply(this, value));
 	}
 	
 	public static <T> MutableContainer<T> make(Class<? super T> clazz) throws ContainerMakeException {
@@ -65,6 +70,7 @@ public class MutableContainer<T> implements IMutableContainer<T> {
 	
 	public void setValue(T value) {
 		this.value = value;
+		alloc(value);
 	}
 	
 	@Override
@@ -159,4 +165,27 @@ public class MutableContainer<T> implements IMutableContainer<T> {
 	public static <T> T empty(){
     	return (T) MutableContainer.empty;
     }
+
+	@Override
+	public void alloc(T value) {
+		if(value != null && historyEnabled)
+			valueHistory.add(value);
+	}
+
+	@Override
+	public List<T> getValueHistory() {
+		return Collections.unmodifiableList(valueHistory);
+	}
+
+	@Override
+	public boolean enableHistory(boolean enable) {
+		boolean old = historyEnabled;
+		historyEnabled = enable;
+		return old;
+	}
+
+	@Override
+	public void clearHistory() {
+		valueHistory.clear();
+	}
 }

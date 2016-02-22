@@ -20,119 +20,127 @@ package com.github.jonathanxd.iutils.sync;
 
 import com.github.jonathanxd.iutils.exceptions.ElementLockedException;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Spliterator;
 
 public class HashSetLock<E> extends HashSet<E> {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -8630709456520761213L;
-	HashSet<E> queueQueue = new HashSet<>();
+    /**
+     *
+     */
+    private static final long serialVersionUID = -8630709456520761213L;
+    HashSet<E> queueQueue = new HashSet<>();
+    List<Runnable> removal = new ArrayList<>();
 
-	private boolean isLocked = false;
-	
-	public void doLock(){
-		lock();
-	}
-	
-	void lock(){
-		if(isLocked()){
-			throw new ElementLockedException(this);
-		}
-		isLocked = true;
-	}
-	
-	public void doUnlock(){
-		unlock();
-		transfer();
-	}
-	
-	void unlock(){
-		isLocked = false;
-	}
-	
-	public boolean isLocked(){
-		return this.isLocked;
-	}
-	
-	@Override
-	public boolean add(E e) {
-		return add(e, true);
-	}
-	
-	public boolean add(E e, boolean addIfLocked) {
-		if(isLocked()){
-			if(addIfLocked)return queueQueue.add(e);
-			else return false;
-		}else{
-			return super.add(e);
-		}
-	}
-	
-	@Override
-	public boolean remove(Object o) {
-		if(isLocked()){
-			return queueQueue.remove(o);
-		}
-		return super.remove(o);
-	}
-	
-	@Override
-	public void clear() {
-		if(isLocked()){
-			throw new ElementLockedException(this);
-		}
-		super.clear();
-	}
-	
-	@Override
-	public boolean addAll(Collection<? extends E> c) {
-		if(isLocked()){
-			return queueQueue.addAll(c);
-		}
-		return super.addAll(c);
-	}
-	
-	@Override
-	public Iterator<E> iterator() {
-		return super.iterator();
-	}
-	
-	@Override
-	public boolean removeAll(Collection<?> c) {
-		if(isLocked()){
-			throw new ElementLockedException(this);
-		}
-		return super.removeAll(c);
-	}
-	
-	@Override
-	public boolean retainAll(Collection<?> c) {
-		if(isLocked()){
-			throw new ElementLockedException(this);
-		}
-		return super.retainAll(c);
-	}
-	@Override
-	public Spliterator<E> spliterator() {
-		if(isLocked()){
-			throw new ElementLockedException(this);
-		}
-		return super.spliterator();
-	}
-	
-	/**
-	 * 
-	 * @return If any element has transfered
-	 */
-	protected boolean transfer() {
-		boolean empty = !queueQueue.isEmpty();
-		super.addAll(queueQueue);
-		queueQueue.clear();
-		return empty;
-	}
+    private boolean isLocked = false;
+
+    public void doLock() {
+        lock();
+    }
+
+    void lock() {
+        if (isLocked()) {
+            throw new ElementLockedException(this);
+        }
+        isLocked = true;
+    }
+
+    public void doUnlock() {
+        unlock();
+        transfer();
+    }
+
+    void unlock() {
+        isLocked = false;
+    }
+
+    public boolean isLocked() {
+        return this.isLocked;
+    }
+
+    @Override
+    public boolean add(E e) {
+        return add(e, true);
+    }
+
+    public boolean add(E e, boolean addIfLocked) {
+        if (isLocked()) {
+            if (addIfLocked) return queueQueue.add(e);
+            else return false;
+        } else {
+            return super.add(e);
+        }
+    }
+
+    @Override
+    public boolean remove(Object o) {
+        if (isLocked()) {
+            if (queueQueue.contains(o)) {
+                return queueQueue.remove(o);
+            } else {
+                removal.add(() -> super.remove(o));
+            }
+        }
+        return super.remove(o);
+    }
+
+    @Override
+    public void clear() {
+        if (isLocked()) {
+            throw new ElementLockedException(this);
+        }
+        super.clear();
+    }
+
+    @Override
+    public boolean addAll(Collection<? extends E> c) {
+        if (isLocked()) {
+            return queueQueue.addAll(c);
+        }
+        return super.addAll(c);
+    }
+
+    @Override
+    public Iterator<E> iterator() {
+        return super.iterator();
+    }
+
+    @Override
+    public boolean removeAll(Collection<?> c) {
+        if (isLocked()) {
+            throw new ElementLockedException(this);
+        }
+        return super.removeAll(c);
+    }
+
+    @Override
+    public boolean retainAll(Collection<?> c) {
+        if (isLocked()) {
+            throw new ElementLockedException(this);
+        }
+        return super.retainAll(c);
+    }
+
+    @Override
+    public Spliterator<E> spliterator() {
+        if (isLocked()) {
+            throw new ElementLockedException(this);
+        }
+        return super.spliterator();
+    }
+
+    /**
+     * @return If any element has transfered
+     */
+    protected boolean transfer() {
+        boolean empty = !queueQueue.isEmpty();
+        super.addAll(queueQueue);
+        queueQueue.clear();
+        removal.forEach(Runnable::run);
+        return empty;
+    }
 }

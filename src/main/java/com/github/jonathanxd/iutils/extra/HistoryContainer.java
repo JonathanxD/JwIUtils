@@ -18,9 +18,20 @@
  */
 package com.github.jonathanxd.iutils.extra;
 
-public interface IMutableContainer<T> extends HistoryContainer<T> {
-	void setValue(T value);
-	default void set(T value){
-		this.setValue(value);
-	}
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Created by jonathan on 21/02/16.
+ */
+public interface HistoryContainer<T> extends BaseContainer<T> {
+
+    void alloc(T value);
+
+    List<T> getValueHistory();
+
+    boolean enableHistory(boolean enable);
+
+    void clearHistory();
+
 }

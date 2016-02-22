@@ -28,13 +28,13 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-public class Container<T> implements IMutableContainer<T> {
-	
+public class Container<T> extends MutableContainer<T> {
+
 	private static Container<?> empty = new Container<>();
-	
+
 	private T value;
 	private BiFunction<BaseContainer<T>, T, T> applier = null;
-	
+
 	Container() {
 		this.value = null;
 	}
@@ -42,17 +42,17 @@ public class Container<T> implements IMutableContainer<T> {
 	protected Container(T value) {
 		this.value = value;
 	}
-	
+
 	@Override
 	public void setApplier(BiFunction<BaseContainer<T>, T, T> applier) {
 		this.applier = applier;
 	}
-	
+
 	@Override
-	public void apply(T value){		
+	public void apply(T value){
 		this.value = this.applier.apply(this, value);
 	}
-		
+
 	public static <T> Container<T> make(Class<? super T> clazz) throws ContainerMakeException {
 		T value;
 		try{
@@ -60,25 +60,25 @@ public class Container<T> implements IMutableContainer<T> {
 		}catch(Exception e){
 			throw new ContainerMakeException("Non public empty constructors found for class: "+clazz+"!");
 		}
-		
+
 		return new Container<>(value);
 	}
-	
+
 	@Override
 	public void setValue(T value) {
 		this.value = value;
 	}
-	
+
 	@Override
 	public T getValue() {
 		return value;
 	}
-	
+
 	@Override
 	public boolean isPresent() {
 		return getValue() != null;
 	}
-	
+
 	@Override
 	public T getOrElse(T another){
 		Objects.requireNonNull(another);
@@ -89,12 +89,12 @@ public class Container<T> implements IMutableContainer<T> {
 	public T getOr(BaseContainer<T> another){
 		return (isPresent() ? this.getValue() : another.getValue());
 	}
-	
+
 	@Override
 	public BaseContainer<T> getOrContainer(BaseContainer<T> another){
 		return (isPresent() ? this : another);
 	}
-	
+
 	@Override
 	public void ifPresent(Consumer<? super T> consumer){
 		Objects.requireNonNull(consumer);
@@ -102,7 +102,7 @@ public class Container<T> implements IMutableContainer<T> {
 			consumer.accept(getValue());
 		}
 	}
-	
+
 	@Override
 	public Container<T> filter(Predicate<? super T> predicate) {
         Objects.requireNonNull(predicate);
@@ -135,18 +135,18 @@ public class Container<T> implements IMutableContainer<T> {
         Container<?> other = (Container<?>) obj;
         return Objects.equals(value, other.getValue());
     }
-    
+
     // This container type (Container) has a same hash code for same value
     @Override
-    public int hashCode() {    	
+    public int hashCode() {
     	return Objects.hashCode(this.getValue());
     }
-    
+
     @Override
     public String toString() {
    		return String.format("Container[%s]", (isPresent() ? this.value.toString() : "null"));
     }
-    
+
     public static <T> Container<T> of(T value){
     	Objects.requireNonNull(value);
     	return new Container<>(value);
@@ -156,7 +156,7 @@ public class Container<T> implements IMutableContainer<T> {
     	Objects.requireNonNull(clazz);
     	return Container.make(clazz);
     }
-    
+
     public static <T> Container<T> fromOptional(Optional<T> optional) {
 		if (!optional.isPresent()) {
 			return empty();
@@ -164,7 +164,7 @@ public class Container<T> implements IMutableContainer<T> {
 
 		return new Container<T>(optional.get());
 	}
-    
+
     @SuppressWarnings("unchecked")
 	public static <T> T empty(){
     	return (T) Container.empty;
