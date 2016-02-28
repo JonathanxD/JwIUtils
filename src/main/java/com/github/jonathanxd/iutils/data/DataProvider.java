@@ -36,5 +36,6 @@ import java.lang.annotation.Target;
 @Repeatable(DataProviders.class)
 public @interface DataProvider {
     Class<?>[] value();
+    String[] description() default "";
 }
 
