@@ -76,9 +76,9 @@ public abstract class Caster<E> {
                 }
             }
         } catch (Exception e2) {
-            throw new ClassCastException("Cannot cast class '" + o.getClass() + "' to " + clazz.getClass());
+            throw new ClassCastException("Cannot cast class '" + o.getClass() + "' to " + clazz);
         }
-        throw new ClassCastException("Cannot cast class '" + o.getClass() + "' to " + clazz.getClass());
+        throw new ClassCastException("Cannot cast class '" + o.getClass() + "' to " + clazz);
     }
 
     public E cast(Object o) {
