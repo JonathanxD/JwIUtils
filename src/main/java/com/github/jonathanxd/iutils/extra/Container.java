@@ -28,7 +28,7 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-public class Container<T> extends MutableContainer<T> {
+public class Container<T> extends MutableContainer<T> implements Mutability {
 
 	private static Container<?> empty = new Container<>();
 
@@ -39,7 +39,7 @@ public class Container<T> extends MutableContainer<T> {
 		this.value = null;
 	}
 
-	protected Container(T value) {
+	public Container(T value) {
 		this.value = value;
 	}
 
@@ -169,4 +169,9 @@ public class Container<T> extends MutableContainer<T> {
 	public static <T> T empty(){
     	return (T) Container.empty;
     }
+
+	@Override
+	public boolean isMutable() {
+		return true;
+	}
 }
