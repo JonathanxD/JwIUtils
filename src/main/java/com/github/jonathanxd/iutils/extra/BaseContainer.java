@@ -23,6 +23,7 @@ import com.github.jonathanxd.iutils.extra.primitivecontainers.IntContainer;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
@@ -74,6 +75,10 @@ public interface BaseContainer<T> extends Comparable<BaseContainer<T>>{
 	int hashCode();
 
 	String toString();
+
+	default <R> R apply(Function<T, R> function) {
+		return function.apply(this.get());
+	}
 
 	default T get() {
 		return getValue();

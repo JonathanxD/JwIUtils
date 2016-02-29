@@ -18,8 +18,6 @@
  */
 package com.github.jonathanxd.iutils.data;
 
-import com.github.jonathanxd.iutils.object.TwoValues;
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.InvocationTargetException;
@@ -30,7 +28,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -55,7 +52,7 @@ public class ExtraData implements Cloneable {
 
         for (E element : array) {
 
-            if(!accept.test(element))
+            if (!accept.test(element))
                 continue;
 
             boolean fail = false;
@@ -75,7 +72,7 @@ public class ExtraData implements Cloneable {
                 } else {
                     Object object = objOpt.get();
                     if (parameterList.contains(object)) {
-                        errorMessages.add(String.format("Argument %s already required!", parameterType));
+                        errorMessages.add(String.format("Argument %s already requested!", parameterType));
                         fail = true;
                     } else {
                         parameterList.add(object);

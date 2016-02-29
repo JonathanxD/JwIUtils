@@ -18,9 +18,23 @@
  */
 package com.github.jonathanxd.iutils.extra;
 
+import com.github.jonathanxd.iutils.annotations.Named;
+
+import java.util.function.Function;
+
 public interface IMutableContainer<T> extends HistoryContainer<T> {
-	void setValue(T value);
-	default void set(T value){
-		this.setValue(value);
-	}
+    void setValue(T value);
+
+    default void set(T value) {
+        this.setValue(value);
+    }
+
+    default <R> R applyAndSet(Function<@Named("Current value") T, @Named("Apply to new value") R> function, Function<@Named("Apply result") R, @Named("New value") T> newValFunction) {
+        R applied = function.apply(get());
+
+        set(newValFunction.apply(applied));
+
+        return applied;
+    }
+
 }

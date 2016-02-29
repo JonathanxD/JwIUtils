@@ -32,5 +32,5 @@ import java.lang.annotation.Target;
         ElementType.PARAMETER, ElementType.TYPE, ElementType.TYPE_PARAMETER,
         ElementType.TYPE_USE})
 public @interface Named {
-    String name();
+    String value();
 }
