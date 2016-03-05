@@ -16,30 +16,27 @@
  *     You should have received a copy of the GNU Affero General Public License
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.jonathanxd.iutils.extra;
+package com.github.jonathanxd.iutils.map;
 
-import com.github.jonathanxd.iutils.annotations.Named;
+import com.github.jonathanxd.iutils.function.collector.BiCollectors;
+import com.github.jonathanxd.iutils.function.comparators.BiComparator;
+import com.github.jonathanxd.iutils.function.stream.MapStream;
 
-import java.util.function.BiFunction;
-import java.util.function.Function;
+import java.util.Map;
+import java.util.function.Supplier;
 
-public interface IMutableContainer<T> extends HistoryContainer<T> {
-    void setValue(T value);
+/**
+ * Created by jonathan on 05/03/16.
+ */
+public class MapUtils {
 
-    default void set(T value) {
-        this.setValue(value);
+    public static <K, V> Map<K, V> sorted(Map<K, V> map, BiComparator<K, V> biComparator) {
+        return MapStream.of(map).sorted(biComparator).collect(BiCollectors.toMap());
     }
 
-    default <R> R applyAndSet(Function<@Named("Current value") T, @Named("Apply to new value") R> function, Function<@Named("Apply result") R, @Named("New value") T> newValFunction) {
-        R applied = function.apply(get());
-
-        set(newValFunction.apply(applied));
-
-        return applied;
+    public static <K, V, MAP extends Map<K, V>> MAP sortedAs(Map<K, V> map, Supplier<MAP> mapSupplier, BiComparator<K, V> biComparator) {
+        return MapStream.of(map).sorted(biComparator).collect(BiCollectors.toMap(mapSupplier));
     }
 
-    default void set(Function<T, T> function) {
-        set(function.apply(get()));
-    }
 
 }

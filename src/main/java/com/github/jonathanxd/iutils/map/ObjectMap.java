@@ -152,7 +152,7 @@ public class ObjectMap implements java.util.Map<Object, Object>{
     }
 	
 	/**
-	 * Map node
+	 * JwMap node
 	 * @author Copy of {@link java.util.HashMap.Node}
 	 *
 	 * @param <K>

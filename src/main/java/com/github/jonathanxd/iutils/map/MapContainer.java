@@ -64,7 +64,7 @@ public abstract class MapContainer<K, V> extends AbstractMap<K, V> implements Cl
     }
 	
 	/**
-	 * Map node
+	 * JwMap node
 	 * @author Copy of {@link java.util.HashMap.Node}
 	 *
 	 * @param <K>

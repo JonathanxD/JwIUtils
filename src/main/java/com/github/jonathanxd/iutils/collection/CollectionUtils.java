@@ -16,40 +16,28 @@
  *     You should have received a copy of the GNU Affero General Public License
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.jonathanxd.iutils.function;
+package com.github.jonathanxd.iutils.collection;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Function;
-import java.util.stream.Stream;
+import java.lang.reflect.InvocationTargetException;
+import java.util.Collection;
+import java.util.Collections;
 
 /**
- * Created by jonathan on 28/02/16.
+ * Created by jonathan on 05/03/16.
  */
-public class FunctionUtil {
+public class CollectionUtils {
 
     @SuppressWarnings("unchecked")
-    public static <T, R> R[] as(T[] array, Function<T, R> translator) {
-        List<R> list = new ArrayList<>();
-
-        Class<?> type = null;
-        for(T t : array) {
-            R o =translator.apply(t);
-            list.add(o);
-            if(type == null)
-                type = o.getClass();
+    public static <T> Collection<T> same(Collection<?> collection) {
+        try {
+            return (Collection<T>) collection.getClass().newInstance();
+        } catch (InstantiationException | IllegalAccessException e) {
+            try {
+                return collection.getClass().getConstructor(Collection.class).newInstance(Collections.emptyList());
+            } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e1) {
+                return null;
+            }
         }
-
-        if(type != null) {
-            return list.toArray((R[]) Array.newInstance(type, list.size()));
-        }else{
-            return (R[]) new Object[]{};
-        }
-    }
-
-    public static <T> String[] asString(T[] array) {
-        return as(array, Object::toString);
     }
 
 }

@@ -16,30 +16,16 @@
  *     You should have received a copy of the GNU Affero General Public License
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.jonathanxd.iutils.extra;
+package com.github.jonathanxd.iutils.function.function;
 
-import com.github.jonathanxd.iutils.annotations.Named;
+import com.github.jonathanxd.iutils.object.Node;
 
-import java.util.function.BiFunction;
-import java.util.function.Function;
+/**
+ * Created by jonathan on 05/03/16.
+ */
+@FunctionalInterface
+public interface NodeBiFunction<T, U, V, W, RK, RV> {
 
-public interface IMutableContainer<T> extends HistoryContainer<T> {
-    void setValue(T value);
-
-    default void set(T value) {
-        this.setValue(value);
-    }
-
-    default <R> R applyAndSet(Function<@Named("Current value") T, @Named("Apply to new value") R> function, Function<@Named("Apply result") R, @Named("New value") T> newValFunction) {
-        R applied = function.apply(get());
-
-        set(newValFunction.apply(applied));
-
-        return applied;
-    }
-
-    default void set(Function<T, T> function) {
-        set(function.apply(get()));
-    }
+    Node<RK, RV> apply(T key1, U value1, V key2, W value2);
 
 }

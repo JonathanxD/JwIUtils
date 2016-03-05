@@ -22,13 +22,15 @@ import com.github.jonathanxd.iutils.arrays.Arrays;
 import com.github.jonathanxd.iutils.reflection.Reflection;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
 
 /**
- * Optimized Version of {@link Map}, the method get is faster than {@link HashMap#get(Object)}
- * and the put method is faster than {@link Map#put(Object, Object)}, but more slowly than {@link HashMap#put(Object, Object)}
+ * Optimized Version of {@link JwMap}, the method get is faster than {@link HashMap#get(Object)}
+ * and the put method is faster than {@link JwMap#put(Object, Object)}, but more slowly than {@link HashMap#put(Object, Object)}
  * 
  * @author jonathan
  *
@@ -162,10 +164,12 @@ public class FastMap<K, V> extends MapContainer<K, V>
 		}
 		return nodeOff; 
 	}
-	
+
 	@Override
 	public synchronized Set<java.util.Map.Entry<K, V>> entrySet() {
-		throw new UnsupportedOperationException("Use getNodesOff instead");
+		Set<Map.Entry<K, V>> entrySet = new HashSet<>();
+		getNodesOff().forEach(n -> entrySet.add(new SimpleEntry<K, V>(n.getKey(), n.getValue())));
+		return entrySet;
 	}
 	
 	@Override
@@ -246,9 +250,9 @@ public class FastMap<K, V> extends MapContainer<K, V>
 			SimpleNodeOff<K, V> e = i.next();
 			K key = e.getKey();
 			V value = e.getValue();
-			sb.append(key == this ? "(this Map)" : key);
+			sb.append(key == this ? "(this JwMap)" : key);
 			sb.append('=');
-			sb.append(value == this ? "(this Map)" : value);
+			sb.append(value == this ? "(this JwMap)" : value);
 			if (!i.hasNext())
 				return sb.append('}').toString();
 			sb.append(',').append(' ');

@@ -16,30 +16,22 @@
  *     You should have received a copy of the GNU Affero General Public License
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.jonathanxd.iutils.extra;
+package com.github.jonathanxd.iutils.function.stream;
 
-import com.github.jonathanxd.iutils.annotations.Named;
+import com.github.jonathanxd.iutils.collection.Walkable;
+import com.github.jonathanxd.iutils.function.stream.walkable.WalkableNodeBiStream;
 
-import java.util.function.BiFunction;
-import java.util.function.Function;
+import java.util.Map;
 
-public interface IMutableContainer<T> extends HistoryContainer<T> {
-    void setValue(T value);
-
-    default void set(T value) {
-        this.setValue(value);
+/**
+ * Created by jonathan on 05/03/16.
+ */
+public class MapStream<K, V> extends WalkableNodeBiStream<K, V> {
+    public MapStream(Map<K, V> map) {
+        super(Walkable.asList(map));
     }
 
-    default <R> R applyAndSet(Function<@Named("Current value") T, @Named("Apply to new value") R> function, Function<@Named("Apply result") R, @Named("New value") T> newValFunction) {
-        R applied = function.apply(get());
-
-        set(newValFunction.apply(applied));
-
-        return applied;
+    public static <K, V> BiStream<K, V> of(Map<K, V> map) {
+        return new MapStream<>(map);
     }
-
-    default void set(Function<T, T> function) {
-        set(function.apply(get()));
-    }
-
 }

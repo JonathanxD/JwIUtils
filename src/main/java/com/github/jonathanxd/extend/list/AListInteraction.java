@@ -22,7 +22,7 @@ import com.github.jonathanxd.extend.AResult;
 import com.github.jonathanxd.extend.Task;
 import com.github.jonathanxd.extend.list.data.AType;
 import com.github.jonathanxd.extend.list.data.IAData;
-import com.github.jonathanxd.iutils.map.Map;
+import com.github.jonathanxd.iutils.map.JwMap;
 import com.github.jonathanxd.iutils.map.SimpleNodeOff;
 
 import java.lang.reflect.Field;
@@ -40,7 +40,7 @@ public class AListInteraction<T> {
 	private final IAListInteraction<T> interactor;
 	private final AList<T> arraysInstance;
 
-	Map<MutableContainer<T>, Task> vals = new Map<MutableContainer<T>, Task>();
+	JwMap<MutableContainer<T>, Task> vals = new JwMap<MutableContainer<T>, Task>();
 
 	private boolean ends = false;
 
@@ -54,7 +54,7 @@ public class AListInteraction<T> {
 	public AListInteraction<T> fireFor(Function<IAData<T>, T> func) {
 		checkClose();
 		System.out.println("::X "+vals);
-		Map<MutableContainer<T>, Task> vals2 = new Map<MutableContainer<T>, Task>();
+		JwMap<MutableContainer<T>, Task> vals2 = new JwMap<MutableContainer<T>, Task>();
 		Iterator<SimpleNodeOff<MutableContainer<T>, Task>> ite = vals.getNodesOff().iterator();
 		boolean first = true;
 		while (ite.hasNext()) {

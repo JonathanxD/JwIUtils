@@ -16,40 +16,36 @@
  *     You should have received a copy of the GNU Affero General Public License
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.jonathanxd.iutils.function;
+package com.github.jonathanxd.iutils.comparator;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-import java.util.function.Function;
-import java.util.stream.Stream;
+import java.util.Optional;
 
 /**
- * Created by jonathan on 28/02/16.
+ * Created by jonathan on 05/03/16.
  */
-public class FunctionUtil {
+public class Compared<T> {
 
-    @SuppressWarnings("unchecked")
-    public static <T, R> R[] as(T[] array, Function<T, R> translator) {
-        List<R> list = new ArrayList<>();
+    private final List<T> comparedElements;
 
-        Class<?> type = null;
-        for(T t : array) {
-            R o =translator.apply(t);
-            list.add(o);
-            if(type == null)
-                type = o.getClass();
-        }
-
-        if(type != null) {
-            return list.toArray((R[]) Array.newInstance(type, list.size()));
-        }else{
-            return (R[]) new Object[]{};
-        }
+    public Compared(Collection<T> elements) {
+        comparedElements = new ArrayList<>(elements);
     }
 
-    public static <T> String[] asString(T[] array) {
-        return as(array, Object::toString);
+    public Optional<T> min() {
+
+        if(comparedElements.isEmpty())
+            return Optional.empty();
+
+        return Optional.of(comparedElements.get(comparedElements.size()-1));
     }
 
+    public Optional<T> max() {
+        if(comparedElements.isEmpty())
+            return Optional.empty();
+
+        return Optional.of(comparedElements.get(0));
+    }
 }
