@@ -24,6 +24,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -195,6 +196,10 @@ public abstract class BaseData<T> {
 
     protected Set<T> getDataSet() {
         return dataSet;
+    }
+
+    protected Set<T> dataSet() {
+        return Collections.unmodifiableSet(dataSet);
     }
 
     @Override

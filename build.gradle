@@ -3,7 +3,7 @@ plugins {
 }
 
 group 'com.github.jonathanxd'
-version '1.8'
+version '1.8-rev1'
 
 
 apply plugin: 'java'
