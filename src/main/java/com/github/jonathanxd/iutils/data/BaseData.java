@@ -198,7 +198,7 @@ public abstract class BaseData<T> {
         return dataSet;
     }
 
-    protected Set<T> dataSet() {
+    public Set<T> dataSet() {
         return Collections.unmodifiableSet(dataSet);
     }
 
