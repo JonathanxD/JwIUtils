@@ -18,101 +18,45 @@
  */
 package com.github.jonathanxd.iutils.data;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
+import com.github.jonathanxd.iutils.object.Reference;
+import com.github.jonathanxd.iutils.object.ReferenceBuilder;
+import com.github.jonathanxd.iutils.reflection.Reflection;
+
+import java.lang.reflect.AnnotatedType;
+import java.lang.reflect.Parameter;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-
-import com.github.jonathanxd.iutils.object.Reference;
 
 /**
  * Created by jonathan on 13/02/16.
  */
-public class ReferenceData implements Cloneable {
+public class ReferenceData extends BaseData<Reference<?>> implements Cloneable {
 
-    private final Set<Reference<?>> dataSet = new HashSet<>();
-
-    public static Object construct(ReferenceData extraData, Class<?> dataClass) {
-
-        List<String> errorMessages = new ArrayList<>();
-
-        List<Object> parameterList = new ArrayList<>();
-
-        Constructor<?> validConstructor = null;
-
-        for (Constructor<?> constructor : dataClass.getDeclaredConstructors()) {
-
-            boolean fail = false;
-
-            for (Class<?> parameterType : constructor.getParameterTypes()) {
-
-
-                Optional<Object> objOpt = extraData.getData(parameterType);
-
-                if (!objOpt.isPresent()) {
-                    objOpt = extraData.getDataAssignable(parameterType);
-                }
-
-                if (!objOpt.isPresent()) {
-                    errorMessages.add(String.format("Cannot determine instance of %s !", parameterType));
-                    fail = true;
-                } else {
-                    Object object = objOpt.get();
-                    if (parameterList.contains(object)) {
-                        errorMessages.add(String.format("Argument %s already required!", parameterType));
-                        fail = true;
-                    } else {
-                        parameterList.add(object);
-                    }
-
-
-                }
-            }
-
-            if (fail) {
-                parameterList.clear();
+    public static Reference<?> toReference(ParameterizedType param) {
+        ReferenceBuilder referenceBuilder = Reference.a(Reflection.from(param.getRawType()));
+        for (Type type : param.getActualTypeArguments()) {
+            if (!(type instanceof ParameterizedType)) {
+                referenceBuilder.of(Reflection.from(type));
             } else {
-                validConstructor = constructor;
-                break;
-            }
-
-        }
-
-        if (validConstructor == null) {
-            errorMessages.forEach(ReferenceData::constructError);
-        } else {
-            Object[] args = parameterList.toArray(new Object[parameterList.size()]);
-
-            try {
-                return validConstructor.newInstance(args);
-            } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-                e.printStackTrace();
+                ParameterizedType parameterizedType = (ParameterizedType) type;
+                referenceBuilder.of(toReference(parameterizedType));
             }
         }
-
-
-        return null;
+        return referenceBuilder.build();
     }
 
-    private static void constructError(String error) {
-        throw new RuntimeException("Cannot construct data! Error: '" + error + "'");
-    }
+    @SuppressWarnings("unchecked")
+    public <X> Optional<X> getDataAssignable(Class<? extends X> dataClass) {
 
-    public void removeData(Reference<?> reference) {
-        dataSet.remove(reference);
-    }
-
-    public Optional<Object> getDataAssignable(Class<?> dataClass) {
-
-        for (Reference<?> data : dataSet) {
+        for (Reference<?> data : getDataSet()) {
 
             // Prevent ClassCannotCastException
             Object r;
             if ((r = data.get()).getClass().isAssignableFrom(dataClass)) {
-                return Optional.of(r);
+                return Optional.of((X) r);
             }
 
         }
@@ -120,14 +64,16 @@ public class ReferenceData implements Cloneable {
         return Optional.empty();
     }
 
-    private Optional<Object> getData(Class<?> dataClass) {
+    @SuppressWarnings("unchecked")
+    @Override
+    public <X> Optional<X> getData(Class<? extends X> dataClass) {
 
-        for (Reference<?> data : dataSet) {
+        for (Reference<?> data : getDataSet()) {
 
             // Prevent ClassCannotCastException
             Object r;
             if ((r = data.get()).getClass() == dataClass) {
-                return Optional.of(r);
+                return Optional.of((X) r);
             }
 
         }
@@ -135,13 +81,23 @@ public class ReferenceData implements Cloneable {
         return Optional.empty();
     }
 
-    public Object construct(Class<?> dataClass) {
-        return ReferenceData.construct(this, dataClass);
-    }
+    @SuppressWarnings("unchecked")
+    @Override
+    public <X> Optional<X> getData(Parameter parameter) {
 
-    public <T> void registerData(Reference<T> reference) {
-        if (!findData(reference))
-            dataSet.add(reference);
+        AnnotatedType type = null;
+        try {
+            type = parameter.getAnnotatedType();
+        } catch (Exception e) {
+        }
+
+        if (type != null && type instanceof ParameterizedType) {
+            ParameterizedType parameterizedType = (ParameterizedType) type;
+            Reference<?> ref = toReference(parameterizedType);
+            return getData(ref);
+        } else {
+            return this.getData((Class<? extends X>) parameter.getType());
+        }
     }
 
     /**
@@ -154,24 +110,24 @@ public class ReferenceData implements Cloneable {
         return getData(reference).isPresent();
     }
 
-
     /**
      * Get data <br> Comparator: Parameter 1 = Class of Data in Set. Parameter 2 = Data Class
      * parameter <br> Expression: if(Comparator.compare(DataObject class, Data Class parameter)
      * equalsTo 0) return (Type Cast) DataObject
      *
      * @param reference Reference to class
-     * @param <T>       Type of Data
+     * @param <X>       Type of Data
      * @return Optional of Data or {@link Optional#empty()}
      */
     @SuppressWarnings("unchecked")
-    public <T> Optional<T> getData(Reference<?> reference) {
+    @Override
+    public <X> Optional<X> getData(Reference<?> reference) {
 
-        for (Reference<?> data : dataSet) {
+        for (Reference<?> data : getDataSet()) {
 
             // Prevent ClassCannotCastException
             if (data.equals(reference)) {
-                return Optional.of((T) data.get());
+                return Optional.of((X) data.get());
             }
 
         }
@@ -180,19 +136,19 @@ public class ReferenceData implements Cloneable {
     }
 
     public void migrateFrom(ReferenceData data) {
-        this.dataSet.addAll(data.dataSet);
+        this.getDataSet().addAll(data.getDataSet());
     }
 
     public void migrateTo(ReferenceData data) {
-        data.dataSet.addAll(this.dataSet);
+        data.getDataSet().addAll(this.getDataSet());
     }
 
     @Override
-    public ReferenceData clone() throws CloneNotSupportedException {
-        super.clone();
+    public ReferenceData clone() {
         ReferenceData data = new ReferenceData();
-        data.dataSet.addAll(this.dataSet);
+        data.getDataSet().addAll(this.getDataSet());
         return data;
     }
+
 
 }

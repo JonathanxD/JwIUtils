@@ -21,14 +21,17 @@ package com.github.jonathanxd.iutils.reflection;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Executable;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 public class Reflection {
@@ -294,5 +297,150 @@ public class Reflection {
         }
 
         return fieldSet;
+    }
+
+    public static Object create(String fullClassName, Object... parameters) {
+        return create(fullClassName, false, parameters);
+    }
+
+    public static Object create(String fullClassName, boolean force, Object... parameters) {
+        try {
+            Class<?> clazz = Class.forName(fullClassName);
+
+            if (parameters.length == 0) {
+                Constructor constructor = clazz.getDeclaredConstructor();
+                constructor.setAccessible(true);
+                return constructor.newInstance();
+            }
+
+            for (Constructor constructor : clazz.getDeclaredConstructors()) {
+                if (constructor.getParameterCount() != parameters.length) continue;
+                if (!force && constructor.isAccessible()) continue;
+
+                boolean ok = true;
+
+                for (int x = 0; x < parameters.length; ++x) {
+                    Object parameter = parameters[x];
+                    Class<?> parameterType = parameter.getClass();
+                    Class<?> constructorExpectedParameter = constructor.getParameterTypes()[x];
+
+                    if (constructorExpectedParameter.isAssignableFrom(parameterType)) {
+                        ok = false;
+                    }
+                }
+                if (ok) {
+                    if (force)
+                        constructor.setAccessible(true);
+                    return constructor.newInstance(parameters);
+                }
+            }
+
+        } catch (ClassNotFoundException | NoSuchMethodException | InstantiationException | InvocationTargetException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+
+        throw new RuntimeException("Cannot determine the constructor!");
+    }
+
+    public static Method getMethod(Class<?> clazz, MethodSpecification specification) {
+        try {
+
+            Method m;
+            if ((m = process(specification, clazz.getDeclaredMethods())) != null) {
+                return m;
+            }
+            return process(specification, clazz.getMethods());
+        } catch (ClassNotFoundException | NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static Method getMethodByParam(Class<?> clazz, MethodSpecification specification, Object... params) {
+        try {
+
+            Method m;
+            if ((m = process(specification, clazz.getDeclaredMethods(), params)) != null) {
+                return m;
+            }
+            return process(specification, clazz.getMethods(), params);
+        } catch (ClassNotFoundException | NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    private static Method process(MethodSpecification specification, Method[] methods, Object... params) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+
+        for (Method method : methods) {
+            if (specification.match(method)) {
+                if(params == null) {
+                    return method;
+                }else{
+                    if(paramCheck(method, params)) {
+                        return method;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    private static boolean paramCheck(Executable executable, Object... parameters) {
+        boolean ok = true;
+
+        for (int x = 0; x < parameters.length; ++x) {
+            Object parameter = parameters[x];
+            Class<?> parameterType = parameter.getClass();
+            Class<?> expectedParameter = executable.getParameterTypes()[x];
+
+            if (!expectedParameter.isAssignableFrom(parameterType)) {
+                ok = false;
+            }
+        }
+
+        return ok;
+    }
+
+    public static Object invoke(Class<?> clazz, Object instance, MethodSpecification mSpec, boolean force, boolean ignoreNull, Object... parameters) {
+        Object inst = invoke(instance, mSpec, force, clazz.getDeclaredMethods(), parameters);
+
+        if (inst != null || ignoreNull)
+            return inst;
+
+        inst = invoke(instance, mSpec, force, clazz.getMethods(), parameters);
+
+        return Objects.requireNonNull(inst, "Failed to get D:");
+    }
+
+    private static Object invoke(Object instance, MethodSpecification mSpec, boolean force, Method[] methods, Object... parameters) {
+
+        try {
+
+            for (Method method : methods) {
+                if(mSpec != null && !mSpec.match(method)) continue;
+                if (method.getParameterCount() != parameters.length) continue;
+                if (!force && method.isAccessible()) continue;
+
+                boolean ok = paramCheck(method, parameters);
+
+                if (ok) {
+                    if (force)
+                        method.setAccessible(true);
+                    return method.invoke(instance, parameters);
+                }
+            }
+        } catch (InvocationTargetException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+        throw new RuntimeException("Cannot determine the method");
+    }
+
+    public static Class<?> from(Type t) {
+        try {
+            return Class.forName(t.getTypeName());
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 }
