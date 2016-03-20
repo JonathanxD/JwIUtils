@@ -135,4 +135,27 @@ public class Reference<T> implements Comparable<Reference> {
         return -1;
     }
 
+    public int compareToAssignable(@NotNull Reference compareTo) {
+
+        if (getAClass().isAssignableFrom(compareTo.getAClass())) {
+
+            if(getRelated().length != compareTo.getRelated().length)
+                return -1;
+
+            for(int x = 0; x < getRelated().length; ++x) {
+                Reference<?> mainRef = getRelated()[x];
+                Reference<?> compareRef = compareTo.getRelated()[x];
+
+                if(!mainRef.getAClass().isAssignableFrom(compareRef.getAClass())) {
+                    return -1;
+                }else if(compareRef.getAClass().isAssignableFrom(mainRef.getAClass())) {
+                    return 1;
+                }
+            }
+            return 0;
+        }
+
+        return -1;
+    }
+
 }
