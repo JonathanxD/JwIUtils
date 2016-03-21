@@ -23,24 +23,52 @@ import com.github.jonathanxd.iutils.iterator.BackableIterator;
 import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Objects;
 import java.util.RandomAccess;
 import java.util.Spliterator;
 import java.util.Spliterators;
+import java.util.StringJoiner;
 import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+/**
+ * Arrays IS NOT A LIST or COLLECTION, Arrays is an Array representation
+ */
 public class Arrays<E> implements Iterable<E>, Comparable<E[]>, Cloneable {
 
     E[] values;
     Iter ix = null;
 
+    @SuppressWarnings("unchecked")
+    public Arrays() {
+        this.values = (E[]) new Object[]{};
+    }
+
+
     @SafeVarargs
     public Arrays(E... values) {
         this.values = values;
+    }
+
+    public Arrays(Collection<? extends E> collection) {
+        super();
+        collection.forEach(this::add);
+    }
+
+    public Arrays(Iterable<? extends E> iterable) {
+        super();
+        iterable.forEach(this::add);
+    }
+
+    public Arrays(Enumeration<? extends E> enume) {
+        super();
+        while (enume.hasMoreElements()) {
+            this.add(enume.nextElement());
+        }
     }
 
     public static <E> E[] removeFirstElement(E[] array, E element) {
@@ -113,16 +141,24 @@ public class Arrays<E> implements Iterable<E>, Comparable<E[]>, Cloneable {
         return new Arrays<>(values).toGenericArray();
     }
 
-    public static <E> E[] addToArray(E[] array, E element) {
+    @Deprecated
+    public static <E> E[] addToArrayWA(E[] array, E element) {
         return Arrays.of(array).add(element).toGenericArray();
     }
 
-    public Arrays<E> add(E value) {
-        Objects.requireNonNull(value);
-        final int len = values.length;
-        values = java.util.Arrays.copyOf(values, len + 1);
-        values[len] = value;
+    public static <E> E[] addToArray(E[] array, E element) {
+        Objects.requireNonNull(array);
+        final int len = array.length;
 
+        array = java.util.Arrays.copyOf(array, len + 1);
+
+        array[len] = element;
+
+        return array;
+    }
+
+    public Arrays<E> add(E value) {
+        values = addToArray(values, value);
         return this;
     }
 
@@ -157,15 +193,15 @@ public class Arrays<E> implements Iterable<E>, Comparable<E[]>, Cloneable {
     }
 
     public List<E> toList() {
-        return new Arrays.ArrayList<>(values);
+        return new Arrays.ArrayList<>(toGenericArray());
     }
 
     public ArraysAbstractList<E> toArraysList() {
-        return new Arrays.ArrayList<>(values);
+        return new Arrays.ArrayList<>(toGenericArray());
     }
 
     public E[] toGenericArray() {
-        return values;
+        return java.util.Arrays.copyOf(values, values.length);
     }
 
     @SuppressWarnings("unchecked")
@@ -177,6 +213,10 @@ public class Arrays<E> implements Iterable<E>, Comparable<E[]>, Cloneable {
             t[values.length] = null;
         return t;
 
+    }
+
+    public <T> T[] toGenericArray(Class<? extends T[]> t) {
+        return java.util.Arrays.copyOf(values, values.length, t);
     }
 
     public E getFirst() {
@@ -213,7 +253,12 @@ public class Arrays<E> implements Iterable<E>, Comparable<E[]>, Cloneable {
 
     @Override
     public String toString() {
-        return new Arrays.ArrayList<E>(values).toString();
+
+        StringJoiner sj = new StringJoiner(", ", "[", "]");
+        for (E e : values) {
+            sj.add(String.valueOf(e));
+        }
+        return sj.toString();
     }
 
     public Stream<E> stream() {
@@ -590,4 +635,5 @@ public class Arrays<E> implements Iterable<E>, Comparable<E[]>, Cloneable {
             return current;
         }
     }
+
 }
