@@ -444,7 +444,7 @@ public class Arrays<E> implements Iterable<E>, Comparable<E[]>, Cloneable {
                 bytes.add(Byte.valueOf(current));
             }
 
-            return bytes.toGenericArray();
+            return bytes.toGenericArray(Byte[].class);
         }
 
         public static Short[] fromPrimitive(short[] primitive) {
@@ -454,7 +454,7 @@ public class Arrays<E> implements Iterable<E>, Comparable<E[]>, Cloneable {
                 shorts.add(Short.valueOf(current));
             }
 
-            return shorts.toGenericArray();
+            return shorts.toGenericArray(Short[].class);
         }
 
         public static Integer[] fromPrimitive(int[] primitive) {
@@ -464,7 +464,7 @@ public class Arrays<E> implements Iterable<E>, Comparable<E[]>, Cloneable {
                 ints.add(Integer.valueOf(current));
             }
 
-            return ints.toGenericArray();
+            return ints.toGenericArray(Integer[].class);
         }
 
         public static Long[] fromPrimitive(long[] primitive) {
@@ -474,7 +474,7 @@ public class Arrays<E> implements Iterable<E>, Comparable<E[]>, Cloneable {
                 primitives.add(Long.valueOf(current));
             }
 
-            return primitives.toGenericArray();
+            return primitives.toGenericArray(Long[].class);
         }
 
         public static Float[] fromPrimitive(float[] primitive) {
@@ -484,7 +484,7 @@ public class Arrays<E> implements Iterable<E>, Comparable<E[]>, Cloneable {
                 primitives.add(Float.valueOf(current));
             }
 
-            return primitives.toGenericArray();
+            return primitives.toGenericArray(Float[].class);
         }
 
         public static Double[] fromPrimitive(double[] primitive) {
@@ -494,7 +494,7 @@ public class Arrays<E> implements Iterable<E>, Comparable<E[]>, Cloneable {
                 primitives.add(Double.valueOf(current));
             }
 
-            return primitives.toGenericArray();
+            return primitives.toGenericArray(Double[].class);
         }
 
         public static Boolean[] fromPrimitive(boolean[] primitive) {
@@ -504,7 +504,7 @@ public class Arrays<E> implements Iterable<E>, Comparable<E[]>, Cloneable {
                 bools.add(Boolean.valueOf(current));
             }
 
-            return bools.toGenericArray();
+            return bools.toGenericArray(Boolean[].class);
         }
 
 
@@ -515,7 +515,7 @@ public class Arrays<E> implements Iterable<E>, Comparable<E[]>, Cloneable {
                 chars.add(Character.valueOf(current));
             }
 
-            return chars.toGenericArray();
+            return chars.toGenericArray(Character[].class);
         }
 
 

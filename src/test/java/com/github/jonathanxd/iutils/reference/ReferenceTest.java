@@ -41,6 +41,7 @@ public class ReferenceTest {
 
         try {
             System.out.println(Reference.fromFullString(fullString));
+            System.out.println(Reference.fromFullString("java.util.Map"));
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }

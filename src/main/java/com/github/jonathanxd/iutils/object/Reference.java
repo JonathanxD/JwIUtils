@@ -20,6 +20,8 @@ package com.github.jonathanxd.iutils.object;
 
 import com.github.jonathanxd.iutils.annotations.NotNull;
 
+import java.text.CharacterIterator;
+import java.text.StringCharacterIterator;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -92,7 +94,11 @@ public class Reference<T> implements Comparable<Reference> {
 
         boolean lastIsSeparator = false;
 
-        for(char c : chars) {
+        for(int x = 0; x < chars.length; ++x) {
+
+            boolean hasNext = (x + 1 < chars.length);
+
+            char c = chars[x];
 
             if (lastIsSeparator) {
                 lastIsSeparator = false;
@@ -103,8 +109,9 @@ public class Reference<T> implements Comparable<Reference> {
 
             if (c != '<' && c != '>' && c != ',') {
                 stringBuilder.append(c);
+            }
 
-            } else if (c == '<' || c == ',' || c == '>') {
+            if (c == '<' || c == ',' || c == '>' || !hasNext) {
 
                 if(stringBuilder.length() == 0) {
                     if(main.getaClass() != null) {
@@ -123,7 +130,7 @@ public class Reference<T> implements Comparable<Reference> {
 
                 Class clazz = Class.forName(classString);
 
-                if(c == '<') {
+                if(c == '<' || !hasNext) {
 
                     if (main.getaClass() == null) {
                         main.a(clazz);
@@ -134,7 +141,7 @@ public class Reference<T> implements Comparable<Reference> {
                     }
                 }
 
-                if(c == ',') {
+                if(c == ',' && hasNext) {
                     lastIsSeparator = true;
 
                     if(main.getaClass() != null) {
@@ -142,7 +149,7 @@ public class Reference<T> implements Comparable<Reference> {
                     }
                 }
 
-                if(c == '>') {
+                if(c == '>' && hasNext) {
                     if(current.getaClass() == null) {
                         current.a(clazz);
                     }else{
@@ -154,8 +161,21 @@ public class Reference<T> implements Comparable<Reference> {
             }
         }
 
+        if(main.getaClass() != null) {
+            referenceList.add(main.build());
+        }
+
         return referenceList;
 
+    }
+
+    private static Class getCl(StringBuilder stringBuilder) throws ClassNotFoundException {
+        String classString = stringBuilder.toString();
+
+        Class clazz = Class.forName(classString);
+
+        stringBuilder.setLength(0);
+        return clazz;
     }
 
     public static <T> ReferenceBuilder<T> to() {
