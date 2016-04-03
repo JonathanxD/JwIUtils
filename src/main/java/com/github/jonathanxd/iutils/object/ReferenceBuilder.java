@@ -29,11 +29,23 @@ import com.github.jonathanxd.iutils.optional.Required;
  * Created by jonathan on 13/02/16.
  */
 public final class ReferenceBuilder<T> {
-    private Class<? extends T> aClass;
-    private List<Reference> related = new ArrayList<>();
+    private Class<? extends T> aClass = null;
+    private List<ReferenceBuilder<?>> related = new ArrayList<>();
     private Object hold = null;
 
     ReferenceBuilder() {
+    }
+
+    public Class<? extends T> getaClass() {
+        return aClass;
+    }
+
+    public List<ReferenceBuilder<?>> getRelated() {
+        return related;
+    }
+
+    public Object getHold() {
+        return hold;
     }
 
     @Required
@@ -51,14 +63,24 @@ public final class ReferenceBuilder<T> {
     // Of
     @Optional
     public <E> ReferenceBuilder<T> of(List<Reference<E>> related) {
-        this.related.addAll(related);
+
+        for(Reference<E> reference : related) {
+            this.related.add(from(reference));
+        }
+
         return this;
     }
 
     @SafeVarargs
     @Optional
     public final <E> ReferenceBuilder<T> of(Reference<E>... related) {
-        of(Arrays.asList(related));
+        this.of(Arrays.asList(related));
+        return this;
+    }
+
+    @Optional
+    public final <E> ReferenceBuilder<T> ofArray(Reference<E>[] related) {
+        this.of(Arrays.asList(related));
         return this;
     }
 
@@ -66,7 +88,7 @@ public final class ReferenceBuilder<T> {
     public ReferenceBuilder<T> of(ReferenceBuilder... builders) {
 
         for (ReferenceBuilder builder : builders) {
-            of(builder.build());
+            this.related.add(builder);
         }
         return this;
     }
@@ -121,7 +143,43 @@ public final class ReferenceBuilder<T> {
             throw new IllegalStateException("'and' cannot be used here! Usage ex: referenceTo().a(Object.class).of(String.class).and(Class.class)");
     }
 
+    public static <T> ReferenceBuilder<T> from(Reference<T> reference) {
+        ReferenceBuilder<T> referenceBuilder = new ReferenceBuilder<>();
+        referenceBuilder.a(reference.getAClass());
+
+        for(Reference<?> otherReference : reference.getRelated()) {
+            referenceBuilder.related.add(from(otherReference));
+        }
+
+        return referenceBuilder;
+    }
+
+    public static <T> Reference<T> to(ReferenceBuilder<T> referenceBuilder) {
+
+        DynamicReference<T> dynamicReference = new DynamicReference<>(referenceBuilder.aClass, new Reference[]{}, referenceBuilder.hold);
+
+        if(referenceBuilder.related.size() > 0) {
+
+            List<Reference<?>> referenceList = new ArrayList<>();
+
+            for(ReferenceBuilder<?> otherReferenceBuilder : referenceBuilder.related) {
+                referenceList.add(to(otherReferenceBuilder));
+            }
+
+            for(Reference<?> reference : referenceList) {
+                dynamicReference.addRelated(reference);
+            }
+        }
+
+        return dynamicReference.toReference();
+    }
+
     public Reference<T> build() {
-        return new Reference<>(aClass, related.toArray(new Reference[related.size()]), hold);
+        List<Reference<?>> waitingReferences = new ArrayList<>();
+
+
+
+        //return new Reference<>(aClass, related.toArray(new Reference[related.size()]), hold);
+        return to(this);
     }
 }

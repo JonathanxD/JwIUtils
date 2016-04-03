@@ -20,9 +20,14 @@ package com.github.jonathanxd.iutils.object;
 
 import com.github.jonathanxd.iutils.annotations.NotNull;
 
+import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Deque;
+import java.util.List;
 import java.util.Objects;
 import java.util.StringJoiner;
+import java.util.function.Function;
 
 /**
  * Created by jonathan on 13/02/16.
@@ -40,10 +45,10 @@ public class Reference<T> implements Comparable<Reference> {
     }
 
     @NotNull
-    public static String toString(Reference reference) {
+    public static String toString(Reference reference, Function<Class<?>, String> classToString) {
 
         StringBuilder sb = new StringBuilder();
-        String shortName = reference.getAClass().getSimpleName();
+        String shortName = classToString.apply(reference.getAClass());
         sb.append(shortName);
 
         if (reference.getRelated().length != 0) {
@@ -51,7 +56,7 @@ public class Reference<T> implements Comparable<Reference> {
             StringJoiner sj = new StringJoiner(", ");
 
             for (Reference loopRef : reference.getRelated()) {
-                sj.add(toString(loopRef));
+                sj.add(toString(loopRef, classToString));
             }
 
             String processResult = sj.toString();
@@ -60,6 +65,97 @@ public class Reference<T> implements Comparable<Reference> {
         }
 
         return sb.toString();
+    }
+
+
+    @NotNull
+    public static String toFullString(Reference reference) {
+
+        return toString(reference, Class::getName);
+    }
+
+    //java.util.Map<java.lang.String, java.util.List<java.util.Map<java.lang.String, [Ljava.lang.Integer;>>>
+
+    // < |-> Create
+    // , |-> Add
+    // > |-> Set as Child
+
+    @SuppressWarnings({"unchecked", "ConstantConditions"})
+    public static List<Reference<?>> fromFullString(String fullString) throws ClassNotFoundException {
+        ReferenceBuilder<?> main = new ReferenceBuilder<>();
+        ReferenceBuilder<?> current = main;
+
+        List<Reference<?>> referenceList = new ArrayList<>();
+
+        StringBuilder stringBuilder = new StringBuilder();
+        char[] chars = fullString.toCharArray();
+
+        boolean lastIsSeparator = false;
+
+        for(char c : chars) {
+
+            if (lastIsSeparator) {
+                lastIsSeparator = false;
+                if(c == ' ') {
+                    continue;
+                }
+            }
+
+            if (c != '<' && c != '>' && c != ',') {
+                stringBuilder.append(c);
+
+            } else if (c == '<' || c == ',' || c == '>') {
+
+                if(stringBuilder.length() == 0) {
+                    if(main.getaClass() != null) {
+                        referenceList.add(main.build());
+                        main = new ReferenceBuilder<>();
+                        current = main;
+                    }
+
+                    if(c == ',')
+                        lastIsSeparator = true;
+
+                    continue;
+                }
+
+                String classString = stringBuilder.toString();
+
+                Class clazz = Class.forName(classString);
+
+                if(c == '<') {
+
+                    if (main.getaClass() == null) {
+                        main.a(clazz);
+                    } else {
+                        ReferenceBuilder<?> referenceBuilder = new ReferenceBuilder<>().a(clazz);
+                        current.of(referenceBuilder);
+                        current = referenceBuilder;
+                    }
+                }
+
+                if(c == ',') {
+                    lastIsSeparator = true;
+
+                    if(main.getaClass() != null) {
+                        current.of(new ReferenceBuilder().a(clazz));
+                    }
+                }
+
+                if(c == '>') {
+                    if(current.getaClass() == null) {
+                        current.a(clazz);
+                    }else{
+                        current.of(clazz);
+                    }
+                }
+
+                stringBuilder.setLength(0);
+            }
+        }
+
+        return referenceList;
+
     }
 
     public static <T> ReferenceBuilder<T> to() {
@@ -80,7 +176,7 @@ public class Reference<T> implements Comparable<Reference> {
 
     @SuppressWarnings("unchecked")
     public static <T> ReferenceBuilder<T> but(Reference reference) {
-        return Reference.<T>referenceTo().a(reference.getAClass()).of(reference.getRelated());
+        return Reference.<T>referenceTo().a(reference.getAClass()).ofArray(reference.getRelated());
     }
 
     public ReferenceBuilder<? extends T> but() {
@@ -101,7 +197,11 @@ public class Reference<T> implements Comparable<Reference> {
 
     @Override
     public String toString() {
-        return toString(this);
+        return toString(this, Class::getSimpleName);
+    }
+
+    public String toFullString() {
+        return toFullString(this);
     }
 
     @Override
