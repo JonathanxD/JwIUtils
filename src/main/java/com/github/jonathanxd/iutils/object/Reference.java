@@ -20,12 +20,8 @@ package com.github.jonathanxd.iutils.object;
 
 import com.github.jonathanxd.iutils.annotations.NotNull;
 
-import java.text.CharacterIterator;
-import java.text.StringCharacterIterator;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Deque;
 import java.util.List;
 import java.util.Objects;
 import java.util.StringJoiner;
@@ -36,9 +32,33 @@ import java.util.function.Function;
  */
 public class Reference<T> implements Comparable<Reference> {
 
+    /**
+     * Accessed and modified via reflection in {@link AbstractReference}
+     */
     private final Class<? extends T> aClass;
+
+    /**
+     * Accessed and modified via reflection in {@link AbstractReference} & {@link DynamicReference}
+     */
     private final Reference[] related;
+
+    /**
+     * Accessed and modified via reflection in {@link AbstractReference}
+     */
     private final Object hold;
+
+    protected Reference() {
+        this.aClass = null;
+        this.related = null;
+        this.hold = null;
+    }
+
+
+    protected Reference(Reference<T> reference) {
+        this.hold = reference.hold;
+        this.related = reference.related.clone();
+        this.aClass = reference.aClass;
+    }
 
     Reference(Class<? extends T> aClass, Reference[] related, Object hold) {
         this.hold = hold;
@@ -94,7 +114,7 @@ public class Reference<T> implements Comparable<Reference> {
 
         boolean lastIsSeparator = false;
 
-        for(int x = 0; x < chars.length; ++x) {
+        for (int x = 0; x < chars.length; ++x) {
 
             boolean hasNext = (x + 1 < chars.length);
 
@@ -102,7 +122,7 @@ public class Reference<T> implements Comparable<Reference> {
 
             if (lastIsSeparator) {
                 lastIsSeparator = false;
-                if(c == ' ') {
+                if (c == ' ') {
                     continue;
                 }
             }
@@ -113,14 +133,14 @@ public class Reference<T> implements Comparable<Reference> {
 
             if (c == '<' || c == ',' || c == '>' || !hasNext) {
 
-                if(stringBuilder.length() == 0) {
-                    if(main.getaClass() != null) {
+                if (stringBuilder.length() == 0) {
+                    if (main.getaClass() != null) {
                         referenceList.add(main.build());
                         main = new ReferenceBuilder<>();
                         current = main;
                     }
 
-                    if(c == ',')
+                    if (c == ',')
                         lastIsSeparator = true;
 
                     continue;
@@ -130,7 +150,7 @@ public class Reference<T> implements Comparable<Reference> {
 
                 Class clazz = Class.forName(classString);
 
-                if(c == '<' || !hasNext) {
+                if (c == '<' || !hasNext) {
 
                     if (main.getaClass() == null) {
                         main.a(clazz);
@@ -141,18 +161,18 @@ public class Reference<T> implements Comparable<Reference> {
                     }
                 }
 
-                if(c == ',' && hasNext) {
+                if (c == ',' && hasNext) {
                     lastIsSeparator = true;
 
-                    if(main.getaClass() != null) {
+                    if (main.getaClass() != null) {
                         current.of(new ReferenceBuilder().a(clazz));
                     }
                 }
 
-                if(c == '>' && hasNext) {
-                    if(current.getaClass() == null) {
+                if (c == '>' && hasNext) {
+                    if (current.getaClass() == null) {
                         current.a(clazz);
-                    }else{
+                    } else {
                         current.of(clazz);
                     }
                 }
@@ -161,7 +181,7 @@ public class Reference<T> implements Comparable<Reference> {
             }
         }
 
-        if(main.getaClass() != null) {
+        if (main.getaClass() != null) {
             referenceList.add(main.build());
         }
 
@@ -259,15 +279,15 @@ public class Reference<T> implements Comparable<Reference> {
 
         if (getAClass().isAssignableFrom(compareTo.getAClass())) {
 
-            if(getRelated().length != compareTo.getRelated().length)
+            if (getRelated().length != compareTo.getRelated().length)
                 return -1;
 
-            for(int x = 0; x < getRelated().length; ++x) {
+            for (int x = 0; x < getRelated().length; ++x) {
                 Reference<?> mainRef = getRelated()[x];
                 Reference<?> compareRef = compareTo.getRelated()[x];
 
-                if(!mainRef.getAClass().isAssignableFrom(compareRef.getAClass())) {
-                    if(compareRef.getAClass().isAssignableFrom(mainRef.getAClass())) {
+                if (!mainRef.getAClass().isAssignableFrom(compareRef.getAClass())) {
+                    if (compareRef.getAClass().isAssignableFrom(mainRef.getAClass())) {
                         return 1;
                     }
                     return -1;

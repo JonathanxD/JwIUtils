@@ -18,6 +18,7 @@
  */
 package com.github.jonathanxd.iutils.reference;
 
+import com.github.jonathanxd.iutils.object.AbstractReference;
 import com.github.jonathanxd.iutils.object.Reference;
 
 import org.junit.Assert;
@@ -51,6 +52,15 @@ public class ReferenceTest {
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
+
+        Reference<String> reference1 = new AbstractReference<String>(){};
+
+        System.out.println(reference1);
+
+
+        Reference<List<String>> reference2 = new AbstractReference<List<String>>(){};
+
+        System.out.println(reference2);
 
     }
 
