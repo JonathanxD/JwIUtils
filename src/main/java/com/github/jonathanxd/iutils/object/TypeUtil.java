@@ -27,11 +27,13 @@
  */
 package com.github.jonathanxd.iutils.object;
 
-import com.github.jonathanxd.iutils.object.Reference;
-import com.github.jonathanxd.iutils.object.ReferenceBuilder;
+import com.github.jonathanxd.iutils.reflection.RClass;
+import com.github.jonathanxd.iutils.reflection.Reflection;
 
+import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -44,7 +46,7 @@ public class TypeUtil {
     public static Class<?>[] typesAsClass(Type[] parTypes) throws ClassNotFoundException {
         Class<?>[] typesClass = new Class<?>[parTypes.length];
 
-        for(int x = 0; x < parTypes.length; ++x) {
+        for (int x = 0; x < parTypes.length; ++x) {
             typesClass[x] = Class.forName(parTypes[x].getTypeName());
         }
 
@@ -52,8 +54,8 @@ public class TypeUtil {
     }
 
     public static <T> void deepTypes(Type[] types, Predicate<Type> continueIf, Function<Type, T> converter, Consumer<T> typeConsumer) {
-        for(Type type : types) {
-            if(continueIf.test(type)) {
+        for (Type type : types) {
+            if (continueIf.test(type)) {
                 T converted = converter.apply(type);
                 typeConsumer.accept(converted);
             }
@@ -61,8 +63,34 @@ public class TypeUtil {
     }
 
     public static Reference<?> toReference(Type param) {
-        if(param instanceof ParameterizedType) {
+        if (param instanceof ParameterizedType) {
             return toReference((ParameterizedType) param);
+        }
+
+        if (param instanceof GenericArrayType) {
+
+            GenericArrayType genericArrayType = (GenericArrayType) param;
+            Reference<?> reference = toReference(genericArrayType.getGenericComponentType());
+
+            String pr = param.toString();
+
+            int start = pr.indexOf('<');
+            int end = pr.lastIndexOf('>') + 1;
+
+            String name = pr.substring(0, start);
+
+            String arrays = pr.substring(end, pr.length()).replace("]", "");
+
+            String fullName = (arrays + "L" + name) + ";";
+
+            try {
+                Reflection.changeFinalField(RClass.getRClass(reference), "aClass", Class.forName(fullName));
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+
+            return reference;
+
         }
 
         return Reference.aEnd(from(param));
@@ -70,10 +98,17 @@ public class TypeUtil {
 
     public static Reference<?> toReference(ParameterizedType param) {
         ReferenceBuilder referenceBuilder = Reference.a(from(param.getRawType()));
-        for(Type type : param.getActualTypeArguments()) {
-            if(!(type instanceof ParameterizedType)) {
-                referenceBuilder.of(from(type));
-            }else{
+        for (Type type : param.getActualTypeArguments()) {
+            if (!(type instanceof ParameterizedType)) {
+
+                Class<?> from = from(type);
+
+                if (from != null) {
+                    referenceBuilder.of(from);
+                } else {
+                    break;
+                }
+            } else {
                 ParameterizedType parameterizedType = (ParameterizedType) type;
                 referenceBuilder.of(toReference(parameterizedType));
             }
@@ -82,11 +117,18 @@ public class TypeUtil {
     }
 
     public static Class<?> from(Type t) {
-        try {
-            return Class.forName(t.getTypeName());
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
+        if (t instanceof Class) {
+            return (Class<?>) t;
         }
 
+        if (t instanceof TypeVariable) {
+            return Object.class;
+        }
+
+        try {
+            return Class.forName(t.getTypeName());
+        } catch (Exception e) {
+            return null; // To fix some problems
+        }
     }
 }

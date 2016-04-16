@@ -29,10 +29,13 @@ package com.github.jonathanxd.iutils.reference;
 
 import com.github.jonathanxd.iutils.object.AbstractReference;
 import com.github.jonathanxd.iutils.object.Reference;
+import com.github.jonathanxd.iutils.object.TypeProvider;
+import com.github.jonathanxd.iutils.object.TypeUtil;
 
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.lang.reflect.ParameterizedType;
 import java.util.List;
 import java.util.Map;
 
@@ -70,6 +73,51 @@ public class ReferenceTest {
         Reference<List<String>> reference2 = new AbstractReference<List<String>>(){};
 
         System.out.println(reference2);
+
+        Reference<List<?>> reference3 = new AbstractReference<List<?>>(){};
+
+        System.out.println(reference3);
+
+        TV<String> stringTV = new TV<String>(){};
+
+        System.out.println(stringTV.getReference());
+
+        Reference<Class<List<String>>[][]> reference4 = Data.A.getReference();
+
+        System.out.println(reference4);
+
+        String toFullString = reference4.toFullString();
+
+        System.out.println(toFullString);
+
+        try {
+            System.out.println(Reference.fromFullString(toFullString));
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static abstract class Data<T> implements TypeProvider<T> {
+
+        public static final Data<Class<List<String>>[][]> A = new Data<Class<List<String>>[][]>() {
+        };
+
+        public static final Data<Class<?>[]> IMPLEMENTATIONS = new Data<Class<?>[]>() {
+        };
+        public static final Data<Class<?>> SUPER = new Data<Class<?>>() {
+        };
+    }
+
+    private abstract static class TV<T> implements TypeProvider<T> {
+        private final Reference<T> reference;
+
+        public TV() {
+            reference = new AbstractReference<T>(this) {};
+
+            Reference<?> reef = TypeUtil.toReference((ParameterizedType) getClass().getGenericSuperclass());
+
+            System.out.println(reef);
+        }
 
     }
 

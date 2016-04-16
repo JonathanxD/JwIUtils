@@ -27,45 +27,33 @@
  */
 package com.github.jonathanxd.iutils.object;
 
-import com.github.jonathanxd.iutils.reflection.RClass;
-import com.github.jonathanxd.iutils.reflection.Reflection;
-
 import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.Objects;
 
 /**
- * Created by jonathan on 08/04/16.
+ * Created by jonathan on 16/04/16.
  */
-public abstract class AbstractReference<T> extends Reference<T> {
 
+/**
+ * Provides a Type for {@link AbstractReference}s
+ * @param <T> Type
+ */
+public interface TypeProvider<T> {
 
-    @SuppressWarnings("unchecked")
-    public AbstractReference() {
-        super();
+    default Type getType() {
 
-        Reference<T> reference = (Reference<T>) TypeUtil.toReference(((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0]);
-        try {
-            Reflection.changeFinalField(RClass.getRClass(Reference.class, this), "aClass", reference.getAClass());
-            Reflection.changeFinalField(RClass.getRClass(Reference.class, this), "related", reference.getRelated());
-            Reflection.changeFinalField(RClass.getRClass(Reference.class, this), "hold", reference.get());
-        } catch (Exception e) {
-            throw new Error(e);
+        Type genericSuperclass = getClass().getGenericSuperclass();
+
+        if (!(genericSuperclass instanceof ParameterizedType)) {
+            throw new IllegalStateException("Not a generic class");
         }
 
+        return ((ParameterizedType) genericSuperclass).getActualTypeArguments()[0];
     }
 
     @SuppressWarnings("unchecked")
-    public AbstractReference(TypeProvider<T> typeProvider) {
-
-        super();
-
-        Reference<T> reference = (Reference<T>) TypeUtil.toReference(typeProvider.getType());
-        try {
-            Reflection.changeFinalField(RClass.getRClass(Reference.class, this), "aClass", reference.getAClass());
-            Reflection.changeFinalField(RClass.getRClass(Reference.class, this), "related", reference.getRelated());
-            Reflection.changeFinalField(RClass.getRClass(Reference.class, this), "hold", reference.get());
-        } catch (Exception e) {
-            throw new Error(e);
-        }
+    default Reference<T> getReference() {
+        return (Reference<T>) TypeUtil.toReference(Objects.requireNonNull(getType(), "Null Type!"));
     }
-
 }
