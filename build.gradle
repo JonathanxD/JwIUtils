@@ -68,6 +68,8 @@ license {
     exclude "res/**"
     exclude "src/main/resources/**"
     exclude "src/test/resources/**"
+    exclude "**/ASM*.java"
+    exclude "**/TypeTools*.java"
     
     header file('LICENSE_HEADER')
     

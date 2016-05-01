@@ -33,18 +33,28 @@ import com.github.jonathanxd.iutils.object.TypeProvider;
 import com.github.jonathanxd.iutils.object.TypeUtil;
 
 import org.junit.Assert;
+import org.junit.Test;
 
 import java.io.Serializable;
+import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Formatter;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.StringJoiner;
+import java.util.function.Function;
 
 /**
  * Created by jonathan on 02/04/16.
  */
 public class GenericRepresentationTest {
+
 
     @org.junit.Test
     public void testRef() {
@@ -123,9 +133,20 @@ public class GenericRepresentationTest {
             e.printStackTrace();
         }
 
-        GenericRepresentation<?> listGenericRepresentation = TypeUtil.fromSuperClass(MyList.class, List.class);
+        GenericRepresentation<?> listGenericRepresentation = TypeUtil.resolve(MyList.class, List.class);
 
         System.out.println("GenericRepresentation => "+ listGenericRepresentation);
+
+        Function<String, Integer> stringToInteger = Integer::valueOf;
+
+        GenericRepresentation<?> functionGenerics = TypeUtil.resolve(stringToInteger.getClass(), Function.class);
+
+        System.out.println("GenericRepresentations of Function<String, Integer> => "+ functionGenerics);
+
+        GenericRepresentation<?> genericRepresentation5 = TypeUtil.lambdaTypes(stringToInteger.getClass(), Function.class);
+
+        System.out.println("GenericRepresentations of Function<String, Integer> => "+ genericRepresentation5);
+
 
 
     }

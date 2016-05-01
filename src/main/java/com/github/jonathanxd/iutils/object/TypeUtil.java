@@ -30,11 +30,18 @@ package com.github.jonathanxd.iutils.object;
 import com.github.jonathanxd.iutils.reflection.RClass;
 import com.github.jonathanxd.iutils.reflection.Reflection;
 
+import sun.reflect.ConstantPool;
+
 import java.lang.reflect.GenericArrayType;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -43,6 +50,8 @@ import java.util.function.Predicate;
  * Created by jonathan on 28/02/16.
  */
 public class TypeUtil {
+
+
 
     public static Class<?>[] typesAsClass(Type[] parTypes) throws ClassNotFoundException {
         Class<?>[] typesClass = new Class<?>[parTypes.length];
@@ -63,13 +72,13 @@ public class TypeUtil {
         }
     }
 
-    public static <S, E extends S> GenericRepresentation<?> fromSuperClass(Class<E> classWithTypeVariable, Class<S> subClass) {
+    public static <S, E extends S> GenericRepresentation<?> resolve(Class<E> classWithTypeVariable, Class<S> subClass) {
         Type genericSuperclass = classWithTypeVariable.getGenericSuperclass();
         Class<?> superClass = classWithTypeVariable.getSuperclass();
 
         GenericRepresentation<?> from = from(genericSuperclass, superClass, subClass);
 
-        if(from == null) {
+        if (from == null) {
             Type[] genericInterfaces = classWithTypeVariable.getGenericInterfaces();
             Class<?>[] interfacesClasses = classWithTypeVariable.getInterfaces();
 
@@ -78,12 +87,12 @@ public class TypeUtil {
                 Class<?> interfaceClass = interfacesClasses[i];
 
                 from = from(genericInterface, interfaceClass, subClass);
-                if(from != null)
+                if (from != null)
                     break;
             }
         }
 
-        if(from != null) {
+        if (from != null) {
             return from;
         }
 
@@ -91,13 +100,19 @@ public class TypeUtil {
     }
 
     private static GenericRepresentation<?> from(Type type, Class<?> actual, Class<?> expected) {
-        if(type instanceof ParameterizedType) {
+        if (type instanceof ParameterizedType) {
             ParameterizedType parameterizedType = (ParameterizedType) type;
 
-            if(expected.isAssignableFrom(actual)) {
+            if (expected.isAssignableFrom(actual)) {
                 return toReference(parameterizedType);
             }
 
+        } else if (type instanceof TypeVariable) {
+            TypeVariable typeVariable = (TypeVariable) type;
+            Type[] bounds = typeVariable.getBounds();
+            if (bounds.length > 0) {
+                return toReference(bounds[0]);
+            }
         }
 
         return null;
@@ -107,8 +122,8 @@ public class TypeUtil {
 
         TypeVariable<? extends Class<?>>[] typeParameters = classWithTypeVariable.getTypeParameters();
 
-        if(typeParameters.length == 0) {
-            throw new IllegalStateException("Not a generic class");
+        if (typeParameters.length == 0) {
+            throw new IllegalStateException("No Type Variables");
         }
 
         Type[] types = new Type[typeParameters.length];
@@ -116,7 +131,7 @@ public class TypeUtil {
         for (int i = 0; i < typeParameters.length; i++) {
             Type[] bounds = typeParameters[i].getBounds();
 
-            if(bounds.length > 0) {
+            if (bounds.length > 0) {
                 types[i] = bounds[0];
             } else {
                 types[i] = Object.class;
@@ -167,11 +182,28 @@ public class TypeUtil {
 
         }
 
-        if (param instanceof WildcardType) {
-            WildcardType wildcardType = (WildcardType) param;
+        return GenericRepresentation.aEnd(from(param));
+    }
+
+    public static <T, E extends T> GenericRepresentation<?> lambdaTypes(Class<E> lambdaClass, Class<T> functionalInterfaceClass) {
+
+        Map<String, Class<?>> types = new HashMap<>();
+
+        TypeToolsMethods.fromConstantPool(lambdaClass, functionalInterfaceClass, types);
+
+        ReferenceBuilder<?> referenceBuilder = new ReferenceBuilder<>().a(functionalInterfaceClass);
+
+        TypeVariable<Class<T>>[] typeParameters = functionalInterfaceClass.getTypeParameters();
+
+        for (TypeVariable<Class<T>> typeParameter : typeParameters) {
+            String name = typeParameter.getName();
+            if (types.containsKey(name)) {
+                Class<?> aClass = types.get(name);
+                referenceBuilder.of(aClass);
+            }
         }
 
-        return GenericRepresentation.aEnd(from(param));
+        return referenceBuilder.build();
     }
 
     public static GenericRepresentation<?> toReference(ParameterizedType param) {
@@ -199,11 +231,11 @@ public class TypeUtil {
             return (Class<?>) t;
         }
 
-        if(t instanceof WildcardType) {
+        if (t instanceof WildcardType) {
             WildcardType wildcardType = (WildcardType) t;
             Type[] upperBounds = wildcardType.getUpperBounds();
 
-            if(upperBounds.length > 0) {
+            if (upperBounds.length > 0) {
                 return from(upperBounds[0]);
             } else {
                 return Object.class;
@@ -220,4 +252,5 @@ public class TypeUtil {
             return null; // To fix some problems
         }
     }
+
 }

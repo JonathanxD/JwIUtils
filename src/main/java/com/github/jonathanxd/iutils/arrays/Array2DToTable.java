@@ -83,7 +83,7 @@ public class Array2DToTable {
 			System.out.println(sb.toString());
 
 		}
-		return arr.toGenericArray();
+		return arr.toGenericArray(String[].class);
 		
 	}
 

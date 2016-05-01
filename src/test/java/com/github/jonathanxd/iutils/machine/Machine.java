@@ -27,6 +27,10 @@
  */
 package com.github.jonathanxd.iutils.machine;
 
+import org.junit.Test;
+
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Optional;
 
 /**
@@ -84,4 +88,5 @@ public class Machine {
     public String toString() {
         return "Machine[ OS["+getOs().orElse(null)+"], Spec[?]]";
     }
+
 }
