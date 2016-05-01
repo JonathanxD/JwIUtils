@@ -25,29 +25,29 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.extra.primitivecontainers;
+package com.github.jonathanxd.iutils.containers;
 
-import com.github.jonathanxd.iutils.extra.Container;
+import com.github.jonathanxd.iutils.annotations.Named;
 
-public class BooleanContainer extends Container<Boolean>{
+import java.util.function.Function;
 
-	public BooleanContainer(boolean b) {
-		super(b);
-	}
-	
-	public void toogle(){
-		super.set(!super.get());
-	}
-	
-	public void toFalse(){
-		super.set(Boolean.FALSE);
-	}
+public interface IMutableContainer<T> extends HistoryContainer<T> {
+    void setValue(T value);
 
-	public void toTrue(){
-		super.set(Boolean.TRUE);
-	}
-	
-	public boolean toBoolean(){
-		return super.get().booleanValue();
-	}
+    default void set(T value) {
+        this.setValue(value);
+    }
+
+    default <R> R applyAndSet(Function<@Named("Current value") T, @Named("Apply to new value") R> function, Function<@Named("Apply result") R, @Named("New value") T> newValFunction) {
+        R applied = function.apply(get());
+
+        set(newValFunction.apply(applied));
+
+        return applied;
+    }
+
+    default void set(Function<T, T> function) {
+        set(function.apply(get()));
+    }
+
 }

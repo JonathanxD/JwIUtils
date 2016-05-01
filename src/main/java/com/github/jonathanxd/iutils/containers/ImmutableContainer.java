@@ -25,35 +25,31 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.extra;
+package com.github.jonathanxd.iutils.containers;
 
 import com.github.jonathanxd.iutils.exceptions.ContainerMakeException;
-import com.github.jonathanxd.iutils.reflection.Reflection;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-public class MutableContainer<T> implements IMutableContainer<T> {
+import com.github.jonathanxd.iutils.reflection.Reflection;
+
+public class ImmutableContainer<T> implements BaseContainer<T>{
 	
-	private static BaseContainer<?> empty = new MutableContainer<>();
+	private static ImmutableContainer<?> empty = new ImmutableContainer<>();
 	
 	private T value;
-	private boolean historyEnabled = false;
-	private final List<T> valueHistory = new ArrayList<>();
 	private BiFunction<BaseContainer<T>, T, T> applier = null;
 	
-	public MutableContainer() {
+	public ImmutableContainer() {
 		this.value = null;
 	}
 
-	public MutableContainer(T value) {
-		setValue(value);
+	public ImmutableContainer(T value) {
+		this.value = value;
 	}
 	
 	@Override
@@ -63,10 +59,10 @@ public class MutableContainer<T> implements IMutableContainer<T> {
 	
 	@Override
 	public void apply(T value){		
-		setValue(this.applier.apply(this, value));
+		this.value = this.applier.apply(this, value);
 	}
 	
-	public static <T> MutableContainer<T> make(Class<? super T> clazz) throws ContainerMakeException {
+	public static <T> ImmutableContainer<T> make(Class<? super T> clazz) throws ContainerMakeException {
 		T value;
 		try{
 			value = Reflection.constructEmpty(clazz);
@@ -74,12 +70,11 @@ public class MutableContainer<T> implements IMutableContainer<T> {
 			throw new ContainerMakeException("Non public empty constructors found for class: "+clazz+"!");
 		}
 		
-		return new MutableContainer<>(value);
+		return new ImmutableContainer<>(value);
 	}
 	
 	public void setValue(T value) {
 		this.value = value;
-		alloc(value);
 	}
 	
 	@Override
@@ -117,7 +112,7 @@ public class MutableContainer<T> implements IMutableContainer<T> {
 	}
 	
 	@Override
-	public BaseContainer<T> filter(Predicate<? super T> predicate) {
+	public ImmutableContainer<T> filter(Predicate<? super T> predicate) {
         Objects.requireNonNull(predicate);
         if (!isPresent()){
             return this;
@@ -126,7 +121,6 @@ public class MutableContainer<T> implements IMutableContainer<T> {
         }
     }
 
-	@Override
 	public <X extends Throwable> T orElseThrow(Supplier<? extends X> exceptionSupplier) throws X {
         if (value != null) {
             return value;
@@ -135,66 +129,43 @@ public class MutableContainer<T> implements IMutableContainer<T> {
         }
     }
 
-	@Override
+    @Override
     public boolean equals(Object obj) {
         if (this == obj) {
             return true;
         }
 
-        if (!(obj instanceof MutableContainer)) {
+        if (!(obj instanceof ImmutableContainer)) {
             return false;
         }
 
-        BaseContainer<?> other = (BaseContainer<?>) obj;
+        ImmutableContainer<?> other = (ImmutableContainer<?>) obj;
         return Objects.equals(value, other.getValue());
     }
     
-    /** This container type (MutableContainer) has a different hash codes for same value **/
+    // This container type (MutableContainer) has a different hash codes for same value
     @Override
     public int hashCode() {
     	return super.hashCode();
     }
     
-	@Override
+    @Override
     public String toString() {
    		return String.format("Container[%s]", (isPresent() ? this.value.toString() : "null"));
     }
     
-    public static <T> MutableContainer<T> of(T value){
+    public static <T> ImmutableContainer<T> of(T value){
     	Objects.requireNonNull(value);
-    	return new MutableContainer<>(value);
+    	return new ImmutableContainer<>(value);
     }
 
-    public static <T> MutableContainer<T> of(Class<? super T> clazz){
+    public static <T> ImmutableContainer<T> of(Class<? super T> clazz){
     	Objects.requireNonNull(clazz);
-    	return MutableContainer.make(clazz);
+    	return ImmutableContainer.make(clazz);
     }
     
     @SuppressWarnings("unchecked")
 	public static <T> T empty(){
-    	return (T) MutableContainer.empty;
+    	return (T) ImmutableContainer.empty;
     }
-
-	@Override
-	public void alloc(T value) {
-		if(value != null && historyEnabled)
-			valueHistory.add(value);
-	}
-
-	@Override
-	public List<T> getValueHistory() {
-		return Collections.unmodifiableList(valueHistory);
-	}
-
-	@Override
-	public boolean enableHistory(boolean enable) {
-		boolean old = historyEnabled;
-		historyEnabled = enable;
-		return old;
-	}
-
-	@Override
-	public void clearHistory() {
-		valueHistory.clear();
-	}
 }

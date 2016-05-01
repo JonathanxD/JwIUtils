@@ -25,41 +25,12 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.extra.primitivecontainers;
+package com.github.jonathanxd.iutils.containers;
 
-import com.github.jonathanxd.iutils.extra.Container;
+/**
+ * Created by jonathan on 27/02/16.
+ */
+public interface Mutability {
 
-public class IntContainer extends Container<Integer>{
-
-	public IntContainer(int i) {
-		super(i);
-	}
-	
-	public void add(int i){
-		super.set(super.get() + i);
-	}
-	
-	public void add(){
-		this.add(1);
-	}
-
-	public void remove(int i){
-		this.add(-i);
-	}
-	
-	public void remove(){
-		this.remove(1);
-	}
-	
-	public void multiply(int i){
-		super.set(super.get() * i);
-	}
-
-	public void divide(int i){
-		super.set(super.get() / i);
-	}
-	
-	public static IntContainer of(int i){
-		return new IntContainer(i);
-	}
+    boolean isMutable();
 }

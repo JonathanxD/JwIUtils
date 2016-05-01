@@ -25,69 +25,73 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.extra;
+package com.github.jonathanxd.iutils.containers;
 
 import com.github.jonathanxd.iutils.exceptions.ContainerMakeException;
 import com.github.jonathanxd.iutils.reflection.Reflection;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-public class Container<T> extends MutableContainer<T> implements Mutability {
-
-	private static Container<?> empty = new Container<>();
-
+public class MutableContainer<T> implements IMutableContainer<T> {
+	
+	private static BaseContainer<?> empty = new MutableContainer<>();
+	
 	private T value;
+	private boolean historyEnabled = false;
+	private final List<T> valueHistory = new ArrayList<>();
 	private BiFunction<BaseContainer<T>, T, T> applier = null;
-
-	Container() {
+	
+	public MutableContainer() {
 		this.value = null;
 	}
 
-	public Container(T value) {
-		this.value = value;
+	public MutableContainer(T value) {
+		setValue(value);
 	}
-
+	
 	@Override
 	public void setApplier(BiFunction<BaseContainer<T>, T, T> applier) {
 		this.applier = applier;
 	}
-
+	
 	@Override
-	public void apply(T value){
-		this.value = this.applier.apply(this, value);
+	public void apply(T value){		
+		setValue(this.applier.apply(this, value));
 	}
-
-	public static <T> Container<T> make(Class<? super T> clazz) throws ContainerMakeException {
+	
+	public static <T> MutableContainer<T> make(Class<? super T> clazz) throws ContainerMakeException {
 		T value;
 		try{
 			value = Reflection.constructEmpty(clazz);
 		}catch(Exception e){
 			throw new ContainerMakeException("Non public empty constructors found for class: "+clazz+"!");
 		}
-
-		return new Container<>(value);
+		
+		return new MutableContainer<>(value);
 	}
-
-	@Override
+	
 	public void setValue(T value) {
 		this.value = value;
+		alloc(value);
 	}
-
+	
 	@Override
 	public T getValue() {
 		return value;
 	}
-
+	
 	@Override
 	public boolean isPresent() {
 		return getValue() != null;
 	}
-
+	
 	@Override
 	public T getOrElse(T another){
 		Objects.requireNonNull(another);
@@ -98,12 +102,12 @@ public class Container<T> extends MutableContainer<T> implements Mutability {
 	public T getOr(BaseContainer<T> another){
 		return (isPresent() ? this.getValue() : another.getValue());
 	}
-
+	
 	@Override
 	public BaseContainer<T> getOrContainer(BaseContainer<T> another){
 		return (isPresent() ? this : another);
 	}
-
+	
 	@Override
 	public void ifPresent(Consumer<? super T> consumer){
 		Objects.requireNonNull(consumer);
@@ -111,9 +115,9 @@ public class Container<T> extends MutableContainer<T> implements Mutability {
 			consumer.accept(getValue());
 		}
 	}
-
+	
 	@Override
-	public Container<T> filter(Predicate<? super T> predicate) {
+	public BaseContainer<T> filter(Predicate<? super T> predicate) {
         Objects.requireNonNull(predicate);
         if (!isPresent()){
             return this;
@@ -131,56 +135,66 @@ public class Container<T> extends MutableContainer<T> implements Mutability {
         }
     }
 
-    @Override
+	@Override
     public boolean equals(Object obj) {
         if (this == obj) {
             return true;
         }
 
-        if (!(obj instanceof Container)) {
+        if (!(obj instanceof MutableContainer)) {
             return false;
         }
 
-        Container<?> other = (Container<?>) obj;
+        BaseContainer<?> other = (BaseContainer<?>) obj;
         return Objects.equals(value, other.getValue());
     }
-
-    // This container type (Container) has a same hash code for same value
+    
+    /** This container type (MutableContainer) has a different hash codes for same value **/
     @Override
     public int hashCode() {
-    	return Objects.hashCode(this.getValue());
+    	return super.hashCode();
     }
-
-    @Override
+    
+	@Override
     public String toString() {
    		return String.format("Container[%s]", (isPresent() ? this.value.toString() : "null"));
     }
-
-    public static <T> Container<T> of(T value){
+    
+    public static <T> MutableContainer<T> of(T value){
     	Objects.requireNonNull(value);
-    	return new Container<>(value);
+    	return new MutableContainer<>(value);
     }
 
-    public static <T> Container<T> of(Class<? super T> clazz){
+    public static <T> MutableContainer<T> of(Class<? super T> clazz){
     	Objects.requireNonNull(clazz);
-    	return Container.make(clazz);
+    	return MutableContainer.make(clazz);
     }
-
-    public static <T> Container<T> fromOptional(Optional<T> optional) {
-		if (!optional.isPresent()) {
-			return empty();
-		}
-
-		return new Container<T>(optional.get());
-	}
-
+    
     @SuppressWarnings("unchecked")
 	public static <T> T empty(){
-    	return (T) Container.empty;
+    	return (T) MutableContainer.empty;
     }
 
 	@Override
-	public boolean isMutable() {
-		return true;
+	public void alloc(T value) {
+		if(value != null && historyEnabled)
+			valueHistory.add(value);
+	}
+
+	@Override
+	public List<T> getValueHistory() {
+		return Collections.unmodifiableList(valueHistory);
+	}
+
+	@Override
+	public boolean enableHistory(boolean enable) {
+		boolean old = historyEnabled;
+		historyEnabled = enable;
+		return old;
+	}
+
+	@Override
+	public void clearHistory() {
+		valueHistory.clear();
 	}
 }

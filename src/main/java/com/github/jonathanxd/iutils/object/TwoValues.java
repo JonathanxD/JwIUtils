@@ -30,7 +30,7 @@ package com.github.jonathanxd.iutils.object;
 import java.util.Objects;
 import java.util.Optional;
 
-import com.github.jonathanxd.iutils.extra.BaseContainer;
+import com.github.jonathanxd.iutils.containers.BaseContainer;
 
 /**
  * Created by jonathan on 14/02/16.

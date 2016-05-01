@@ -99,5 +99,23 @@ public class ListUtils {
         return result;
     }
 
+    public static <E> E listNotContains(List<E> list, E[] values){
+        for(E current2 : values){
+            if(!list.contains(current2)){
+                return current2;
+            }
+        }
+        return null;
+    }
+
+    public static <E> E listNotContains(List<E> list, E[] values, List<E> exclude){
+        for(E current2 : values){
+            if(!list.contains(current2) && !exclude.contains(current2)){
+                return current2;
+            }
+        }
+        return null;
+    }
+
 
 }

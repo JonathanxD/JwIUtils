@@ -49,89 +49,120 @@ import java.util.stream.StreamSupport;
  */
 public class Arrays<E> implements Iterable<E>, Comparable<E[]>, Cloneable {
 
-    E[] values;
-    Iter ix = null;
+
+    private static int INITIAL_SIZE = 12;
+    private static final int MAX_ARRAY_SIZE = Integer.MAX_VALUE - 8;
+
+    //java.util.ArrayList
+
+    private E[] values;
+    private int arraySize = 0;
+    private Iter ix = null;
 
     @SuppressWarnings("unchecked")
     public Arrays() {
-        this.values = (E[]) new Object[]{};
+        this.values = (E[]) new Object[INITIAL_SIZE];
     }
 
 
     @SafeVarargs
     public Arrays(E... values) {
-        this.values = values;
+        this();
+        for (E value : values) {
+            this.addInternal(value);
+        }
     }
 
     public Arrays(Collection<? extends E> collection) {
         super();
-        collection.forEach(this::add);
+        collection.forEach(this::addInternal);
     }
 
     public Arrays(Iterable<? extends E> iterable) {
         super();
-        iterable.forEach(this::add);
+        iterable.forEach(this::addInternal);
     }
 
     public Arrays(Enumeration<? extends E> enume) {
         super();
         while (enume.hasMoreElements()) {
-            this.add(enume.nextElement());
+            this.addInternal(enume.nextElement());
         }
     }
 
-    public static <E> E[] removeFirstElement(E[] array, E element) {
-        return removeElement(array, element, false);
+    public void removeElementInternal(E element) {
+        removeElementInternal(element, true);
     }
 
-    public static <E> E[] removeElement(E[] array, E element) {
-        return removeElement(array, element, true);
-    }
-
-    public static <E> boolean equalsArray(E element, E[] array) {
-        for (E elem : array) {
-            if (element.equals(elem)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public static <E> E[] removeElement(E[] array, E element, boolean recursive) {
+    private void removeElementInternal(E element, boolean recursive) {
         int len = (recursive ?
-                array.length - find(array, element)
-                : array.length - 1);
+                values.length - findInternal(element)
+                : values.length - 1);
 
+        if(len < INITIAL_SIZE) {
+            len = values.length;
+
+        }
 
         @SuppressWarnings("unchecked")
-        E[] arrayCp = (E[]) Array.newInstance(array.getClass().getComponentType(), len);
+        E[] arrayCp = (E[]) Array.newInstance(values.getClass().getComponentType(), len);
 
         int l = 0;
         boolean found = false;
 
-        for (int x = 0; x < array.length; ++x) {
-            E e = array[x];
+        final int currentArraySize = arraySize;
+
+        for (int x = 0; x < currentArraySize; ++x) {
+            E e = values[x];
 
             if (!e.equals(element) || (!recursive && found)) {
                 arrayCp[l] = e;
                 ++l;
             } else {
                 found = true;
+                if(!recursive)
+                    break;
+                --arraySize;
             }
         }
 
-        return arrayCp;
+        values = arrayCp;
     }
 
-    public static <E> int find(E[] array, E element) {
-        Objects.requireNonNull(array);
+    private void ensureExplicitCapacity(int minCapacity) {
+        if (minCapacity - values.length > 0)
+            grow(minCapacity);
+    }
+
+
+    private void grow(int minCapacity) {
+        int oldCapacity = values.length;
+        int newCapacity = oldCapacity + (oldCapacity >> 1);
+        if (newCapacity - minCapacity < 0)
+            newCapacity = minCapacity;
+        if (newCapacity - MAX_ARRAY_SIZE > 0)
+            newCapacity = hugeCapacity(minCapacity);
+        values = java.util.Arrays.copyOf(values, newCapacity);
+    }
+
+    private static int hugeCapacity(int minCapacity) {
+        if (minCapacity < 0)
+            throw new OutOfMemoryError();
+        return (minCapacity > MAX_ARRAY_SIZE) ?
+                Integer.MAX_VALUE :
+                MAX_ARRAY_SIZE;
+    }
+
+    public int findInternal(E element) {
         Objects.requireNonNull(element);
         int found = 0;
-        for (E e : array) {
-            if (e.equals(element)) {
-                ++found;
+
+        for(int x = 0; x < arraySize; ++x) {
+            if(values[x].equals(element)) {
+                ++ found;
             }
         }
+
         return found;
     }
 
@@ -150,24 +181,16 @@ public class Arrays<E> implements Iterable<E>, Comparable<E[]>, Cloneable {
         return new Arrays<>(values).toGenericArray();
     }
 
-    @Deprecated
-    public static <E> E[] addToArrayWA(E[] array, E element) {
-        return Arrays.of(array).add(element).toGenericArray();
-    }
-
-    public static <E> E[] addToArray(E[] array, E element) {
-        Objects.requireNonNull(array);
-        final int len = array.length;
-
-        array = java.util.Arrays.copyOf(array, len + 1);
-
-        array[len] = element;
-
-        return array;
+    private void addInternal(E value) {
+        ensureExplicitCapacity(arraySize + 1);
+        arraySize += 1;
+        values[arraySize-1] = value;
     }
 
     public Arrays<E> add(E value) {
-        values = addToArray(values, value);
+
+        addInternal(value);
+
         return this;
     }
 
@@ -178,17 +201,44 @@ public class Arrays<E> implements Iterable<E>, Comparable<E[]>, Cloneable {
         return this;
     }
 
+    public E get(int index) {
+        return values[index];
+    }
+
+    public E remove(int index) {
+        E element = values[index];
+        removeIndexInternal(index);
+        return element;
+    }
+
+    private void removeIndexInternal(int index) {
+
+        int numMoved = arraySize - index - 1;
+
+        if (numMoved > 0)
+            System.arraycopy(values, index+1, values, index,
+                    numMoved);
+
+        values[--arraySize] = null;
+    }
+
+
     public Arrays<E> remove(E value) {
         Objects.requireNonNull(value);
-        values = removeElement(values, value);
+        removeElementInternal(value);
 
+        for (int x = 0; x < arraySize; x++) {
+            if (value.equals(values[x])) {
+                remove(x);
+            }
+        }
         return this;
     }
 
     public Arrays<E> set(E value, int index) {
         Objects.requireNonNull(value);
-        if (index >= values.length)
-            throw new IndexOutOfBoundsException("Set '" + value.getClass().getName() + "'. Index '" + index + "'. Length '" + values.length + "'");
+        if (index >= arraySize)
+            throw new IndexOutOfBoundsException("Set '" + value.getClass().getName() + "'. Index '" + index + "'. Length '" + arraySize + "'");
         values[index] = value;
         return this;
     }
@@ -210,34 +260,34 @@ public class Arrays<E> implements Iterable<E>, Comparable<E[]>, Cloneable {
     }
 
     public E[] toGenericArray() {
-        return java.util.Arrays.copyOf(values, values.length);
+        return java.util.Arrays.copyOf(values, arraySize);
     }
 
     @SuppressWarnings("unchecked")
     public <T> T[] toGenericArrayOf(T[] t) {
-        if (t.length < values.length)
-            return (T[]) java.util.Arrays.copyOf(values, values.length, t.getClass());
-        System.arraycopy(values, 0, t, 0, values.length);
-        if (t.length > values.length)
-            t[values.length] = null;
+        if (t.length < arraySize)
+            return (T[]) java.util.Arrays.copyOf(values, arraySize, t.getClass());
+        System.arraycopy(values, 0, t, 0, arraySize);
+        if (t.length > arraySize)
+            t[arraySize] = null;
         return t;
 
     }
 
     public <T> T[] toGenericArray(Class<? extends T[]> t) {
-        return java.util.Arrays.copyOf(values, values.length, t);
+        return java.util.Arrays.copyOf(values, arraySize, t);
     }
 
     public E getFirst() {
-        return (values.length > 0 ? values[0] : null);
+        return (arraySize > 0 ? values[0] : null);
     }
 
     public E getLast() {
-        return (values.length > 0 ? values[values.length - 1] : null);
+        return (arraySize > 0 ? values[arraySize - 1] : null);
     }
 
     public int getFirstEqualsIndex(E elem) {
-        for (int x = 0; x < values.length; ++x) {
+        for (int x = 0; x < arraySize; ++x) {
             if (values[x].equals(elem))
                 return x;
         }
@@ -253,7 +303,7 @@ public class Arrays<E> implements Iterable<E>, Comparable<E[]>, Cloneable {
     }
 
     public int length() {
-        return this.values.length;
+        return this.arraySize;
     }
 
     public boolean isEmpty() {
@@ -264,9 +314,11 @@ public class Arrays<E> implements Iterable<E>, Comparable<E[]>, Cloneable {
     public String toString() {
 
         StringJoiner sj = new StringJoiner(", ", "[", "]");
-        for (E e : values) {
+
+        for (E e : this) {
             sj.add(String.valueOf(e));
         }
+
         return sj.toString();
     }
 
@@ -289,7 +341,7 @@ public class Arrays<E> implements Iterable<E>, Comparable<E[]>, Cloneable {
     }
 
     public int compare(E o) {
-        int v = values.length - 1;
+        int v = arraySize - 1;
 
         if (v > -1 && values[v].equals(o)) {
             return 1;
@@ -316,11 +368,11 @@ public class Arrays<E> implements Iterable<E>, Comparable<E[]>, Cloneable {
      */
     @Override
     public int compareTo(E[] o) {
-        if (o.length != values.length) {
+        if (o.length != arraySize) {
             return -1;
         }
 
-        int v = values.length - 1;
+        int v = arraySize - 1;
 
         if (v > -1 && values[v].equals(o[v])) {
             return 1;
@@ -346,6 +398,11 @@ public class Arrays<E> implements Iterable<E>, Comparable<E[]>, Cloneable {
         Arrays<E> arrays = new Arrays<>();
         arrays.addAll(this.values);
         return arrays;
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> Arrays<T> empty() {
+        return ArraysUtils.empty();
     }
 
     private static class ArrayList<E> extends ArraysAbstractList<E> implements RandomAccess, java.io.Serializable {
@@ -609,7 +666,7 @@ public class Arrays<E> implements Iterable<E>, Comparable<E[]>, Cloneable {
 
         @Override
         public boolean hasNext() {
-            return (current + 1 < values.length);
+            return (current + 1 < arraySize);
         }
 
         @Override

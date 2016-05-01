@@ -34,6 +34,7 @@ import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
+import java.lang.reflect.WildcardType;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -62,7 +63,80 @@ public class TypeUtil {
         }
     }
 
-    public static Reference<?> toReference(Type param) {
+    public static <S, E extends S> GenericRepresentation<?> fromSuperClass(Class<E> classWithTypeVariable, Class<S> subClass) {
+        Type genericSuperclass = classWithTypeVariable.getGenericSuperclass();
+        Class<?> superClass = classWithTypeVariable.getSuperclass();
+
+        GenericRepresentation<?> from = from(genericSuperclass, superClass, subClass);
+
+        if(from == null) {
+            Type[] genericInterfaces = classWithTypeVariable.getGenericInterfaces();
+            Class<?>[] interfacesClasses = classWithTypeVariable.getInterfaces();
+
+            for (int i = 0; i < interfacesClasses.length; i++) {
+                Type genericInterface = genericInterfaces[i];
+                Class<?> interfaceClass = interfacesClasses[i];
+
+                from = from(genericInterface, interfaceClass, subClass);
+                if(from != null)
+                    break;
+            }
+        }
+
+        if(from != null) {
+            return from;
+        }
+
+        return null;
+    }
+
+    private static GenericRepresentation<?> from(Type type, Class<?> actual, Class<?> expected) {
+        if(type instanceof ParameterizedType) {
+            ParameterizedType parameterizedType = (ParameterizedType) type;
+
+            if(expected.isAssignableFrom(actual)) {
+                return toReference(parameterizedType);
+            }
+
+        }
+
+        return null;
+    }
+
+    public static GenericRepresentation<?>[] fromTypeVariable(Class<?> classWithTypeVariable) {
+
+        TypeVariable<? extends Class<?>>[] typeParameters = classWithTypeVariable.getTypeParameters();
+
+        if(typeParameters.length == 0) {
+            throw new IllegalStateException("Not a generic class");
+        }
+
+        Type[] types = new Type[typeParameters.length];
+
+        for (int i = 0; i < typeParameters.length; i++) {
+            Type[] bounds = typeParameters[i].getBounds();
+
+            if(bounds.length > 0) {
+                types[i] = bounds[0];
+            } else {
+                types[i] = Object.class;
+            }
+        }
+
+        return toReferences(types);
+    }
+
+    public static GenericRepresentation<?>[] toReferences(Type[] param) {
+        GenericRepresentation<?>[] genericRepresentations = new GenericRepresentation[param.length];
+
+        for (int i = 0; i < param.length; i++) {
+            genericRepresentations[i] = toReference(param[i]);
+        }
+
+        return genericRepresentations;
+    }
+
+    public static GenericRepresentation<?> toReference(Type param) {
         if (param instanceof ParameterizedType) {
             return toReference((ParameterizedType) param);
         }
@@ -70,7 +144,7 @@ public class TypeUtil {
         if (param instanceof GenericArrayType) {
 
             GenericArrayType genericArrayType = (GenericArrayType) param;
-            Reference<?> reference = toReference(genericArrayType.getGenericComponentType());
+            GenericRepresentation<?> genericRepresentation = toReference(genericArrayType.getGenericComponentType());
 
             String pr = param.toString();
 
@@ -84,20 +158,24 @@ public class TypeUtil {
             String fullName = (arrays + "L" + name) + ";";
 
             try {
-                Reflection.changeFinalField(RClass.getRClass(reference), "aClass", Class.forName(fullName));
+                Reflection.changeFinalField(RClass.getRClass(genericRepresentation), "aClass", Class.forName(fullName));
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
 
-            return reference;
+            return genericRepresentation;
 
         }
 
-        return Reference.aEnd(from(param));
+        if (param instanceof WildcardType) {
+            WildcardType wildcardType = (WildcardType) param;
+        }
+
+        return GenericRepresentation.aEnd(from(param));
     }
 
-    public static Reference<?> toReference(ParameterizedType param) {
-        ReferenceBuilder referenceBuilder = Reference.a(from(param.getRawType()));
+    public static GenericRepresentation<?> toReference(ParameterizedType param) {
+        ReferenceBuilder referenceBuilder = GenericRepresentation.a(from(param.getRawType()));
         for (Type type : param.getActualTypeArguments()) {
             if (!(type instanceof ParameterizedType)) {
 
@@ -119,6 +197,17 @@ public class TypeUtil {
     public static Class<?> from(Type t) {
         if (t instanceof Class) {
             return (Class<?>) t;
+        }
+
+        if(t instanceof WildcardType) {
+            WildcardType wildcardType = (WildcardType) t;
+            Type[] upperBounds = wildcardType.getUpperBounds();
+
+            if(upperBounds.length > 0) {
+                return from(upperBounds[0]);
+            } else {
+                return Object.class;
+            }
         }
 
         if (t instanceof TypeVariable) {

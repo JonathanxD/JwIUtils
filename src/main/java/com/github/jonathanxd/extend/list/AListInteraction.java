@@ -31,25 +31,25 @@ import com.github.jonathanxd.extend.AResult;
 import com.github.jonathanxd.extend.Task;
 import com.github.jonathanxd.extend.list.data.AType;
 import com.github.jonathanxd.extend.list.data.IAData;
-import com.github.jonathanxd.iutils.map.JwMap;
-import com.github.jonathanxd.iutils.map.SimpleNodeOff;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
 import com.github.jonathanxd.iutils.arrays.Arrays;
-import com.github.jonathanxd.iutils.extra.MutableContainer;
+import com.github.jonathanxd.iutils.containers.MutableContainer;
 
 //TODO FIX THE FAIL IDENTICAL VALUE PROBLEM
 public class AListInteraction<T> {
 	private final IAListInteraction<T> interactor;
 	private final AList<T> arraysInstance;
 
-	JwMap<MutableContainer<T>, Task> vals = new JwMap<MutableContainer<T>, Task>();
+	Map<MutableContainer<T>, Task> vals = new HashMap<>();
 
 	private boolean ends = false;
 
@@ -62,21 +62,25 @@ public class AListInteraction<T> {
 	
 	public AListInteraction<T> fireFor(Function<IAData<T>, T> func) {
 		checkClose();
-		System.out.println("::X "+vals);
-		JwMap<MutableContainer<T>, Task> vals2 = new JwMap<MutableContainer<T>, Task>();
-		Iterator<SimpleNodeOff<MutableContainer<T>, Task>> ite = vals.getNodesOff().iterator();
+
+		Map<MutableContainer<T>, Task> vals2 = new HashMap<>();
+
+		Iterator<Map.Entry<MutableContainer<T>, Task>> ite = vals.entrySet().iterator();
+
+
+
 		boolean first = true;
 		while (ite.hasNext()) {
-			SimpleNodeOff<MutableContainer<T>, Task> node = ite.next();
+			Map.Entry<MutableContainer<T>, Task> node = ite.next();
 			
 			IAData<T> data;
 			if(first){
-				data = new Data<T>(AType.FIRST_ELEMENT, node.getKey().getValue());
+				data = new Data<>(AType.FIRST_ELEMENT, node.getKey().getValue());
 				first = false;
 			}else if(ite.hasNext()){
-				data = new Data<T>(AType.OTHER, node.getKey().getValue());
+				data = new Data<>(AType.OTHER, node.getKey().getValue());
 			}else{
-				data = new Data<T>(AType.LAST_ELEMENT, node.getKey().getValue());
+				data = new Data<>(AType.LAST_ELEMENT, node.getKey().getValue());
 			}
 			
 			vals2.put(MutableContainer.of(func.apply(data)), node.getValue());
@@ -131,11 +135,11 @@ public class AListInteraction<T> {
 		T value = null;
 
 		Arrays<T> processed = new Arrays<T>();
-		Iterator<SimpleNodeOff<MutableContainer<T>, Task>> ite = vals.getNodesOff().iterator();
+		Iterator<Map.Entry<MutableContainer<T>, Task>> ite = vals.entrySet().iterator();
 		boolean first = true;
 		while (ite.hasNext()) {
 			
-			SimpleNodeOff<MutableContainer<T>, Task> node = ite.next();
+			Map.Entry<MutableContainer<T>, Task> node = ite.next();
 			
 			AType type;
 			
@@ -148,7 +152,6 @@ public class AListInteraction<T> {
 				type = AType.LAST_ELEMENT;
 			}
 			IAData<T> cData = new Data<T>(type, node.getKey().getValue());
-			System.out.println("Value: "+node.getKey());
 			if(!interactor.filter(value, cData)){
 				continue;
 			}

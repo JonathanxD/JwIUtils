@@ -27,8 +27,8 @@
  */
 package com.github.jonathanxd.iutils.function.reflection;
 
-import com.github.jonathanxd.iutils.extra.IMutableContainer;
-import com.github.jonathanxd.iutils.extra.MutableContainer;
+import com.github.jonathanxd.iutils.containers.IMutableContainer;
+import com.github.jonathanxd.iutils.containers.MutableContainer;
 import com.github.jonathanxd.iutils.reflection.MethodSpecification;
 import com.github.jonathanxd.iutils.reflection.Reflection;
 

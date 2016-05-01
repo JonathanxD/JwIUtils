@@ -25,42 +25,33 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.extra;
+package com.github.jonathanxd.iutils.object;
 
-import java.util.function.BiFunction;
+import com.github.jonathanxd.iutils.reflection.RClass;
+import com.github.jonathanxd.iutils.reflection.Reflection;
+
+import java.lang.reflect.ParameterizedType;
 
 /**
- * Created by jonathan on 27/02/16.
+ * Created by jonathan on 08/04/16.
  */
-public class StaticContainer<T> extends Container<T> {
+public abstract class AbstractGenericRepresentation<T> extends GenericRepresentation<T> {
 
-    public StaticContainer(Container<T> container) {
-        super(container.get());
+
+    @SuppressWarnings("unchecked")
+    public AbstractGenericRepresentation() {
+        super();
+
+        GenericRepresentation<T> genericRepresentation = (GenericRepresentation<T>) TypeUtil.toReference(((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0]);
+        try {
+            Reflection.changeFinalField(RClass.getRClass(GenericRepresentation.class, this), "aClass", genericRepresentation.getAClass());
+            Reflection.changeFinalField(RClass.getRClass(GenericRepresentation.class, this), "related", genericRepresentation.getRelated());
+            Reflection.changeFinalField(RClass.getRClass(GenericRepresentation.class, this), "hold", genericRepresentation.get());
+        } catch (Exception e) {
+            throw new Error(e);
+        }
+
     }
 
 
-    @Override
-    public void apply(T value) {
-        throw new UnsupportedOperationException("Immutable container!");
-    }
-
-    @Override
-    public void set(T value) {
-        throw new UnsupportedOperationException("Immutable container!");
-    }
-
-    @Override
-    public void setApplier(BiFunction<BaseContainer<T>, T, T> applier) {
-        throw new UnsupportedOperationException("Immutable container!");
-    }
-
-    @Override
-    public void setValue(T value) {
-        throw new UnsupportedOperationException("Immutable container!");
-    }
-
-    @Override
-    public boolean isMutable() {
-        return false;
-    }
 }

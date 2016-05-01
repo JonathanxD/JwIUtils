@@ -55,7 +55,7 @@ public class ImmutableArrays<E> extends Arrays<E> {
         super(enume);
     }
 
-    public static <E> ImmutableArrays<E> empty() {
+    public static <E> ImmutableArrays<E> immutableEmpty() {
         return new ImmutableArrays<>();
     }
 

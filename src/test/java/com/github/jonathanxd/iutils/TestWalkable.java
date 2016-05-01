@@ -28,25 +28,12 @@
 package com.github.jonathanxd.iutils;
 
 import com.github.jonathanxd.iutils.collection.Walkable;
-import com.github.jonathanxd.iutils.extra.SetOf;
-import com.github.jonathanxd.iutils.function.collector.BiCollector;
 import com.github.jonathanxd.iutils.function.collector.BiCollectors;
 import com.github.jonathanxd.iutils.function.stream.walkable.WalkableNodeBiStream;
-import com.github.jonathanxd.iutils.object.Node;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.function.BiConsumer;
-import java.util.function.BinaryOperator;
-import java.util.function.Function;
-import java.util.function.Supplier;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
 
 /**
  * Created by jonathan on 05/03/16.

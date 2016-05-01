@@ -41,7 +41,7 @@ import java.nio.file.Path;
  */
 
 /**
- * Reference to a Existent File
+ * GenericRepresentation to a Existent File
  * If the file is deleted, all methods will throw {@link NonexistentFileException}
  */
 public class ExistingFile extends File {

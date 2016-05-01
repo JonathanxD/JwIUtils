@@ -30,7 +30,7 @@ package com.github.jonathanxd.iutils.arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
-import com.github.jonathanxd.iutils.extra.MutableContainer;
+import com.github.jonathanxd.iutils.containers.MutableContainer;
 
 public class ArrayCalculator {
 	

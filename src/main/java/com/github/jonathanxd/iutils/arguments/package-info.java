@@ -25,28 +25,10 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.list;
-
-import java.util.List;
-
-public class ListUtils {
-
-	public static <E> E listNotContains(List<E> list, E[] values){
-		for(E current2 : values){
-			if(!list.contains(current2)){
-				return current2;
-			}
-		}
-		return null;
-	}
-	
-	public static <E> E listNotContains(List<E> list, E[] values, List<E> exclude){
-		for(E current2 : values){
-			if(!list.contains(current2) && !exclude.contains(current2)){
-				return current2;
-			}
-		}
-		return null;
-	}
-	
-}
+/**
+ * Created by jonathan on 30/04/16.
+ */
+/**
+ * Argument Parsing moved to WCommands (https://github.com/JonathanxD/WCommands/)
+ */
+package com.github.jonathanxd.iutils.arguments;

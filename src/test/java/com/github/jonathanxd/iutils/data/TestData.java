@@ -27,7 +27,7 @@
  */
 package com.github.jonathanxd.iutils.data;
 
-import com.github.jonathanxd.iutils.object.Reference;
+import com.github.jonathanxd.iutils.object.GenericRepresentation;
 
 import java.util.Optional;
 
@@ -40,7 +40,7 @@ public class TestData {
 
         ReferenceData data = new ReferenceData();
 
-        data.registerData(Reference.a(Optional.class).of(String.class).hold(Optional.of("Hi")).build());
+        data.registerData(GenericRepresentation.a(Optional.class).of(String.class).hold(Optional.of("Hi")).build());
 
         data.invoke(new TestData(), m -> m.getName().equals("hello"));
     }

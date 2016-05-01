@@ -28,12 +28,13 @@
 package com.github.jonathanxd.iutils.service;
 
 import com.github.jonathanxd.iutils.arrays.Arrays;
-import com.github.jonathanxd.iutils.map.SimpleNodeOff;
-import com.github.jonathanxd.iutils.map.FastMap;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class ServiceManager {
 	
-	private static FastMap<Class<? extends Service>, Service> services = new FastMap<>();
+	private static Map<Class<? extends Service>, Service> services = new HashMap<>();
 	private static final Arrays<Class<? extends Service>> loadWait = new Arrays<>();
 	/**
 	 * 
@@ -90,7 +91,7 @@ public class ServiceManager {
 	}
 	
 	public static <T extends Service> Service getService(Class<T> serviceClass){
-		if(services.containsGenKey(serviceClass)){
+		if(services.containsKey(serviceClass)){
 			return services.get(serviceClass);					
 		}
 		
@@ -118,11 +119,9 @@ public class ServiceManager {
 	
 	public static Arrays<Service> listServices(){
 		Arrays<Service> xsServices = new Arrays<Service>();
-		
-		for(SimpleNodeOff<Class<? extends Service>, Service> s : services.getNodesOff()){
-			xsServices.add(s.getValue());
-		}
-		
+
+		services.forEach((aClass, service) -> xsServices.add(service));
+
 		return xsServices;
 	}
 	

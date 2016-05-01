@@ -25,22 +25,19 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.extra;
+package com.github.jonathanxd.iutils.containers;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
-/**
- * Created by jonathan on 21/02/16.
- */
-public interface HistoryContainer<T> extends BaseContainer<T> {
-
-    void alloc(T value);
-
-    List<T> getValueHistory();
-
-    boolean enableHistory(boolean enable);
-
-    void clearHistory();
-
+public class SetOf<T> {
+	
+	@SafeVarargs
+	public static <T> Set<T> setOf(T... ts){
+		Set<T> set = new HashSet<>();
+		for(T curr : ts){
+			set.add(curr);
+		}
+		return set;
+	}
 }

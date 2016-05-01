@@ -29,6 +29,7 @@ package com.github.jonathanxd.iutils.object;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 import java.util.Objects;
 
 /**
@@ -36,24 +37,46 @@ import java.util.Objects;
  */
 
 /**
- * Provides a Type for {@link AbstractReference}s
+ * Provides a Type for {@link AbstractGenericRepresentation}s
  * @param <T> Type
  */
-public interface TypeProvider<T> {
+public interface TypeProvider {
 
-    default Type getType() {
+    default Type[] getTypes() {
 
         Type genericSuperclass = getClass().getGenericSuperclass();
 
         if (!(genericSuperclass instanceof ParameterizedType)) {
-            throw new IllegalStateException("Not a generic class");
+
+            TypeVariable<? extends Class<? extends TypeProvider>>[] typeParameters = getClass().getTypeParameters();
+
+            if(typeParameters.length == 0) {
+                throw new IllegalStateException("Not a generic class");
+            }
+
+            Type[] types = new Type[typeParameters.length];
+
+            for (int i = 0; i < typeParameters.length; i++) {
+                Type[] bounds = typeParameters[i].getBounds();
+
+                if(bounds.length > 0) {
+                    types[i] = bounds[0];
+                } else {
+                    types[i] = Object.class;
+                }
+            }
+
+
+
+            return types;
         }
 
-        return ((ParameterizedType) genericSuperclass).getActualTypeArguments()[0];
+
+        return ((ParameterizedType) genericSuperclass).getActualTypeArguments();
     }
 
     @SuppressWarnings("unchecked")
-    default Reference<T> getReference() {
-        return (Reference<T>) TypeUtil.toReference(Objects.requireNonNull(getType(), "Null Type!"));
+    default GenericRepresentation[] getReferences() {
+        return TypeUtil.toReferences(Objects.requireNonNull(getTypes(), "Null Type!"));
     }
 }

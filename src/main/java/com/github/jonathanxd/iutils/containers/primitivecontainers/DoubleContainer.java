@@ -25,9 +25,41 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.map;
+package com.github.jonathanxd.iutils.containers.primitivecontainers;
 
-@FunctionalInterface
-public interface MapRegistry{
-	void init(MapContainer<?, ?> map);	
+import com.github.jonathanxd.iutils.containers.Container;
+
+public class DoubleContainer extends Container<Double>{
+
+	public DoubleContainer(double d) {
+		super(d);
+	}
+	
+	public void add(double d){
+		super.set(super.get() + d);
+	}
+	
+	public void add(){
+		this.add(1);
+	}
+
+	public void remove(double d){
+		this.add(-d);
+	}
+	
+	public void remove(){
+		this.remove(1);
+	}
+	
+	public void multiply(double d){
+		super.set(super.get() * d);
+	}
+
+	public void divide(double d){
+		super.set(super.get() / d);
+	}
+	
+	public static DoubleContainer of(double d){
+		return new DoubleContainer(d);
+	}
 }

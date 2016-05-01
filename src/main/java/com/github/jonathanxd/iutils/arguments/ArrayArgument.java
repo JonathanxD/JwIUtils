@@ -34,7 +34,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 
-import com.github.jonathanxd.iutils.object.Reference;
+import com.github.jonathanxd.iutils.object.GenericRepresentation;
 
 /**
  * Created by jonathan on 13/02/16.
@@ -42,24 +42,24 @@ import com.github.jonathanxd.iutils.object.Reference;
 public class ArrayArgument<E> {
 
     private final E[] eArray;
-    private final Map<Reference<?>, Function<E, ?>> transformerMap = new HashMap<>();
+    private final Map<GenericRepresentation<?>, Function<E, ?>> transformerMap = new HashMap<>();
 
     public ArrayArgument(E[] eArray) {
         this.eArray = eArray;
     }
 
-    public <R> void add(Reference<R> reference, Function<E, Optional<R>> transformer) {
+    public <R> void add(GenericRepresentation<R> genericRepresentation, Function<E, Optional<R>> transformer) {
 
-        transformerMap.put(reference, transformer);
+        transformerMap.put(genericRepresentation, transformer);
     }
 
     @SuppressWarnings("unchecked")
-    public <T> Optional<T> get(Reference<T> reference, int pos) {
+    public <T> Optional<T> get(GenericRepresentation<T> genericRepresentation, int pos) {
         E value = eArray[pos];
 
-        for (Map.Entry<Reference<?>, Function<E, ?>> entry : transformerMap.entrySet()) {
+        for (Map.Entry<GenericRepresentation<?>, Function<E, ?>> entry : transformerMap.entrySet()) {
 
-            if (entry.getKey().compareTo(reference) == 0) {
+            if (entry.getKey().compareTo(genericRepresentation) == 0) {
                 Object ret = entry.getValue().apply(value);
 
                 if (ret == null)
@@ -81,30 +81,30 @@ public class ArrayArgument<E> {
         return Optional.empty();
     }
 
-    public <T> Collection<T> allOf(Reference<T> reference) {
+    public <T> Collection<T> allOf(GenericRepresentation<T> genericRepresentation) {
         Collection<T> collection = new ArrayList<>();
 
         Optional<T> current;
 
         int offset = 0;
 
-        while ((current = offSetFirst(reference, offset)).isPresent()) {
+        while ((current = offSetFirst(genericRepresentation, offset)).isPresent()) {
             collection.add(current.get());
         }
 
         return collection;
     }
 
-    public <T> boolean find(Reference<T> reference) {
-        return transformerMap.entrySet().stream().filter(e -> e.getKey().compareTo(reference) == 0).findFirst().isPresent();
+    public <T> boolean find(GenericRepresentation<T> genericRepresentation) {
+        return transformerMap.entrySet().stream().filter(e -> e.getKey().compareTo(genericRepresentation) == 0).findFirst().isPresent();
     }
 
     @SuppressWarnings("unchecked")
-    public <T> Optional<T> first(Reference<T> reference) {
+    public <T> Optional<T> first(GenericRepresentation<T> genericRepresentation) {
         for (int x = 0; x < eArray.length; ++x) {
             E value = eArray[x];
 
-            Optional<T> retOpt = get(reference, x);
+            Optional<T> retOpt = get(genericRepresentation, x);
 
             if (retOpt.isPresent()) {
                 return retOpt;
@@ -115,14 +115,14 @@ public class ArrayArgument<E> {
     }
 
     @SuppressWarnings("unchecked")
-    public <T> Optional<T> offSetFirst(Reference<T> reference, int offset) {
+    public <T> Optional<T> offSetFirst(GenericRepresentation<T> genericRepresentation, int offset) {
 
         int off = 0;
 
         for (int x = 0; x < eArray.length; ++x) {
             E value = eArray[x];
 
-            Optional<T> retOpt = get(reference, x);
+            Optional<T> retOpt = get(genericRepresentation, x);
 
             if (retOpt.isPresent()) {
                 if (off < offset) {

@@ -27,6 +27,8 @@
  */
 package com.github.jonathanxd.iutils.treeexplore;
 
+import java.util.List;
+
 /**
  * Created by jonathan on 02/04/16.
  */
@@ -38,5 +40,13 @@ public interface TreeExplore<T> {
         void join(T element);
         T current();
         void exit();
+    }
+
+    interface TreeNode<T, U extends TreeNode<T, U>> {
+        U parent();
+
+        T value();
+
+        List<U> child();
     }
 }

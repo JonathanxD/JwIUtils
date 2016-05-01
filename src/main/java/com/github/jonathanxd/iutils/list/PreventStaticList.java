@@ -29,7 +29,7 @@ package com.github.jonathanxd.iutils.list;
 
 import java.util.Objects;
 
-import com.github.jonathanxd.iutils.extra.Container;
+import com.github.jonathanxd.iutils.containers.Container;
 
 public class PreventStaticList<T> extends StaticList<T>{
 

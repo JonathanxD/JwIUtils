@@ -27,7 +27,7 @@
  */
 package com.github.jonathanxd.iutils.map;
 
-import com.github.jonathanxd.iutils.extra.SetOf;
+import com.github.jonathanxd.iutils.containers.SetOf;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -37,7 +37,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import com.github.jonathanxd.iutils.arrays.Arrays;
-import com.github.jonathanxd.iutils.extra.Container;
+import com.github.jonathanxd.iutils.containers.Container;
 
 /**
  * Define multiple keys

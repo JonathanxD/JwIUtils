@@ -28,7 +28,7 @@
 package com.github.jonathanxd.iutils.list;
 
 import com.github.jonathanxd.iutils.containers.list.IndexedListContainer;
-import com.github.jonathanxd.iutils.extra.Container;
+import com.github.jonathanxd.iutils.containers.Container;
 import com.github.jonathanxd.iutils.iterator.BackableIterator;
 
 import java.lang.reflect.Array;

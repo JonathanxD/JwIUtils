@@ -25,9 +25,9 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.extra;
+package com.github.jonathanxd.iutils.containers;
 
-import com.github.jonathanxd.iutils.extra.primitivecontainers.IntContainer;
+import com.github.jonathanxd.iutils.containers.primitivecontainers.IntContainer;
 
 import java.util.Optional;
 import java.util.function.BiFunction;

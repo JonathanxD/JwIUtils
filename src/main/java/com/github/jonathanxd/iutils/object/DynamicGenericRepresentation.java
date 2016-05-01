@@ -27,45 +27,27 @@
  */
 package com.github.jonathanxd.iutils.object;
 
+import com.github.jonathanxd.iutils.arrays.ArraysUtils;
 import com.github.jonathanxd.iutils.reflection.RClass;
 import com.github.jonathanxd.iutils.reflection.Reflection;
 
-import java.lang.reflect.ParameterizedType;
-
 /**
- * Created by jonathan on 08/04/16.
+ * Created by jonathan on 02/04/16.
  */
-public abstract class AbstractReference<T> extends Reference<T> {
-
-
-    @SuppressWarnings("unchecked")
-    public AbstractReference() {
-        super();
-
-        Reference<T> reference = (Reference<T>) TypeUtil.toReference(((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0]);
-        try {
-            Reflection.changeFinalField(RClass.getRClass(Reference.class, this), "aClass", reference.getAClass());
-            Reflection.changeFinalField(RClass.getRClass(Reference.class, this), "related", reference.getRelated());
-            Reflection.changeFinalField(RClass.getRClass(Reference.class, this), "hold", reference.get());
-        } catch (Exception e) {
-            throw new Error(e);
-        }
-
+public class DynamicGenericRepresentation<T> extends GenericRepresentation<T> {
+    DynamicGenericRepresentation(Class<? extends T> aClass, GenericRepresentation[] related, Object hold) {
+        super(aClass, related, hold);
     }
 
-    @SuppressWarnings("unchecked")
-    public AbstractReference(TypeProvider<T> typeProvider) {
-
-        super();
-
-        Reference<T> reference = (Reference<T>) TypeUtil.toReference(typeProvider.getType());
+    public void addRelated(GenericRepresentation<?> genericRepresentation) {
         try {
-            Reflection.changeFinalField(RClass.getRClass(Reference.class, this), "aClass", reference.getAClass());
-            Reflection.changeFinalField(RClass.getRClass(Reference.class, this), "related", reference.getRelated());
-            Reflection.changeFinalField(RClass.getRClass(Reference.class, this), "hold", reference.get());
+            Reflection.changeFinalField(RClass.getRClass(GenericRepresentation.class, this), "related", ArraysUtils.addToArray(getRelated(), genericRepresentation));
         } catch (Exception e) {
-            throw new Error(e);
+            throw new RuntimeException(e);
         }
     }
 
+    public GenericRepresentation<T> toReference() {
+        return new GenericRepresentation<>(this.getAClass(), this.getRelated(), this.get());
+    }
 }

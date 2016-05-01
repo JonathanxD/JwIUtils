@@ -77,7 +77,7 @@ public class AList<E> extends Arrays<E>{
 		return getAllIf(v -> true);
 	}
 	
-	public AListInteraction<E> get(int index) {
+	public AListInteraction<E> getIndex(int index) {
 		if(index >= length()){
 			throw new IndexOutOfBoundsException(String.valueOf(index)+" out of index in array "+toString()+" [length="+length()+"]");
 		}

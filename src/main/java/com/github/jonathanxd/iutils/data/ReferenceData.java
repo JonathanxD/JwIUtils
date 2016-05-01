@@ -27,7 +27,7 @@
  */
 package com.github.jonathanxd.iutils.data;
 
-import com.github.jonathanxd.iutils.object.Reference;
+import com.github.jonathanxd.iutils.object.GenericRepresentation;
 import com.github.jonathanxd.iutils.object.ReferenceBuilder;
 import com.github.jonathanxd.iutils.reflection.Reflection;
 
@@ -35,17 +35,15 @@ import java.lang.reflect.AnnotatedType;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.HashSet;
 import java.util.Optional;
-import java.util.Set;
 
 /**
  * Created by jonathan on 13/02/16.
  */
-public class ReferenceData extends BaseData<Reference<?>> implements Cloneable {
+public class ReferenceData extends BaseData<GenericRepresentation<?>> implements Cloneable {
 
-    public static Reference<?> toReference(ParameterizedType param) {
-        ReferenceBuilder referenceBuilder = Reference.a(Reflection.from(param.getRawType()));
+    public static GenericRepresentation<?> toReference(ParameterizedType param) {
+        ReferenceBuilder referenceBuilder = GenericRepresentation.a(Reflection.from(param.getRawType()));
         for (Type type : param.getActualTypeArguments()) {
             if (!(type instanceof ParameterizedType)) {
                 referenceBuilder.of(Reflection.from(type));
@@ -60,7 +58,7 @@ public class ReferenceData extends BaseData<Reference<?>> implements Cloneable {
     @SuppressWarnings("unchecked")
     public <X> Optional<X> getDataAssignable(Class<? extends X> dataClass) {
 
-        for (Reference<?> data : getDataSet()) {
+        for (GenericRepresentation<?> data : getDataSet()) {
 
             // Prevent ClassCannotCastException
             Object r;
@@ -77,7 +75,7 @@ public class ReferenceData extends BaseData<Reference<?>> implements Cloneable {
     @Override
     public <X> Optional<X> getData(Class<? extends X> dataClass) {
 
-        for (Reference<?> data : getDataSet()) {
+        for (GenericRepresentation<?> data : getDataSet()) {
 
             // Prevent ClassCannotCastException
             Object r;
@@ -102,7 +100,7 @@ public class ReferenceData extends BaseData<Reference<?>> implements Cloneable {
 
         if (type != null && type instanceof ParameterizedType) {
             ParameterizedType parameterizedType = (ParameterizedType) type;
-            Reference<?> ref = toReference(parameterizedType);
+            GenericRepresentation<?> ref = toReference(parameterizedType);
             return getData(ref);
         } else {
             return this.getData((Class<? extends X>) parameter.getType());
@@ -112,11 +110,11 @@ public class ReferenceData extends BaseData<Reference<?>> implements Cloneable {
     /**
      * Find a data in Set based on Class
      *
-     * @param reference Reference of data
+     * @param genericRepresentation GenericRepresentation of data
      * @return True if data exists in DataSet
      */
-    public <T> boolean findData(Reference<T> reference) {
-        return getData(reference).isPresent();
+    public <T> boolean findData(GenericRepresentation<T> genericRepresentation) {
+        return getData(genericRepresentation).isPresent();
     }
 
     /**
@@ -124,18 +122,18 @@ public class ReferenceData extends BaseData<Reference<?>> implements Cloneable {
      * parameter <br> Expression: if(Comparator.compare(DataObject class, Data Class parameter)
      * equalsTo 0) return (Type Cast) DataObject
      *
-     * @param reference Reference to class
+     * @param genericRepresentation GenericRepresentation to class
      * @param <X>       Type of Data
      * @return Optional of Data or {@link Optional#empty()}
      */
     @SuppressWarnings("unchecked")
     @Override
-    public <X> Optional<X> getData(Reference<?> reference) {
+    public <X> Optional<X> getData(GenericRepresentation<?> genericRepresentation) {
 
-        for (Reference<?> data : getDataSet()) {
+        for (GenericRepresentation<?> data : getDataSet()) {
 
             // Prevent ClassCannotCastException
-            if (data.equals(reference)) {
+            if (data.equals(genericRepresentation)) {
                 return Optional.of((X) data.get());
             }
 

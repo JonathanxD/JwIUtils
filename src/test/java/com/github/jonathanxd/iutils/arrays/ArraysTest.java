@@ -41,7 +41,7 @@ public class ArraysTest {
     @Test
     public void SimpleArraysTest() {
 
-        abd = Arrays.addToArray(abd, "X");
+        abd = ArraysUtils.addToArray(abd, "X");
 
         System.out.println(java.util.Arrays.toString(abd));
     }

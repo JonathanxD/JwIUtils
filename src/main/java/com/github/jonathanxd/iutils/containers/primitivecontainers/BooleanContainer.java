@@ -25,41 +25,29 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.extra.primitivecontainers;
+package com.github.jonathanxd.iutils.containers.primitivecontainers;
 
-import com.github.jonathanxd.iutils.extra.Container;
+import com.github.jonathanxd.iutils.containers.Container;
 
-public class FloatContainer extends Container<Float>{
+public class BooleanContainer extends Container<Boolean>{
 
-	public FloatContainer(float f) {
-		super(f);
+	public BooleanContainer(boolean b) {
+		super(b);
 	}
 	
-	public void add(float f){
-		super.set(super.get() + f);
+	public void toogle(){
+		super.set(!super.get());
 	}
 	
-	public void add(){
-		this.add(1);
+	public void toFalse(){
+		super.set(Boolean.FALSE);
 	}
 
-	public void remove(float f){
-		this.add(-f);
+	public void toTrue(){
+		super.set(Boolean.TRUE);
 	}
 	
-	public void remove(){
-		this.remove(1);
-	}
-	
-	public void multiply(float f){
-		super.set(super.get() * f);
-	}
-
-	public void divide(float f){
-		super.set(super.get() / f);
-	}
-	
-	public static FloatContainer of(float f){
-		return new FloatContainer(f);
+	public boolean toBoolean(){
+		return super.get().booleanValue();
 	}
 }

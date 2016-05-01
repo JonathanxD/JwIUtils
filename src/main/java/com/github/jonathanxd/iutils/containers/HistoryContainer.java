@@ -25,12 +25,21 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.extra;
+package com.github.jonathanxd.iutils.containers;
+
+import java.util.List;
 
 /**
- * Created by jonathan on 27/02/16.
+ * Created by jonathan on 21/02/16.
  */
-public interface Mutability {
+public interface HistoryContainer<T> extends BaseContainer<T> {
 
-    boolean isMutable();
+    void alloc(T value);
+
+    List<T> getValueHistory();
+
+    boolean enableHistory(boolean enable);
+
+    void clearHistory();
+
 }

@@ -25,30 +25,41 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.extra;
+package com.github.jonathanxd.iutils.containers.primitivecontainers;
 
-import com.github.jonathanxd.iutils.annotations.Named;
+import com.github.jonathanxd.iutils.containers.Container;
 
-import java.util.function.BiFunction;
-import java.util.function.Function;
+public class FloatContainer extends Container<Float>{
 
-public interface IMutableContainer<T> extends HistoryContainer<T> {
-    void setValue(T value);
+	public FloatContainer(float f) {
+		super(f);
+	}
+	
+	public void add(float f){
+		super.set(super.get() + f);
+	}
+	
+	public void add(){
+		this.add(1);
+	}
 
-    default void set(T value) {
-        this.setValue(value);
-    }
+	public void remove(float f){
+		this.add(-f);
+	}
+	
+	public void remove(){
+		this.remove(1);
+	}
+	
+	public void multiply(float f){
+		super.set(super.get() * f);
+	}
 
-    default <R> R applyAndSet(Function<@Named("Current value") T, @Named("Apply to new value") R> function, Function<@Named("Apply result") R, @Named("New value") T> newValFunction) {
-        R applied = function.apply(get());
-
-        set(newValFunction.apply(applied));
-
-        return applied;
-    }
-
-    default void set(Function<T, T> function) {
-        set(function.apply(get()));
-    }
-
+	public void divide(float f){
+		super.set(super.get() / f);
+	}
+	
+	public static FloatContainer of(float f){
+		return new FloatContainer(f);
+	}
 }

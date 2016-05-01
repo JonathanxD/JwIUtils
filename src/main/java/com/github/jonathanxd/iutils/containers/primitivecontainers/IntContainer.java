@@ -25,19 +25,41 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.extra;
+package com.github.jonathanxd.iutils.containers.primitivecontainers;
 
-import java.util.HashSet;
-import java.util.Set;
+import com.github.jonathanxd.iutils.containers.Container;
 
-public class SetOf<T> {
+public class IntContainer extends Container<Integer>{
+
+	public IntContainer(int i) {
+		super(i);
+	}
 	
-	@SafeVarargs
-	public static <T> Set<T> setOf(T... ts){
-		Set<T> set = new HashSet<>();
-		for(T curr : ts){
-			set.add(curr);
-		}
-		return set;
+	public void add(int i){
+		super.set(super.get() + i);
+	}
+	
+	public void add(){
+		this.add(1);
+	}
+
+	public void remove(int i){
+		this.add(-i);
+	}
+	
+	public void remove(){
+		this.remove(1);
+	}
+	
+	public void multiply(int i){
+		super.set(super.get() * i);
+	}
+
+	public void divide(int i){
+		super.set(super.get() / i);
+	}
+	
+	public static IntContainer of(int i){
+		return new IntContainer(i);
 	}
 }

@@ -25,29 +25,42 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.object;
+package com.github.jonathanxd.iutils.containers;
 
-import com.github.jonathanxd.iutils.arrays.Arrays;
-import com.github.jonathanxd.iutils.reflection.RClass;
-import com.github.jonathanxd.iutils.reflection.Reflection;
+import java.util.function.BiFunction;
 
 /**
- * Created by jonathan on 02/04/16.
+ * Created by jonathan on 27/02/16.
  */
-public class DynamicReference<T> extends Reference<T> {
-    DynamicReference(Class<? extends T> aClass, Reference[] related, Object hold) {
-        super(aClass, related, hold);
+public class StaticContainer<T> extends Container<T> {
+
+    public StaticContainer(Container<T> container) {
+        super(container.get());
     }
 
-    public void addRelated(Reference<?> reference) {
-        try {
-            Reflection.changeFinalField(RClass.getRClass(Reference.class, this), "related", Arrays.addToArray(getRelated(), reference));
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+
+    @Override
+    public void apply(T value) {
+        throw new UnsupportedOperationException("Immutable container!");
     }
 
-    public Reference<T> toReference() {
-        return new Reference<>(this.getAClass(), this.getRelated(), this.get());
+    @Override
+    public void set(T value) {
+        throw new UnsupportedOperationException("Immutable container!");
+    }
+
+    @Override
+    public void setApplier(BiFunction<BaseContainer<T>, T, T> applier) {
+        throw new UnsupportedOperationException("Immutable container!");
+    }
+
+    @Override
+    public void setValue(T value) {
+        throw new UnsupportedOperationException("Immutable container!");
+    }
+
+    @Override
+    public boolean isMutable() {
+        return false;
     }
 }

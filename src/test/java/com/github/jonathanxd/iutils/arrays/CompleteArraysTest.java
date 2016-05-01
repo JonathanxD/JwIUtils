@@ -25,30 +25,32 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.map;
+package com.github.jonathanxd.iutils.arrays;
 
-public class SimpleNodeOff<K, V> {
-	
-	private final K key;
-	private final V value;
-	
-	public SimpleNodeOff(K key, V value) {
-		this.key = key;
-		this.value = value;
-	}
-	
-	public K getKey() {
-		return key;
-	}
-	
-	public V getValue() {
-		return value;
-	}
-	
-	
-	
-	protected static <K, V> SimpleNodeOff<K, V> fromNode(MapContainer.Node<K, V> node){
-		return new SimpleNodeOff<>(node.key, node.value);
-	}
+import org.junit.Test;
+
+/**
+ * Created by jonathan on 21/03/16.
+ */
+public class CompleteArraysTest {
+
+    Arrays<String> abdArr = new Arrays<>("A", "B", "D");
+
+    @Test
+    public void SimpleArraysTest() {
+
+        abdArr.add("A");
+
+        System.out.println(abdArr);
+
+        abdArr.remove("A");
+
+        System.out.println(abdArr);
+
+        abdArr.remove(0);
+
+        System.out.println(abdArr);
+    }
+
 
 }
