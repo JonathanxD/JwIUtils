@@ -225,6 +225,22 @@ public class Reflection {
         }
     }
 
+    @SuppressWarnings("unchecked")
+    public static <T extends Annotation> T[] findAnnotations(Class<T> annotationClass, Annotation[] annotations) {
+        List<T> list = new ArrayList<>();
+
+        for (Annotation annotation : annotations) {
+            if (annotationClass.isAssignableFrom(annotation.annotationType())) {
+                list.add((T) annotation);
+            }
+        }
+
+
+        T[] ts = (T[]) Array.newInstance(annotationClass, list.size());
+
+        return list.toArray(ts);
+    }
+
     /**
      * Recursive get annotation
      *
@@ -382,10 +398,10 @@ public class Reflection {
 
         for (Method method : methods) {
             if (specification.match(method)) {
-                if(params == null) {
+                if (params == null) {
                     return method;
-                }else{
-                    if(paramCheck(method, params)) {
+                } else {
+                    if (paramCheck(method, params)) {
                         return method;
                     }
                 }
@@ -426,7 +442,7 @@ public class Reflection {
         try {
 
             for (Method method : methods) {
-                if(mSpec != null && !mSpec.match(method)) continue;
+                if (mSpec != null && !mSpec.match(method)) continue;
                 if (method.getParameterCount() != parameters.length) continue;
                 if (!force && method.isAccessible()) continue;
 
@@ -451,5 +467,30 @@ public class Reflection {
             throw new RuntimeException(e);
         }
 
+    }
+
+    public static Object execute(Executable executable, List<Object> execParameters) {
+        return execute(executable, execParameters, null);
+    }
+
+    public static Object execute(Executable executable, List<Object> execParameters, Object instance) {
+
+        Object[] params = execParameters.toArray();
+        try {
+
+            if (executable instanceof Constructor) {
+                try {
+                    return ((Constructor) executable).newInstance(params);
+                } catch (InstantiationException e) {
+                    throw new RuntimeException(e);
+                }
+            } else if (executable instanceof Method) {
+                return ((Method) executable).invoke(instance, params);
+            } else {
+                throw new IllegalArgumentException("Illegal executable '"+executable.getClass().getCanonicalName()+"'");
+            }
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

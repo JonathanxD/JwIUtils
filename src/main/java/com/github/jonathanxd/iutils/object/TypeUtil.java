@@ -30,12 +30,7 @@ package com.github.jonathanxd.iutils.object;
 import com.github.jonathanxd.iutils.reflection.RClass;
 import com.github.jonathanxd.iutils.reflection.Reflection;
 
-import sun.reflect.ConstantPool;
-
 import java.lang.reflect.GenericArrayType;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
