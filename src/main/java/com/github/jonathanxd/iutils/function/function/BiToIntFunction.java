@@ -33,5 +33,5 @@ package com.github.jonathanxd.iutils.function.function;
 @FunctionalInterface
 public interface BiToIntFunction<T, U> {
 
-    int applyAsInt(T value, U value2);
+    int applyAsInt(T t, U u);
 }

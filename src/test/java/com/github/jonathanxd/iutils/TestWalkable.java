@@ -64,6 +64,7 @@ public class TestWalkable {
             return value2 + value4;
         });*/
 
+
         int amount = biStream.reduceSecond("", 0, (value, key, value2, key2) -> value + value2);
 
         System.out.println(map);

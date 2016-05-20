@@ -33,5 +33,5 @@ package com.github.jonathanxd.iutils.function.function;
 @FunctionalInterface
 public interface BiToDoubleFunction<T, U> {
 
-    double applyAsDouble(T value, U value2);
+    double applyAsDouble(T t, U u);
 }

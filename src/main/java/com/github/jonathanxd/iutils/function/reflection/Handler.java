@@ -77,22 +77,31 @@ public class Handler {
     public static void main(String[] args) {
         String d = Handler.get(Handler.class, null, "testMethod", 0);
         System.out.println("D = "+d);
+
+        ReturnConsumer<String> returnConsumer = new ReturnConsumer<>();
+
+        testMethod(returnConsumer);
+
+        returnConsumer.getContainer().ifPresent(System.out::println);
+
+
+
     }
 
     public static void testMethod(Consumer<String> s) {
         s.accept("ABC");
     }
 
-    public static class ReturnConsumer implements Consumer<Object> {
+    public static class ReturnConsumer<T> implements Consumer<T> {
 
-        private final IMutableContainer<Object> container = new MutableContainer<>();
+        private final IMutableContainer<T> container = new MutableContainer<>();
 
         @Override
-        public void accept(Object o) {
+        public void accept(T o) {
             container.set(o);
         }
 
-        public IMutableContainer<Object> getContainer() {
+        public IMutableContainer<T> getContainer() {
             return container;
         }
     }

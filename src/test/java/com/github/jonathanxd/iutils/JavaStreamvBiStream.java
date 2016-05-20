@@ -25,14 +25,59 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.function.function;
+package com.github.jonathanxd.iutils;
+
+import com.github.jonathanxd.iutils.function.stream.MapStream;
+import com.github.jonathanxd.iutils.reflection.Reflection;
+
+import org.junit.Test;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * Created by jonathan on 05/03/16.
+ * Created by jonathan on 20/05/16.
  */
-@FunctionalInterface
-public interface TriFunction<T, U, V, R> {
+public class JavaStreamvBiStream {
 
-    R apply(T t, U u, V v);
+    static final Map<Integer, String> map = new HashMap<>();
+
+    static {
+        map.put(11, "B");
+        map.put(12, "C");
+        map.put(10, "A");
+    }
+
+    @Test
+    public void javaStream() {
+        System.out.println("Java Stream");
+
+        map.entrySet().stream().filter(integerStringEntry -> {
+            printStack(Reflection.getCallInformations());
+
+            return integerStringEntry.getKey() < 0;
+        }).forEach(System.out::println);
+    }
+
+    @Test
+    public void jwBiStream() {
+        System.out.println("Jw BiStream");
+
+        MapStream.of(map).filter((integer, s) -> {
+            printStack(Reflection.getCallInformations());
+
+            return integer < 0;
+        }).forEach(JavaStreamvBiStream::print);
+    }
+
+    private static void print(Integer integer, String s) {
+        System.out.printf("Integer = %d, String = %s%n", integer, s);
+    }
+
+    private static void printStack(StackTraceElement[] callInformations) {
+        for (StackTraceElement callInformation : callInformations) {
+            System.out.println(callInformation);
+        }
+    }
 
 }

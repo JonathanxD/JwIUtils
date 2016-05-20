@@ -33,6 +33,6 @@ package com.github.jonathanxd.iutils.function.function;
 @FunctionalInterface
 public interface QuadFunction<T, U, V, D, R> {
 
-    R apply(T value, U value2, V value3, D value4);
+    R apply(T t, U u, V v, D d);
 
 }

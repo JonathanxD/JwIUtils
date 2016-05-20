@@ -33,5 +33,5 @@ package com.github.jonathanxd.iutils.function.function;
 @FunctionalInterface
 public interface BiToLongFunction<T, U> {
 
-    long applyAsLong(T value, U value2);
+    long applyAsLong(T t, U u);
 }

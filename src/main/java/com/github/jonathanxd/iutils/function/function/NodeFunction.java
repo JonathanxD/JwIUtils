@@ -35,6 +35,6 @@ import com.github.jonathanxd.iutils.object.Node;
 @FunctionalInterface
 public interface NodeFunction<T, U, RK, RV> {
 
-    Node<RK, RV> apply(T value, U value2);
+    Node<RK, RV> apply(T t, U u);
 
 }

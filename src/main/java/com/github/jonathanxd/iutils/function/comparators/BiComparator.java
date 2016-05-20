@@ -78,7 +78,7 @@ public interface BiComparator<T, U> {
         return (BiComparator<T, U> & Serializable) (c1, c2, a1, a2) -> Double.compare(keyExtractor.applyAsDouble(c1, c2), keyExtractor.applyAsDouble(a1, a2));
     }
 
-    int compare(T o1, U o2, T a1, U a2);
+    int compare(T t, U u, T t2, U u2);
 
     boolean equals(Object obj);
 

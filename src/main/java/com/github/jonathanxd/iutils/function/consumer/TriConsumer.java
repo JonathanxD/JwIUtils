@@ -32,6 +32,6 @@ package com.github.jonathanxd.iutils.function.consumer;
  */
 @FunctionalInterface
 public interface TriConsumer<T, V, B> {
-    void accept(T value, V value2, B value3);
+    void accept(T t, V v, B b);
 
 }

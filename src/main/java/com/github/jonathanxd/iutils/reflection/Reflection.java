@@ -42,6 +42,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.StringJoiner;
 
 public class Reflection {
 
@@ -141,6 +142,13 @@ public class Reflection {
         }
 
         return null;
+
+    }
+
+    public static StackTraceElement[] getCallInformations() {
+
+        StackTraceElement[] elem = new RuntimeException().getStackTrace();
+        return elem;
 
     }
 

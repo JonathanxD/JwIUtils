@@ -468,11 +468,17 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
 
     @Override
     public void forEach(BiConsumer<? super T, ? super U> action) {
+        if(!getWalkable().hasNext())
+            return;
+
         consume(e -> e.consume(action));
     }
 
     @Override
     public void forEachOrdered(BiConsumer<? super T, ? super U> action) {
+        if(!getWalkable().hasNext())
+            return;
+
         consume(e -> e.consume(action));
     }
 
@@ -484,7 +490,7 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
     @SuppressWarnings("unchecked")
     @Override
     public <A, V> Node<A, V>[] toArray(IntFunction<Node<A, V>[]> generator) {
-        return toArray((NodeArrayIntFunction & Serializable) generator::apply);
+        return toArray(new BackPortIntFunc<>(generator));
     }
 
     @SuppressWarnings("unchecked")
@@ -897,4 +903,19 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
         }
 
     }
+
+    private static class BackPortIntFunc<T, E> implements NodeArrayIntFunction<T, E> {
+
+        private final IntFunction<Node<T, E>[]> intFunction;
+
+        private BackPortIntFunc(IntFunction<Node<T, E>[]> intFunction) {
+            this.intFunction = intFunction;
+        }
+
+        @Override
+        public Node<T, E>[] apply(int i) {
+            return intFunction.apply(i);
+        }
+    }
+
 }
