@@ -30,6 +30,8 @@ package com.github.jonathanxd.iutils.function;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -61,4 +63,63 @@ public class FunctionUtil {
         return as(array, Object::toString);
     }
 
+    public static <T> void recursiveForEach(List<? extends T> list, Function<T, List<? extends T>> function) {
+        for (T t : list) {
+            List<? extends T> apply = function.apply(t);
+
+            if(apply != null) {
+                recursiveForEach(apply, function);
+            }
+        }
+    }
+
+    public static <T> void recursiveValForeach(T value, Function<T, T> func) {
+        T other = func.apply(value);
+
+        if(other != null)
+            recursiveValForeach(other, func);
+    }
+
+
+    public static <T> List<T> recursiveValToList(T value, Function<T, T> func) {
+        List<T> list = new ArrayList<>();
+
+        recursiveValForeach(value, t -> {
+            list.add(t);
+            return func.apply(t);
+        });
+
+        return list;
+    }
+
+
+    public static class Optionals {
+
+        public static <T> void recursiveValForeach(T value, Function<T, Optional<T>> func) {
+            func.apply(value).ifPresent(other -> recursiveValForeach(other, func));
+        }
+
+
+        public static <T> List<T> recursiveValToList(T value, Function<T, Optional<T>> func) {
+            List<T> list = new ArrayList<>();
+
+            recursiveValForeach(value, t -> {
+                list.add(t);
+                return func.apply(t);
+            });
+
+            return list;
+        }
+
+        public static <T> void recursiveForEach(List<? extends T> list, Function<T, Optional<List<? extends T>>> function) {
+            for (T t : list) {
+                Optional<List<? extends T>> apply = function.apply(t);
+
+                if(apply.isPresent()) {
+                    recursiveForEach(apply.get(), function);
+                }
+            }
+        }
+
+    }
 }

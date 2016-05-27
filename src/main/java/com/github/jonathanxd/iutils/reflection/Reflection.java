@@ -401,6 +401,32 @@ public class Reflection {
         }
     }
 
+    public static Collection<Method> getMethods(Class<?> clazz, MethodSpecification specification) {
+        try {
+
+            Collection<Method> m;
+            if (!(m = processMethods(specification, clazz.getDeclaredMethods())).isEmpty()) {
+                return m;
+            }
+            return processMethods(specification, clazz.getMethods());
+        } catch (ClassNotFoundException | NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static Collection<Method> getMethodsByParam(Class<?> clazz, MethodSpecification specification, Object... params) {
+        try {
+
+            Collection<Method> m;
+            if (!(m = processMethods(specification, clazz.getDeclaredMethods(), params)).isEmpty()) {
+                return m;
+            }
+            return processMethods(specification, clazz.getMethods(), params);
+        } catch (ClassNotFoundException | NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
     private static Method process(MethodSpecification specification, Method[] methods, Object... params) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
 
@@ -416,6 +442,25 @@ public class Reflection {
             }
         }
         return null;
+    }
+
+    private static Collection<Method> processMethods(MethodSpecification specification, Method[] methods, Object... params) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+
+        Collection<Method> methodCollection = new ArrayList<>();
+
+        for (Method method : methods) {
+            if (specification.match(method)) {
+                if (params == null) {
+                    methodCollection.add(method);
+                } else {
+                    if (paramCheck(method, params)) {
+                        methodCollection.add(method);
+                    }
+                }
+            }
+        }
+
+        return methodCollection;
     }
 
     private static boolean paramCheck(Executable executable, Object... parameters) {
