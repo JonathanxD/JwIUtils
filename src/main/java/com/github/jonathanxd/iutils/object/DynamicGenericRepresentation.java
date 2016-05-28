@@ -27,7 +27,7 @@
  */
 package com.github.jonathanxd.iutils.object;
 
-import com.github.jonathanxd.iutils.arrays.ArraysUtils;
+import com.github.jonathanxd.iutils.arrays.ArrayUtils;
 import com.github.jonathanxd.iutils.reflection.RClass;
 import com.github.jonathanxd.iutils.reflection.Reflection;
 
@@ -41,7 +41,7 @@ public class DynamicGenericRepresentation<T> extends GenericRepresentation<T> {
 
     public void addRelated(GenericRepresentation<?> genericRepresentation) {
         try {
-            Reflection.changeFinalField(RClass.getRClass(GenericRepresentation.class, this), "related", ArraysUtils.addToArray(getRelated(), genericRepresentation));
+            Reflection.changeFinalField(RClass.getRClass(GenericRepresentation.class, this), "related", ArrayUtils.addToArray(getRelated(), genericRepresentation));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

@@ -25,20 +25,45 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.construct;
+package com.github.jonathanxd.iutils.iterator;
+
+import java.util.Iterator;
+import java.util.List;
 
 /**
- * Created by jonathan on 02/05/16.
+ * Created by jonathan on 28/05/16.
  */
-public class CannotFindPropertyException extends RuntimeException {
+public class ListIterator<T> implements Iterator<T>, Cloneable {
+    private final List<T> list;
+    private int index;
 
-    private static final String FORMAT_TEMPLATE = "Cannot count property id '%s' of type '%s'";
+    public ListIterator(List<T> list) {
+        this.list = list;
 
-    public CannotFindPropertyException(String propertyId, Class<?> type) {
-        super(String.format(FORMAT_TEMPLATE, propertyId, type));
     }
 
-    public CannotFindPropertyException(String propertyId, Class<?> type, Throwable cause) {
-        super(String.format(FORMAT_TEMPLATE, propertyId, type), cause);
+    @Override
+    public T next() {
+        return list.get(++index);
     }
+
+    @Override
+    public boolean hasNext() {
+        return index + 1 < list.size();
+    }
+
+    @Override
+    public void remove() {
+        list.remove(index);
+        --index;
+    }
+
+    @SuppressWarnings("CloneDoesntCallSuperClone")
+    @Override
+    public ListIterator<T> clone() {
+        ListIterator<T> iterator = new ListIterator<>(list);
+        iterator.index = this.index;
+        return iterator;
+    }
+
 }

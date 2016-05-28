@@ -25,20 +25,40 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.construct;
+package com.github.jonathanxd.iutils.jstring;
+
+import com.github.jonathanxd.iutils.string.JString;
+
+import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * Created by jonathan on 02/05/16.
+ * Created by jonathan on 28/05/16.
  */
-public class CannotFindPropertyException extends RuntimeException {
+public class JStringTest {
 
-    private static final String FORMAT_TEMPLATE = "Cannot count property id '%s' of type '%s'";
+    @Test
+    public void jstringTest() {
+        List<Person> personList = new ArrayList<>();
 
-    public CannotFindPropertyException(String propertyId, Class<?> type) {
-        super(String.format(FORMAT_TEMPLATE, propertyId, type));
+        personList.add(new Person("Maria", 32));
+
+        personList.add(new Person("Marcos", 21));
+
+        personList.add(new Person("Marcelo", 21));
+
+        personList.forEach(person -> System.out.println(JString.of("Nome: ${person.name}, Idade: ${person.idade}.", "person", person)));
     }
 
-    public CannotFindPropertyException(String propertyId, Class<?> type, Throwable cause) {
-        super(String.format(FORMAT_TEMPLATE, propertyId, type), cause);
+    public static class Person {
+        public final String name;
+        public final int idade;
+
+        public Person(String name, int idade) {
+            this.name = name;
+            this.idade = idade;
+        }
     }
 }

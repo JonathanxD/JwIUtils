@@ -25,20 +25,38 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.construct;
+package com.github.jonathanxd.iutils.function.stream;
+
+import com.github.jonathanxd.iutils.collection.Walkable;
+import com.github.jonathanxd.iutils.function.function.ToBiFunction;
+import com.github.jonathanxd.iutils.function.stream.walkable.WalkableNodeBiStream;
+import com.github.jonathanxd.iutils.object.Bi;
+import com.github.jonathanxd.iutils.object.Node;
+
+import java.util.stream.Stream;
 
 /**
- * Created by jonathan on 02/05/16.
+ * Created by jonathan on 28/05/16.
  */
-public class CannotFindPropertyException extends RuntimeException {
 
-    private static final String FORMAT_TEMPLATE = "Cannot count property id '%s' of type '%s'";
+/**
+ *
+ * @param <O> Original Type
+ * @param <T> New Type[1]
+ * @param <U> New Type[2]
+ */
+public class BiJavaStream<O, T, U> extends WalkableNodeBiStream<T, U> {
 
-    public CannotFindPropertyException(String propertyId, Class<?> type) {
-        super(String.format(FORMAT_TEMPLATE, propertyId, type));
+    private BiJavaStream(Stream<O> stream, ToBiFunction<O, T, U> toBiFunction) {
+        super(Walkable.fromStream(stream).map(o -> {
+            Bi<T, U> apply = toBiFunction.apply(o);
+
+            return new Node<>(apply._1(), apply._2());
+        }));
     }
 
-    public CannotFindPropertyException(String propertyId, Class<?> type, Throwable cause) {
-        super(String.format(FORMAT_TEMPLATE, propertyId, type), cause);
+    public static <T, R1, R2> BiJavaStream<T, R1, R2> fromJavaStream(Stream<T> stream, ToBiFunction<T, R1, R2> toBiFunction) {
+        return new BiJavaStream<>(stream, toBiFunction);
     }
+
 }

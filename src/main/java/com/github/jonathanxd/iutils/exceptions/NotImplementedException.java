@@ -25,20 +25,29 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.construct;
+package com.github.jonathanxd.iutils.exceptions;
 
 /**
- * Created by jonathan on 02/05/16.
+ * Created by jonathan on 27/05/16.
  */
-public class CannotFindPropertyException extends RuntimeException {
-
-    private static final String FORMAT_TEMPLATE = "Cannot count property id '%s' of type '%s'";
-
-    public CannotFindPropertyException(String propertyId, Class<?> type) {
-        super(String.format(FORMAT_TEMPLATE, propertyId, type));
+public class NotImplementedException extends RuntimeException {
+    public NotImplementedException() {
+        super();
     }
 
-    public CannotFindPropertyException(String propertyId, Class<?> type, Throwable cause) {
-        super(String.format(FORMAT_TEMPLATE, propertyId, type), cause);
+    public NotImplementedException(String message) {
+        super(message);
+    }
+
+    public NotImplementedException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public NotImplementedException(Throwable cause) {
+        super(cause);
+    }
+
+    protected NotImplementedException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+        super(message, cause, enableSuppression, writableStackTrace);
     }
 }

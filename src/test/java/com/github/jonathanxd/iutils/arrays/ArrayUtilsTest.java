@@ -25,20 +25,29 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.construct;
+package com.github.jonathanxd.iutils.arrays;
+
+import org.junit.Test;
 
 /**
- * Created by jonathan on 02/05/16.
+ * Created by jonathan on 27/05/16.
  */
-public class CannotFindPropertyException extends RuntimeException {
+public class ArrayUtilsTest {
 
-    private static final String FORMAT_TEMPLATE = "Cannot count property id '%s' of type '%s'";
+    @Test
+    public void arrayUtilsTest() {
+        Integer[] numbers = {1, 2, 3, 7, 3, 2, 3};
 
-    public CannotFindPropertyException(String propertyId, Class<?> type) {
-        super(String.format(FORMAT_TEMPLATE, propertyId, type));
-    }
+        Integer[] integers = ArrayUtils.removeElement(numbers, 3);
 
-    public CannotFindPropertyException(String propertyId, Class<?> type, Throwable cause) {
-        super(String.format(FORMAT_TEMPLATE, propertyId, type), cause);
+        System.out.println(java.util.Arrays.toString(integers));
+
+        Integer[] integers1 = ArrayUtils.addAllToArray(numbers, new Integer[]{7, 5, 9});
+
+        System.out.println(java.util.Arrays.toString(integers1));
+
+        Integer[] integers2 = ArrayUtils.removeElements(numbers, new Integer[]{3, 7});
+
+        System.out.println(java.util.Arrays.toString(integers2));
     }
 }

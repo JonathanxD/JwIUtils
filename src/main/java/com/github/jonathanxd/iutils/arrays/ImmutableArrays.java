@@ -35,6 +35,8 @@ import java.util.Enumeration;
  */
 public class ImmutableArrays<E> extends Arrays<E> {
 
+    protected static final Arrays<?> EMPTY = new ImmutableArrays<>();
+
     public ImmutableArrays() {
         super();
     }

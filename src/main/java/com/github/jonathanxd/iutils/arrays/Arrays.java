@@ -49,25 +49,54 @@ import java.util.stream.StreamSupport;
  */
 public class Arrays<E> implements Iterable<E>, Comparable<E[]>, Cloneable {
 
-
-    private static int INITIAL_SIZE = 12;
+    /**
+     * Max Array Size
+     */
     private static final int MAX_ARRAY_SIZE = Integer.MAX_VALUE - 8;
 
-    //java.util.ArrayList
+    /**
+     * Initial Array Size
+     */
+    private static int INITIAL_SIZE = 12;
 
+    /**
+     * Array values
+     */
     private E[] values;
+
+    /**
+     * Array Size
+     */
     private int arraySize = 0;
+
+    /**
+     * Cached Iterator
+     */
     private Iter ix = null;
 
+    /**
+     * Create Empty Generic Array
+     */
     @SuppressWarnings("unchecked")
     public Arrays() {
         this.values = (E[]) new Object[INITIAL_SIZE];
     }
 
+    /**
+     * Create Empty Array of Specified Type.
+     */
+    @SuppressWarnings("unchecked")
+    public Arrays(Class<?> clazz) {
+        this.values = (E[]) Array.newInstance(clazz, INITIAL_SIZE);
+    }
 
+    /**
+     * Create array of
+     * @param values
+     */
     @SafeVarargs
     public Arrays(E... values) {
-        this();
+        this(values[0].getClass());
         for (E value : values) {
             this.addInternal(value);
         }
@@ -90,6 +119,34 @@ public class Arrays<E> implements Iterable<E>, Comparable<E[]>, Cloneable {
         }
     }
 
+    private static int hugeCapacity(int minCapacity) {
+        if (minCapacity < 0)
+            throw new OutOfMemoryError();
+        return (minCapacity > MAX_ARRAY_SIZE) ?
+                Integer.MAX_VALUE :
+                MAX_ARRAY_SIZE;
+    }
+
+    public static <E> Arrays<E> ofG(E[] values) {
+        Objects.requireNonNull(values);
+        return new Arrays<>(values);
+    }
+
+    @SafeVarargs
+    public static <E> Arrays<E> of(E... values) {
+        return new Arrays<>(values);
+    }
+
+    @SafeVarargs
+    public static <E> E[] genericOf(E... values) {
+        return new Arrays<>(values).toGenericArray();
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> Arrays<T> empty() {
+        return (Arrays<T>) ImmutableArrays.EMPTY;
+    }
+
     public void removeElementInternal(E element) {
         removeElementInternal(element, true);
     }
@@ -99,7 +156,7 @@ public class Arrays<E> implements Iterable<E>, Comparable<E[]>, Cloneable {
                 values.length - findInternal(element)
                 : values.length - 1);
 
-        if(len < INITIAL_SIZE) {
+        if (len < INITIAL_SIZE) {
             len = values.length;
 
         }
@@ -120,7 +177,7 @@ public class Arrays<E> implements Iterable<E>, Comparable<E[]>, Cloneable {
                 ++l;
             } else {
                 found = true;
-                if(!recursive)
+                if (!recursive)
                     break;
                 --arraySize;
             }
@@ -134,7 +191,6 @@ public class Arrays<E> implements Iterable<E>, Comparable<E[]>, Cloneable {
             grow(minCapacity);
     }
 
-
     private void grow(int minCapacity) {
         int oldCapacity = values.length;
         int newCapacity = oldCapacity + (oldCapacity >> 1);
@@ -145,46 +201,23 @@ public class Arrays<E> implements Iterable<E>, Comparable<E[]>, Cloneable {
         values = java.util.Arrays.copyOf(values, newCapacity);
     }
 
-    private static int hugeCapacity(int minCapacity) {
-        if (minCapacity < 0)
-            throw new OutOfMemoryError();
-        return (minCapacity > MAX_ARRAY_SIZE) ?
-                Integer.MAX_VALUE :
-                MAX_ARRAY_SIZE;
-    }
-
     public int findInternal(E element) {
         Objects.requireNonNull(element);
         int found = 0;
 
-        for(int x = 0; x < arraySize; ++x) {
-            if(values[x].equals(element)) {
-                ++ found;
+        for (int x = 0; x < arraySize; ++x) {
+            if (values[x].equals(element)) {
+                ++found;
             }
         }
 
         return found;
     }
 
-    public static <E> Arrays<E> ofG(E[] values) {
-        Objects.requireNonNull(values);
-        return new Arrays<>(values);
-    }
-
-    @SafeVarargs
-    public static <E> Arrays<E> of(E... values) {
-        return new Arrays<>(values);
-    }
-
-    @SafeVarargs
-    public static <E> E[] genericOf(E... values) {
-        return new Arrays<>(values).toGenericArray();
-    }
-
     private void addInternal(E value) {
         ensureExplicitCapacity(arraySize + 1);
         arraySize += 1;
-        values[arraySize-1] = value;
+        values[arraySize - 1] = value;
     }
 
     public Arrays<E> add(E value) {
@@ -216,12 +249,11 @@ public class Arrays<E> implements Iterable<E>, Comparable<E[]>, Cloneable {
         int numMoved = arraySize - index - 1;
 
         if (numMoved > 0)
-            System.arraycopy(values, index+1, values, index,
+            System.arraycopy(values, index + 1, values, index,
                     numMoved);
 
         values[--arraySize] = null;
     }
-
 
     public Arrays<E> remove(E value) {
         Objects.requireNonNull(value);
@@ -400,11 +432,6 @@ public class Arrays<E> implements Iterable<E>, Comparable<E[]>, Cloneable {
         return arrays;
     }
 
-    @SuppressWarnings("unchecked")
-    public static <T> Arrays<T> empty() {
-        return ArraysUtils.empty();
-    }
-
     private static class ArrayList<E> extends ArraysAbstractList<E> implements RandomAccess, java.io.Serializable {
         private static final long serialVersionUID = -2764017481108945198L;
         private final E[] a;
@@ -499,165 +526,6 @@ public class Arrays<E> implements Iterable<E>, Comparable<E[]>, Cloneable {
         public Arrays<E> toArrays() {
             return new Arrays<>(a);
         }
-    }
-
-    public static class PrimitiveArray {
-
-        public static Byte[] fromPrimitive(byte[] primitive) {
-            Arrays<Byte> bytes = new Arrays<>();
-
-            for (byte current : primitive) {
-                bytes.add(Byte.valueOf(current));
-            }
-
-            return bytes.toGenericArray(Byte[].class);
-        }
-
-        public static Short[] fromPrimitive(short[] primitive) {
-            Arrays<Short> shorts = new Arrays<>();
-
-            for (short current : primitive) {
-                shorts.add(Short.valueOf(current));
-            }
-
-            return shorts.toGenericArray(Short[].class);
-        }
-
-        public static Integer[] fromPrimitive(int[] primitive) {
-            Arrays<Integer> ints = new Arrays<>();
-
-            for (int current : primitive) {
-                ints.add(Integer.valueOf(current));
-            }
-
-            return ints.toGenericArray(Integer[].class);
-        }
-
-        public static Long[] fromPrimitive(long[] primitive) {
-            Arrays<Long> primitives = new Arrays<>();
-
-            for (long current : primitive) {
-                primitives.add(Long.valueOf(current));
-            }
-
-            return primitives.toGenericArray(Long[].class);
-        }
-
-        public static Float[] fromPrimitive(float[] primitive) {
-            Arrays<Float> primitives = new Arrays<>();
-
-            for (float current : primitive) {
-                primitives.add(Float.valueOf(current));
-            }
-
-            return primitives.toGenericArray(Float[].class);
-        }
-
-        public static Double[] fromPrimitive(double[] primitive) {
-            Arrays<Double> primitives = new Arrays<>();
-
-            for (double current : primitive) {
-                primitives.add(Double.valueOf(current));
-            }
-
-            return primitives.toGenericArray(Double[].class);
-        }
-
-        public static Boolean[] fromPrimitive(boolean[] primitive) {
-            Arrays<Boolean> bools = new Arrays<>();
-
-            for (boolean current : primitive) {
-                bools.add(Boolean.valueOf(current));
-            }
-
-            return bools.toGenericArray(Boolean[].class);
-        }
-
-
-        public static Character[] fromPrimitive(char[] primitive) {
-            Arrays<Character> chars = new Arrays<Character>();
-
-            for (char current : primitive) {
-                chars.add(Character.valueOf(current));
-            }
-
-            return chars.toGenericArray(Character[].class);
-        }
-
-
-        public static byte[] toPrimitive(Byte[] noPrimitive) {
-            byte[] a2 = new byte[noPrimitive.length];
-
-            for (int x = 0; x < noPrimitive.length; ++x) {
-                a2[x] = noPrimitive[x];
-            }
-            return a2;
-        }
-
-        public static short[] toPrimitive(Short[] noPrimitive) {
-            short[] a2 = new short[noPrimitive.length];
-
-            for (int x = 0; x < noPrimitive.length; ++x) {
-                a2[x] = noPrimitive[x];
-            }
-            return a2;
-        }
-
-        public static int[] toPrimitive(Integer[] noPrimitive) {
-            int[] a2 = new int[noPrimitive.length];
-
-            for (int x = 0; x < noPrimitive.length; ++x) {
-                a2[x] = noPrimitive[x];
-            }
-            return a2;
-        }
-
-        public static long[] toPrimitive(Long[] noPrimitive) {
-            long[] a2 = new long[noPrimitive.length];
-
-            for (int x = 0; x < noPrimitive.length; ++x) {
-                a2[x] = noPrimitive[x];
-            }
-            return a2;
-        }
-
-        public static float[] toPrimitive(Float[] noPrimitive) {
-            float[] a2 = new float[noPrimitive.length];
-
-            for (int x = 0; x < noPrimitive.length; ++x) {
-                a2[x] = noPrimitive[x];
-            }
-            return a2;
-        }
-
-        public static double[] toPrimitive(Double[] noPrimitive) {
-            double[] a2 = new double[noPrimitive.length];
-
-            for (int x = 0; x < noPrimitive.length; ++x) {
-                a2[x] = noPrimitive[x];
-            }
-            return a2;
-        }
-
-        public static boolean[] toPrimitive(Boolean[] noPrimitive) {
-            boolean[] a2 = new boolean[noPrimitive.length];
-
-            for (int x = 0; x < noPrimitive.length; ++x) {
-                a2[x] = noPrimitive[x];
-            }
-            return a2;
-        }
-
-
-        public static char[] toPrimitive(Character[] noPrimitive) {
-            char[] a2 = new char[noPrimitive.length];
-
-            for (int x = 0; x < noPrimitive.length; ++x) {
-                a2[x] = noPrimitive[x];
-            }
-            return a2;
-        }
-
     }
 
     private class Iter implements BackableIterator<E> {

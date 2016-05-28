@@ -25,20 +25,26 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.construct;
+package com.github.jonathanxd.iutils.function.extra;
+
+import com.github.jonathanxd.iutils.function.function.NodeFunction;
+import com.github.jonathanxd.iutils.object.Bi;
+import com.github.jonathanxd.iutils.object.Node;
+
+import java.util.function.BiPredicate;
 
 /**
- * Created by jonathan on 02/05/16.
+ * Created by jonathan on 28/05/16.
  */
-public class CannotFindPropertyException extends RuntimeException {
+public final class FuncUtils {
 
-    private static final String FORMAT_TEMPLATE = "Cannot count property id '%s' of type '%s'";
+    private FuncUtils() {}
 
-    public CannotFindPropertyException(String propertyId, Class<?> type) {
-        super(String.format(FORMAT_TEMPLATE, propertyId, type));
+    public static <T, U> boolean test(Bi<T, U> bi, BiPredicate<? super T, ? super U> biPredicate) {
+        return biPredicate.test(bi._1(), bi._2());
     }
 
-    public CannotFindPropertyException(String propertyId, Class<?> type, Throwable cause) {
-        super(String.format(FORMAT_TEMPLATE, propertyId, type), cause);
+    public static <T, U, RK, RV> Node<? extends RK, ? extends RV> from(Bi<T, U> bi, NodeFunction<? super T, ? super U, ? extends RK, ? extends RV> mapper) {
+        return mapper.apply(bi._1(), bi._2());
     }
 }

@@ -25,20 +25,36 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.construct;
+package com.github.jonathanxd.iutils.conditions;
+
+import com.github.jonathanxd.iutils.exceptions.ArraySizeException;
+import com.github.jonathanxd.iutils.exceptions.RequireException;
+import com.github.jonathanxd.iutils.string.JString;
 
 /**
- * Created by jonathan on 02/05/16.
+ * Created by jonathan on 27/05/16.
  */
-public class CannotFindPropertyException extends RuntimeException {
+public class Conditions {
 
-    private static final String FORMAT_TEMPLATE = "Cannot count property id '%s' of type '%s'";
-
-    public CannotFindPropertyException(String propertyId, Class<?> type) {
-        super(String.format(FORMAT_TEMPLATE, propertyId, type));
+    public static void require(boolean bool) {
+        require(bool, null);
     }
 
-    public CannotFindPropertyException(String propertyId, Class<?> type, Throwable cause) {
-        super(String.format(FORMAT_TEMPLATE, propertyId, type), cause);
+    public static void require(boolean bool, String message) {
+        if (!bool) {
+            throw new RequireException(message);
+        }
     }
+
+    public static <T> void checkSize(T[] array, int minimumSize, int maximumSize) {
+        if (array.length < minimumSize || array.length > maximumSize)
+            throw new ArraySizeException(
+                    JString.of("Array size doesn't match requirements. Minimum size: $min. Maximum size: $max. Current: ${length}",
+                            "min", minimumSize,
+                            "max", maximumSize,
+                            "length", array.length)
+                            .toString());
+    }
+
+
 }

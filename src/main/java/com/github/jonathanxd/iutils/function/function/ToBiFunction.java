@@ -25,20 +25,15 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.construct;
+package com.github.jonathanxd.iutils.function.function;
+
+import com.github.jonathanxd.iutils.object.Bi;
 
 /**
- * Created by jonathan on 02/05/16.
+ * Created by jonathan on 28/05/16.
  */
-public class CannotFindPropertyException extends RuntimeException {
 
-    private static final String FORMAT_TEMPLATE = "Cannot count property id '%s' of type '%s'";
-
-    public CannotFindPropertyException(String propertyId, Class<?> type) {
-        super(String.format(FORMAT_TEMPLATE, propertyId, type));
-    }
-
-    public CannotFindPropertyException(String propertyId, Class<?> type, Throwable cause) {
-        super(String.format(FORMAT_TEMPLATE, propertyId, type), cause);
-    }
+@FunctionalInterface
+public interface ToBiFunction<T1, R1, R2> {
+    Bi<R1, R2> apply(T1 t1);
 }

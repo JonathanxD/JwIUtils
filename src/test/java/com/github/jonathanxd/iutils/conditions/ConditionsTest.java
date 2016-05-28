@@ -25,20 +25,19 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.construct;
+package com.github.jonathanxd.iutils.conditions;
+
+import com.github.jonathanxd.iutils.exceptions.ArraySizeException;
+
+import org.junit.Test;
 
 /**
- * Created by jonathan on 02/05/16.
+ * Created by jonathan on 28/05/16.
  */
-public class CannotFindPropertyException extends RuntimeException {
+public class ConditionsTest {
 
-    private static final String FORMAT_TEMPLATE = "Cannot count property id '%s' of type '%s'";
-
-    public CannotFindPropertyException(String propertyId, Class<?> type) {
-        super(String.format(FORMAT_TEMPLATE, propertyId, type));
-    }
-
-    public CannotFindPropertyException(String propertyId, Class<?> type, Throwable cause) {
-        super(String.format(FORMAT_TEMPLATE, propertyId, type), cause);
+    @Test(expected = ArraySizeException.class)
+    public void conditionsTest() {
+        Conditions.checkSize(new String[8], 1, 7);
     }
 }

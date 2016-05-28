@@ -38,11 +38,12 @@ import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.StringJoiner;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.InflaterInputStream;
 
 import com.github.jonathanxd.iutils.arrays.Arrays;
-import com.github.jonathanxd.iutils.arrays.Arrays.PrimitiveArray;
+import com.github.jonathanxd.iutils.arrays.PrimitiveArrayConverter;
 import com.github.jonathanxd.iutils.reflection.Reflection;
 
 public class ObjectUtils {
@@ -55,7 +56,7 @@ public class ObjectUtils {
         oos.flush();
         oos.close();
 
-        return Arrays.ofG(PrimitiveArray.fromPrimitive(baos.toByteArray()));
+        return Arrays.ofG(PrimitiveArrayConverter.fromPrimitive(baos.toByteArray()));
     }
 
     public static Arrays<Byte> getObjectBytesSecure(Object object) {
@@ -81,7 +82,7 @@ public class ObjectUtils {
     }
 
     public static <T> T objectFromBytes(Arrays<Byte> bytes) throws IOException, ClassNotFoundException {
-        ByteArrayInputStream bais = new ByteArrayInputStream(PrimitiveArray.toPrimitive(bytes.toGenericArray()));
+        ByteArrayInputStream bais = new ByteArrayInputStream(PrimitiveArrayConverter.toPrimitive(bytes.toGenericArray()));
         ObjectInputStream ois = new ObjectInputStream(bais);
 
         @SuppressWarnings("unchecked")

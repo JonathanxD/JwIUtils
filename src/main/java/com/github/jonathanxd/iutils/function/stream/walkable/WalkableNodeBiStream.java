@@ -196,10 +196,20 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
         return builder.build();
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <R, V> BiStream<R, V> flatMap(BiFunction<? super T, ? super U, ? extends BiStream<? extends R, ? extends V>> mapper) {
 
-        WalkableNodeBiStream<R, V> mapBiStream = new WalkableNodeBiStream<>(Walkable.asList(new HashMap<>()));
+        List<Node> nodes = new ArrayList<>();
+
+        loop(e -> {
+            BiStream<? extends R, ? extends V> bi = mapper.apply(e.getKey(), e.getValue());
+            bi.iterator().forEachRemaining(nodes::add);
+        });
+
+        return new WalkableNodeBiStream<>((List<Node<R, V>>) Walkable.asList(nodes));
+
+        /*WalkableNodeBiStream<R, V> mapBiStream = new WalkableNodeBiStream<>(Walkable.asList(new HashMap<>()));
 
         Bridge<R, V> bridge = new Bridge<>(mapBiStream);
 
@@ -210,7 +220,7 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
 
         });
 
-        return mapBiStream;
+        return mapBiStream;*/
 
     }
 

@@ -25,20 +25,37 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.construct;
+package com.github.jonathanxd.iutils.object;
+
+import com.github.jonathanxd.iutils.containers.BaseContainer;
 
 /**
- * Created by jonathan on 02/05/16.
+ * Created by jonathan on 28/05/16.
  */
-public class CannotFindPropertyException extends RuntimeException {
+public class Tri<T1, T2, T3> {
+    private final T1 value1;
+    private final T2 value2;
+    private final T3 value3;
 
-    private static final String FORMAT_TEMPLATE = "Cannot count property id '%s' of type '%s'";
-
-    public CannotFindPropertyException(String propertyId, Class<?> type) {
-        super(String.format(FORMAT_TEMPLATE, propertyId, type));
+    public Tri(T1 value1, T2 value2, T3 value3) {
+        this.value1 = value1;
+        this.value2 = value2;
+        this.value3 = value3;
     }
 
-    public CannotFindPropertyException(String propertyId, Class<?> type, Throwable cause) {
-        super(String.format(FORMAT_TEMPLATE, propertyId, type), cause);
+    public Tri(BaseContainer<T1> value1, BaseContainer<T2> value2, BaseContainer<T3> value3) {
+        this(value1.getOrElse(null), value2.getOrElse(null), value3.getOrElse(null));
+    }
+
+    public T1 _1() {
+        return value1;
+    }
+
+    public T2 _2() {
+        return value2;
+    }
+
+    public T3 _3() {
+        return value3;
     }
 }

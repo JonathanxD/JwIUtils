@@ -28,17 +28,25 @@
 package com.github.jonathanxd.iutils.collection;
 
 import com.github.jonathanxd.iutils.comparator.Compared;
+import com.github.jonathanxd.iutils.containers.IMutableContainer;
+import com.github.jonathanxd.iutils.containers.MutableContainer;
+import com.github.jonathanxd.iutils.iterator.IteratorUtil;
+import com.github.jonathanxd.iutils.object.Bi;
 import com.github.jonathanxd.iutils.object.Node;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Spliterator;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Created by jonathan on 05/03/16.
@@ -60,6 +68,8 @@ public interface Walkable<T> {
     boolean hasCurrent();
     T getCurrent();
     Walkable<T> clone();
+
+    <R> Walkable<R> map(Function<T, R> map);
 
 
     default List<T> currentAsList() {
@@ -102,6 +112,11 @@ public interface Walkable<T> {
 
     static <T> Walkable<T> asList(Collection<T> collection) {
         return new WalkableList<>(new ArrayList<>(collection));
+    }
+
+    static <T> Walkable<T> fromStream(Stream<T> stream) {
+        List<T> ts = IteratorUtil.toList(stream.iterator());
+        return asList(ts);
     }
 
     static <T> Walkable<T> asWithoutStateList(List<T> list) {
@@ -222,6 +237,21 @@ public interface Walkable<T> {
             WalkableList<T> walkable = new WalkableList<>(list);
             walkable.index = this.index;
             return walkable;
+        }
+
+        @Override
+        public <R> Walkable<R> map(Function<T, R> map) {
+
+            List<R> rs = new ArrayList<>();
+
+            Walkable<T> clone = newWithoutState();
+
+            while(clone.hasNext()) {
+                T next = clone.next();
+                rs.add(map.apply(next));
+            }
+
+            return new WalkableList<>(rs);
         }
 
         @Override

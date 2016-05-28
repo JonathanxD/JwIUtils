@@ -25,46 +25,68 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.map;
+package com.github.jonathanxd.iutils.string;
 
-import com.github.jonathanxd.iutils.conditions.Conditions;
-import com.github.jonathanxd.iutils.function.collector.BiCollectors;
-import com.github.jonathanxd.iutils.function.comparators.BiComparator;
-import com.github.jonathanxd.iutils.function.stream.MapStream;
-import com.github.jonathanxd.iutils.string.JString;
+import com.github.jonathanxd.iutils.construct.Properties;
+import com.github.jonathanxd.iutils.map.MapUtils;
 
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.Map;
-import java.util.function.Supplier;
 
 /**
- * Created by jonathan on 05/03/16.
+ * Created by jonathan on 27/05/16.
  */
-public class MapUtils {
+public class JString implements CharSequence {
 
-    public static <K, V> Map<K, V> sorted(Map<K, V> map, BiComparator<K, V> biComparator) {
-        return MapStream.of(map).sorted(biComparator).collect(BiCollectors.toMap());
+    private final String original;
+    private final String replaced;
+
+    public JString(String string) {
+        this(string, Collections.emptyMap());
     }
 
-    public static <K, V, MAP extends Map<K, V>> MAP sortedAs(Map<K, V> map, Supplier<MAP> mapSupplier, BiComparator<K, V> biComparator) {
-        return MapStream.of(map).sorted(biComparator).collect(BiCollectors.toMap(mapSupplier));
+    public JString(String string, Object... variables) {
+        this(string, MapUtils.mapOf(variables));
     }
 
-    @SuppressWarnings("unchecked")
-    public static <K, V> Map<K, V> mapOf(Object... elements) {
-
-        Map<Object, Object> map = new HashMap<>();
-
-        for (int i = 0; i < elements.length; i += 2) {
-
-            Object key = elements[i];
-
-            Conditions.require((i + 1) < elements.length, "Missing value of key '"+key+"'");
-
-            map.put(key, elements[i+1]);
-        }
-
-        return (Map<K, V>) map;
+    public JString(String string, Properties props) {
+        this(string, props.toMap());
     }
 
+    public JString(String string, Map<String, Object> variables) {
+        this.original = string;
+        this.replaced = JStringUtil.apply(this.original, variables);
+    }
+
+    public static JString of(String string, Object... variables) {
+        return new JString(string, variables);
+    }
+
+    @Override
+    public int length() {
+        return replaced.length();
+    }
+
+    @Override
+    public char charAt(int index) {
+        return replaced.charAt(length());
+    }
+
+    @Override
+    public CharSequence subSequence(int start, int end) {
+        return replaced.subSequence(start, end);
+    }
+
+    public String getOriginal() {
+        return original;
+    }
+
+    public String getReplaced() {
+        return replaced;
+    }
+
+    @Override
+    public String toString() {
+        return replaced;
+    }
 }

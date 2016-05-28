@@ -28,9 +28,13 @@
 package com.github.jonathanxd.iutils.construct;
 
 import com.github.jonathanxd.iutils.construct.annotation.PropertyContainer;
+import com.github.jonathanxd.iutils.function.collector.BiCollectors;
+import com.github.jonathanxd.iutils.function.stream.BiJavaStream;
+import com.github.jonathanxd.iutils.object.Bi;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -99,5 +103,11 @@ public final class Properties extends HashSet<Prop> {
         }
 
         return value.get();
+    }
+
+    public Map<String, Object> toMap() {
+        return BiJavaStream
+                .fromJavaStream(this.stream().filter(prop -> prop.getValue().isPresent()), prop -> new Bi<>(prop.getId(), prop.getValue().get()))
+                .collect(BiCollectors.toHashMap());
     }
 }
