@@ -29,7 +29,7 @@ package com.github.jonathanxd.iutils.arguments;
 
 import com.github.jonathanxd.iutils.arguments.exception.ParseArgumentException;
 import com.github.jonathanxd.iutils.arguments.exception.UnsatisfiedArgumentError;
-import com.github.jonathanxd.iutils.arrays.Arrays;
+import com.github.jonathanxd.iutils.arrays.JwArray;
 import com.github.jonathanxd.iutils.iterator.BackableIterator;
 
 import java.util.Collections;
@@ -38,9 +38,9 @@ import java.util.Map;
 
 public class EasyArguments {
 	
-	private final HashMap<String, Arrays<String>> arguments = new HashMap<>();
+	private final HashMap<String, JwArray<String>> arguments = new HashMap<>();
 	
-	private synchronized EasyArguments registerArgument(String id, Arrays<String> argument){
+	private synchronized EasyArguments registerArgument(String id, JwArray<String> argument){
 		arguments.put(id, argument);
 		return this;
 	}
@@ -56,11 +56,11 @@ public class EasyArguments {
 	}
 
 	
-	public synchronized Arrays<String> getLastestArgument(String id){
+	public synchronized JwArray<String> getLastestArgument(String id){
 		return arguments.get(id);
 	}
 
-	public synchronized Map<String, Arrays<String>> getArgMap(){
+	public synchronized Map<String, JwArray<String>> getArgMap(){
 		return Collections.unmodifiableMap(arguments);
 	}
 	
@@ -71,11 +71,11 @@ public class EasyArguments {
 	public static EasyArguments parseArgArray(String[] args, String[] singleArgNames) throws ParseArgumentException {
 		
 		EasyArguments xArgs = new EasyArguments();
-		Arrays<String> arrays = Arrays.ofG(args);
-		Arrays<String> single = Arrays.ofG(singleArgNames);
+		JwArray<String> jwArray = JwArray.ofG(args);
+		JwArray<String> single = JwArray.ofG(singleArgNames);
 		
 		
-		BackableIterator<String> iter = arrays.iterator();
+		BackableIterator<String> iter = jwArray.iterator();
 		String opt;
 		while(iter.hasNext()){
 			opt = iter.next();
@@ -88,7 +88,7 @@ public class EasyArguments {
 						
 						String key = opt;
 						
-						Arrays<String> argSend = new Arrays<>();
+						JwArray<String> argSend = new JwArray<>();
 						
 						while(iter.hasNext() && !(opt = iter.next()).startsWith("-")){							
 							argSend.add(opt);
@@ -110,7 +110,7 @@ public class EasyArguments {
 	}
 	
 	public synchronized void checkArguments(String[] ids) throws UnsatisfiedArgumentError{
-		Arrays<String> unsatisfiedArgList = new Arrays<>();
+		JwArray<String> unsatisfiedArgList = new JwArray<>();
 		for(String id : ids){
 			if(!arguments.containsKey(id)){
 				unsatisfiedArgList.add(id);

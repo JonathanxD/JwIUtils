@@ -38,17 +38,16 @@ import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.StringJoiner;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.InflaterInputStream;
 
-import com.github.jonathanxd.iutils.arrays.Arrays;
+import com.github.jonathanxd.iutils.arrays.JwArray;
 import com.github.jonathanxd.iutils.arrays.PrimitiveArrayConverter;
 import com.github.jonathanxd.iutils.reflection.Reflection;
 
 public class ObjectUtils {
 
-    public static Arrays<Byte> getObjectBytes(Object object) throws IOException {
+    public static JwArray<Byte> getObjectBytes(Object object) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream oos = new ObjectOutputStream(baos);
 
@@ -56,11 +55,11 @@ public class ObjectUtils {
         oos.flush();
         oos.close();
 
-        return Arrays.ofG(PrimitiveArrayConverter.fromPrimitive(baos.toByteArray()));
+        return JwArray.ofG(PrimitiveArrayConverter.fromPrimitive(baos.toByteArray()));
     }
 
-    public static Arrays<Byte> getObjectBytesSecure(Object object) {
-        Arrays<Byte> bytes = new Arrays<>();
+    public static JwArray<Byte> getObjectBytesSecure(Object object) {
+        JwArray<Byte> bytes = new JwArray<>();
 
         try {
             bytes = getObjectBytes(object);
@@ -81,7 +80,7 @@ public class ObjectUtils {
         return baos.toByteArray();
     }
 
-    public static <T> T objectFromBytes(Arrays<Byte> bytes) throws IOException, ClassNotFoundException {
+    public static <T> T objectFromBytes(JwArray<Byte> bytes) throws IOException, ClassNotFoundException {
         ByteArrayInputStream bais = new ByteArrayInputStream(PrimitiveArrayConverter.toPrimitive(bytes.toGenericArray()));
         ObjectInputStream ois = new ObjectInputStream(bais);
 
@@ -92,7 +91,7 @@ public class ObjectUtils {
         return object;
     }
 
-    public static Object objectFromBytesSecure(Arrays<Byte> bytes) {
+    public static Object objectFromBytesSecure(JwArray<Byte> bytes) {
         Object object = null;
 
         try {

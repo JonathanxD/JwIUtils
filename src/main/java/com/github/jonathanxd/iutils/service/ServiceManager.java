@@ -27,7 +27,7 @@
  */
 package com.github.jonathanxd.iutils.service;
 
-import com.github.jonathanxd.iutils.arrays.Arrays;
+import com.github.jonathanxd.iutils.arrays.JwArray;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -35,7 +35,7 @@ import java.util.Map;
 public class ServiceManager {
 	
 	private static Map<Class<? extends Service>, Service> services = new HashMap<>();
-	private static final Arrays<Class<? extends Service>> loadWait = new Arrays<>();
+	private static final JwArray<Class<? extends Service>> loadWait = new JwArray<>();
 	/**
 	 * 
 	 * @param service Service
@@ -117,8 +117,8 @@ public class ServiceManager {
 		return waitService(serviceClass, 60);
 	}
 	
-	public static Arrays<Service> listServices(){
-		Arrays<Service> xsServices = new Arrays<Service>();
+	public static JwArray<Service> listServices(){
+		JwArray<Service> xsServices = new JwArray<Service>();
 
 		services.forEach((aClass, service) -> xsServices.add(service));
 

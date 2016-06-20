@@ -27,6 +27,7 @@
  */
 package com.github.jonathanxd.iutils.map;
 
+import com.github.jonathanxd.iutils.arrays.JwArray;
 import com.github.jonathanxd.iutils.containers.SetOf;
 
 import java.util.Collection;
@@ -36,7 +37,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
-import com.github.jonathanxd.iutils.arrays.Arrays;
 import com.github.jonathanxd.iutils.containers.Container;
 
 /**
@@ -46,7 +46,7 @@ import com.github.jonathanxd.iutils.containers.Container;
  */
 public class ObjectMap implements java.util.Map<Object, Object>{
 
-	Arrays<Node<Object, Object>> nodes = new Arrays<Node<Object, Object>>();
+	JwArray<Node<Object, Object>> nodes = new JwArray<Node<Object, Object>>();
 	
 	@Override
 	public int size() {
@@ -113,7 +113,7 @@ public class ObjectMap implements java.util.Map<Object, Object>{
 
 	@Override
 	public void clear() {
-		nodes = new Arrays<>();
+		nodes = new JwArray<>();
 		
 	}
 
@@ -130,7 +130,7 @@ public class ObjectMap implements java.util.Map<Object, Object>{
 
 	@Override
 	public Collection<Object> values() {
-		final Arrays<Object> arr = new Arrays<>();
+		final JwArray<Object> arr = new JwArray<>();
 		
 		nodes.forEach((node) -> {
 			arr.add(node.value);

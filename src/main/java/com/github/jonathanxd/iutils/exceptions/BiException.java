@@ -27,35 +27,28 @@
  */
 package com.github.jonathanxd.iutils.exceptions;
 
-import com.github.jonathanxd.iutils.arrays.JwArray;
-import com.github.jonathanxd.iutils.reflection.Reflection;
+/**
+ * Created by jonathan on 27/05/16.
+ */
+public class BiException extends RethrowException {
 
-public class JwIUtilsRuntimeException extends RuntimeException {
+    public BiException(Throwable cause1, Throwable cause2) {
+        super(build3(cause1, cause2));
+    }
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 3820066586895196852L;
+    private static Throwable build3(Throwable cause1, Throwable cause2) {
+        if (cause1.getCause() != null && cause1.getCause() != cause1) {
+            Throwable c = build3(cause1.getCause(), cause2);
+            return new RethrowException(cause1, c);
+        } else {
+            return cause1.initCause(cause2);
+        }
+    }
 
-	public JwIUtilsRuntimeException(Class<?> involved, String exceptionMessage) {
-		this(involved, exceptionMessage, 0);
-	}
-	
-	public JwIUtilsRuntimeException(Class<?> involved, String exceptionMessage, Throwable cause) {
-		super(exceptionMessage, cause);
-		JwArray<StackTraceElement> arr = JwArray.ofG(super.getStackTrace());
-		arr.add(new StackTraceElement(involved.getName(), "<? unknown method>", involved.getSimpleName(), 0));
-		super.setStackTrace(arr.toGenericArray());
-		
-	}
-	
-	public JwIUtilsRuntimeException(Class<?> involved, String exceptionMessage, int offset) {
-		super(exceptionMessage);
-		
-		StackTraceElement ste = Reflection.getCallInformations(involved);
-		JwArray<StackTraceElement> arr = JwArray.ofG(super.getStackTrace());
-		arr.add(new StackTraceElement(ste.getClassName(), ste.getMethodName(), ste.getFileName(), ste.getLineNumber()+offset));
-		super.setStackTrace(arr.toGenericArray());
-	}
-	
+    @Override
+    public String toString() {
+        String localizedMessage = super.toString();
+
+        return localizedMessage.substring(localizedMessage.indexOf(':')+1);
+    }
 }

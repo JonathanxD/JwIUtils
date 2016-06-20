@@ -25,61 +25,24 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.arrays;
+package com.github.jonathanxd.iutils.collection;
 
-import java.util.Collection;
-import java.util.Enumeration;
+import java.util.List;
 
 /**
- * Arrays IS NOT A COLLECTION, Arrays is an Array representation
+ * Created by jonathan on 20/06/16.
  */
-public class ImmutableArrays<E> extends Arrays<E> {
+public class ListGrabber<T> extends AbstractGrabber<T> {
 
-    protected static final Arrays<?> EMPTY = new ImmutableArrays<>();
+    private final List<T> list;
 
-    public ImmutableArrays() {
-        super();
-    }
-
-    public ImmutableArrays(E... values) {
-        super(values);
-    }
-
-    public ImmutableArrays(Collection<? extends E> collection) {
-        super(collection);
-    }
-
-    public ImmutableArrays(Iterable<? extends E> iterable) {
-        super(iterable);
-    }
-
-    public ImmutableArrays(Enumeration<? extends E> enume) {
-        super(enume);
-    }
-
-    public static <E> ImmutableArrays<E> immutableEmpty() {
-        return new ImmutableArrays<>();
+    public ListGrabber(List<T> list) {
+        super(list.size());
+        this.list = list;
     }
 
     @Override
-    public Arrays<E> add(E value) {
-        throw new UnsupportedOperationException("Immutable Arrays Object");
+    protected T get(int index) {
+        return list.get(index);
     }
-
-    @Override
-    public Arrays<E> addAll(E[] value) {
-        throw new UnsupportedOperationException("Immutable Arrays Object");
-    }
-
-    @Override
-    public Arrays<E> remove(E value) {
-        throw new UnsupportedOperationException("Immutable Arrays Object");
-    }
-
-    @Override
-    public Arrays<E> set(E value, int index) {
-        throw new UnsupportedOperationException("Immutable Arrays Object");
-    }
-
-
 }

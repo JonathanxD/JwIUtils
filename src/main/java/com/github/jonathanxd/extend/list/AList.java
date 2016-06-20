@@ -29,9 +29,9 @@ package com.github.jonathanxd.extend.list;
 
 import java.util.function.Predicate;
 
-import com.github.jonathanxd.iutils.arrays.Arrays;
+import com.github.jonathanxd.iutils.arrays.JwArray;
 
-public class AList<E> extends Arrays<E>{
+public class AList<E> extends JwArray<E> {
 	
 	
 	private final IAListInteraction<E> interactor;

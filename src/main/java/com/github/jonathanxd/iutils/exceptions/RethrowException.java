@@ -25,32 +25,31 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.arrays;
-
-import org.junit.Test;
+package com.github.jonathanxd.iutils.exceptions;
 
 /**
- * Created by jonathan on 21/03/16.
+ * Created by jonathan on 27/05/16.
  */
-public class CompleteArraysTest {
+public class RethrowException extends RuntimeException {
 
-    Arrays<String> abdArr = new Arrays<>("A", "B", "D");
+    public RethrowException(Throwable cause) {
+        super(cause.toString(), cause.getCause());
 
-    @Test
-    public void SimpleArraysTest() {
+        for (Throwable throwable : cause.getSuppressed()) {
+            addSuppressed(throwable);
+        }
 
-        abdArr.add("A");
-
-        System.out.println(abdArr);
-
-        abdArr.remove("A");
-
-        System.out.println(abdArr);
-
-        abdArr.remove(0);
-
-        System.out.println(abdArr);
     }
 
+    public RethrowException(Throwable cause, Throwable rootCause) {
+        super(cause.toString(), rootCause);
+
+        for (Throwable throwable : cause.getSuppressed()) {
+            addSuppressed(throwable);
+        }
+
+        setStackTrace(cause.getStackTrace());
+
+    }
 
 }

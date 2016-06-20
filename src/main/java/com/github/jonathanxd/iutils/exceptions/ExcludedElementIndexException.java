@@ -27,35 +27,27 @@
  */
 package com.github.jonathanxd.iutils.exceptions;
 
-import com.github.jonathanxd.iutils.arrays.JwArray;
-import com.github.jonathanxd.iutils.reflection.Reflection;
+/**
+ * Created by jonathan on 27/05/16.
+ */
+public class ExcludedElementIndexException extends RuntimeException {
+    public ExcludedElementIndexException() {
+        super();
+    }
 
-public class JwIUtilsRuntimeException extends RuntimeException {
+    public ExcludedElementIndexException(String message) {
+        super(message);
+    }
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 3820066586895196852L;
+    public ExcludedElementIndexException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
-	public JwIUtilsRuntimeException(Class<?> involved, String exceptionMessage) {
-		this(involved, exceptionMessage, 0);
-	}
-	
-	public JwIUtilsRuntimeException(Class<?> involved, String exceptionMessage, Throwable cause) {
-		super(exceptionMessage, cause);
-		JwArray<StackTraceElement> arr = JwArray.ofG(super.getStackTrace());
-		arr.add(new StackTraceElement(involved.getName(), "<? unknown method>", involved.getSimpleName(), 0));
-		super.setStackTrace(arr.toGenericArray());
-		
-	}
-	
-	public JwIUtilsRuntimeException(Class<?> involved, String exceptionMessage, int offset) {
-		super(exceptionMessage);
-		
-		StackTraceElement ste = Reflection.getCallInformations(involved);
-		JwArray<StackTraceElement> arr = JwArray.ofG(super.getStackTrace());
-		arr.add(new StackTraceElement(ste.getClassName(), ste.getMethodName(), ste.getFileName(), ste.getLineNumber()+offset));
-		super.setStackTrace(arr.toGenericArray());
-	}
-	
+    public ExcludedElementIndexException(Throwable cause) {
+        super(cause);
+    }
+
+    protected ExcludedElementIndexException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+        super(message, cause, enableSuppression, writableStackTrace);
+    }
 }

@@ -31,5 +31,5 @@ import java.util.AbstractList;
 
 public abstract class ArraysAbstractList<E> extends AbstractList<E> {
 
-	public abstract Arrays<E> toArrays();
+	public abstract JwArray<E> toArrays();
 }

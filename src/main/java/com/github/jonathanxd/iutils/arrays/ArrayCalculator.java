@@ -34,42 +34,42 @@ import com.github.jonathanxd.iutils.containers.MutableContainer;
 
 public class ArrayCalculator {
 	
-	public static Short calculateShort(Arrays<Short> arrays){
+	public static Short calculateShort(JwArray<Short> jwArray){
 		final MutableContainer<Short> val = new MutableContainer<Short>((short) 0);
 		
-		arrays.forEach(v -> val.set((short) (val.get() + v)));
+		jwArray.forEach(v -> val.set((short) (val.get() + v)));
 		
 		return val.get();
 	}
 	
-	public static Integer calculateInt(Arrays<Integer> arrays){
+	public static Integer calculateInt(JwArray<Integer> jwArray){
 		final AtomicInteger val = new AtomicInteger(0);
 
-        arrays.forEach(val::addAndGet);
+        jwArray.forEach(val::addAndGet);
 		
 		return val.get();
 	}
 	
-	public static Long calculateLong(Arrays<Long> arrays){
+	public static Long calculateLong(JwArray<Long> jwArray){
 		final AtomicLong val = new AtomicLong(0);
 		
-		arrays.forEach(val::addAndGet);
+		jwArray.forEach(val::addAndGet);
 		
 		return val.get();
 	}
 	
-	public static Float calculateFloat(Arrays<Float> arrays){
+	public static Float calculateFloat(JwArray<Float> jwArray){
 		final MutableContainer<Float> val = new MutableContainer<>(0f);
 		
-		arrays.forEach(v -> val.set(val.get()+v));
+		jwArray.forEach(v -> val.set(val.get()+v));
 		
 		return val.get();
 	}
 
-	public static Double calculateDouble(Arrays<Double> arrays){
+	public static Double calculateDouble(JwArray<Double> jwArray){
 		final MutableContainer<Double> val = new MutableContainer<Double>(0d);
 		
-		arrays.forEach(v -> val.set(val.get()+v));
+		jwArray.forEach(v -> val.set(val.get()+v));
 		
 		return val.get();
 	}

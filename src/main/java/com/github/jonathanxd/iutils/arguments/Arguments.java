@@ -29,7 +29,7 @@ package com.github.jonathanxd.iutils.arguments;
 
 import com.github.jonathanxd.iutils.arguments.exception.ParseArgumentException;
 import com.github.jonathanxd.iutils.arguments.exception.UnsatisfiedArgumentError;
-import com.github.jonathanxd.iutils.arrays.Arrays;
+import com.github.jonathanxd.iutils.arrays.JwArray;
 import com.github.jonathanxd.iutils.iterator.BackableIterator;
 
 import java.util.Collections;
@@ -113,11 +113,11 @@ public class Arguments {
 	public static Arguments parseArgArray(String[] args, String[] singleArgNames) throws ParseArgumentException {
 		
 		Arguments xArgs = new Arguments();
-		Arrays<String> arrays = Arrays.ofG(args);
-		Arrays<String> single = Arrays.ofG(singleArgNames);
+		JwArray<String> jwArray = JwArray.ofG(args);
+		JwArray<String> single = JwArray.ofG(singleArgNames);
 		
 		
-		BackableIterator<String> iter = arrays.iterator();
+		BackableIterator<String> iter = jwArray.iterator();
 		String opt;
 		while(iter.hasNext()){
 			opt = iter.next();
@@ -129,7 +129,7 @@ public class Arguments {
 						
 						String key = opt;
 						
-						Arrays<String> argSend = new Arrays<>();
+						JwArray<String> argSend = new JwArray<>();
 						
 						while(iter.hasNext() && !(opt = iter.next()).startsWith("-")){							
 							argSend.add(opt);
@@ -139,7 +139,7 @@ public class Arguments {
 							iter.back();
 						}
 						
-						Argument<Arrays<String>> argv = new Argument<Arrays<String>>(argSend);  
+						Argument<JwArray<String>> argv = new Argument<JwArray<String>>(argSend);
 						xArgs.registerArgument(key, argv);						
 					}else{
 						throw new ParseArgumentException("No provided parameters for argument: ");
@@ -152,7 +152,7 @@ public class Arguments {
 	}
 	
 	public synchronized void checkArguments(String[] ids) throws UnsatisfiedArgumentError {
-		Arrays<String> unsatisfiedArgList = new Arrays<>();
+		JwArray<String> unsatisfiedArgList = new JwArray<>();
 		for(String id : ids){
 			if(!argumentExistsById(id)){
 				unsatisfiedArgList.add(id);

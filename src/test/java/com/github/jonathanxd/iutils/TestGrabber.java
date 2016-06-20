@@ -25,37 +25,37 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.exceptions;
+package com.github.jonathanxd.iutils;
 
-import com.github.jonathanxd.iutils.arrays.JwArray;
-import com.github.jonathanxd.iutils.reflection.Reflection;
+import com.github.jonathanxd.iutils.collection.Grabber;
+import com.github.jonathanxd.iutils.collection.ListGrabber;
 
-public class JwIUtilsRuntimeException extends RuntimeException {
+import org.junit.FixMethodOrder;
+import org.junit.Test;
+import org.junit.runners.MethodSorters;
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 3820066586895196852L;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
-	public JwIUtilsRuntimeException(Class<?> involved, String exceptionMessage) {
-		this(involved, exceptionMessage, 0);
-	}
-	
-	public JwIUtilsRuntimeException(Class<?> involved, String exceptionMessage, Throwable cause) {
-		super(exceptionMessage, cause);
-		JwArray<StackTraceElement> arr = JwArray.ofG(super.getStackTrace());
-		arr.add(new StackTraceElement(involved.getName(), "<? unknown method>", involved.getSimpleName(), 0));
-		super.setStackTrace(arr.toGenericArray());
-		
-	}
-	
-	public JwIUtilsRuntimeException(Class<?> involved, String exceptionMessage, int offset) {
-		super(exceptionMessage);
-		
-		StackTraceElement ste = Reflection.getCallInformations(involved);
-		JwArray<StackTraceElement> arr = JwArray.ofG(super.getStackTrace());
-		arr.add(new StackTraceElement(ste.getClassName(), ste.getMethodName(), ste.getFileName(), ste.getLineNumber()+offset));
-		super.setStackTrace(arr.toGenericArray());
-	}
-	
+/**
+ * Created by jonathan on 05/03/16.
+ */
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+public class TestGrabber {
+
+    static List<Integer> integers = new ArrayList<>(Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10));
+
+    @Test
+    public void testGrabber() {
+        Grabber<Integer> grabber = new ListGrabber<>(integers);
+
+        grabber.foreachRemaining(5, System.out::println);
+
+        List<Integer> integers = grabber.collectRemainingToList();
+
+        System.out.println(integers);
+    }
+
+
 }

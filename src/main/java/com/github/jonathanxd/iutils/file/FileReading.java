@@ -36,7 +36,7 @@ import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-import com.github.jonathanxd.iutils.arrays.Arrays;
+import com.github.jonathanxd.iutils.arrays.JwArray;
 import com.github.jonathanxd.iutils.iterator.BackableIterator;
 import com.github.jonathanxd.iutils.iterator.Navigator;
 import com.github.jonathanxd.iutils.iterator.SafeBackableIterator;
@@ -49,12 +49,12 @@ public class FileReading implements Iterable<String>{
 	public FileReading(File file) throws IOException {
 		this.file = file;
 		
-		final Arrays<String> arrays = new Arrays<String>();
+		final JwArray<String> jwArray = new JwArray<String>();
 		
 		Stream<String> stream = Files.lines(file.toPath());
-		stream.forEachOrdered(arrays::add);
+		stream.forEachOrdered(jwArray::add);
 		stream.close();
-		this.lines = arrays.toGenericArray();
+		this.lines = jwArray.toGenericArray();
 	}
 	
 	

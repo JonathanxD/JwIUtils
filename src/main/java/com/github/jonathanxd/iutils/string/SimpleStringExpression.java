@@ -27,7 +27,7 @@
  */
 package com.github.jonathanxd.iutils.string;
 
-import com.github.jonathanxd.iutils.arrays.Arrays;
+import com.github.jonathanxd.iutils.arrays.JwArray;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
@@ -155,7 +155,7 @@ public class SimpleStringExpression {
 
     private static String[] parseArguments(String string) {
 
-        Arrays<String> args = new Arrays<>();
+        JwArray<String> args = new JwArray<>();
 
         Matcher matcher = ARGUMENT_EXTRACTOR.matcher(string);
 

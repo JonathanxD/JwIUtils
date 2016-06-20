@@ -25,40 +25,29 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.arrays;
-
-import org.junit.Test;
+package com.github.jonathanxd.iutils.exceptions;
 
 /**
- * Created by jonathan on 21/03/16.
+ * Created by jonathan on 27/05/16.
  */
-public class ArraysTest {
-
-    String[] abd = new String[]{"A", "B", "D"};
-    Arrays<String> abdArr = new Arrays<>("A", "B", "D");
-    Arrays<String> abdImm = new ImmutableArrays<>("A", "B", "D");
-
-    @Test
-    public void SimpleArraysTest() {
-
-        abd = ArrayUtils.addToArray(abd, "X");
-
-        System.out.println(java.util.Arrays.toString(abd));
+public class CannotCollectElementsException extends RuntimeException {
+    public CannotCollectElementsException() {
+        super();
     }
 
-
-    @Test
-    public void JwArraysTest() {
-        abdArr.add("X");
-
-        System.out.println(abdArr);
+    public CannotCollectElementsException(String message) {
+        super(message);
     }
 
-    @Test(expected = UnsupportedOperationException.class)
-    public void ImmutableTest() {
-        abdImm.add("C");
-        System.out.println(abdImm);
-
+    public CannotCollectElementsException(String message, Throwable cause) {
+        super(message, cause);
     }
 
+    public CannotCollectElementsException(Throwable cause) {
+        super(cause);
+    }
+
+    protected CannotCollectElementsException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+        super(message, cause, enableSuppression, writableStackTrace);
+    }
 }

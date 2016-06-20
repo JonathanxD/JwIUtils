@@ -59,7 +59,7 @@ public class Array2DToTable {
 
 	public static String[] getAsTable(String[][] content){
 		
-		Arrays<String> arr = new Arrays<String>();
+		JwArray<String> arr = new JwArray<String>();
 		
 		int maxLength = getMaxLength(content)+3;
 		StringBuilder indexes = new StringBuilder("|Index|");

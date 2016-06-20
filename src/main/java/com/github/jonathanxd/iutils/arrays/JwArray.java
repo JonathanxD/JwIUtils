@@ -45,9 +45,9 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 /**
- * Arrays IS NOT A LIST or COLLECTION, Arrays is an Array representation
+ * JwArray IS NOT A LIST or COLLECTION, JwArray is an Array representation
  */
-public class Arrays<E> implements Iterable<E>, Comparable<E[]>, Cloneable {
+public class JwArray<E> implements Iterable<E>, Comparable<E[]>, Cloneable {
 
     /**
      * Max Array Size
@@ -78,7 +78,7 @@ public class Arrays<E> implements Iterable<E>, Comparable<E[]>, Cloneable {
      * Create Empty Generic Array
      */
     @SuppressWarnings("unchecked")
-    public Arrays() {
+    public JwArray() {
         this.values = (E[]) new Object[INITIAL_SIZE];
     }
 
@@ -86,7 +86,7 @@ public class Arrays<E> implements Iterable<E>, Comparable<E[]>, Cloneable {
      * Create Empty Array of Specified Type.
      */
     @SuppressWarnings("unchecked")
-    public Arrays(Class<?> clazz) {
+    public JwArray(Class<?> clazz) {
         this.values = (E[]) Array.newInstance(clazz, INITIAL_SIZE);
     }
 
@@ -95,24 +95,29 @@ public class Arrays<E> implements Iterable<E>, Comparable<E[]>, Cloneable {
      * @param values
      */
     @SafeVarargs
-    public Arrays(E... values) {
+    public JwArray(E... values) {
         this(values[0].getClass());
         for (E value : values) {
             this.addInternal(value);
         }
     }
 
-    public Arrays(Collection<? extends E> collection) {
+    public JwArray(Collection<? extends E> collection) {
         super();
         collection.forEach(this::addInternal);
     }
 
-    public Arrays(Iterable<? extends E> iterable) {
+    public JwArray(List<? extends E> list) {
+        super();
+        list.forEach(this::addInternal);
+    }
+
+    public JwArray(Iterable<? extends E> iterable) {
         super();
         iterable.forEach(this::addInternal);
     }
 
-    public Arrays(Enumeration<? extends E> enume) {
+    public JwArray(Enumeration<? extends E> enume) {
         super();
         while (enume.hasMoreElements()) {
             this.addInternal(enume.nextElement());
@@ -127,33 +132,72 @@ public class Arrays<E> implements Iterable<E>, Comparable<E[]>, Cloneable {
                 MAX_ARRAY_SIZE;
     }
 
-    public static <E> Arrays<E> ofG(E[] values) {
+    public static <E> JwArray<E> ofG(E[] values) {
         Objects.requireNonNull(values);
-        return new Arrays<>(values);
+        return new JwArray<>(values);
     }
 
     @SafeVarargs
-    public static <E> Arrays<E> of(E... values) {
-        return new Arrays<>(values);
+    public static <E> JwArray<E> of(E... values) {
+        return new JwArray<>(values);
     }
 
     @SafeVarargs
     public static <E> E[] genericOf(E... values) {
-        return new Arrays<>(values).toGenericArray();
+        return new JwArray<>(values).toGenericArray();
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> Arrays<T> empty() {
-        return (Arrays<T>) ImmutableArrays.EMPTY;
+    public static <T> JwArray<T> empty() {
+        return (JwArray<T>) ImmutableJwArray.EMPTY;
     }
 
-    public void removeElementInternal(E element) {
+    private void removeElementInternal(E element) {
         removeElementInternal(element, true);
+    }
+
+    private void removeElementInternalObject(Object element) {
+        removeElementInternalObject(element, true);
     }
 
     private void removeElementInternal(E element, boolean recursive) {
         int len = (recursive ?
                 values.length - findInternal(element)
+                : values.length - 1);
+
+        if (len < INITIAL_SIZE) {
+            len = values.length;
+
+        }
+
+        @SuppressWarnings("unchecked")
+        E[] arrayCp = (E[]) Array.newInstance(values.getClass().getComponentType(), len);
+
+        int l = 0;
+        boolean found = false;
+
+        final int currentArraySize = arraySize;
+
+        for (int x = 0; x < currentArraySize; ++x) {
+            E e = values[x];
+
+            if (!e.equals(element) || (!recursive && found)) {
+                arrayCp[l] = e;
+                ++l;
+            } else {
+                found = true;
+                if (!recursive)
+                    break;
+                --arraySize;
+            }
+        }
+
+        values = arrayCp;
+    }
+
+    private void removeElementInternalObject(Object element, boolean recursive) {
+        int len = (recursive ?
+                values.length - findInternalObject(element)
                 : values.length - 1);
 
         if (len < INITIAL_SIZE) {
@@ -214,20 +258,33 @@ public class Arrays<E> implements Iterable<E>, Comparable<E[]>, Cloneable {
         return found;
     }
 
+    public int findInternalObject(Object element) {
+        Objects.requireNonNull(element);
+        int found = 0;
+
+        for (int x = 0; x < arraySize; ++x) {
+            if (values[x].equals(element)) {
+                ++found;
+            }
+        }
+
+        return found;
+    }
+
     private void addInternal(E value) {
         ensureExplicitCapacity(arraySize + 1);
         arraySize += 1;
         values[arraySize - 1] = value;
     }
 
-    public Arrays<E> add(E value) {
+    public JwArray<E> add(E value) {
 
         addInternal(value);
 
         return this;
     }
 
-    public Arrays<E> addAll(E[] value) {
+    public JwArray<E> addAll(E[] value) {
         for (E e : value) {
             add(e);
         }
@@ -255,7 +312,7 @@ public class Arrays<E> implements Iterable<E>, Comparable<E[]>, Cloneable {
         values[--arraySize] = null;
     }
 
-    public Arrays<E> remove(E value) {
+    public JwArray<E> remove(E value) {
         Objects.requireNonNull(value);
         removeElementInternal(value);
 
@@ -267,7 +324,19 @@ public class Arrays<E> implements Iterable<E>, Comparable<E[]>, Cloneable {
         return this;
     }
 
-    public Arrays<E> set(E value, int index) {
+    public JwArray<E> removeObject(Object value) {
+        Objects.requireNonNull(value);
+        removeElementInternalObject(value);
+
+        for (int x = 0; x < arraySize; x++) {
+            if (value.equals(values[x])) {
+                remove(x);
+            }
+        }
+        return this;
+    }
+
+    public JwArray<E> set(E value, int index) {
         Objects.requireNonNull(value);
         if (index >= arraySize)
             throw new IndexOutOfBoundsException("Set '" + value.getClass().getName() + "'. Index '" + index + "'. Length '" + arraySize + "'");
@@ -276,7 +345,7 @@ public class Arrays<E> implements Iterable<E>, Comparable<E[]>, Cloneable {
     }
 
     public Collection<E> toCollection() {
-        return new Arrays.ArrayList<>(values);
+        return new JwArray.ArrayList<>(values);
     }
 
     public java.util.ArrayList<E> toArrayList() {
@@ -284,11 +353,11 @@ public class Arrays<E> implements Iterable<E>, Comparable<E[]>, Cloneable {
     }
 
     public List<E> toList() {
-        return new Arrays.ArrayList<>(toGenericArray());
+        return new JwArray.ArrayList<>(toGenericArray());
     }
 
     public ArraysAbstractList<E> toArraysList() {
-        return new Arrays.ArrayList<>(toGenericArray());
+        return new JwArray.ArrayList<>(toGenericArray());
     }
 
     public E[] toGenericArray() {
@@ -326,7 +395,12 @@ public class Arrays<E> implements Iterable<E>, Comparable<E[]>, Cloneable {
         return -1;
     }
 
-    public Arrays<E> copy(Arrays<E> array) {
+    /**
+     * Copy elements from {@code array} to this
+     * @param array Array
+     * @return This Array
+     */
+    public JwArray<E> copy(JwArray<E> array) {
         for (E e : array) {
             add(e);
         }
@@ -426,10 +500,10 @@ public class Arrays<E> implements Iterable<E>, Comparable<E[]>, Cloneable {
     }
 
     @Override
-    public Object clone() {
-        Arrays<E> arrays = new Arrays<>();
-        arrays.addAll(this.values);
-        return arrays;
+    public JwArray<E> clone() {
+        JwArray<E> jwArray = new JwArray<>();
+        jwArray.addAll(this.values);
+        return jwArray;
     }
 
     private static class ArrayList<E> extends ArraysAbstractList<E> implements RandomAccess, java.io.Serializable {
@@ -523,8 +597,8 @@ public class Arrays<E> implements Iterable<E>, Comparable<E[]>, Cloneable {
         }
 
         @Override
-        public Arrays<E> toArrays() {
-            return new Arrays<>(a);
+        public JwArray<E> toArrays() {
+            return new JwArray<>(a);
         }
     }
 

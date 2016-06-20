@@ -54,7 +54,7 @@ public class PerformanceTest {
 
 
     private static List<String> stringList = new ArrayList<>();
-    private static Arrays<String> stringArrays = new Arrays<>();
+    private static JwArray<String> stringJwArray = new JwArray<>();
 
     @Test
     public void a_stringListAdd() {
@@ -95,12 +95,12 @@ public class PerformanceTest {
     }
 
 
-    // Arrays
+    // JwArray
 
     @Test
     public void a_stringArraysAdd() {
         for(int x = 0; x < ITERATIONS; ++x) {
-            stringArrays.add(String.valueOf(x).concat("x"));
+            stringJwArray.add(String.valueOf(x).concat("x"));
         }
     }
 
@@ -111,23 +111,23 @@ public class PerformanceTest {
 
     @Test
     public void b_stringArraysIterate() {
-        for(String s : stringArrays) {
+        for(String s : stringJwArray) {
             clock(s);
         }
     }
 
     @Test
     public void c_stringArraysRemove9() {
-        stringArrays.remove("9x");
-        stringArrays.remove("99x");
-        stringArrays.remove("999x");
-        stringArrays.remove("9999x");
+        stringJwArray.remove("9x");
+        stringJwArray.remove("99x");
+        stringJwArray.remove("999x");
+        stringJwArray.remove("9999x");
     }
 
     @Test
     public void d_stringArraysRemove() {
-        for(int x = 0; x < stringArrays.length(); ++x) {
-            stringArrays.remove(x);
+        for(int x = 0; x < stringJwArray.length(); ++x) {
+            stringJwArray.remove(x);
         }
     }
 

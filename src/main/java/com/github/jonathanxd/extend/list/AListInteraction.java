@@ -41,7 +41,7 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import com.github.jonathanxd.iutils.arrays.Arrays;
+import com.github.jonathanxd.iutils.arrays.JwArray;
 import com.github.jonathanxd.iutils.containers.MutableContainer;
 
 //TODO FIX THE FAIL IDENTICAL VALUE PROBLEM
@@ -130,11 +130,11 @@ public class AListInteraction<T> {
 	 * 
 	 * @return
 	 */
-	public AResult<Arrays<T>, T> finish() {
+	public AResult<JwArray<T>, T> finish() {
 		checkClose();
 		T value = null;
 
-		Arrays<T> processed = new Arrays<T>();
+		JwArray<T> processed = new JwArray<T>();
 		Iterator<Map.Entry<MutableContainer<T>, Task>> ite = vals.entrySet().iterator();
 		boolean first = true;
 		while (ite.hasNext()) {
@@ -174,7 +174,7 @@ public class AListInteraction<T> {
 		}
 		
 		close();
-		return new AResult<Arrays<T>, T>(processed, value);
+		return new AResult<JwArray<T>, T>(processed, value);
 	}
 	
 	private void checkPreClose(){

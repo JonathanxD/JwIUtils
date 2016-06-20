@@ -25,37 +25,40 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.exceptions;
+package com.github.jonathanxd.iutils.arrays;
 
-import com.github.jonathanxd.iutils.arrays.JwArray;
-import com.github.jonathanxd.iutils.reflection.Reflection;
+import org.junit.Test;
 
-public class JwIUtilsRuntimeException extends RuntimeException {
+/**
+ * Created by jonathan on 21/03/16.
+ */
+public class JwArrayTest {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 3820066586895196852L;
+    String[] abd = new String[]{"A", "B", "D"};
+    JwArray<String> abdArr = new JwArray<>("A", "B", "D");
+    JwArray<String> abdImm = new ImmutableJwArray<>("A", "B", "D");
 
-	public JwIUtilsRuntimeException(Class<?> involved, String exceptionMessage) {
-		this(involved, exceptionMessage, 0);
-	}
-	
-	public JwIUtilsRuntimeException(Class<?> involved, String exceptionMessage, Throwable cause) {
-		super(exceptionMessage, cause);
-		JwArray<StackTraceElement> arr = JwArray.ofG(super.getStackTrace());
-		arr.add(new StackTraceElement(involved.getName(), "<? unknown method>", involved.getSimpleName(), 0));
-		super.setStackTrace(arr.toGenericArray());
-		
-	}
-	
-	public JwIUtilsRuntimeException(Class<?> involved, String exceptionMessage, int offset) {
-		super(exceptionMessage);
-		
-		StackTraceElement ste = Reflection.getCallInformations(involved);
-		JwArray<StackTraceElement> arr = JwArray.ofG(super.getStackTrace());
-		arr.add(new StackTraceElement(ste.getClassName(), ste.getMethodName(), ste.getFileName(), ste.getLineNumber()+offset));
-		super.setStackTrace(arr.toGenericArray());
-	}
-	
+    @Test
+    public void SimpleArraysTest() {
+
+        abd = ArrayUtils.addToArray(abd, "X");
+
+        System.out.println(java.util.Arrays.toString(abd));
+    }
+
+
+    @Test
+    public void JwArraysTest() {
+        abdArr.add("X");
+
+        System.out.println(abdArr);
+    }
+
+    @Test(expected = UnsupportedOperationException.class)
+    public void ImmutableTest() {
+        abdImm.add("C");
+        System.out.println(abdImm);
+
+    }
+
 }
