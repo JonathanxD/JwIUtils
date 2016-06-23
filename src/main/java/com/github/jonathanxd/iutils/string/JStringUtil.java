@@ -40,25 +40,21 @@ public class JStringUtil {
 
     public static String apply(String original, Map<String, Object> variables) {
 
-        Replacing replacing = new Replacing(original);
+        StringBuffer replacing = new StringBuffer(original.length());
 
         Matcher matcher = VARIABLE_FORMAT_REFEX.matcher(original);
 
         while (matcher.find()) {
             String svar = matcher.group("svar");
-            int start = matcher.start();
-            int end = matcher.end();
+
+            String toReplace = svar;
 
             if (svar != null && !svar.isEmpty()) {
 
                 Object val = variables.get(svar);
 
                 if (val != null) {
-                    replacing.replace(start, end, val.toString());
-
-                    /*return apply(
-                            matcher.replaceFirst(val.toString()),
-                            variables);*/
+                    toReplace = val.toString();
                 }
             } else {
 
@@ -69,55 +65,21 @@ public class JStringUtil {
 
                 if (val != null) {
                     if (access == null || access.isEmpty()) {
-
-                        replacing.replace(start, end, val.toString());
-
-                        /*return apply(
-                                matcher.replaceFirst(val.toString()),
-                                variables);*/
+                        toReplace = val.toString();
                     } else {
                         Object o = SimpleStringExpression.executeExpression(var + SimpleStringExpression.METHOD_INVOKE_SYMBOL + access, variables);
-                        replacing.replace(start, end, o.toString());
-                        /*return apply(
-                                matcher.replaceFirst(o.toString()),
-                                variables);*/
-                    }
-                } else {
 
+                        toReplace = o.toString();
+                    }
                 }
             }
+
+            matcher.appendReplacement(replacing, Matcher.quoteReplacement(toReplace));
         }
+
+        matcher.appendTail(replacing);
 
         return replacing.toString();
     }
 
-    private static String rangeReplace(String target, int start, int end, String replacement) {
-        StringBuilder sb = new StringBuilder(target);
-
-        sb.replace(start, end, replacement);
-
-        return sb.toString();
-    }
-
-    static final class Replacing {
-
-        private final StringBuilder replaced;
-
-        private int offset = 0;
-
-        Replacing(String str) {
-            this.replaced = new StringBuilder(str);
-        }
-
-        public void replace(int start, int end, String replacement) {
-            replaced.replace(start-offset, end-offset, replacement);
-
-            offset = (end - start) - replacement.length();
-        }
-
-        @Override
-        public String toString() {
-            return replaced.toString();
-        }
-    }
 }

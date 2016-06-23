@@ -25,52 +25,12 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.jstring;
-
-import com.github.jonathanxd.iutils.map.MapUtils;
-import com.github.jonathanxd.iutils.string.JString;
-import com.github.jonathanxd.iutils.string.SimpleStringExpression;
-
-import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.List;
+package com.github.jonathanxd.iutils.conditions;
 
 /**
- * Created by jonathan on 28/05/16.
+ * Created by jonathan on 22/06/16.
  */
-public class JStringTest {
-
-    @Test
-    public void jstringTest() {
-        List<Person> personList = new ArrayList<>();
-
-        personList.add(new Person("Maria", 32));
-
-        personList.add(new Person("Marcos", 21));
-
-        personList.add(new Person("Marcelo", 21));
-
-        personList.forEach(person -> System.out.println(JString.of("Nome: ${person.name}, Idade: ${person.idade}.", "person", person)));
-
-        System.out.println(
-                JString.of("Primeiro da list: ${personList.get(0).getName()}", "personList", personList).toString()
-        );
-
-        SimpleStringExpression.executeExpression("System.out.println(\"Hello World\")", MapUtils.mapOf("System", System.class));
-    }
-
-    public static class Person {
-        public final String name;
-        public final int idade;
-
-        public Person(String name, int idade) {
-            this.name = name;
-            this.idade = idade;
-        }
-
-        public String getName() {
-            return name;
-        }
-    }
+@FunctionalInterface
+public interface RuntimeExceptionFunction {
+    RuntimeException apply(String message);
 }

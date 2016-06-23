@@ -28,11 +28,19 @@
 package com.github.jonathanxd.iutils.string;
 
 import com.github.jonathanxd.iutils.arrays.JwArray;
+import com.github.jonathanxd.iutils.conditions.Conditions;
+import com.github.jonathanxd.iutils.exceptions.MaxRecursiveParseException;
+import com.github.jonathanxd.iutils.exceptions.RethrowException;
+import com.github.jonathanxd.iutils.object.Primitive;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Matcher;
@@ -43,24 +51,36 @@ import java.util.regex.Pattern;
  */
 public class SimpleStringExpression {
 
-    private static final MethodHandles.Lookup LOOKUP = MethodHandles.publicLookup();
     public static final String METHOD_INVOKE_SYMBOL = ".";
-
+    private static final MethodHandles.Lookup LOOKUP = MethodHandles.publicLookup();
     private static final Pattern ARGUMENT_EXTRACTOR = Pattern.compile("\\b[^()]+\\((.*)\\)(;)?$");
     private static final Pattern ARGUMENT_MATCHER = Pattern.compile("([^,]+\\(.+?\\))|([^,]+)");
 
-    public static Object executeExpression(String string, Map<String, Object> variables) {
+    private static Object executeExpression(String string, Map<String, Object> variables, int resultN, List<Object> results) {
+        if (resultN >= 256)
+            throw new MaxRecursiveParseException("Exceeded limit of 256 local variables.");
 
         int indexOfMethod = string.indexOf(METHOD_INVOKE_SYMBOL);
 
         String varName = string;
 
+        if (resultN < -1) {
+            throw new IllegalArgumentException("Illegal resultNumber: resultN: '" + resultN + "' ('resultN' need to be >= -1)!");
+        }
 
         if (indexOfMethod != -1) {
 
             varName = string.substring(0, indexOfMethod).trim();
 
-            Object varValue = Objects.requireNonNull(variables.get(varName), "Cannot find variable '" + varName + "'");
+            Object varValue;
+
+            if (resultN == -1) {
+                varValue = Objects.requireNonNull(variables.get(varName), "Cannot find variable '" + varName + "'");
+            } else if (resultN > -1) {
+                varValue = Objects.requireNonNull(results.get(resultN), "Null local value at index '" + resultN + "'!");
+            } else {
+                throw new IllegalArgumentException("Illegal resultNumber: resultN: '" + resultN + "' ('resultN' need to be >= -1)!");
+            }
 
             final Class<?> aClass;
 
@@ -71,30 +91,81 @@ public class SimpleStringExpression {
                 aClass = varValue.getClass();
             }
 
-            if(string.endsWith(")") || string.endsWith(");")) {
-                String methodName = string.substring(indexOfMethod + METHOD_INVOKE_SYMBOL.length(), string.indexOf('(')).trim();
-                String[] arguments = parseArguments(string);
-                Object[] filledArguments = fillArguments(arguments, variables);
+            int range = parseMethodRange(string, 1);
 
+            if (range != -1) {
+
+                int methodNameStart = indexOfMethod + METHOD_INVOKE_SYMBOL.length();
+
+                //String methodName = string.substring(methodNameStart, string.indexOf('(', methodNameStart)).trim();
+
+                String argumentsStr = string.substring(0, range + 1);
+
+
+                String[] arguments = parseArguments(argumentsStr);
+
+                return executeMethodOfObject(varValue, aClass, string, arguments, methodNameStart, range, variables, resultN, results);
+
+                /*Object[] filledArguments = fillArguments(arguments, variables);
                 MethodHandle method = findMethod(aClass, methodName, varValue, filledArguments);
 
                 if(varValue != null)
                     method = method.bindTo(varValue);
 
+                Object resultL;
+
                 try {
-                    return method.invokeWithArguments(filledArguments);
+                    resultL = method.invokeWithArguments(filledArguments);
                 } catch (Throwable throwable) {
                     throw new RuntimeException(throwable);
                 }
+
+                String afterClose = string.substring(range + 1);
+
+                if(afterClose.length() == 0 || afterClose.equals(";"))
+                    return resultL;
+
+                if(afterClose.startsWith(".")) {
+                    afterClose = afterClose.substring(1);
+                }
+
+                List<Object> results2 = new ArrayList<>(results);
+
+                results2.add(resultL);
+
+                return executeExpression(afterClose, variables, resultN + 1, results2);*/
             } else {
-                String fieldName = string.substring(indexOfMethod + METHOD_INVOKE_SYMBOL.length(), string.length()).trim();
+                int pos = indexOfMethod + METHOD_INVOKE_SYMBOL.length();
+                int end = string.indexOf(METHOD_INVOKE_SYMBOL, pos);
+
+                end = end != -1 ? end : string.length();
+
+                String fieldName = string.substring(pos, end).trim();
 
                 try {
                     Field field = aClass.getField(fieldName);
 
-                    return field.get(varValue);
+                    Object v = field.get(varValue);
+
+                    String rangeRes = string.substring(pos + fieldName.length());
+
+                    if (rangeRes.length() == 0 || rangeRes.equals(";"))
+                        return v;
+
+                    if (rangeRes.startsWith(".")) {
+                        rangeRes = rangeRes.substring(1);
+                    }
+
+
+                    List<Object> results2 = new ArrayList<>(results);
+
+                    results2.add(v);
+
+                    return executeExpression(rangeRes, variables, resultN + 1, results2);
+
+
                 } catch (NoSuchFieldException | IllegalAccessException e) {
-                    RuntimeException ex = new RuntimeException("Cannot access field '"+fieldName+"' of class '"+aClass.getCanonicalName()+"'", e);
+                    RuntimeException ex = new RuntimeException("Cannot access field '" + fieldName + "' of class '" + aClass.getCanonicalName() + "'", e);
 
                     ex.setStackTrace(new StackTraceElement[]{ex.getStackTrace()[0]});
 
@@ -106,32 +177,161 @@ public class SimpleStringExpression {
 
 
         } else {
-            if (variables.containsKey(varName)) {
-                return variables.get(varName);
+            Object parseValue;
+            if ((parseValue = parseValue(varName)) != null) {
+                return parseValue;
             } else {
-                throw new RuntimeException("Cannot find variable '" + varName + "'");
+                if (resultN == -1) {
+                    if (variables.containsKey(varName)) {
+                        return variables.get(varName);
+                    } else {
+                        throw new RuntimeException("Cannot find variable '" + varName + "'");
+                    }
+                } else {
+
+                    Object value = Objects.requireNonNull(results.get(resultN), "Null local value at index '" + resultN + "'!");
+
+                    int range = parseMethodRange(string, 0);
+
+                    if (range != -1) {
+                        int methodNameStart = indexOfMethod + METHOD_INVOKE_SYMBOL.length();
+
+                        String argumentsStr = string.substring(0, range + 1);
+
+                        String[] arguments = parseArguments(argumentsStr);
+
+                        return executeMethodOfObject(value, value.getClass(), string, arguments, methodNameStart, range, variables, resultN, results);
+                    } else {
+
+                        try {
+                            Field field = value.getClass().getField(varName);
+
+                            field.setAccessible(true);
+
+                            return field.get(value);
+
+                        } catch (NoSuchFieldException | IllegalAccessException e) {
+                            throw new RethrowException(e);
+                        }
+                    }
+                }
             }
         }
+    }
+
+    private static Object executeMethodOfObject(Object varValue, Class<?> aClass, String methodString, String[] arguments, int methodNameStart, int range, Map<String, Object> variables, int resultN, List<Object> results) {
+        String methodName = methodString.substring(methodNameStart, methodString.indexOf('(', methodNameStart)).trim();
+
+        Object[] filledArguments = fillArguments(arguments, variables);
+
+        MethodHandle method = findMethod(aClass, methodName, varValue, filledArguments);
+
+        if (varValue != null)
+            method = method.bindTo(varValue);
+
+        Object resultL;
+
+        try {
+            resultL = method.invokeWithArguments(filledArguments);
+        } catch (Throwable throwable) {
+            throw new RuntimeException(throwable);
+        }
+
+        String afterClose = methodString.substring(range + 1);
+
+        if (afterClose.length() == 0 || afterClose.equals(";"))
+            return resultL;
+
+        if (afterClose.startsWith(".")) {
+            afterClose = afterClose.substring(1);
+        }
+
+        List<Object> results2 = new ArrayList<>(results);
+
+        results2.add(resultL);
+
+        return executeExpression(afterClose, variables, resultN + 1, results2);
+    }
+
+    public static Object executeExpression(String string, Map<String, Object> variables) {
+
+        return executeExpression(string, variables, -1, new ArrayList<>());
 
     }
 
+    private static Object parseValue(String s) {
+        try {
+            return Integer.parseInt(s);
+        } catch (NumberFormatException e) {
+        }
+        try {
+            return Long.parseLong(s);
+        } catch (NumberFormatException e) {
+        }
 
+        try {
+            return Double.parseDouble(s);
+        } catch (NumberFormatException e) {
+        }
+
+        if (s.length() > 1 && s.startsWith("\"") && s.endsWith("\"")) {
+            return s.substring(1, s.length() - 1);
+        }
+
+        return null;
+    }
 
     private static MethodHandle findMethod(Class<?> clazz, String name, Object variable, Object[] parameters) {
 
-        Class<?>[] classes = java.util.Arrays.stream(parameters).map(Object::getClass).toArray(Class<?>[]::new);
-
-        MethodType methodType = MethodType.methodType(reflectGetReturnType(clazz, name, classes), classes);
-
         try {
-            if (variable == null) {
-                return LOOKUP.findStatic(clazz, name, methodType);
-            } else {
-                return LOOKUP.findVirtual(clazz, name, methodType);
-            }
-        } catch (NoSuchMethodException | IllegalAccessException e) {
+            Method reflectGetMethod = reflectGetMethod(variable == null, clazz, name, parameters);
+
+            Conditions.checkNotNull(reflectGetMethod, "Cannot find method '" + name + "' with parameters: '" + Arrays.toString(parameters) + "'!");
+
+            return LOOKUP.unreflect(reflectGetMethod);
+
+        } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private static Method reflectGetMethod(boolean isStatic, Class<?> clazz, String methodName, Object[] parameters) {
+        Class<?>[] parameterTypes = Arrays.stream(parameters).map(Object::getClass).toArray(Class<?>[]::new);
+
+        for (Method method : clazz.getMethods()) {
+
+            if (isStatic == Modifier.isStatic(method.getModifiers())) {
+                if (method.getName().equals(methodName)) {
+                    if (checkArguments(parameterTypes, method.getParameterTypes())) {
+                        return method;
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private static boolean checkArguments(Class<?>[] current, Class<?>[] expected) {
+        if (current.length != expected.length)
+            return false;
+
+        for (int i = 0; i < current.length; i++) {
+            Class<?> currentClass = current[i];
+            Class<?> expectedClass = expected[i];
+
+            if (Primitive.typeEquals(currentClass, expectedClass)) {
+                if (currentClass.isPrimitive() != expectedClass.isPrimitive()) {
+                    currentClass = Primitive.normalize(currentClass, expectedClass);
+                }
+            }
+
+            if (!expectedClass.isAssignableFrom(currentClass)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private static Class<?> reflectGetReturnType(Class<?> clazz, String methodName, Class<?>[] argTypes) {
@@ -172,6 +372,45 @@ public class SimpleStringExpression {
         }
 
         return args.toGenericArray(String[].class);
+    }
+
+    private static int parseMethodRange(String string, int ignore) {
+        int openTags = 0;
+        int closeTags = 0;
+
+        boolean lastIsEscape = false;
+
+        char[] chars = string.toCharArray();
+
+        for (int x = 0; x < chars.length; ++x) {
+
+            char c = chars[x];
+
+            if (!lastIsEscape) {
+                if (c == '\\') {
+                    lastIsEscape = true;
+                } else if (c == '"') {
+                    if (openTags <= closeTags)
+                        ++openTags;
+                    else
+                        ++closeTags;
+                } else if (c == ')' && openTags == closeTags) {
+                    return x;
+                } else if (c == '.' && openTags == closeTags) {
+                    if(ignore == 0)
+                        return -1;
+                    else
+                        --ignore;
+                }
+
+            } else {
+                lastIsEscape = false;
+            }
+
+
+        }
+
+        return -1;
     }
 
 }

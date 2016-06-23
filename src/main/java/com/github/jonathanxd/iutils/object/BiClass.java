@@ -25,52 +25,32 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.jstring;
+package com.github.jonathanxd.iutils.object;
 
-import com.github.jonathanxd.iutils.map.MapUtils;
-import com.github.jonathanxd.iutils.string.JString;
-import com.github.jonathanxd.iutils.string.SimpleStringExpression;
-
-import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.github.jonathanxd.iutils.containers.BaseContainer;
 
 /**
- * Created by jonathan on 28/05/16.
+ * BiClass (avoid erasure casts)
  */
-public class JStringTest {
+public class BiClass extends Bi<Class<?>, Class<?>> {
+    private final Class<?> value1;
+    private final Class<?> value2;
 
-    @Test
-    public void jstringTest() {
-        List<Person> personList = new ArrayList<>();
-
-        personList.add(new Person("Maria", 32));
-
-        personList.add(new Person("Marcos", 21));
-
-        personList.add(new Person("Marcelo", 21));
-
-        personList.forEach(person -> System.out.println(JString.of("Nome: ${person.name}, Idade: ${person.idade}.", "person", person)));
-
-        System.out.println(
-                JString.of("Primeiro da list: ${personList.get(0).getName()}", "personList", personList).toString()
-        );
-
-        SimpleStringExpression.executeExpression("System.out.println(\"Hello World\")", MapUtils.mapOf("System", System.class));
+    public BiClass(Class<?> value1, Class<?> value2) {
+        super(value1, value2);
+        this.value1 = value1;
+        this.value2 = value2;
     }
 
-    public static class Person {
-        public final String name;
-        public final int idade;
+    public BiClass(BaseContainer<Class<?>> value1, BaseContainer<Class<?>> value2) {
+        this(value1.getOrElse(null), value2.getOrElse(null));
+    }
 
-        public Person(String name, int idade) {
-            this.name = name;
-            this.idade = idade;
-        }
+    public Class<?> _1() {
+        return value1;
+    }
 
-        public String getName() {
-            return name;
-        }
+    public Class<?> _2() {
+        return value2;
     }
 }

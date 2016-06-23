@@ -25,52 +25,39 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.jstring;
+package com.github.jonathanxd.iutils.object;
 
-import com.github.jonathanxd.iutils.map.MapUtils;
-import com.github.jonathanxd.iutils.string.JString;
-import com.github.jonathanxd.iutils.string.SimpleStringExpression;
-
-import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Objects;
 
 /**
- * Created by jonathan on 28/05/16.
+ * Created by jonathan on 14/02/16.
  */
-public class JStringTest {
+public class IntNode<V> {
 
-    @Test
-    public void jstringTest() {
-        List<Person> personList = new ArrayList<>();
+    private final int key;
+    private final V value;
 
-        personList.add(new Person("Maria", 32));
-
-        personList.add(new Person("Marcos", 21));
-
-        personList.add(new Person("Marcelo", 21));
-
-        personList.forEach(person -> System.out.println(JString.of("Nome: ${person.name}, Idade: ${person.idade}.", "person", person)));
-
-        System.out.println(
-                JString.of("Primeiro da list: ${personList.get(0).getName()}", "personList", personList).toString()
-        );
-
-        SimpleStringExpression.executeExpression("System.out.println(\"Hello World\")", MapUtils.mapOf("System", System.class));
+    public IntNode(int key, V value) {
+        this.key = key;
+        this.value = value;
     }
 
-    public static class Person {
-        public final String name;
-        public final int idade;
-
-        public Person(String name, int idade) {
-            this.name = name;
-            this.idade = idade;
-        }
-
-        public String getName() {
-            return name;
-        }
+    public int getKey() {
+        return key;
     }
+
+    public V getValue() {
+        return value;
+    }
+
+    @Override
+    public String toString() {
+        return "Node[" + getKey() + "=" + getValue() + "]";
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(key, value);
+    }
+
 }

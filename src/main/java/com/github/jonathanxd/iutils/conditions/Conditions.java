@@ -28,7 +28,6 @@
 package com.github.jonathanxd.iutils.conditions;
 
 import com.github.jonathanxd.iutils.exceptions.ArraySizeException;
-import com.github.jonathanxd.iutils.exceptions.RequireException;
 import com.github.jonathanxd.iutils.string.JString;
 
 /**
@@ -37,24 +36,81 @@ import com.github.jonathanxd.iutils.string.JString;
 public class Conditions {
 
     public static void require(boolean bool) {
-        require(bool, null);
+        require(bool, "False required condition!");
     }
 
     public static void require(boolean bool, String message) {
+        require(bool, message, Def.INSTANCE);
+    }
+
+    public static void require(boolean bool, String message, RuntimeExceptionFunction function) {
         if (!bool) {
-            throw new RequireException(message);
+            throw function.apply(message);
         }
     }
 
-    public static <T> void checkSize(T[] array, int minimumSize, int maximumSize) {
+    public static <T> T checkNotNull(T o) {
+        return checkNotNull(o, "Null object value!", Def.INSTANCE);
+    }
+
+    public static <T> T checkNotNull(T o, String message) {
+        return checkNotNull(o, message, Def.INSTANCE);
+    }
+
+    public static <T> T checkNotNull(T o, String message, RuntimeExceptionFunction function) {
+        if (o == null) {
+            throw function.apply(message);
+        }
+
+        return o;
+    }
+
+    public static <T> T checkNull(T o) {
+        return checkNull(o, "Not null object!", Def.INSTANCE);
+    }
+
+    public static <T> T checkNull(T o, String message) {
+        return checkNull(o, message, Def.INSTANCE);
+    }
+
+    public static <T> T checkNull(Object o, String message, RuntimeExceptionFunction function) {
+        if (o != null) {
+            throw function.apply(message);
+        }
+
+        return null;
+    }
+
+    public static <T> T[] checkSize(T[] array, int minimumSize, int maximumSize) {
+        return checkSize(array, minimumSize, maximumSize, JString.of("Array size doesn't match requirements. Minimum size: $min. Maximum size: $max. Current: ${length}",
+                "min", minimumSize,
+                "max", maximumSize,
+                "length", array.length)
+                .toString());
+    }
+
+    public static <T> T[] checkSize(T[] array, int minimumSize, int maximumSize, String message) {
+        return checkSize(array, minimumSize, maximumSize, message, ArraySizeException::new);
+    }
+
+    public static <T> T[] checkSize(T[] array, int minimumSize, int maximumSize, String message, RuntimeExceptionFunction function) {
         if (array.length < minimumSize || array.length > maximumSize)
-            throw new ArraySizeException(
-                    JString.of("Array size doesn't match requirements. Minimum size: $min. Maximum size: $max. Current: ${length}",
-                            "min", minimumSize,
-                            "max", maximumSize,
-                            "length", array.length)
-                            .toString());
+            throw function.apply(message);
+
+        return array;
     }
 
 
+    private static class Def implements RuntimeExceptionFunction {
+
+        static final Def INSTANCE = new Def();
+
+        private Def() {
+        }
+
+        @Override
+        public RuntimeException apply(String message) {
+            return new RuntimeException(message);
+        }
+    }
 }
