@@ -1,8 +1,6 @@
-# JwIUTils
+# JwIUTils [![](https://jitpack.io/v/JonathanxD/JwIUtils.svg)](https://jitpack.io/#JonathanxD/JwIUtils)
 
 Java Utilities Library.
-
-[![](https://jitpack.io/v/JonathanxD/JwIUtils.svg)](https://jitpack.io/#JonathanxD/JwIUtils)
 
 # Functional Improvements
 
