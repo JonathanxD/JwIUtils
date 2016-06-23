@@ -2,11 +2,14 @@
 
 Java Utilities Library.
 
+[![](https://jitpack.io/v/JonathanxD/JwIUtils.svg)](https://jitpack.io/#JonathanxD/JwIUtils)
+
 # Functional Improvements
 
 ###### Binary Operators
 
 BiBinaryOperator
+
 StackBiBinaryOperator
 
 ###### Collectors
@@ -24,10 +27,14 @@ TriConsumer
 ###### Functions
 
 BiToDoubleFunction
+
 BiToIntFunction
+
 BiToLongFunction
 
+
 QuadFunction
+
 TriFunction
 
 ## Bi Stream
