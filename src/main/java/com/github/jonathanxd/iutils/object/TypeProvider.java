@@ -47,8 +47,8 @@ public interface TypeProvider {
 
         Type genericClass = null;
 
-        if(superclass.equals(Object.class)) {
-            for(Type interface_ : getClass().getInterfaces()) {
+        if(superclass.equals(Object.class) || !(getClass().getGenericSuperclass() instanceof ParameterizedType)) {
+            for(Type interface_ : getClass().getGenericInterfaces()) {
                 if(interface_ instanceof ParameterizedType) {
                     genericClass = interface_;
                 }
@@ -66,24 +66,6 @@ public interface TypeProvider {
     }
 
     default Type[] getTypes(Class<?> classToDetermine) {
-
-        Class<?> superclass = getClass().getSuperclass();
-
-        Type genericClass = null;
-
-        if(superclass.equals(Object.class)) {
-            for(Type interface_ : getClass().getInterfaces()) {
-                if(interface_ instanceof ParameterizedType) {
-                    genericClass = interface_;
-                }
-            }
-        } else {
-            genericClass = getClass().getGenericSuperclass();
-        }
-
-        if(genericClass == null) {
-            throw new IllegalStateException("Cannot find generic super type");
-        }
 
         ParameterizedType parameterizedClass = TypeUtil.findParameterizedClass(this.getClass(), classToDetermine);
 
