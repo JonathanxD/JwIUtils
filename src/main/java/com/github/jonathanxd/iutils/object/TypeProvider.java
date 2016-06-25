@@ -38,15 +38,65 @@ import java.util.Objects;
 
 /**
  * Provides a Type for {@link AbstractGenericRepresentation}s
- * @param <T> Type
  */
 public interface TypeProvider {
 
     default Type[] getTypes() {
 
-        Type genericSuperclass = getClass().getGenericSuperclass();
+        Class<?> superclass = getClass().getSuperclass();
 
-        if (!(genericSuperclass instanceof ParameterizedType)) {
+        Type genericClass = null;
+
+        if(superclass.equals(Object.class)) {
+            for(Type interface_ : getClass().getInterfaces()) {
+                if(interface_ instanceof ParameterizedType) {
+                    genericClass = interface_;
+                }
+            }
+        } else {
+            genericClass = getClass().getGenericSuperclass();
+        }
+
+        if(genericClass == null) {
+            throw new IllegalStateException("Cannot find generic super type");
+        }
+
+
+        return getTypes(genericClass);
+    }
+
+    default Type[] getTypes(Class<?> classToDetermine) {
+
+        Class<?> superclass = getClass().getSuperclass();
+
+        Type genericClass = null;
+
+        if(superclass.equals(Object.class)) {
+            for(Type interface_ : getClass().getInterfaces()) {
+                if(interface_ instanceof ParameterizedType) {
+                    genericClass = interface_;
+                }
+            }
+        } else {
+            genericClass = getClass().getGenericSuperclass();
+        }
+
+        if(genericClass == null) {
+            throw new IllegalStateException("Cannot find generic super type");
+        }
+
+        ParameterizedType parameterizedClass = TypeUtil.findParameterizedClass(this.getClass(), classToDetermine);
+
+        return parameterizedClass != null ? parameterizedClass.getActualTypeArguments() : null;
+
+    }
+
+    default Type[] getTypes(Type type) {
+
+        if(type == null)
+            return null;
+
+        if (!(type instanceof ParameterizedType)) {
 
             TypeVariable<? extends Class<? extends TypeProvider>>[] typeParameters = getClass().getTypeParameters();
 
@@ -72,7 +122,8 @@ public interface TypeProvider {
         }
 
 
-        return ((ParameterizedType) genericSuperclass).getActualTypeArguments();
+        return ((ParameterizedType) type).getActualTypeArguments();
+
     }
 
     @SuppressWarnings("unchecked")

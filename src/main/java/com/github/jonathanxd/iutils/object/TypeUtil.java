@@ -248,4 +248,44 @@ public class TypeUtil {
         }
     }
 
+
+    public static ParameterizedType findParameterizedClass(Class<?> in, Class<?> parameterizedType) {
+        Class<?> superClass = in.getSuperclass();
+
+        if(superClass.equals(parameterizedType)) {
+            if(in.getGenericSuperclass() instanceof ParameterizedType) {
+               return (ParameterizedType) in.getGenericSuperclass();
+            }
+        }
+
+        Class[] types = in.getInterfaces();
+        Type[] genericInterfaces = in.getGenericInterfaces();
+
+        for (int i = 0; i < types.length; i++) {
+            if(types[i].equals(parameterizedType)) {
+                if(genericInterfaces[i] instanceof ParameterizedType) {
+                    return (ParameterizedType) genericInterfaces[i];
+                }
+            }
+        }
+
+        if(!superClass.equals(Object.class)) {
+            ParameterizedType find = findParameterizedClass(superClass, parameterizedType);
+            if(find != null) {
+                return find;
+            }
+        }
+
+        if(parameterizedType.isInterface()) {
+            for (Class type : types) {
+                ParameterizedType find = findParameterizedClass(type, parameterizedType);
+
+                if(find != null) {
+                    return find;
+                }
+            }
+        }
+
+        return null;
+    }
 }
