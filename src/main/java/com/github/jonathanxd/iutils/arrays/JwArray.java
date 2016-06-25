@@ -40,6 +40,7 @@ import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.StringJoiner;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -342,6 +343,18 @@ public class JwArray<E> implements Iterable<E>, Comparable<E[]>, Cloneable {
             throw new IndexOutOfBoundsException("Set '" + value.getClass().getName() + "'. Index '" + index + "'. Length '" + arraySize + "'");
         values[index] = value;
         return this;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <U> JwArray<U> map(Function<E, U> function) {
+
+        U[] array = (U[]) new Object[values.length];
+
+        for (int i = 0; i < values.length; i++) {
+            array[i] = function.apply(values[i]);
+        }
+
+        return new JwArray<U>(array);
     }
 
     public Collection<E> toCollection() {

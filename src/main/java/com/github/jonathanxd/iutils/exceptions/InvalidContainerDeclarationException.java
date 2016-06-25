@@ -25,45 +25,29 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils;
-
-import com.github.jonathanxd.iutils.collection.Grabber;
-import com.github.jonathanxd.iutils.collection.ListGrabber;
-
-import org.junit.FixMethodOrder;
-import org.junit.Test;
-import org.junit.runners.MethodSorters;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+package com.github.jonathanxd.iutils.exceptions;
 
 /**
- * Created by jonathan on 05/03/16.
+ * Created by jonathan on 27/05/16.
  */
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class TestGrabber {
-
-    static List<Integer> integers = new ArrayList<>(Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10));
-
-    @Test
-    public void testGrabber() {
-        Grabber<Integer> grabber = new ListGrabber<>(integers);
-
-        grabber.foreachRemaining(5, System.out::println);
-
-        Grabber<Integer> g = grabber.makeClone();
-
-        Grabber<String> map = g.mapAll(String::valueOf);
-
-        map.grab(7);
-
-        System.out.println("Map -> "+map);
-
-        List<Integer> integers = grabber.collectRemainingToList();
-
-        System.out.println(integers);
+public class InvalidContainerDeclarationException extends RuntimeException {
+    public InvalidContainerDeclarationException() {
+        super();
     }
 
+    public InvalidContainerDeclarationException(String message) {
+        super(message);
+    }
 
+    public InvalidContainerDeclarationException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public InvalidContainerDeclarationException(Throwable cause) {
+        super(cause);
+    }
+
+    protected InvalidContainerDeclarationException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+        super(message, cause, enableSuppression, writableStackTrace);
+    }
 }

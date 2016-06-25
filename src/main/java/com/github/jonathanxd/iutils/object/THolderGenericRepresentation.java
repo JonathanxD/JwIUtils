@@ -25,45 +25,36 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils;
-
-import com.github.jonathanxd.iutils.collection.Grabber;
-import com.github.jonathanxd.iutils.collection.ListGrabber;
-
-import org.junit.FixMethodOrder;
-import org.junit.Test;
-import org.junit.runners.MethodSorters;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+package com.github.jonathanxd.iutils.object;
 
 /**
- * Created by jonathan on 05/03/16.
+ * Created by jonathan on 24/06/16.
  */
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class TestGrabber {
 
-    static List<Integer> integers = new ArrayList<>(Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10));
+/**
+ * A generic representation that hold an Object (same type of T).
+ *
+ * @param <T> Generic representation Type and Object Type
+ */
+public class THolderGenericRepresentation<T> extends GenericRepresentation<T> {
 
-    @Test
-    public void testGrabber() {
-        Grabber<Integer> grabber = new ListGrabber<>(integers);
+    private final T value;
 
-        grabber.foreachRemaining(5, System.out::println);
-
-        Grabber<Integer> g = grabber.makeClone();
-
-        Grabber<String> map = g.mapAll(String::valueOf);
-
-        map.grab(7);
-
-        System.out.println("Map -> "+map);
-
-        List<Integer> integers = grabber.collectRemainingToList();
-
-        System.out.println(integers);
+    private THolderGenericRepresentation(Class<? extends T> aClass, GenericRepresentation[] related, boolean isUnique, T value) {
+        super(aClass, related, isUnique);
+        this.value = value;
     }
 
+    public static <T> THolderGenericRepresentation<T> makeHold(GenericRepresentation<T> representation, T value) {
+        return new THolderGenericRepresentation<>(representation.getAClass(), representation.getRelated(), representation.isUnique(), value);
+    }
 
+    /**
+     * Get value
+     *
+     * @return Value
+     */
+    public T getValue() {
+        return value;
+    }
 }

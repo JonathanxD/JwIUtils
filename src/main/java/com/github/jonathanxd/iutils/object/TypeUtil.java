@@ -186,7 +186,7 @@ public class TypeUtil {
 
         TypeToolsMethods.fromConstantPool(lambdaClass, functionalInterfaceClass, types);
 
-        ReferenceBuilder<?> referenceBuilder = new ReferenceBuilder<>().a(functionalInterfaceClass);
+        RepresentationBuilder<?> representationBuilder = new RepresentationBuilder<>().a(functionalInterfaceClass);
 
         TypeVariable<Class<T>>[] typeParameters = functionalInterfaceClass.getTypeParameters();
 
@@ -194,31 +194,31 @@ public class TypeUtil {
             String name = typeParameter.getName();
             if (types.containsKey(name)) {
                 Class<?> aClass = types.get(name);
-                referenceBuilder.of(aClass);
+                representationBuilder.of(aClass);
             }
         }
 
-        return referenceBuilder.build();
+        return representationBuilder.build();
     }
 
     public static GenericRepresentation<?> toReference(ParameterizedType param) {
-        ReferenceBuilder referenceBuilder = GenericRepresentation.a(from(param.getRawType()));
+        RepresentationBuilder representationBuilder = GenericRepresentation.a(from(param.getRawType()));
         for (Type type : param.getActualTypeArguments()) {
             if (!(type instanceof ParameterizedType)) {
 
                 Class<?> from = from(type);
 
                 if (from != null) {
-                    referenceBuilder.of(from);
+                    representationBuilder.of(from);
                 } else {
                     break;
                 }
             } else {
                 ParameterizedType parameterizedType = (ParameterizedType) type;
-                referenceBuilder.of(toReference(parameterizedType));
+                representationBuilder.of(toReference(parameterizedType));
             }
         }
-        return referenceBuilder.build();
+        return representationBuilder.build();
     }
 
     public static Class<?> from(Type t) {

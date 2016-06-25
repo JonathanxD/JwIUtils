@@ -27,39 +27,69 @@
  */
 package com.github.jonathanxd.iutils.containers.primitivecontainers;
 
+import com.github.jonathanxd.iutils.containers.BaseContainer;
 import com.github.jonathanxd.iutils.containers.Container;
+import com.github.jonathanxd.iutils.containers.UnknownContainer;
 
-public class FloatContainer extends Container<Float>{
+/**
+ * Improved to {@link float} primitive type
+ */
 
-	public FloatContainer(float f) {
-		super(f);
-	}
-	
-	public void add(float f){
-		super.set(super.get() + f);
-	}
-	
-	public void add(){
-		this.add(1);
-	}
+public class FloatContainer implements UnknownContainer<Float> {
 
-	public void remove(float f){
-		this.add(-f);
-	}
-	
-	public void remove(){
-		this.remove(1);
-	}
-	
-	public void multiply(float f){
-		super.set(super.get() * f);
-	}
+    private float f;
 
-	public void divide(float f){
-		super.set(super.get() / f);
-	}
-	
-	public static FloatContainer of(float f){
-		return new FloatContainer(f);
-	}
+    public FloatContainer() {
+        this.f = 0F;
+    }
+
+    public FloatContainer(float f) {
+        this.f = f;
+    }
+
+    public static FloatContainer of(float f) {
+        return new FloatContainer(f);
+    }
+
+    public void add(float f) {
+        this.set(this.get() + f);
+    }
+
+    public void add() {
+        this.add(1);
+    }
+
+    public void remove(float f) {
+        this.add(-f);
+    }
+
+    public void remove() {
+        this.remove(1);
+    }
+
+    public void multiply(float f) {
+        this.set(this.get() * f);
+    }
+
+    public void divide(float f) {
+        this.set(this.get() / f);
+    }
+
+    public void set(float f) {
+        this.f = f;
+    }
+
+    public float get() {
+        return f;
+    }
+
+    @Override
+    public BaseContainer<Float> box() {
+        return Container.of(f);
+    }
+
+    @Override
+    public Class<?> type() {
+        return Float.TYPE;
+    }
 }

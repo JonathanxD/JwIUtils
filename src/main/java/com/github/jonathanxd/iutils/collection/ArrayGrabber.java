@@ -43,4 +43,14 @@ public class ArrayGrabber<T> extends AbstractGrabber<T> {
     protected T get(int index) {
         return array[index];
     }
+
+    @Override
+    AbstractGrabber<T> makeNew() {
+        return new ArrayGrabber<>(array);
+    }
+
+    @Override
+    <U> AbstractGrabber<U> makeNewFromArray(U[] array) {
+        return new ArrayGrabber<>(array.clone());
+    }
 }

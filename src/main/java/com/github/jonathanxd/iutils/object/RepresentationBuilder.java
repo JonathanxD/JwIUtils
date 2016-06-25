@@ -37,41 +37,40 @@ import com.github.jonathanxd.iutils.optional.Required;
 /**
  * Created by jonathan on 13/02/16.
  */
-public final class ReferenceBuilder<T> {
+public final class RepresentationBuilder<T> {
     private Class<? extends T> aClass = null;
-    private List<ReferenceBuilder<?>> related = new ArrayList<>();
-    private Object hold = null;
+    private List<RepresentationBuilder<?>> related = new ArrayList<>();
+    //private Object hold = null;
+    private boolean isUnique = false;
 
-    ReferenceBuilder() {
+    RepresentationBuilder() {
     }
 
     public Class<? extends T> getaClass() {
         return aClass;
     }
 
-    public List<ReferenceBuilder<?>> getRelated() {
+    public List<RepresentationBuilder<?>> getRelated() {
         return related;
     }
 
-    public Object getHold() {
-        return hold;
+    public void setUnique(boolean unique) {
+        this.isUnique = unique;
+    }
+
+    public boolean isUnique() {
+        return isUnique;
     }
 
     @Required
-    public ReferenceBuilder<T> a(Class<? extends T> aClass) {
+    public RepresentationBuilder<T> a(Class<? extends T> aClass) {
         this.aClass = aClass;
-        return this;
-    }
-
-    @Optional
-    public ReferenceBuilder<T> hold(Object object) {
-        this.hold = object;
         return this;
     }
 
     // Of
     @Optional
-    public ReferenceBuilder<T> of(List<GenericRepresentation<?>> related) {
+    public RepresentationBuilder<T> of(List<GenericRepresentation<?>> related) {
 
         for(GenericRepresentation<?> genericRepresentation : related) {
             this.related.add(from(genericRepresentation));
@@ -81,7 +80,7 @@ public final class ReferenceBuilder<T> {
     }
 
     @Optional
-    public <E> ReferenceBuilder<T> ofE(List<GenericRepresentation<E>> related) {
+    public <E> RepresentationBuilder<T> ofE(List<GenericRepresentation<E>> related) {
 
         for(GenericRepresentation<E> genericRepresentation : related) {
             this.related.add(from(genericRepresentation));
@@ -91,21 +90,21 @@ public final class ReferenceBuilder<T> {
     }
 
     @Optional
-    public final <E> ReferenceBuilder<T> of(GenericRepresentation<?>... related) {
+    public final <E> RepresentationBuilder<T> of(GenericRepresentation<?>... related) {
         this.of(Arrays.asList(related));
         return this;
     }
 
     @Optional
-    public final <E> ReferenceBuilder<T> ofArray(GenericRepresentation<?>[] related) {
+    public final <E> RepresentationBuilder<T> ofArray(GenericRepresentation<?>[] related) {
         this.of(Arrays.asList(related));
         return this;
     }
 
     @Optional
-    public ReferenceBuilder<T> of(ReferenceBuilder... builders) {
+    public RepresentationBuilder<T> of(RepresentationBuilder... builders) {
 
-        for (ReferenceBuilder builder : builders) {
+        for (RepresentationBuilder builder : builders) {
             this.related.add(builder);
         }
         return this;
@@ -113,12 +112,12 @@ public final class ReferenceBuilder<T> {
 
     @SafeVarargs
     @Optional
-    public final <E> ReferenceBuilder<T> of(Class<? extends E>... classes) {
+    public final <E> RepresentationBuilder<T> of(Class<? extends E>... classes) {
 
         List<GenericRepresentation<E>> genericRepresentations = new ArrayList<>();
 
         for (Class<? extends E> classz : classes) {
-            genericRepresentations.add(new ReferenceBuilder<E>().a(classz).build());
+            genericRepresentations.add(new RepresentationBuilder<E>().a(classz).build());
         }
 
         ofE(genericRepresentations);
@@ -128,7 +127,7 @@ public final class ReferenceBuilder<T> {
 
     // AND OF
     @Optional
-    public <E> ReferenceBuilder<T> and(List<GenericRepresentation<E>> related) {
+    public <E> RepresentationBuilder<T> and(List<GenericRepresentation<E>> related) {
         andCheck();
         ofE(related);
         return this;
@@ -136,21 +135,21 @@ public final class ReferenceBuilder<T> {
 
     @SafeVarargs
     @Optional
-    public final <E> ReferenceBuilder<T> and(GenericRepresentation<E>... related) {
+    public final <E> RepresentationBuilder<T> and(GenericRepresentation<E>... related) {
         andCheck();
         of(related);
         return this;
     }
 
     @Optional
-    public ReferenceBuilder<T> and(ReferenceBuilder... builders) {
+    public RepresentationBuilder<T> and(RepresentationBuilder... builders) {
         andCheck();
         of(builders);
         return this;
     }
 
     @Optional
-    public ReferenceBuilder<T> and(Class<?>... classes) {
+    public RepresentationBuilder<T> and(Class<?>... classes) {
         andCheck();
         of(classes);
         return this;
@@ -161,27 +160,27 @@ public final class ReferenceBuilder<T> {
             throw new IllegalStateException("'and' cannot be used here! Usage ex: referenceTo().a(Object.class).of(String.class).and(Class.class)");
     }
 
-    public static <T> ReferenceBuilder<T> from(GenericRepresentation<T> genericRepresentation) {
-        ReferenceBuilder<T> referenceBuilder = new ReferenceBuilder<>();
-        referenceBuilder.a(genericRepresentation.getAClass());
+    public static <T> RepresentationBuilder<T> from(GenericRepresentation<T> genericRepresentation) {
+        RepresentationBuilder<T> representationBuilder = new RepresentationBuilder<>();
+        representationBuilder.a(genericRepresentation.getAClass());
 
         for(GenericRepresentation<?> otherGenericRepresentation : genericRepresentation.getRelated()) {
-            referenceBuilder.related.add(from(otherGenericRepresentation));
+            representationBuilder.related.add(from(otherGenericRepresentation));
         }
 
-        return referenceBuilder;
+        return representationBuilder;
     }
 
-    public static <T> GenericRepresentation<T> to(ReferenceBuilder<T> referenceBuilder) {
+    public static <T> GenericRepresentation<T> to(RepresentationBuilder<T> representationBuilder) {
 
-        DynamicGenericRepresentation<T> dynamicReference = new DynamicGenericRepresentation<>(referenceBuilder.aClass, new GenericRepresentation[]{}, referenceBuilder.hold);
+        DynamicGenericRepresentation<T> dynamicReference = new DynamicGenericRepresentation<>(representationBuilder.aClass, new GenericRepresentation[]{}, representationBuilder.isUnique());
 
-        if(referenceBuilder.related.size() > 0) {
+        if(representationBuilder.related.size() > 0) {
 
             List<GenericRepresentation<?>> genericRepresentationList = new ArrayList<>();
 
-            for(ReferenceBuilder<?> otherReferenceBuilder : referenceBuilder.related) {
-                genericRepresentationList.add(to(otherReferenceBuilder));
+            for(RepresentationBuilder<?> otherRepresentationBuilder : representationBuilder.related) {
+                genericRepresentationList.add(to(otherRepresentationBuilder));
             }
 
             for(GenericRepresentation<?> genericRepresentation : genericRepresentationList) {
@@ -193,11 +192,6 @@ public final class ReferenceBuilder<T> {
     }
 
     public GenericRepresentation<T> build() {
-        List<GenericRepresentation<?>> waitingGenericRepresentations = new ArrayList<>();
-
-
-
-        //return new GenericRepresentation<>(aClass, related.toArray(new GenericRepresentation[related.size()]), hold);
         return to(this);
     }
 }

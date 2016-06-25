@@ -27,6 +27,8 @@
  */
 package com.github.jonathanxd.iutils.collection;
 
+import com.github.jonathanxd.iutils.exceptions.BiException;
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.Collections;
@@ -47,6 +49,24 @@ public class CollectionUtils {
                 return null;
             }
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> Collection<T> sameFilled(Collection<T> collection) {
+        try {
+            return collection.getClass().getConstructor(Collection.class).newInstance(collection);
+        } catch (Throwable t) {
+            try {
+                Collection rmk = collection.getClass().newInstance();
+
+                rmk.addAll(collection);
+
+                return (Collection<T>) rmk;
+            } catch (InstantiationException | IllegalAccessException e1) {
+                throw new BiException(t, e1);
+            }
+        }
+
     }
 
 }

@@ -27,27 +27,57 @@
  */
 package com.github.jonathanxd.iutils.containers.primitivecontainers;
 
-import com.github.jonathanxd.iutils.containers.Container;
+import com.github.jonathanxd.iutils.containers.BaseContainer;
+import com.github.jonathanxd.iutils.containers.MutableContainer;
+import com.github.jonathanxd.iutils.containers.UnknownContainer;
 
-public class BooleanContainer extends Container<Boolean>{
+/**
+ * Improved to {@link boolean} primitive type
+ */
+public class BooleanContainer implements UnknownContainer<Boolean> {
 
-	public BooleanContainer(boolean b) {
-		super(b);
-	}
-	
-	public void toogle(){
-		super.set(!super.get());
-	}
-	
-	public void toFalse(){
-		super.set(Boolean.FALSE);
-	}
+    private boolean b;
 
-	public void toTrue(){
-		super.set(Boolean.TRUE);
-	}
-	
-	public boolean toBoolean(){
-		return super.get().booleanValue();
-	}
+    public BooleanContainer() {
+        this.b = false;
+    }
+
+    public BooleanContainer(boolean b) {
+        this.b = b;
+    }
+
+    public static BooleanContainer of(boolean b) {
+        return new BooleanContainer(b);
+    }
+
+    public void toogle() {
+        this.set(!this.get());
+    }
+
+    public void toFalse() {
+        this.set(Boolean.FALSE);
+    }
+
+    public void toTrue() {
+        this.set(Boolean.TRUE);
+    }
+
+    public void set(boolean b) {
+        this.b = b;
+    }
+
+    public boolean get() {
+        return b;
+    }
+
+    @Override
+    public BaseContainer<Boolean> box() {
+        return MutableContainer.of(b);
+    }
+
+    @Override
+    public Class<?> type() {
+        return Boolean.TYPE;
+    }
+
 }

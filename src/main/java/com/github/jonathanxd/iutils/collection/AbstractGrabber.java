@@ -27,15 +27,17 @@
  */
 package com.github.jonathanxd.iutils.collection;
 
+import com.github.jonathanxd.iutils.annotations.Named;
 import com.github.jonathanxd.iutils.arrays.JwArray;
 import com.github.jonathanxd.iutils.exceptions.CannotCollectElementsException;
 import com.github.jonathanxd.iutils.exceptions.ExcludedElementIndexException;
+import com.github.jonathanxd.iutils.string.InJoiner;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.StringJoiner;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.function.ObjIntConsumer;
 
@@ -56,7 +58,7 @@ public abstract class AbstractGrabber<T> implements Grabber<T> {
 
     @Override
     public T grab() throws IndexOutOfBoundsException {
-        if(currentNonExcludedIndex != -1) {
+        if (currentNonExcludedIndex != -1) {
             excludedIndexes[currentNonExcludedIndex] = true;
 
             T value = this.get(currentNonExcludedIndex);
@@ -72,8 +74,8 @@ public abstract class AbstractGrabber<T> implements Grabber<T> {
     @Override
     public T grab(int index) throws ExcludedElementIndexException {
 
-        if(excludedIndexes[index])
-            throw new ExcludedElementIndexException("Index: "+index);
+        if (excludedIndexes[index])
+            throw new ExcludedElementIndexException("Index: " + index);
 
         excludedIndexes[index] = true;
 
@@ -136,7 +138,7 @@ public abstract class AbstractGrabber<T> implements Grabber<T> {
     @Override
     public void foreachRemaining(Consumer<T> consumer) {
         for (int i = 0; i < excludedIndexes.length; i++) {
-            if(!excludedIndexes[i]) {
+            if (!excludedIndexes[i]) {
                 excludedIndexes[i] = true;
 
                 consumer.accept(this.get(i));
@@ -149,7 +151,7 @@ public abstract class AbstractGrabber<T> implements Grabber<T> {
     @Override
     public void foreachRemaining(ObjIntConsumer<T> consumer) {
         for (int i = 0; i < excludedIndexes.length; i++) {
-            if(!excludedIndexes[i]) {
+            if (!excludedIndexes[i]) {
                 excludedIndexes[i] = true;
 
                 consumer.accept(this.get(i), i);
@@ -164,19 +166,19 @@ public abstract class AbstractGrabber<T> implements Grabber<T> {
         int currentAmount = 0;
 
         for (int i = 0; i < excludedIndexes.length; i++) {
-            if(!excludedIndexes[i]) {
+            if (!excludedIndexes[i]) {
                 excludedIndexes[i] = true;
 
                 consumer.accept(this.get(i));
                 ++currentAmount;
             }
 
-            if(currentAmount == amount)
+            if (currentAmount == amount)
                 break;
         }
 
-        if(currentAmount != amount)
-            throw new CannotCollectElementsException("Cannot collect '"+amount+"' elements. Collected only '"+currentAmount+"'!");
+        if (currentAmount != amount)
+            throw new CannotCollectElementsException("Cannot collect '" + amount + "' elements. Collected only '" + currentAmount + "'!");
 
         currentNonExcludedIndex = calculateNonExcludedIndex();
     }
@@ -186,19 +188,19 @@ public abstract class AbstractGrabber<T> implements Grabber<T> {
         int currentAmount = 0;
 
         for (int i = 0; i < excludedIndexes.length; i++) {
-            if(!excludedIndexes[i]) {
+            if (!excludedIndexes[i]) {
                 excludedIndexes[i] = true;
 
                 consumer.accept(this.get(i), i);
                 ++currentAmount;
             }
 
-            if(currentAmount == amount)
+            if (currentAmount == amount)
                 break;
         }
 
-        if(currentAmount != amount)
-            throw new CannotCollectElementsException("Cannot collect '"+amount+"' elements. Collected only '"+currentAmount+"'!");
+        if (currentAmount != amount)
+            throw new CannotCollectElementsException("Cannot collect '" + amount + "' elements. Collected only '" + currentAmount + "'!");
 
         currentNonExcludedIndex = calculateNonExcludedIndex();
     }
@@ -220,7 +222,7 @@ public abstract class AbstractGrabber<T> implements Grabber<T> {
         JwArray<T> array = new JwArray<>();
 
         for (int i = 0; i < excludedIndexes.length; i++) {
-            if(!excludedIndexes[i])
+            if (!excludedIndexes[i])
                 array.add(array.get(i));
         }
 
@@ -232,7 +234,7 @@ public abstract class AbstractGrabber<T> implements Grabber<T> {
         JwArray<T> array = new JwArray<>();
 
         for (int i = 0; i < excludedIndexes.length; i++) {
-            if(excludedIndexes[i])
+            if (excludedIndexes[i])
                 array.add(array.get(i));
         }
 
@@ -241,7 +243,7 @@ public abstract class AbstractGrabber<T> implements Grabber<T> {
 
     protected int calculateNonExcludedIndex() {
         for (int i = 0; i < excludedIndexes.length; i++) {
-            if(!excludedIndexes[i])
+            if (!excludedIndexes[i])
                 return i;
         }
 
@@ -253,7 +255,7 @@ public abstract class AbstractGrabber<T> implements Grabber<T> {
         int num = 0;
 
         for (boolean excludedIndex : excludedIndexes) {
-            if(excludedIndex)
+            if (excludedIndex)
                 ++num;
         }
 
@@ -265,7 +267,7 @@ public abstract class AbstractGrabber<T> implements Grabber<T> {
         int num = 0;
 
         for (boolean excludedIndex : excludedIndexes) {
-            if(!excludedIndex)
+            if (!excludedIndex)
                 ++num;
         }
 
@@ -283,4 +285,92 @@ public abstract class AbstractGrabber<T> implements Grabber<T> {
     }
 
     protected abstract T get(int index);
+
+    protected boolean[] getExcludedIndexes() {
+        return excludedIndexes.clone();
+    }
+
+    @Override
+    public Grabber<T> makeClone() {
+        AbstractGrabber<T> newGrabber = makeNew();
+
+        for (int i = 0; i < excludedIndexes.length; i++) {
+            newGrabber.excludedIndexes[i] = excludedIndexes[i];
+        }
+
+        // More Secure. Can be replaced with: newGrabber.currentNonExcludedIndex = this.currentNonExcludedIndex
+        newGrabber.currentNonExcludedIndex = newGrabber.calculateNonExcludedIndex();
+
+        return newGrabber;
+    }
+
+    abstract AbstractGrabber<T> makeNew();
+
+    /**
+     * Return Excluded elements between parentheses and included elements out-of parentheses.
+     *
+     * @return Excluded elements between parentheses and included elements out-of parentheses.
+     */
+    @Override
+    public String toString() {
+        //[(0, 1, 2, 3) 4, 5, 6, 7]
+
+        InJoiner inJoiner = new InJoiner(new @Named("Included") StringJoiner(", ", "[", "]"),
+                () -> new @Named("Excluded") StringJoiner(", ", "(", ")"));
+
+        for (int x = 0; x < allElementsSize(); ++x) {
+            if (excludedIndexes[x])
+                inJoiner.joinSecond(get(x).toString());
+            else
+                inJoiner.joinFirst(get(x).toString());
+        }
+
+        return inJoiner.toString();
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <U> AbstractGrabber<U> map(Function<T, U> function) {
+        U[] genericArray = (U[]) new Object[calculateIncludedElements()];
+
+        for(int x = 0; hasIncludedElements(); ++x) {
+            T grab = grab(); // IMPORTANT: Consume
+
+            genericArray[x] = function.apply(grab);
+        }
+
+        return makeNewFromArray(genericArray);
+    }
+
+    @Override
+    public <U> AbstractGrabber<U> mapAll(Function<T, U> function) {
+
+        boolean[] clone = excludedIndexes.clone();
+
+        AbstractGrabber<U> uGrabber = mapAllToIncluded(function);
+
+        for (int i = 0; i < clone.length; i++) {
+            uGrabber.excludedIndexes[i] = clone[i];
+        }
+
+        return uGrabber;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <U> AbstractGrabber<U> mapAllToIncluded(Function<T, U> function) {
+
+        U[] genericArray = (U[]) new Object[length];
+
+        for (int i = 0; i < length; i++) {
+            genericArray[i] = function.apply(get(i));
+        }
+
+        while(hasIncludedElements())
+            grab();
+
+        return makeNewFromArray(genericArray);
+    }
+
+    abstract <U> AbstractGrabber<U> makeNewFromArray(U[] array);
 }

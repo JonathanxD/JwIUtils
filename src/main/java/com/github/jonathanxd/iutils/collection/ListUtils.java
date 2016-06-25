@@ -31,6 +31,7 @@ import com.github.jonathanxd.iutils.iterator.BackableIterator;
 import com.github.jonathanxd.iutils.iterator.SafeBackableIterator;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.StringJoiner;
 import java.util.function.Function;
@@ -117,5 +118,8 @@ public class ListUtils {
         return null;
     }
 
+    public static <E> ArrayList<E> listFromArray(E[] array) {
+        return new ArrayList<>(Arrays.asList(array));
+    }
 
 }

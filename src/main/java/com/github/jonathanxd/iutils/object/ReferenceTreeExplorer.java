@@ -36,29 +36,29 @@ import java.util.Objects;
 /**
  * Created by jonathan on 30/04/16.
  */
-public class ReferenceTreeExplorer implements TreeExplore<ReferenceBuilder<?>> {
+public class ReferenceTreeExplorer implements TreeExplore<RepresentationBuilder<?>> {
     @Override
-    public TreeExplorer<ReferenceBuilder<?>> startExplore(ReferenceBuilder<?> element) {
+    public TreeExplorer<RepresentationBuilder<?>> startExplore(RepresentationBuilder<?> element) {
         return new Explorer(element);
     }
 
-    private static class Explorer implements TreeExplorer<ReferenceBuilder<?>> {
+    private static class Explorer implements TreeExplorer<RepresentationBuilder<?>> {
 
         private Node current = null;
 
-        public Explorer(ReferenceBuilder<?> referenceBuilder) {
-            current = new Node(null, referenceBuilder);
+        public Explorer(RepresentationBuilder<?> representationBuilder) {
+            current = new Node(null, representationBuilder);
         }
 
         @Override
-        public void join(ReferenceBuilder<?> element) {
+        public void join(RepresentationBuilder<?> element) {
             Node node = new Node(current, element);
             current.child().add(node);
             current = node;
         }
 
         @Override
-        public ReferenceBuilder<?> current() {
+        public RepresentationBuilder<?> current() {
             return Objects.requireNonNull(current, "No elements!").value();
         }
 
@@ -68,13 +68,13 @@ public class ReferenceTreeExplorer implements TreeExplore<ReferenceBuilder<?>> {
         }
     }
 
-    private static class Node implements TreeNode<ReferenceBuilder<?>, Node> {
+    private static class Node implements TreeNode<RepresentationBuilder<?>, Node> {
 
         private final Node parent;
-        private final ReferenceBuilder<?> value;
+        private final RepresentationBuilder<?> value;
         private final List<Node> childs = new ArrayList<>();
 
-        private Node(Node parent, ReferenceBuilder<?> value) {
+        private Node(Node parent, RepresentationBuilder<?> value) {
             this.parent = parent;
             this.value = value;
         }
@@ -85,7 +85,7 @@ public class ReferenceTreeExplorer implements TreeExplore<ReferenceBuilder<?>> {
         }
 
         @Override
-        public ReferenceBuilder<?> value() {
+        public RepresentationBuilder<?> value() {
             return value;
         }
 

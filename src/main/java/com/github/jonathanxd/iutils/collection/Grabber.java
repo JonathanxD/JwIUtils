@@ -31,9 +31,10 @@ import com.github.jonathanxd.iutils.arrays.JwArray;
 import com.github.jonathanxd.iutils.exceptions.CannotCollectElementsException;
 import com.github.jonathanxd.iutils.exceptions.ExcludedElementIndexException;
 
+import java.lang.reflect.Array;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.function.ObjIntConsumer;
 
@@ -72,12 +73,52 @@ public interface Grabber<T> {
     boolean isExcluded(int index);
 
     /**
+     * Map remaining to new Grabber (excluded elements are not included in the result)
+     *
+     * <b>Elements will be consumed</b>
+     *
+     * @param <U> New Type
+     * @return New grabber mapped to new type
+     */
+    <U> Grabber<U> map(Function<T, U> function);
+
+    /**
+     * Map all elements to new Grabber (excluded elements will be mapped, but remain excluded)
+     *
+     * <b>Elements will be consumed</b>
+     *
+     * @param <U> New Type
+     * @return New grabber mapped to new type
+     */
+    <U> Grabber<U> mapAll(Function<T, U> function);
+
+    /**
+     * Map all elements to new Grabber (as included) (excluded elements will be mapped and your
+     * indexes will be included)
+     *
+     * <b>Elements will be consumed</b>
+     *
+     * @param <U> New Type
+     * @return New grabber mapped to new type
+     */
+    <U> Grabber<U> mapAllToIncluded(Function<T, U> function);
+
+    /**
      * Collect all remaining elements (non-excluded index elements)
      *
      * @return All remaining
      */
     T[] collectRemainingToArray(IntFunction<T[]> generator);
 
+    /**
+     * Collect all remaining elements (non-excluded index elements)
+     *
+     * @return All remaining
+     */
+    @SuppressWarnings("unchecked")
+    default T[] collectRemainingToArray(Class<T[]> arrayClass) {
+        return collectRemainingToArray((i) -> (T[]) Array.newInstance(arrayClass.getComponentType(), i));
+    }
 
     /**
      * Collect all remaining elements (non-excluded index elements)
@@ -92,6 +133,16 @@ public interface Grabber<T> {
      * @return A {@code amount} of remaining elements
      */
     T[] collectRemainingToArray(int amount, IntFunction<T[]> generator);
+
+    /**
+     * Collect a {@code amount} of remaining elements
+     *
+     * @return A {@code amount} of remaining elements
+     */
+    @SuppressWarnings("unchecked")
+    default T[] collectRemainingToArray(int amount, Class<T[]> arrayClass) {
+        return collectRemainingToArray(amount, (i) -> (T[]) Array.newInstance(arrayClass.getComponentType(), i));
+    }
 
     /**
      * Collect a {@code amount} of remaining elements
@@ -178,5 +229,14 @@ public interface Grabber<T> {
      * @return Excluded elements
      */
     JwArray<T> excludedElements();
+
+    /**
+     * Create a clone of grabber (preserve state)
+     *
+     * <b>This operation doesn't consume elements</b>
+     *
+     * @return A clone of grabber (preserve state)
+     */
+    Grabber<T> makeClone();
 
 }

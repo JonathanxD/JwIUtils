@@ -35,8 +35,8 @@ import com.github.jonathanxd.iutils.reflection.Reflection;
  * Created by jonathan on 02/04/16.
  */
 public class DynamicGenericRepresentation<T> extends GenericRepresentation<T> {
-    DynamicGenericRepresentation(Class<? extends T> aClass, GenericRepresentation[] related, Object hold) {
-        super(aClass, related, hold);
+    DynamicGenericRepresentation(Class<? extends T> aClass, GenericRepresentation[] related, boolean isUnique) {
+        super(aClass, related, isUnique);
     }
 
     public void addRelated(GenericRepresentation<?> genericRepresentation) {
@@ -48,6 +48,6 @@ public class DynamicGenericRepresentation<T> extends GenericRepresentation<T> {
     }
 
     public GenericRepresentation<T> toReference() {
-        return new GenericRepresentation<>(this.getAClass(), this.getRelated(), this.get());
+        return new GenericRepresentation<>(this.getAClass(), this.getRelated(), this.isUnique());
     }
 }

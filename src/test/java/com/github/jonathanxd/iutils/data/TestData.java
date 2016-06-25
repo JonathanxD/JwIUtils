@@ -28,6 +28,9 @@
 package com.github.jonathanxd.iutils.data;
 
 import com.github.jonathanxd.iutils.object.GenericRepresentation;
+import com.github.jonathanxd.iutils.object.HolderGenericRepresentation;
+
+import org.junit.Test;
 
 import java.util.Optional;
 
@@ -36,11 +39,12 @@ import java.util.Optional;
  */
 public class TestData {
 
-    public static void main(String[] args) {
+    @Test
+    public void testData() {
 
-        ReferenceData data = new ReferenceData();
+        RepresentationData data = new RepresentationData();
 
-        data.registerData(GenericRepresentation.a(Optional.class).of(String.class).hold(Optional.of("Hi")).build());
+        data.registerData(HolderGenericRepresentation.makeHold(GenericRepresentation.a(Optional.class).of(String.class).build(), Optional.of("Hi")));
 
         data.invoke(new TestData(), m -> m.getName().equals("hello"));
     }

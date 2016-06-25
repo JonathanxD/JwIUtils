@@ -46,7 +46,8 @@ public abstract class AbstractGenericRepresentation<T> extends GenericRepresenta
         try {
             Reflection.changeFinalField(RClass.getRClass(GenericRepresentation.class, this), "aClass", genericRepresentation.getAClass());
             Reflection.changeFinalField(RClass.getRClass(GenericRepresentation.class, this), "related", genericRepresentation.getRelated());
-            Reflection.changeFinalField(RClass.getRClass(GenericRepresentation.class, this), "hold", genericRepresentation.get());
+            //Reflection.changeFinalField(RClass.getRClass(GenericRepresentation.class, this), "hold", genericRepresentation.get());
+            Reflection.changeFinalField(RClass.getRClass(GenericRepresentation.class, this), "isUnique", genericRepresentation.isUnique());
         } catch (Exception e) {
             throw new Error(e);
         }

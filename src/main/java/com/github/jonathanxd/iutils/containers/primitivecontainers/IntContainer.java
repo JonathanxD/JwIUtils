@@ -27,39 +27,68 @@
  */
 package com.github.jonathanxd.iutils.containers.primitivecontainers;
 
+import com.github.jonathanxd.iutils.containers.BaseContainer;
 import com.github.jonathanxd.iutils.containers.Container;
+import com.github.jonathanxd.iutils.containers.UnknownContainer;
 
-public class IntContainer extends Container<Integer>{
+/**
+ * Improved to {@link int} primitive type
+ */
+public class IntContainer implements UnknownContainer<Integer> {
 
-	public IntContainer(int i) {
-		super(i);
-	}
-	
-	public void add(int i){
-		super.set(super.get() + i);
-	}
-	
-	public void add(){
-		this.add(1);
-	}
+    private int i;
 
-	public void remove(int i){
-		this.add(-i);
-	}
-	
-	public void remove(){
-		this.remove(1);
-	}
-	
-	public void multiply(int i){
-		super.set(super.get() * i);
-	}
+    public IntContainer() {
+        this.i = 0;
+    }
 
-	public void divide(int i){
-		super.set(super.get() / i);
-	}
-	
-	public static IntContainer of(int i){
-		return new IntContainer(i);
-	}
+    public IntContainer(int i) {
+        this.i = i;
+    }
+
+    public static IntContainer of(int i) {
+        return new IntContainer(i);
+    }
+
+    public void add(int i) {
+        this.set(this.get() + i);
+    }
+
+    public void add() {
+        this.add(1);
+    }
+
+    public void remove(int i) {
+        this.add(-i);
+    }
+
+    public void remove() {
+        this.remove(1);
+    }
+
+    public void multiply(int i) {
+        this.set(this.get() * i);
+    }
+
+    public void divide(int i) {
+        this.set(this.get() / i);
+    }
+
+    @Override
+    public BaseContainer<Integer> box() {
+        return Container.of(i);
+    }
+
+    @Override
+    public Class<?> type() {
+        return Integer.TYPE;
+    }
+
+    public void set(int i) {
+        this.i = i;
+    }
+
+    public int get() {
+        return this.i;
+    }
 }

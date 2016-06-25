@@ -29,9 +29,15 @@ package com.github.jonathanxd.iutils.containers;
 
 import com.github.jonathanxd.iutils.annotations.Named;
 
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public interface IMutableContainer<T> extends HistoryContainer<T> {
+
+    void setApplier(BiFunction<BaseContainer<T>, T, T> applier);
+
+    void apply(T value);
+
     void setValue(T value);
 
     default void set(T value) {

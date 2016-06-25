@@ -57,11 +57,11 @@ import java.util.function.Supplier;
  *
  * @param <T>
  */
-public interface BaseContainer<T> extends Comparable<BaseContainer<T>>{
+public interface BaseContainer<T> extends Comparable<BaseContainer<T>>, UnknownContainer<T> {
 
-	void setApplier(BiFunction<BaseContainer<T>, T, T> applier);
-
-	void apply(T value);
+	default <R> R map(Function<T, R> function) {
+		return function.apply(this.get());
+	}
 
 	T getValue();
 
@@ -85,10 +85,6 @@ public interface BaseContainer<T> extends Comparable<BaseContainer<T>>{
 
 	String toString();
 
-	default <R> R apply(Function<T, R> function) {
-		return function.apply(this.get());
-	}
-
 	default T get() {
 		return getValue();
 	}
@@ -108,6 +104,14 @@ public interface BaseContainer<T> extends Comparable<BaseContainer<T>>{
 		}
 		return -1;
 	}
-	
-	
+
+	@Override
+	default BaseContainer<T> box() {
+		return this;
+	}
+
+	@Override
+	default Class<?> type() {
+		return Object.class;
+	}
 }

@@ -45,4 +45,14 @@ public class JwArrayGrabber<T> extends AbstractGrabber<T> {
     protected T get(int index) {
         return array.get(index);
     }
+
+    @Override
+    AbstractGrabber<T> makeNew() {
+        return new JwArrayGrabber<>(array);
+    }
+
+    @Override
+    <U> AbstractGrabber<U> makeNewFromArray(U[] array) {
+        return new JwArrayGrabber<>(new JwArray<>(array));
+    }
 }

@@ -27,39 +27,68 @@
  */
 package com.github.jonathanxd.iutils.containers.primitivecontainers;
 
+import com.github.jonathanxd.iutils.containers.BaseContainer;
 import com.github.jonathanxd.iutils.containers.Container;
+import com.github.jonathanxd.iutils.containers.UnknownContainer;
 
-public class DoubleContainer extends Container<Double>{
+/**
+ * Improved to {@link double} primitive type
+ */
+public class DoubleContainer implements UnknownContainer<Double> {
 
-	public DoubleContainer(double d) {
-		super(d);
-	}
-	
-	public void add(double d){
-		super.set(super.get() + d);
-	}
-	
-	public void add(){
-		this.add(1);
-	}
+    private double d;
 
-	public void remove(double d){
-		this.add(-d);
-	}
-	
-	public void remove(){
-		this.remove(1);
-	}
-	
-	public void multiply(double d){
-		super.set(super.get() * d);
-	}
+    public DoubleContainer() {
+        this(0D);
+    }
 
-	public void divide(double d){
-		super.set(super.get() / d);
-	}
-	
-	public static DoubleContainer of(double d){
-		return new DoubleContainer(d);
-	}
+    public DoubleContainer(double d) {
+        this.d = d;
+    }
+
+    public static DoubleContainer of(double d) {
+        return new DoubleContainer(d);
+    }
+
+    public void add(double d) {
+        this.set(this.get() + d);
+    }
+
+    public void add() {
+        this.add(1);
+    }
+
+    public void remove(double d) {
+        this.add(-d);
+    }
+
+    public void remove() {
+        this.remove(1);
+    }
+
+    public void multiply(double d) {
+        this.set(this.get() * d);
+    }
+
+    public void divide(double d) {
+        this.set(this.get() / d);
+    }
+
+    public void set(double d) {
+        this.d = d;
+    }
+
+    public double get() {
+        return d;
+    }
+
+    @Override
+    public BaseContainer<Double> box() {
+        return Container.of(d);
+    }
+
+    @Override
+    public Class<?> type() {
+        return Double.TYPE;
+    }
 }

@@ -69,7 +69,7 @@ public class MutableContainer<T> implements IMutableContainer<T> {
 	public static <T> MutableContainer<T> make(Class<? super T> clazz) throws ContainerMakeException {
 		T value;
 		try{
-			value = Reflection.constructEmpty(clazz);
+			value = (T) Reflection.constructEmpty(clazz);
 		}catch(Exception e){
 			throw new ContainerMakeException("Non public empty constructors found for class: "+clazz+"!");
 		}

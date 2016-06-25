@@ -28,6 +28,7 @@
 package com.github.jonathanxd.iutils.collection;
 
 import java.util.List;
+import java.util.function.Function;
 
 /**
  * Created by jonathan on 20/06/16.
@@ -45,4 +46,16 @@ public class ListGrabber<T> extends AbstractGrabber<T> {
     protected T get(int index) {
         return list.get(index);
     }
+
+    @Override
+    AbstractGrabber<T> makeNew() {
+        return new ListGrabber<>(list);
+    }
+
+    @Override
+    <U> AbstractGrabber<U> makeNewFromArray(U[] array) {
+        return new ListGrabber<>(ListUtils.listFromArray(array));
+    }
+
+
 }

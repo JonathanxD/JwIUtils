@@ -65,7 +65,7 @@ public class Container<T> extends MutableContainer<T> implements Mutability {
 	public static <T> Container<T> make(Class<? super T> clazz) throws ContainerMakeException {
 		T value;
 		try{
-			value = Reflection.constructEmpty(clazz);
+			value = (T) Reflection.constructEmpty(clazz);
 		}catch(Exception e){
 			throw new ContainerMakeException("Non public empty constructors found for class: "+clazz+"!");
 		}

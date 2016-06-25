@@ -27,6 +27,7 @@
  */
 package com.github.jonathanxd.iutils.reference;
 
+import com.github.jonathanxd.iutils.exceptions.RethrowException;
 import com.github.jonathanxd.iutils.object.AbstractGenericRepresentation;
 import com.github.jonathanxd.iutils.object.GenericRepresentation;
 import com.github.jonathanxd.iutils.object.TypeProvider;
@@ -147,6 +148,25 @@ public class GenericRepresentationTest {
 
         System.out.println("GenericRepresentations of Function<String, Integer> => "+ genericRepresentation5);
 
+
+        GenericRepresentation<?> representationN =
+                GenericRepresentation.of(List.class)
+                .of(String.class)
+                .and(GenericRepresentation.of(List.class).of(Integer.class))
+                .and(GenericRepresentation.of(List.class).of(String.class))
+                .build();
+
+        System.out.println("MultiRepresentation of List<String, List<Integer>, List<String>> => "+ representationN);
+
+        String toFullString2 = representationN.toFullString();
+
+        System.out.println("MultiRepresentation of List<String, List<Integer>, List<String>> Full: => "+ toFullString2);
+
+        try {
+            System.out.println("MultiRepresentation of List<String, List<Integer>, List<String>> From Full: => "+ GenericRepresentation.fromFullString(toFullString2));
+        } catch (ClassNotFoundException e) {
+            throw new RethrowException(e);
+        }
 
 
     }
