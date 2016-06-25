@@ -68,6 +68,7 @@ public interface Walkable<T> {
     boolean hasCurrent();
     T getCurrent();
     Walkable<T> clone();
+    void resetIndex();
 
     <R> Walkable<R> map(Function<T, R> map);
 
@@ -237,6 +238,11 @@ public interface Walkable<T> {
             WalkableList<T> walkable = new WalkableList<>(list);
             walkable.index = this.index;
             return walkable;
+        }
+
+        @Override
+        public void resetIndex() {
+            this.index = -1;
         }
 
         @Override

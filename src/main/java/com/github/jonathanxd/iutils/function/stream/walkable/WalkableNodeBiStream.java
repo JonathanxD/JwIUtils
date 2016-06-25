@@ -32,22 +32,21 @@ import com.github.jonathanxd.iutils.collection.Walkable;
 import com.github.jonathanxd.iutils.comparator.Compared;
 import com.github.jonathanxd.iutils.containers.IMutableContainer;
 import com.github.jonathanxd.iutils.containers.MutableContainer;
-import com.github.jonathanxd.iutils.function.function.BiToDoubleFunction;
-import com.github.jonathanxd.iutils.function.function.BiToIntFunction;
-import com.github.jonathanxd.iutils.function.function.BiToLongFunction;
 import com.github.jonathanxd.iutils.function.binary.BiBinaryOperator;
 import com.github.jonathanxd.iutils.function.binary.NodeBiBinaryOperator;
 import com.github.jonathanxd.iutils.function.binary.StackBiBinaryOperator;
 import com.github.jonathanxd.iutils.function.collector.BiCollector;
 import com.github.jonathanxd.iutils.function.comparators.BiComparator;
 import com.github.jonathanxd.iutils.function.consumer.TriConsumer;
+import com.github.jonathanxd.iutils.function.function.BiToDoubleFunction;
+import com.github.jonathanxd.iutils.function.function.BiToIntFunction;
+import com.github.jonathanxd.iutils.function.function.BiToLongFunction;
 import com.github.jonathanxd.iutils.function.function.NodeArrayIntFunction;
 import com.github.jonathanxd.iutils.function.function.NodeFunction;
 import com.github.jonathanxd.iutils.function.function.TriFunction;
 import com.github.jonathanxd.iutils.function.stream.BiStream;
 import com.github.jonathanxd.iutils.object.Node;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -102,6 +101,9 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
             if (!predicate.test(entry.getKey(), entry.getValue()))
                 iterator.remove();
         }
+
+        // Improved performance
+        iterator.resetIndex();
 
         return biStream;
     }
@@ -208,19 +210,6 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
         });
 
         return new WalkableNodeBiStream<>((List<Node<R, V>>) Walkable.asList(nodes));
-
-        /*WalkableNodeBiStream<R, V> mapBiStream = new WalkableNodeBiStream<>(Walkable.asList(new HashMap<>()));
-
-        Bridge<R, V> bridge = new Bridge<>(mapBiStream);
-
-        loop(e -> {
-
-            BiStream<? extends R, ? extends V> bi = mapper.apply(e.getKey(), e.getValue());
-            bridge.up(bi);
-
-        });
-
-        return mapBiStream;*/
 
     }
 
@@ -332,6 +321,8 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
             }
         }
 
+        iterator.resetIndex();
+
         return biStream;
     }
 
@@ -356,6 +347,8 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
             }
         }
 
+        iterator.resetIndex();
+
         return biStream;
     }
 
@@ -379,6 +372,8 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
                 hashCodes.add(valueHash);
             }
         }
+
+        iterator.resetIndex();
 
         return biStream;
     }
@@ -650,6 +645,9 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
     public <R> R collectTwo(Supplier<R> supplier, TriConsumer<R, ? super T, ? super U> accumulator, BiConsumer<R, R> combiner) {
         IMutableContainer<R> ret = new MutableContainer<>();
 
+        if(!getWalkable().hasNext())
+            return supplier.get();
+
         consume(n -> {
 
             R retVal = ret.get();
@@ -680,6 +678,9 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
         TriConsumer<A, ? super T, ? super U> accumulator = collector.accumulator();
         BinaryOperator<A> combiner = collector.combiner();
         Function<A, R> finisher = collector.finisher();
+
+        if (!this.getWalkable().hasNext())
+            return finisher.apply(supplier.get());
 
         consume(n -> {
 
