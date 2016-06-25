@@ -1,4 +1,4 @@
-# JwIUTils
+# JwIUTils [![](https://jitpack.io/v/JonathanxD/JwIUtils.svg)](https://jitpack.io/#JonathanxD/JwIUtils)
 
 Java Utilities Library.
 
@@ -7,6 +7,7 @@ Java Utilities Library.
 ###### Binary Operators
 
 BiBinaryOperator
+
 StackBiBinaryOperator
 
 ###### Collectors
@@ -24,10 +25,14 @@ TriConsumer
 ###### Functions
 
 BiToDoubleFunction
+
 BiToIntFunction
+
 BiToLongFunction
 
+
 QuadFunction
+
 TriFunction
 
 ## Bi Stream
