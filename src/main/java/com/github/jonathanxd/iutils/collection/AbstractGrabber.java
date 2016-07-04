@@ -31,6 +31,7 @@ import com.github.jonathanxd.iutils.annotations.Named;
 import com.github.jonathanxd.iutils.arrays.JwArray;
 import com.github.jonathanxd.iutils.exceptions.CannotCollectElementsException;
 import com.github.jonathanxd.iutils.exceptions.ExcludedElementIndexException;
+import com.github.jonathanxd.iutils.function.consumer.ObjIntIntConsumer;
 import com.github.jonathanxd.iutils.string.InJoiner;
 
 import java.util.ArrayList;
@@ -96,7 +97,7 @@ public abstract class AbstractGrabber<T> implements Grabber<T> {
 
         T[] ts = generator.apply(size);
 
-        foreachRemaining((t, value) -> {
+        foreachRemaining((t, value, indexInArray) -> {
             ts[value] = t;
         });
 
@@ -109,7 +110,7 @@ public abstract class AbstractGrabber<T> implements Grabber<T> {
 
         T[] ts = generator.apply(size);
 
-        foreachRemaining(amount, (t, value) -> {
+        foreachRemaining(amount, (t, value, indexInArray) -> {
             ts[value] = t;
         });
 
@@ -149,12 +150,16 @@ public abstract class AbstractGrabber<T> implements Grabber<T> {
     }
 
     @Override
-    public void foreachRemaining(ObjIntConsumer<T> consumer) {
+    public void foreachRemaining(ObjIntIntConsumer<T> consumer) {
+        int includedIndex = 0;
+
         for (int i = 0; i < excludedIndexes.length; i++) {
             if (!excludedIndexes[i]) {
                 excludedIndexes[i] = true;
 
-                consumer.accept(this.get(i), i);
+                consumer.accept(this.get(i), includedIndex, i);
+
+                ++includedIndex;
             }
         }
 
@@ -184,15 +189,16 @@ public abstract class AbstractGrabber<T> implements Grabber<T> {
     }
 
     @Override
-    public void foreachRemaining(int amount, ObjIntConsumer<T> consumer) {
+    public void foreachRemaining(int amount, ObjIntIntConsumer<T> consumer) {
         int currentAmount = 0;
 
         for (int i = 0; i < excludedIndexes.length; i++) {
             if (!excludedIndexes[i]) {
                 excludedIndexes[i] = true;
-
-                consumer.accept(this.get(i), i);
+                 // In this case, the current amount variable can be used instead of 'included Element Index'
+                consumer.accept(this.get(i), currentAmount, i);
                 ++currentAmount;
+
             }
 
             if (currentAmount == amount)

@@ -30,13 +30,13 @@ package com.github.jonathanxd.iutils.collection;
 import com.github.jonathanxd.iutils.arrays.JwArray;
 import com.github.jonathanxd.iutils.exceptions.CannotCollectElementsException;
 import com.github.jonathanxd.iutils.exceptions.ExcludedElementIndexException;
+import com.github.jonathanxd.iutils.function.consumer.ObjIntIntConsumer;
 
 import java.lang.reflect.Array;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.IntFunction;
-import java.util.function.ObjIntConsumer;
 
 
 /**
@@ -158,8 +158,11 @@ public interface Grabber<T> {
 
     /**
      * Foreach all remaining elements and indexes (non-excluded index elements)
+     *
+     * First Object passed to {@code consumer} is the elements, the first int passed to {@code
+     * consumer} is the included index and the last int is the index in element table
      */
-    void foreachRemaining(ObjIntConsumer<T> consumer);
+    void foreachRemaining(ObjIntIntConsumer<T> consumer);
 
     /**
      * Foreach a {@code amount} of remaining elements (non-excluded index elements)
@@ -171,9 +174,12 @@ public interface Grabber<T> {
     /**
      * Foreach a {@code amount} of remaining elements and indexes (non-excluded index elements)
      *
+     * First Object passed to {@code consumer} is the elements, the first int passed to {@code
+     * consumer} is the included index and the last int is the index in the element table
+     *
      * @throws CannotCollectElementsException if cannot collect all elements
      */
-    void foreachRemaining(int amount, ObjIntConsumer<T> consumer) throws CannotCollectElementsException;
+    void foreachRemaining(int amount, ObjIntIntConsumer<T> consumer) throws CannotCollectElementsException;
 
     /**
      * Calculate number of {@code non-excluded elements}

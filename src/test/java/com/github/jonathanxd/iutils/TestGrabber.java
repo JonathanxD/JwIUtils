@@ -60,9 +60,15 @@ public class TestGrabber {
 
         System.out.println("Map -> "+map);
 
+        Grabber<Integer> cloned = grabber.makeClone();
+
         List<Integer> integers = grabber.collectRemainingToList();
 
         System.out.println(integers);
+
+        Integer[] array = cloned.collectRemainingToArray(Integer[]::new);
+
+        System.out.println(Arrays.toString(array));
     }
 
 

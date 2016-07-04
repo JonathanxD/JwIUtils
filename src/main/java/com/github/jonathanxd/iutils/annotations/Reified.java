@@ -25,16 +25,19 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.extend.listinteraction.integer;
+package com.github.jonathanxd.iutils.annotations;
 
-import com.github.jonathanxd.extend.list.IAListInteraction;
-import com.github.jonathanxd.extend.list.data.IAData;
+/**
+ * Created by jonathan on 27/05/16.
+ */
 
-public class IntegerAppender implements IAListInteraction<Integer> {
-
-	@Override
-	public Integer and(Integer currentValue, IAData<Integer> inputValue) {
-		return Integer.parseInt(String.format("%d%d", currentValue, inputValue.get()));
-	}
-
+/**
+ * Indicates a runtime reified type, example, reified array type {@link java.lang.reflect.Array#newInstance(Class, int)}
+ */
+public @interface Reified {
+    /**
+     * Description
+     * @return Description
+     */
+    String description() default "";
 }

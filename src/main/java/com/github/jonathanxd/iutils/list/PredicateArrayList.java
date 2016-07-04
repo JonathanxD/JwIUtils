@@ -25,16 +25,40 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.extend.list;
+package com.github.jonathanxd.iutils.list;
 
-import com.github.jonathanxd.extend.list.data.IAData;
+import java.util.Collection;
+import java.util.function.Predicate;
 
-public interface IAListInteraction<E>{
-	
-	
-	E and(E currentValue, IAData<E> inputValue);
-	default boolean filter(E currentValue, IAData<E> inputValue){
-		return true;
-	}
-	
+/**
+ * Created by jonathan on 12/05/16.
+ */
+public class PredicateArrayList<E> extends AbstractPredicateList<E> implements IPredicateList<E> {
+
+    private final Predicate<E> predicate;
+
+    public PredicateArrayList(int initialCapacity, Predicate<E> predicate) {
+        super(initialCapacity);
+        this.predicate = predicate;
+    }
+
+    public PredicateArrayList(Predicate<E> predicate) {
+        super();
+        this.predicate = predicate;
+    }
+
+    public PredicateArrayList(Collection<? extends E> c, Predicate<E> predicate) {
+        super(c);
+        this.predicate = predicate;
+    }
+
+    @Override
+    public boolean test(E e) {
+        return predicate.test(e);
+    }
+
+    @Override
+    public void reject(E e) {
+        throw new IllegalArgumentException("Cannot accept element '"+e+"'");
+    }
 }

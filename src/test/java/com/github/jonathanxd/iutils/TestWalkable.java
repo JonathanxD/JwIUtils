@@ -73,7 +73,7 @@ public class TestWalkable {
 
         WalkableNodeBiStream<String, Integer> biStream2 = new WalkableNodeBiStream<>(Walkable.asList(map));
 
-        StringBuilder firstE = biStream2.collectFirst(StringBuilder::new, StringBuilder::append, StringBuilder::append);
+        StringBuilder firstE = biStream2.collectKey(StringBuilder::new, StringBuilder::append);
         System.out.println("first: "+firstE.toString());
 
 

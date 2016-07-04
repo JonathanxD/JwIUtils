@@ -392,6 +392,10 @@ public class JwArray<E> implements Iterable<E>, Comparable<E[]>, Cloneable {
         return java.util.Arrays.copyOf(values, arraySize, t);
     }
 
+    public Object[] toObjectArray() {
+        return java.util.Arrays.copyOf(values, arraySize);
+    }
+
     public E getFirst() {
         return (arraySize > 0 ? values[0] : null);
     }

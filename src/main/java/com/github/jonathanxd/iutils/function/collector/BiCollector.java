@@ -40,19 +40,17 @@ import java.util.function.Supplier;
  */
 public interface BiCollector<T, U, A, R> {
 
-    static <T, U, R> BiCollector<T, U, R, R> of(Supplier<R> supplier, TriConsumer<R, T, U> accumulator, BinaryOperator<R> combiner) {
-        return new BiCollectors.CommonBiCollector<>(supplier, accumulator, combiner);
+    static <T, U, R> BiCollector<T, U, R, R> of(Supplier<R> supplier, TriConsumer<R, T, U> accumulator) {
+        return new BiCollectors.CommonBiCollector<>(supplier, accumulator);
     }
 
-    static <T, U, A, R> BiCollector<T, U, A, R> of(Supplier<A> supplier, TriConsumer<A, T, U> accumulator, BinaryOperator<A> combiner, Function<A, R> finisher) {
-        return new BiCollectors.CommonBiCollector<>(supplier, accumulator, combiner, finisher);
+    static <T, U, A, R> BiCollector<T, U, A, R> of(Supplier<A> supplier, TriConsumer<A, T, U> accumulator, Function<A, R> finisher) {
+        return new BiCollectors.CommonBiCollector<>(supplier, accumulator, finisher);
     }
 
     Supplier<A> supplier();
 
     TriConsumer<A, T, U> accumulator();
-
-    BinaryOperator<A> combiner();
 
     Function<A, R> finisher();
 

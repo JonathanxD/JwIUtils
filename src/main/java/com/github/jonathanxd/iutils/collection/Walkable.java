@@ -30,6 +30,7 @@ package com.github.jonathanxd.iutils.collection;
 import com.github.jonathanxd.iutils.comparator.Compared;
 import com.github.jonathanxd.iutils.containers.IMutableContainer;
 import com.github.jonathanxd.iutils.containers.MutableContainer;
+import com.github.jonathanxd.iutils.containers.primitivecontainers.BooleanContainer;
 import com.github.jonathanxd.iutils.iterator.IteratorUtil;
 import com.github.jonathanxd.iutils.object.Bi;
 import com.github.jonathanxd.iutils.object.Node;
@@ -69,6 +70,13 @@ public interface Walkable<T> {
     T getCurrent();
     Walkable<T> clone();
     void resetIndex();
+    Walkable<T> distinct();
+    void distinctInternal();
+
+    <R> Walkable<T> distinct(Function<T, R> function);
+    <R> void distinctInternal(Function<T, R> function);
+
+    boolean contains(T t);
 
     <R> Walkable<R> map(Function<T, R> map);
 
@@ -124,7 +132,7 @@ public interface Walkable<T> {
         return new WalkableList<>(list);
     }
 
-    class WalkableList<T> implements Walkable<T>, AddSupport<T> {
+    class WalkableList<T> implements Walkable<T> {
         private final List<T> list;
         int index = -1;
 
@@ -246,6 +254,96 @@ public interface Walkable<T> {
         }
 
         @Override
+        public Walkable<T> distinct() {
+            List<T> list = distinctToList();
+
+            return new WalkableList<>(list);
+        }
+
+        @Override
+        public void distinctInternal() {
+            List<T> list = distinctToList();
+
+            this.list.clear();
+            this.list.addAll(list);
+
+            resetIndex();
+        }
+
+        @Override
+        public <R> Walkable<T> distinct(Function<T, R> function) {
+            List<T> list = distinctToList(function);
+
+            return new WalkableList<>(list);
+        }
+
+        @Override
+        public <R> void distinctInternal(Function<T, R> function) {
+            List<T> list = distinctToList(function);
+
+            this.list.clear();
+            this.list.addAll(list);
+        }
+
+        private List<T> distinctToList() {
+            List<T> list = new ArrayList<>();
+
+            this.clone().forEach(t -> {
+                boolean any = false;
+
+                for (T t1 : list) {
+                    if(t.hashCode() == t1.hashCode() && t.equals(t1)) {
+                        any = true;
+                    }
+                }
+
+                if(!any)
+                    list.add(t);
+            });
+
+            return list;
+        }
+
+        private <R> List<T> distinctToList(Function<T, R> function) {
+            List<T> list = new ArrayList<>();
+
+
+            this.clone().forEach(t -> {
+                boolean any = false;
+
+                R r = function.apply(t);
+
+                for (T t1 : list) {
+
+                    R r1 = function.apply(t1);
+
+                    if(r.hashCode() == r1.hashCode() && r.equals(r1)) {
+                        any = true;
+                    }
+                }
+
+                if(!any)
+                    list.add(t);
+            });
+
+            return list;
+        }
+
+        @Override
+        public boolean contains(T t) {
+
+            BooleanContainer booleanContainer = new BooleanContainer(false);
+
+            this.clone().forEach(t1 -> {
+                if(t.hashCode() != t1.hashCode() && !t.equals(t1)) {
+                    booleanContainer.toTrue();
+                }
+            });
+
+            return booleanContainer.get();
+        }
+
+        @Override
         public <R> Walkable<R> map(Function<T, R> map) {
 
             List<R> rs = new ArrayList<>();
@@ -258,11 +356,6 @@ public interface Walkable<T> {
             }
 
             return new WalkableList<>(rs);
-        }
-
-        @Override
-        public void add(T value) {
-            this.list.add(value);
         }
 
     }

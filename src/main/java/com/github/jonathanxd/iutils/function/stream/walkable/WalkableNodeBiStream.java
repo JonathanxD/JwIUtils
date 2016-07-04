@@ -27,7 +27,6 @@
  */
 package com.github.jonathanxd.iutils.function.stream.walkable;
 
-import com.github.jonathanxd.iutils.collection.AddSupport;
 import com.github.jonathanxd.iutils.collection.Walkable;
 import com.github.jonathanxd.iutils.comparator.Compared;
 import com.github.jonathanxd.iutils.containers.IMutableContainer;
@@ -58,11 +57,11 @@ import java.util.Spliterator;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
-import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.function.Supplier;
+import java.util.stream.Collector;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
@@ -202,14 +201,21 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
     @Override
     public <R, V> BiStream<R, V> flatMap(BiFunction<? super T, ? super U, ? extends BiStream<? extends R, ? extends V>> mapper) {
 
-        List<Node> nodes = new ArrayList<>();
+        List<Node<R, V>> nodes = new ArrayList<>();
 
         loop(e -> {
             BiStream<? extends R, ? extends V> bi = mapper.apply(e.getKey(), e.getValue());
-            bi.iterator().forEachRemaining(nodes::add);
+
+            Iterator<? extends Node<? extends R, ? extends V>> iterator = bi.iterator();
+
+            while (iterator.hasNext()) {
+                Node<? extends R, ? extends V> next = iterator.next();
+
+                nodes.add((Node<R, V>) next);
+            }
         });
 
-        return new WalkableNodeBiStream<>((List<Node<R, V>>) Walkable.asList(nodes));
+        return new WalkableNodeBiStream<>(Walkable.asList(nodes));
 
     }
 
@@ -303,23 +309,9 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
     public BiStream<T, U> distinctTwo() {
         WalkableNodeBiStream<T, U> biStream = newBi();
 
-        List<Integer> hashCodes = new ArrayList<>();
-
         Walkable<Node<T, U>> iterator = biStream.unsafeIter();
 
-        while (iterator.hasNext()) {
-            Node<T, U> entry = iterator.next();
-
-            int keyHash = entry.getKey().hashCode();
-            int valueHash = entry.getValue().hashCode();
-
-            if (hashCodes.contains(keyHash) || hashCodes.contains(valueHash))
-                iterator.remove();
-            else {
-                hashCodes.add(keyHash);
-                hashCodes.add(valueHash);
-            }
-        }
+        iterator.distinctInternal();
 
         iterator.resetIndex();
 
@@ -335,17 +327,7 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
 
         Walkable<Node<T, U>> iterator = biStream.unsafeIter();
 
-        while (iterator.hasNext()) {
-            Node<T, U> entry = iterator.next();
-
-            int keyHash = entry.getKey().hashCode();
-
-            if (hashCodes.contains(keyHash))
-                iterator.remove();
-            else {
-                hashCodes.add(keyHash);
-            }
-        }
+        iterator.distinctInternal(Node::getKey);
 
         iterator.resetIndex();
 
@@ -361,17 +343,7 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
 
         Walkable<Node<T, U>> iterator = biStream.unsafeIter();
 
-        while (iterator.hasNext()) {
-            Node<T, U> entry = iterator.next();
-
-            int valueHash = entry.getValue().hashCode();
-
-            if (hashCodes.contains(valueHash))
-                iterator.remove();
-            else {
-                hashCodes.add(valueHash);
-            }
-        }
+        iterator.distinctInternal(Node::getValue);
 
         iterator.resetIndex();
 
@@ -473,7 +445,7 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
 
     @Override
     public void forEach(BiConsumer<? super T, ? super U> action) {
-        if(!getWalkable().hasNext())
+        if (!getWalkable().hasNext())
             return;
 
         consume(e -> e.consume(action));
@@ -481,7 +453,7 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
 
     @Override
     public void forEachOrdered(BiConsumer<? super T, ? super U> action) {
-        if(!getWalkable().hasNext())
+        if (!getWalkable().hasNext())
             return;
 
         consume(e -> e.consume(action));
@@ -621,86 +593,91 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
     }
 
     @Override
-    public <R> R reduce(R identity, TriFunction<R, ? super T, ? super U, R> accumulator, BinaryOperator<R> combiner) {
+    public <R> R reduce(R identity, TriFunction<R, ? super T, ? super U, R> accumulator) {
 
         IMutableContainer<R> ret = new MutableContainer<>(identity);
 
-        consume(n -> ret.set(current -> combiner.apply(current, accumulator.apply(identity, n.getKey(), n.getValue()))));
+        consume(n -> ret.set(current -> accumulator.apply(current, n.getKey(), n.getValue())));
 
         return ret.get();
     }
 
     @Override
-    public <R> R collectFirst(Supplier<R> supplier, BiConsumer<R, ? super T> accumulator, BiConsumer<R, R> combiner) {
-        return collectTwo(supplier, (ret, key, value) -> accumulator.accept(ret, key), combiner);
-    }
-
-    @Override
-    public <R> R collectSecond(Supplier<R> supplier, BiConsumer<R, ? super U> accumulator, BiConsumer<R, R> combiner) {
-
-        return collectTwo(supplier, (ret, key, value) -> accumulator.accept(ret, value), combiner);
-    }
-
-    @Override
-    public <R> R collectTwo(Supplier<R> supplier, TriConsumer<R, ? super T, ? super U> accumulator, BiConsumer<R, R> combiner) {
-        IMutableContainer<R> ret = new MutableContainer<>();
-
-        if(!getWalkable().hasNext())
-            return supplier.get();
-
-        consume(n -> {
-
-            R retVal = ret.get();
-            if (ret.isPresent())
-                retVal = ret.get();
-            else
-                retVal = null;
-
-            R newV = supplier.get();
-            accumulator.accept(newV, n.getKey(), n.getValue());
-
-            if (retVal == null) {
-                ret.set(newV);
-            } else {
-                combiner.accept(retVal, newV);
-            }
-        });
-
-        return ret.get();
-    }
-
-    @Override
-    public <R, A> R collect(BiCollector<? super T, ? super U, A, R> collector) {
-
-        IMutableContainer<A> ret = new MutableContainer<>();
+    public <R, A> R collectKey(Collector<? super T, A, R> collector) {
 
         Supplier<A> supplier = collector.supplier();
-        TriConsumer<A, ? super T, ? super U> accumulator = collector.accumulator();
-        BinaryOperator<A> combiner = collector.combiner();
+        BiConsumer<A, ? super T> accumulator = collector.accumulator();
         Function<A, R> finisher = collector.finisher();
 
         if (!this.getWalkable().hasNext())
             return finisher.apply(supplier.get());
 
+        final A retVal = supplier.get();
+
+        consume(n -> accumulator.accept(retVal, n.getKey()));
+
+        return finisher.apply(retVal);
+
+    }
+
+    @Override
+    public <R, A> R collectValue(Collector<? super U, A, R> collector) {
+        Supplier<A> supplier = collector.supplier();
+        BiConsumer<A, ? super U> accumulator = collector.accumulator();
+        Function<A, R> finisher = collector.finisher();
+
+        if (!this.getWalkable().hasNext())
+            return finisher.apply(supplier.get());
+
+        final A retVal = supplier.get();
+
+        consume(n -> accumulator.accept(retVal, n.getValue()));
+
+        return finisher.apply(retVal);
+    }
+
+    @Override
+    public <R> R collectKey(Supplier<R> supplier, BiConsumer<R, ? super T> accumulator) {
+        return collectOne(supplier, (ret, key, value) -> accumulator.accept(ret, key));
+    }
+
+    @Override
+    public <R> R collectValue(Supplier<R> supplier, BiConsumer<R, ? super U> accumulator) {
+
+        return collectOne(supplier, (ret, key, value) -> accumulator.accept(ret, value));
+    }
+
+    @Override
+    public <R> R collectOne(Supplier<R> supplier, TriConsumer<R, ? super T, ? super U> accumulator) {
+        if (!getWalkable().hasNext())
+            return supplier.get();
+
+        final R retVal = supplier.get();
+
+        consume(n -> accumulator.accept(retVal, n.getKey(), n.getValue()));
+
+        return retVal;
+    }
+
+    @Override
+    public <R, A> R collect(BiCollector<? super T, ? super U, A, R> collector) {
+
+        Supplier<A> supplier = collector.supplier();
+        TriConsumer<A, ? super T, ? super U> accumulator = collector.accumulator();
+        Function<A, R> finisher = collector.finisher();
+
+        if (!this.getWalkable().hasNext())
+            return finisher.apply(supplier.get());
+
+        final A retVal = supplier.get();
+
         consume(n -> {
 
-            A retVal = ret.get();
-            if (ret.isPresent())
-                retVal = ret.get();
-            else
-                retVal = null;
+            accumulator.accept(retVal, n.getKey(), n.getValue());
 
-            A newV = supplier.get();
-            accumulator.accept(newV, n.getKey(), n.getValue());
-
-            if (retVal == null) {
-                ret.set(newV);
-            } else {
-                ret.set(combiner.apply(retVal, newV));
-            }
         });
 
-        return finisher.apply(ret.get());
+        return finisher.apply(retVal);
 
     }
 
@@ -888,32 +865,6 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
         return nodeList;
     }
 
-
-    private static class Bridge<T, U> {
-
-        private final WalkableNodeBiStream<T, U> stream;
-
-        private Bridge(WalkableNodeBiStream<T, U> stream) {
-            this.stream = stream;
-        }
-
-        private void up(BiStream<? extends T, ? extends U> node) {
-            node.iterator().forEachRemaining(this::up);
-        }
-
-        @SuppressWarnings("unchecked")
-        private void up(Node<? extends T, ? extends U> node) {
-
-            if (stream.getWalkable() instanceof AddSupport) {
-                ((AddSupport<Node<? extends T, ? extends U>>) stream.getWalkable()).add(node);
-            } else {
-                throw new UnsupportedOperationException("Cannot add node '" + node + "' to Stream '" + stream + "', that Stream doesn't support add() operation!");
-            }
-
-
-        }
-
-    }
 
     private static class BackPortIntFunc<T, E> implements NodeArrayIntFunction<T, E> {
 

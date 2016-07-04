@@ -51,6 +51,7 @@ import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.function.Supplier;
 import java.util.stream.BaseStream;
+import java.util.stream.Collector;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
@@ -136,20 +137,20 @@ public interface BiStream<T, U> extends BaseStream<Node<T, U>, BiStream<T, U>> {
     Optional<U> reduceSecond(BiBinaryOperator<U, T> accumulator);
 
     <R> R reduce(R identity,
-                 TriFunction<R, ? super T, ? super U, R> accumulator,
-                 BinaryOperator<R> combiner);
+                 TriFunction<R, ? super T, ? super U, R> accumulator);
 
-    <R> R collectFirst(Supplier<R> supplier,
-                       BiConsumer<R, ? super T> accumulator,
-                       BiConsumer<R, R> combiner);
+    <R, A> R collectKey(Collector<? super T, A, R> collector);
 
-    <R> R collectSecond(Supplier<R> supplier,
-                        BiConsumer<R, ? super U> accumulator,
-                        BiConsumer<R, R> combiner);
+    <R, A> R collectValue(Collector<? super U, A, R> collector);
 
-    <R> R collectTwo(Supplier<R> supplier,
-                     TriConsumer<R, ? super T, ? super U> accumulator,
-                     BiConsumer<R, R> combiner);
+    <R> R collectKey(Supplier<R> supplier,
+                     BiConsumer<R, ? super T> accumulator);
+
+    <R> R collectValue(Supplier<R> supplier,
+                       BiConsumer<R, ? super U> accumulator);
+
+    <R> R collectOne(Supplier<R> supplier,
+                     TriConsumer<R, ? super T, ? super U> accumulator);
 
     <R, A> R collect(BiCollector<? super T, ? super U, A, R> collector);
 

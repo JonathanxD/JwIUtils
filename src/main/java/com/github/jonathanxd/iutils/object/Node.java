@@ -100,6 +100,16 @@ public class Node<K, V> {
         return Objects.hash(key, value);
     }
 
+    @Override
+    public boolean equals(Object obj) {
+
+        if(obj instanceof Node) {
+            return ((Node) obj).key.equals(this.key) && ((Node) obj).value.equals(this.value);
+        }
+
+        return super.equals(obj);
+    }
+
     public void consume(BiConsumer<? super K, ? super V> biConsumer) {
         biConsumer.accept(this.getKey(), this.getValue());
     }

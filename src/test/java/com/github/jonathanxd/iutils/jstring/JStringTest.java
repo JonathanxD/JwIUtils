@@ -35,6 +35,7 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Created by jonathan on 28/05/16.
@@ -71,6 +72,26 @@ public class JStringTest {
 
         public String getName() {
             return name;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(name, idade);
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+
+            if(obj instanceof Person) {
+                return ((Person) obj).name.equals(this.name) && ((Person) obj).idade == this.idade;
+            }
+
+            return super.equals(obj);
+        }
+
+        @Override
+        public String toString() {
+            return name +" -> "+idade;
         }
     }
 }

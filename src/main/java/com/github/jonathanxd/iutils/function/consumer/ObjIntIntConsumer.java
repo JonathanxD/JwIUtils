@@ -25,10 +25,12 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.extend.list.data;
+package com.github.jonathanxd.iutils.function.consumer;
 
-public enum AType {
-	FIRST_ELEMENT,
-	OTHER,
-	LAST_ELEMENT
+/**
+ * Created by jonathan on 03/07/16.
+ */
+@FunctionalInterface
+public interface ObjIntIntConsumer<T> {
+    void accept(T t, int i, int i2);
 }

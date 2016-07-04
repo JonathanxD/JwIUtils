@@ -25,15 +25,18 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.extend.listinteraction.integer;
+package com.github.jonathanxd.iutils.list;
 
-import com.github.jonathanxd.extend.list.IAListInteraction;
-import com.github.jonathanxd.extend.list.data.IAData;
+/**
+ * Created by jonathan on 03/07/16.
+ */
+public class ListSet<E> extends AbstractPredicateList<E> {
 
-public class IntegerPower implements IAListInteraction<Integer> {
-	
-	@Override
-	public Integer and(Integer currentValue, IAData<Integer> inputValue) {
-		return (int) Math.pow(currentValue, inputValue.get());
-	}
+    @Override
+    public boolean test(E e) {
+        return !this.contains(e);
+    }
+
+    @Override
+    public void reject(E e) {}
 }

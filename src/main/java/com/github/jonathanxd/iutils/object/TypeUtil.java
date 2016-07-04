@@ -113,7 +113,12 @@ public class TypeUtil {
         return null;
     }
 
-    public static GenericRepresentation<?>[] fromTypeVariable(Class<?> classWithTypeVariable) {
+    public static GenericRepresentation<?>[] genericRepOfVariableTypes(Class<?> classWithTypeVariable) {
+
+        return toReferences(getTypeVariableTypes(classWithTypeVariable));
+    }
+
+    public static Type[] getTypeVariableTypes(Class<?> classWithTypeVariable) {
 
         TypeVariable<? extends Class<?>>[] typeParameters = classWithTypeVariable.getTypeParameters();
 
@@ -133,7 +138,7 @@ public class TypeUtil {
             }
         }
 
-        return toReferences(types);
+        return types;
     }
 
     public static GenericRepresentation<?>[] toReferences(Type[] param) {

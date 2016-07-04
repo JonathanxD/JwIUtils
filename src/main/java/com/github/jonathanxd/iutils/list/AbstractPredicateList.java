@@ -35,64 +35,110 @@ import java.util.function.UnaryOperator;
 /**
  * Created by jonathan on 12/05/16.
  */
-public class PredicatedArrayList<E> extends ArrayList<E> {
+public abstract class AbstractPredicateList<E> extends ArrayList<E> implements IPredicateList<E> {
 
-    private final Predicate<E> predicate;
-
-    public PredicatedArrayList(int initialCapacity, Predicate<E> predicate) {
+    public AbstractPredicateList(int initialCapacity) {
         super(initialCapacity);
-        this.predicate = predicate;
     }
 
-    public PredicatedArrayList(Predicate<E> predicate) {
+    public AbstractPredicateList() {
         super();
-        this.predicate = predicate;
     }
 
-    public PredicatedArrayList(Collection<? extends E> c, Predicate<E> predicate) {
+    public AbstractPredicateList(Collection<? extends E> c) {
         super(c);
-        this.predicate = predicate;
     }
 
     @Override
     public boolean add(E e) {
-        if(!predicate.test(e))
-            throw new IllegalArgumentException("Cannot accept element '"+e+"'");
+        if (!this.test(e)) {
+            reject(e);
+        }else {
+            return super.add(e);
+        }
 
-        return super.add(e);
+        return false;
     }
 
     @Override
     public void add(int index, E element) {
-        if(!predicate.test(element))
-            throw new IllegalArgumentException("Cannot accept element '"+element+"'");
-
-        super.add(index, element);
+        if (!this.test(element)) {
+            reject(element);
+        } else {
+            super.add(index, element);
+        }
     }
 
     @Override
     public boolean addAll(Collection<? extends E> c) {
 
-        c.forEach(e -> {
-            if(!predicate.test(e))
-                throw new IllegalArgumentException("Cannot accept element '"+e+"' in collection '"+c+"'");
-        });
+        Collection<E> toAdd = new ArrayList<>();
 
-        return super.addAll(c);
+        for (E e : c) {
+            if (this.test(e)) {
+                toAdd.add(e);
+            } else {
+                reject(e);
+            }
+        }
+
+
+        return super.addAll(toAdd);
     }
 
     @Override
     public boolean addAll(int index, Collection<? extends E> c) {
-        c.forEach(e -> {
-            if(!predicate.test(e))
-                throw new IllegalArgumentException("Cannot accept element '"+e+"' in collection '"+c+"'");
-        });
+        Collection<E> toAdd = new ArrayList<>();
 
-        return super.addAll(index, c);
+        for (E e : c) {
+            if (this.test(e)) {
+                toAdd.add(e);
+            } else {
+                reject(e);
+            }
+        }
+
+
+        return super.addAll(index, toAdd);
+    }
+
+    @Override
+    public E set(int index, E element) {
+        if (!this.test(element)) {
+            reject(element);
+        } else {
+            super.set(index, element);
+        }
+
+        return null;
     }
 
     @Override
     public void replaceAll(UnaryOperator<E> operator) {
-        throw new UnsupportedOperationException();
+        super.replaceAll(new PredicateUnaryOperator<>(this::test, operator));
     }
+
+    private static class PredicateUnaryOperator<T> implements UnaryOperator<T> {
+
+        private final Predicate<T> predicate;
+        private final UnaryOperator<T> unaryOperator;
+
+        private PredicateUnaryOperator(Predicate<T> predicate, UnaryOperator<T> unaryOperator) {
+            this.predicate = predicate;
+            this.unaryOperator = unaryOperator;
+        }
+
+
+        @Override
+        public T apply(T t) {
+
+            T result = unaryOperator.apply(t);
+
+            if (!predicate.test(result))
+                throw new IllegalArgumentException("Cannot accept element '" + result + "' (original element '" + t + "')");
+
+            return result;
+        }
+    }
+
 }

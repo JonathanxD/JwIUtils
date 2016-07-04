@@ -30,6 +30,8 @@ package com.github.jonathanxd.iutils.object;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -63,6 +65,12 @@ public interface TypeProvider {
 
 
         return getTypes(genericClass);
+    }
+
+    default Type[] getClassTypes() {
+
+        return TypeUtil.getTypeVariableTypes(this.getClass());
+
     }
 
     default Type[] getTypes(Class<?> classToDetermine) {
@@ -111,5 +119,9 @@ public interface TypeProvider {
     @SuppressWarnings("unchecked")
     default GenericRepresentation[] getReferences() {
         return TypeUtil.toReferences(Objects.requireNonNull(getTypes(), "Null Type!"));
+    }
+
+    default GenericRepresentation[] getClassReferences() {
+        return TypeUtil.toReferences(Objects.requireNonNull(getClassTypes(), "Null Type!"));
     }
 }

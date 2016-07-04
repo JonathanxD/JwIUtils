@@ -25,76 +25,25 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.extend;
+package com.github.jonathanxd.iutils.list;
 
-public class AOrResult<T1, T2> {
-	
-	private final Object value1;
-	private Class<?> type1 = null;
-	private Class<?> type2 = null;
-	
-	AOrResult(Object value) {
-		this.value1 = value;
-	}
-	
-	public static <T1, T2> AOrResult<T1, T2> of(T1 value1){
-		AOrResult<T1, T2> result = new AOrResult<T1, T2>(value1);
-		result.type1 = value1.getClass();
-		return result;
-	}
+import java.util.List;
 
-	public static <T1, T2> AOrResult<T1, T2> of2(T2 value1){
-		AOrResult<T1, T2> result = new AOrResult<T1, T2>(value1);
-		result.type2 = value1.getClass();
-		return result;
-	}
-	
-	public boolean is(Class<?> clazz){
-		return clazz.isInstance(this.value1);
-	}
-	
-	public boolean is1(){
-		return type1 != null;
-	}
+/**
+ * Created by jonathan on 03/07/16.
+ */
+public interface IPredicateList<E> extends List<E> {
 
-	public boolean is2(){
-		return type2 != null;
-	}
-	
-	/**
-	 * Try to get as value type 1 or value type 2
-	 * Return null if fails
-	 * @return
-	 */
-	public Object getValue(){
-		
-		if(is1()) return get1();
-		if(is2()) return get2();
-		
-		return null;
-	}
-	
-	/**
-	 * Return value, or null if isn't a value type 1
-	 * @return
-	 */
-	@SuppressWarnings("unchecked")
-	public T1 get1(){
-		if(is1()){
-			return (T1) this.value1;
-		}
-		return null;
-	}
+    /**
+     * Return true if element is acceptable, false if not
+     * @param e Element to test
+     * @return True if element is acceptable, false if not
+     */
+    boolean test(E e);
 
-	/**
-	 * Return value, or null if isn't a value type 2
-	 * @return
-	 */
-	@SuppressWarnings("unchecked")
-	public T2 get2(){
-		if(is2()){
-			return (T2) this.value1;
-		}
-		return null;
-	}
+    /**
+     * Called if element isn't acceptable (if {@link #test(Object)} returns false)
+     * @param e Element rejected
+     */
+    void reject(E e);
 }

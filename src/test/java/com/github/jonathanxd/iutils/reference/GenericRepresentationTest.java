@@ -66,7 +66,7 @@ public class GenericRepresentationTest {
 
         Test<? extends CharSequence> test = new Test<>();
 
-        GenericRepresentation[] myRefs = test.getReferences();
+        GenericRepresentation[] myRefs = test.getClassReferences();
 
         System.out.println("Ref: "+ Arrays.toString(myRefs));
 

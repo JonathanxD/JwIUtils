@@ -25,9 +25,61 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.extend.list.data;
+package com.github.jonathanxd.iutils.map;
 
-public interface IAData<T> {
-	AType getType();
-	T get();
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+
+/**
+ * Created by jonathan on 03/07/16.
+ */
+public class ListHashMap<K, V> extends HashMap<K, List<V>> {
+
+    public void putToList(K key, V value) {
+
+        List<V> list;
+
+        if(this.containsKey(key))
+            list = this.get(key);
+        else {
+            list = new ArrayList<>();
+            this.put(key, list);
+        }
+
+
+        list.add(value);
+    }
+
+    public boolean removeFromList(K key, Object value) {
+        if(!this.containsKey(key))
+            return false;
+
+        List<V> vs = this.get(key);
+
+        boolean success = vs.remove(value);
+
+        if(vs.isEmpty()) {
+            this.remove(key);
+        }
+
+        return success;
+    }
+
+    public boolean removeAllFromList(K key, Collection<?> elements) {
+        if(!this.containsKey(key))
+            return false;
+
+        List<V> vs = this.get(key);
+
+        boolean success = vs.removeAll(elements);
+
+        if(vs.isEmpty()) {
+            this.remove(key);
+        }
+
+        return success;
+    }
+
 }
