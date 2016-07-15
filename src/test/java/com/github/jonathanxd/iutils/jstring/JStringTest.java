@@ -61,6 +61,15 @@ public class JStringTest {
         SimpleStringExpression.executeExpression("System.out.println(\"Hello World\")", MapUtils.mapOf("System", System.class));
     }
 
+    @Test
+    public void propertyTag() {
+        System.out.println(
+                JString.of("A->B = ${a->b}. b:c = ${b:c}. x.y = ${x.y}", "a->b", "hi",
+                        "b:c", "k",
+                        "x.y", "l").toString()
+        );
+    }
+
     public static class Person {
         public final String name;
         public final int idade;

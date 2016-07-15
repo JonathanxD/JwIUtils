@@ -27,6 +27,8 @@
  */
 package com.github.jonathanxd.iutils.string;
 
+import com.github.jonathanxd.iutils.exceptions.JStringApplyException;
+
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -36,7 +38,7 @@ import java.util.regex.Pattern;
  */
 public class JStringUtil {
 
-    private static final Pattern VARIABLE_FORMAT_REFEX = Pattern.compile("\\$((?<svar>\\w+)|(\\{(?<var>\\w+)\\s*(\\.?\\s*(?<access>[^}]*))\\})?)");
+    private static final Pattern VARIABLE_FORMAT_REFEX = Pattern.compile("\\$((?<svar>\\w+)|(\\{(?<var>[^.}]+)\\s*(\\.\\s*(?<access>[^}]*))?\\})?)");
 
     public static String apply(String original, Map<String, Object> variables) {
 
@@ -61,20 +63,30 @@ public class JStringUtil {
                 String var = matcher.group("var");
                 String access = matcher.group("access");
 
-                Object val = variables.get(var);
+                String inMap = var + "." + access;
 
-                if (val != null) {
-                    if (access == null || access.isEmpty()) {
-                        toReplace = val.toString();
-                    } else {
-                        Object o = SimpleStringExpression.executeExpression(var + SimpleStringExpression.METHOD_INVOKE_SYMBOL + access, variables);
+                if(variables.containsKey(inMap)) {
+                    toReplace = (String) variables.get(inMap);
+                } else {
 
-                        toReplace = o.toString();
+                    Object val = variables.get(var);
+
+                    if (val != null) {
+                        if (access == null || access.isEmpty()) {
+                            toReplace = val.toString();
+                        } else {
+                            Object o = SimpleStringExpression.executeExpression(var + SimpleStringExpression.METHOD_INVOKE_SYMBOL + access, variables);
+
+                            toReplace = o.toString();
+                        }
                     }
                 }
             }
-
-            matcher.appendReplacement(replacing, Matcher.quoteReplacement(toReplace));
+            try {
+                matcher.appendReplacement(replacing, Matcher.quoteReplacement(toReplace));
+            }catch (Exception e) {
+                throw new JStringApplyException("Failed to process String: '"+original+"'. group: '"+matcher.group()+"'. matcher: '"+matcher+"'.", e);
+            }
         }
 
         matcher.appendTail(replacing);
