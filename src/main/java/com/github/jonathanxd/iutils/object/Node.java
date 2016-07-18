@@ -32,6 +32,7 @@ import com.github.jonathanxd.iutils.containers.BaseContainer;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -73,9 +74,11 @@ public class Node<K, V> {
     }
 
     public static <K, V> Collection<Node<K, V>> fromEntryCollection(Collection<Map.Entry<K, V>> entries) {
-        Collection<Node<K, V>> sameCollection = CollectionUtils.same(entries);
 
-        Collection<Node<K, V>> collection = sameCollection != null ? sameCollection : new ArrayList<>();
+        if(entries == null)
+            return Collections.emptyList();
+
+        Collection<Node<K, V>> collection = new ArrayList<>();
 
         entries.forEach(e -> collection.add(fromFlatEntry(e)));
 

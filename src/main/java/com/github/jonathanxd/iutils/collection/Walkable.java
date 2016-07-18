@@ -38,6 +38,7 @@ import com.github.jonathanxd.iutils.object.Node;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
@@ -53,6 +54,8 @@ import java.util.stream.Stream;
  * Created by jonathan on 05/03/16.
  */
 public interface Walkable<T> {
+
+    Walkable<?> EMPTY = new EmptyWalkable();
 
     T next();
     boolean hasNext();
@@ -105,31 +108,60 @@ public interface Walkable<T> {
     }
 
     static <K, V> Walkable<Node<K, V>> asList(Map<K, V> map) {
+
+        if(map == null) {
+            return empty();
+        }
+
         return asList(Node.fromEntryCollection(map.entrySet()));
     }
 
     static <K, V> Walkable<Node<K, V>> asList(List<Node<K, V>> nodes) {
+        if(nodes == null)
+            return empty();
+
         return asList((Collection<Node<K, V>>) nodes);
     }
 
     static <T> Walkable<T> asList(Walkable<T> walkable) {
+
+        if(walkable == null)
+            return empty();
+
         List<T> list  = new ArrayList<>();
+
         while (walkable.hasNext())
             list.add(walkable.next());
+
         return asWithoutStateList(list);
     }
 
     static <T> Walkable<T> asList(Collection<T> collection) {
+        if(collection == null)
+            return empty();
+
         return new WalkableList<>(new ArrayList<>(collection));
     }
 
     static <T> Walkable<T> fromStream(Stream<T> stream) {
+        if(stream == null)
+            return empty();
+
         List<T> ts = IteratorUtil.toList(stream.iterator());
         return asList(ts);
     }
 
     static <T> Walkable<T> asWithoutStateList(List<T> list) {
+
+        if(list == null)
+            return empty();
+
         return new WalkableList<>(list);
+    }
+
+    @SuppressWarnings("unchecked")
+    static <T> Walkable<T> empty() {
+        return (Walkable<T>) EMPTY;
     }
 
     class WalkableList<T> implements Walkable<T> {
