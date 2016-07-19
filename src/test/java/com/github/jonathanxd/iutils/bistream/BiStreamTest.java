@@ -34,6 +34,7 @@ import com.github.jonathanxd.iutils.map.MapUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.Collections;
 import java.util.Map;
 
 /**
@@ -54,5 +55,8 @@ public class BiStreamTest {
         System.out.println(collect);
 
         Assert.assertEquals(2, collect.size());
+
+
+        MapStream.of(Collections.emptyMap()).forEach((o, o2) -> System.out.println(o+", "+o2));
     }
 }

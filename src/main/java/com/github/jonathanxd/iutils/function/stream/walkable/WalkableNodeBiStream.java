@@ -806,7 +806,8 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
     private Walkable<Node<T, U>> unsafeIter() {
 
         if (!this.getWalkable().hasNext())
-            throw new NoSuchElementException("End of stream!");
+            //throw new NoSuchElementException("End of stream!");
+            return Walkable.empty();
 
         return getWalkable();
     }
@@ -818,8 +819,8 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
 
     private void consume(Consumer<Node<T, U>> consumer) {
 
-        if (!this.getWalkable().hasNext())
-            throw new NoSuchElementException("End of stream!");
+        /*if (!this.getWalkable().hasNext())
+            throw new NoSuchElementException("End of stream!");*/
 
         while (this.getWalkable().hasNext()) {
             consumer.accept(this.getWalkable().next());
