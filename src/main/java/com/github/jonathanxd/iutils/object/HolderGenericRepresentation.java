@@ -50,6 +50,10 @@ public class HolderGenericRepresentation<T> extends GenericRepresentation<T> {
         return new HolderGenericRepresentation<>(representation.getAClass(), representation.getRelated(), representation.isUnique(), value);
     }
 
+    public static <T> HolderGenericRepresentation<T> makeHold(GenericRepresentation<T> representation, boolean isUnique, Object value) {
+        return new HolderGenericRepresentation<>(representation.getAClass(), representation.getRelated(), isUnique, value);
+    }
+
     /**
      * Get value
      *

@@ -41,6 +41,10 @@ import java.util.Optional;
  */
 public class RepresentationData extends BaseData<HolderGenericRepresentation<?>> implements Cloneable {
 
+    public <T> void registerData(GenericRepresentation<T> representation, T object) {
+        this.registerData(HolderGenericRepresentation.makeHold(representation, object));
+    }
+
     @SuppressWarnings("unchecked")
     public <X> Optional<X> getDataAssignable(Class<? extends X> dataClass) {
 

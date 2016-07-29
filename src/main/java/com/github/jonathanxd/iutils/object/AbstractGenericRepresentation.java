@@ -39,7 +39,7 @@ public abstract class AbstractGenericRepresentation<T> extends GenericRepresenta
 
 
     @SuppressWarnings("unchecked")
-    public AbstractGenericRepresentation() {
+    public AbstractGenericRepresentation(boolean isUnique) {
         super();
 
         GenericRepresentation<T> genericRepresentation = (GenericRepresentation<T>) TypeUtil.toReference(((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0]);
@@ -47,12 +47,14 @@ public abstract class AbstractGenericRepresentation<T> extends GenericRepresenta
             Reflection.changeFinalField(RClass.getRClass(GenericRepresentation.class, this), "aClass", genericRepresentation.getAClass());
             Reflection.changeFinalField(RClass.getRClass(GenericRepresentation.class, this), "related", genericRepresentation.getRelated());
             //Reflection.changeFinalField(RClass.getRClass(GenericRepresentation.class, this), "hold", genericRepresentation.get());
-            Reflection.changeFinalField(RClass.getRClass(GenericRepresentation.class, this), "isUnique", genericRepresentation.isUnique());
+            Reflection.changeFinalField(RClass.getRClass(GenericRepresentation.class, this), "isUnique", isUnique);
         } catch (Exception e) {
             throw new Error(e);
         }
 
     }
 
-
+    public AbstractGenericRepresentation() {
+        this(false);
+    }
 }
