@@ -25,51 +25,66 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.bistream;
+package com.github.jonathanxd.iutils.option;
 
-import com.github.jonathanxd.iutils.function.collector.BiCollectors;
+import com.github.jonathanxd.iutils.function.stream.BiStream;
 import com.github.jonathanxd.iutils.function.stream.MapStream;
-import com.github.jonathanxd.iutils.map.MapUtils;
 
-import org.junit.Assert;
-import org.junit.Test;
-
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
- * Created by jonathan on 25/06/16.
+ * Created by jonathan on 07/08/16.
  */
-public class BiStreamTest {
+public class Options {
 
-    @Test
-    public void biStream() {
+    private final Map<Option<?>, Object> value = new HashMap<>();
 
+    public <T> Options set(Option<T> option, T value) {
+        this.value.put(option, value);
+        return this;
+    }
 
-        Map<String, Integer> myMap = MapUtils.mapOf("A:1", 1, "B:2", 2, "C:1", 1, "D:3", 3);
+    @SuppressWarnings("unchecked")
+    public <T> Optional<T> get(Option<T> option) {
+        if (!value.containsKey(option))
+            return Optional.ofNullable(option.getDefaultValue());
 
-        Map<String, Integer> collect = MapStream.of(myMap)
-                .filter((s, integer) -> integer == 1)
-                .collect(BiCollectors.toMap());
+        return Optional.ofNullable((T) value.get(option));
+    }
 
-        System.out.println(collect);
+    public <T> T getOrNull(Option<T> option) {
+        return this.getOrElse(option, (T) null);
+    }
 
-        Assert.assertEquals(2, collect.size());
+    public <T> T getOrElse(Option<T> option, T value) {
+        return this.get(option).orElse(value);
+    }
 
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+    public <T> Optional<T> getOrElseOptional(Option<T> option, Optional<T> value) {
+        Optional<T> t = this.get(option);
 
-        MapStream.of(Collections.emptyMap()).forEach((o, o2) -> System.out.println(o+", "+o2));
+        if (!t.isPresent())
+            return value;
 
-        MapStream.of(null).filter((o, o2) -> o != Integer.valueOf(0)).forEach((o, o2) -> System.out.println(o+", "+o2));
+        return t;
+    }
 
-        MapStream.of(Collections.<String, Integer>emptyMap())
-                .filter((s, integer) -> integer < 0)
-                .forEach((s, integer) -> System.out.println(s+", "+integer));
+    public <T> boolean contains(Option<T> option) {
+        return this.value.containsKey(option);
+    }
 
-        MapStream.of(Collections.emptyMap()).collect(BiCollectors.toMap());
+    public boolean containsValue(Object value) {
+        return this.value.containsValue(value);
+    }
 
-        MapStream.of(myMap).filter((s, integer) -> integer < 0).forEach((s, integer) -> System.out.println(s+", "+integer));
-        Map<String, Integer> collect1 = MapStream.of(myMap).filter((s, integer) -> integer < 0).collect(BiCollectors.toMap());
+    public BiStream<Option<?>, Object> stream() {
+        return MapStream.of(this.value);
+    }
 
-        System.out.println(collect1);
+    public Map<Option<?>, Object> getValueMap() {
+        return this.value;
     }
 }
