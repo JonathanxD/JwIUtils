@@ -27,10 +27,23 @@
  */
 package com.github.jonathanxd.iutils.list;
 
+import java.util.Collection;
+
 /**
  * Created by jonathan on 03/07/16.
  */
 public class ListSet<E> extends AbstractPredicateList<E> {
+    public ListSet(int initialCapacity) {
+        super(initialCapacity);
+    }
+
+    public ListSet() {
+        super();
+    }
+
+    public ListSet(Collection<? extends E> c) {
+        super(c);
+    }
 
     @Override
     public boolean test(E e) {

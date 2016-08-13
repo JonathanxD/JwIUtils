@@ -34,6 +34,7 @@ import com.github.jonathanxd.iutils.function.consumer.ObjIntIntConsumer;
 
 import java.lang.reflect.Array;
 import java.util.List;
+import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.IntFunction;
@@ -63,6 +64,18 @@ public interface Grabber<T> {
      * @throws ExcludedElementIndexException if element index is excluded
      */
     T grab(int index) throws ExcludedElementIndexException;
+
+    /**
+     * Grab multiple elements.
+     *
+     * @param predicate Predicate to test start of grab and end of grab (if predicate accept
+     *                  element, grab current element and start grabbing elements, if predicate
+     *                  reject element, grab current element and stop grabbing elements). First
+     *                  argument of predicate is the {@code element}, the second argument is the {@code
+     *                  state}.
+     * @return Array with all elements grabbed.
+     */
+    T[] grabAll(IntFunction<T[]> arrayFactory, BiPredicate<T, State> predicate);
 
     /**
      * Return true if specified {@code index} is excluded

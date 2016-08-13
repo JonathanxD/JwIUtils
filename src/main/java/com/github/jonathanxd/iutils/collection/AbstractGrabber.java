@@ -37,10 +37,11 @@ import com.github.jonathanxd.iutils.string.InJoiner;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
+import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.IntFunction;
-import java.util.function.ObjIntConsumer;
+import java.util.function.Predicate;
 
 /**
  * Created by jonathan on 20/06/16.
@@ -83,6 +84,38 @@ public abstract class AbstractGrabber<T> implements Grabber<T> {
         currentNonExcludedIndex = calculateNonExcludedIndex();
 
         return this.get(index);
+    }
+
+    @Override
+    public T[] grabAll(IntFunction<T[]> arrayFactory, BiPredicate<T, State> predicate) {
+        List<T> grabbing = new ArrayList<>();
+
+        State start = State.NOT_STARTED;
+
+        for(int x = 0; x < this.length; ++x) {
+            if(!excludedIndexes[x]) {
+                T atX = this.get(x);
+
+                // If predicate accept, start grabbing
+                if(predicate.test(atX, start)) {
+                    // Set start variable to true
+                    start = State.STARTED;
+
+                    // Add element
+                    grabbing.add(this.grab(x));
+                } else {
+                    // If predicate reject
+                    // If grab started
+                    if(start == State.STARTED) {
+                        // Add element
+                        grabbing.add(this.grab(x));
+                        break;
+                    }
+                }
+            }
+        }
+
+        return grabbing.stream().toArray(arrayFactory);
     }
 
     @Override
@@ -195,7 +228,7 @@ public abstract class AbstractGrabber<T> implements Grabber<T> {
         for (int i = 0; i < excludedIndexes.length; i++) {
             if (!excludedIndexes[i]) {
                 excludedIndexes[i] = true;
-                 // In this case, the current amount variable can be used instead of 'included Element Index'
+                // In this case, the current amount variable can be used instead of 'included Element Index'
                 consumer.accept(this.get(i), currentAmount, i);
                 ++currentAmount;
 
@@ -339,7 +372,7 @@ public abstract class AbstractGrabber<T> implements Grabber<T> {
     public <U> AbstractGrabber<U> map(Function<T, U> function) {
         U[] genericArray = (U[]) new Object[calculateIncludedElements()];
 
-        for(int x = 0; hasIncludedElements(); ++x) {
+        for (int x = 0; hasIncludedElements(); ++x) {
             T grab = grab(); // IMPORTANT: Consume
 
             genericArray[x] = function.apply(grab);
@@ -372,7 +405,7 @@ public abstract class AbstractGrabber<T> implements Grabber<T> {
             genericArray[i] = function.apply(get(i));
         }
 
-        while(hasIncludedElements())
+        while (hasIncludedElements())
             grab();
 
         return makeNewFromArray(genericArray);

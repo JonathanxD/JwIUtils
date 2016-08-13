@@ -31,19 +31,23 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Collection;
 import java.util.StringJoiner;
+import java.util.function.Predicate;
 
 /**
  * Created by jonathan on 20/05/16.
  */
 public class ToString {
 
-    public static String toString(Object object) {
-
+    public static String toString(Object object, Predicate<String> fieldName) {
         StringJoiner stringJoiner = new StringJoiner(", ", "[", "]");
 
         Class<?> clazz = object.getClass();
 
         for (Field f : clazz.getDeclaredFields()) {
+
+            if(!fieldName.test(f.getName()))
+                continue;
+
             if(Modifier.isStatic(f.getModifiers()))
                 continue;
 
@@ -85,6 +89,10 @@ public class ToString {
 
 
         return object.getClass().getSimpleName()+stringJoiner.toString();
+    }
+
+    public static String toString(Object object) {
+        return ToString.toString(object, s -> true);
     }
 
 }

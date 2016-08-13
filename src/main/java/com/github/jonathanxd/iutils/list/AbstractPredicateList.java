@@ -46,7 +46,10 @@ public abstract class AbstractPredicateList<E> extends ArrayList<E> implements I
     }
 
     public AbstractPredicateList(Collection<? extends E> c) {
-        super(c);
+        for (E e : c) {
+            this.add(e);
+        }
+        //super(c);
     }
 
     @Override
