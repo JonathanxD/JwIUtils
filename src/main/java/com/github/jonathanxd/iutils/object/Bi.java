@@ -29,6 +29,8 @@ package com.github.jonathanxd.iutils.object;
 
 import com.github.jonathanxd.iutils.containers.BaseContainer;
 
+import java.util.Objects;
+
 /**
  * Created by jonathan on 28/05/16.
  */
@@ -51,5 +53,18 @@ public class Bi<T1, T2> {
 
     public T2 _2() {
         return value2;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Bi<?, ?>)
+            return this._1().equals(((Bi) obj)._1()) && this._2().equals(((Bi) obj)._2());
+
+        return super.equals(obj);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this._1(), this._2());
     }
 }

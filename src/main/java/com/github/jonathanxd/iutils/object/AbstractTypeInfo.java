@@ -27,11 +27,34 @@
  */
 package com.github.jonathanxd.iutils.object;
 
+import com.github.jonathanxd.iutils.reflection.RClass;
+import com.github.jonathanxd.iutils.reflection.Reflection;
+
+import java.lang.reflect.ParameterizedType;
+
 /**
- * Created by jonathan on 22/06/16.
+ * Created by jonathan on 08/04/16.
  */
-public class ResultValues {
+public abstract class AbstractTypeInfo<T> extends TypeInfo<T> {
 
 
+    @SuppressWarnings("unchecked")
+    public AbstractTypeInfo(boolean isUnique) {
+        super();
 
+        TypeInfo<T> typeInfo = (TypeInfo<T>) TypeUtil.toReference(((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0]);
+        try {
+            Reflection.changeFinalField(RClass.getRClass(TypeInfo.class, this), "aClass", typeInfo.getAClass());
+            Reflection.changeFinalField(RClass.getRClass(TypeInfo.class, this), "related", typeInfo.getRelated());
+            //Reflection.changeFinalField(RClass.getRClass(GenericRepresentation.class, this), "hold", genericRepresentation.get());
+            Reflection.changeFinalField(RClass.getRClass(TypeInfo.class, this), "isUnique", isUnique);
+        } catch (Exception e) {
+            throw new Error(e);
+        }
+
+    }
+
+    public AbstractTypeInfo() {
+        this(false);
+    }
 }

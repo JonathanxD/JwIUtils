@@ -35,26 +35,24 @@ import java.lang.reflect.ParameterizedType;
 /**
  * Created by jonathan on 08/04/16.
  */
-public abstract class AbstractGenericRepresentation<T> extends GenericRepresentation<T> {
-
+public abstract class ConcreteTypeInfo<T> extends TypeInfo<T> {
 
     @SuppressWarnings("unchecked")
-    public AbstractGenericRepresentation(boolean isUnique) {
+    public ConcreteTypeInfo(boolean isUnique) {
         super();
 
-        GenericRepresentation<T> genericRepresentation = (GenericRepresentation<T>) TypeUtil.toReference(((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0]);
+        TypeInfo<T> typeInfo = (TypeInfo<T>) TypeUtil.toReference(((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0]);
         try {
-            Reflection.changeFinalField(RClass.getRClass(GenericRepresentation.class, this), "aClass", genericRepresentation.getAClass());
-            Reflection.changeFinalField(RClass.getRClass(GenericRepresentation.class, this), "related", genericRepresentation.getRelated());
-            //Reflection.changeFinalField(RClass.getRClass(GenericRepresentation.class, this), "hold", genericRepresentation.get());
-            Reflection.changeFinalField(RClass.getRClass(GenericRepresentation.class, this), "isUnique", isUnique);
+            Reflection.changeFinalField(RClass.getRClass(TypeInfo.class, this), "aClass", typeInfo.getAClass());
+            Reflection.changeFinalField(RClass.getRClass(TypeInfo.class, this), "related", typeInfo.getRelated());
+            Reflection.changeFinalField(RClass.getRClass(TypeInfo.class, this), "isUnique", isUnique);
         } catch (Exception e) {
             throw new Error(e);
         }
 
     }
 
-    public AbstractGenericRepresentation() {
+    public ConcreteTypeInfo() {
         this(false);
     }
 }

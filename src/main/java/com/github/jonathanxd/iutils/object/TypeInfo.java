@@ -43,20 +43,20 @@ import java.util.function.Function;
  * Created by jonathan on 13/02/16.
  */
 @SuppressWarnings("Duplicates")
-public class GenericRepresentation<T> implements Comparable<GenericRepresentation> {
+public class TypeInfo<T> implements Comparable<TypeInfo> {
 
     /**
-     * Accessed and modified via reflection in {@link AbstractGenericRepresentation}
+     * Accessed and modified via reflection in {@link AbstractTypeInfo}
      */
     private final Class<? extends T> aClass;
 
     /**
-     * Accessed and modified via reflection in {@link AbstractGenericRepresentation} & {@link DynamicGenericRepresentation}
+     * Accessed and modified via reflection in {@link AbstractTypeInfo} & {@link DynamicTypeInfo}
      */
-    private final GenericRepresentation[] related;
+    private final TypeInfo[] related;
 
     /**
-     * Accessed and modified via reflection in {@link AbstractGenericRepresentation}
+     * Accessed and modified via reflection in {@link AbstractTypeInfo}
      * @deprecated
      */
     //private final Object hold;
@@ -66,7 +66,7 @@ public class GenericRepresentation<T> implements Comparable<GenericRepresentatio
      */
     private final boolean isUnique;
 
-    protected GenericRepresentation() {
+    protected TypeInfo() {
         this.aClass = null;
         this.related = null;
         //this.hold = null;
@@ -74,30 +74,30 @@ public class GenericRepresentation<T> implements Comparable<GenericRepresentatio
     }
 
 
-    protected GenericRepresentation(GenericRepresentation<T> genericRepresentation) {
-        this.related = genericRepresentation.related.clone();
-        this.aClass = genericRepresentation.aClass;
-        this.isUnique = genericRepresentation.isUnique;
+    protected TypeInfo(TypeInfo<T> typeInfo) {
+        this.related = typeInfo.related.clone();
+        this.aClass = typeInfo.aClass;
+        this.isUnique = typeInfo.isUnique;
     }
 
-    GenericRepresentation(Class<? extends T> aClass, GenericRepresentation[] related, boolean isUnique) {
+    TypeInfo(Class<? extends T> aClass, TypeInfo[] related, boolean isUnique) {
         this.aClass = Objects.requireNonNull(aClass);
-        this.related = related != null ? related : new GenericRepresentation[0];
+        this.related = related != null ? related : new TypeInfo[0];
         this.isUnique = isUnique;
     }
 
     @NotNull
-    public static String toString(GenericRepresentation genericRepresentation, Function<Class<?>, String> classToString) {
+    public static String toString(TypeInfo typeInfo, Function<Class<?>, String> classToString) {
 
         StringBuilder sb = new StringBuilder();
-        String shortName = classToString.apply(genericRepresentation.getAClass());
+        String shortName = classToString.apply(typeInfo.getAClass());
         sb.append(shortName);
 
-        if (genericRepresentation.getRelated().length != 0) {
+        if (typeInfo.getRelated().length != 0) {
             sb.append("<");
             StringJoiner sj = new StringJoiner(", ");
 
-            for (GenericRepresentation loopRef : genericRepresentation.getRelated()) {
+            for (TypeInfo loopRef : typeInfo.getRelated()) {
                 sj.add(toString(loopRef, classToString));
             }
 
@@ -111,9 +111,9 @@ public class GenericRepresentation<T> implements Comparable<GenericRepresentatio
 
 
     @NotNull
-    public static String toFullString(GenericRepresentation genericRepresentation) {
+    public static String toFullString(TypeInfo typeInfo) {
 
-        return toString(genericRepresentation, Class::getName);
+        return toString(typeInfo, Class::getName);
     }
 
     //java.util.Map<java.lang.String, java.util.List<java.util.Map<java.lang.String, [Ljava.lang.Integer;>>>
@@ -122,10 +122,10 @@ public class GenericRepresentation<T> implements Comparable<GenericRepresentatio
     // , |-> Add
     // > |-> Set as Child
 
-    public static List<GenericRepresentation<?>> fromFullString(String fullString) throws ClassNotFoundException {
-        Deque<RepresentationBuilder<?>> builders = new ArrayDeque<>();
+    public static List<TypeInfo<?>> fromFullString(String fullString) throws ClassNotFoundException {
+        Deque<TypeInfoBuilder<?>> builders = new ArrayDeque<>();
 
-        List<GenericRepresentation<?>> genericRepresentationList = new ArrayList<>();
+        List<TypeInfo<?>> typeInfoList = new ArrayList<>();
 
         StringBuilder stringBuilder = new StringBuilder();
         char[] chars = fullString.toCharArray();
@@ -136,19 +136,19 @@ public class GenericRepresentation<T> implements Comparable<GenericRepresentatio
             if (current == '<') {
                 Class<?> s = getCl(stringBuilder);
 
-                RepresentationBuilder<?> a = new RepresentationBuilder<>().a(s);
+                TypeInfoBuilder<?> a = new TypeInfoBuilder<>().a(s);
 
                 if (builders.isEmpty()) {
                     builders.offer(a);
                 } else {
-                    RepresentationBuilder<?> peek = builders.peekLast();
+                    TypeInfoBuilder<?> peek = builders.peekLast();
                     peek.of(a);
                     builders.offer(a);
                 }
             } else if (current == ',') {
                 if (stringBuilder.length() > 0) {
                     Class<?> s = getCl(stringBuilder);
-                    RepresentationBuilder<?> a = new RepresentationBuilder<>().a(s);
+                    TypeInfoBuilder<?> a = new TypeInfoBuilder<>().a(s);
 
                     builders.peekLast().of(a);
                     //builders.offer(a); @Bug
@@ -157,21 +157,21 @@ public class GenericRepresentation<T> implements Comparable<GenericRepresentatio
             } else if (current == '>') {
                 if (stringBuilder.length() != 0) {
                     Class<?> s = getCl(stringBuilder);
-                    RepresentationBuilder<?> a = new RepresentationBuilder<>().a(s);
+                    TypeInfoBuilder<?> a = new TypeInfoBuilder<>().a(s);
 
                     builders.peekLast().of(a);
                 }
 
-                RepresentationBuilder<?> poll = builders.pollLast();
+                TypeInfoBuilder<?> poll = builders.pollLast();
 
                 if (!builders.isEmpty()) {
-                    RepresentationBuilder<?> representationBuilder = builders.peekLast();
+                    TypeInfoBuilder<?> typeInfoBuilder = builders.peekLast();
 
-                    if (!representationBuilder.getRelated().contains(poll)) {
-                        genericRepresentationList.add(poll.build());
+                    if (!typeInfoBuilder.getRelated().contains(poll)) {
+                        typeInfoList.add(poll.build());
                     }
                 } else {
-                    genericRepresentationList.add(poll.build());
+                    typeInfoList.add(poll.build());
                 }
             } else {
                 stringBuilder.append(current);
@@ -181,16 +181,16 @@ public class GenericRepresentation<T> implements Comparable<GenericRepresentatio
 
         if (!builders.isEmpty()) {
             do {
-                RepresentationBuilder<?> poll = builders.pollLast();
+                TypeInfoBuilder<?> poll = builders.pollLast();
 
                 if (!builders.isEmpty()) {
-                    RepresentationBuilder<?> representationBuilder = builders.peekLast();
+                    TypeInfoBuilder<?> typeInfoBuilder = builders.peekLast();
 
-                    if (!representationBuilder.getRelated().contains(poll)) {
-                        genericRepresentationList.add(poll.build());
+                    if (!typeInfoBuilder.getRelated().contains(poll)) {
+                        typeInfoList.add(poll.build());
                     }
                 } else {
-                    genericRepresentationList.add(poll.build());
+                    typeInfoList.add(poll.build());
                 }
             } while (!builders.isEmpty());
 
@@ -198,23 +198,23 @@ public class GenericRepresentation<T> implements Comparable<GenericRepresentatio
 
         if (stringBuilder.length() > 0) {
             Class cl = getCl(stringBuilder);
-            genericRepresentationList.add(GenericRepresentation.aEnd(cl));
+            typeInfoList.add(TypeInfo.aEnd(cl));
         }
 
-        return genericRepresentationList;
+        return typeInfoList;
     }
 
-    private static void tryCreate(Deque<RepresentationBuilder<?>> builders, List<GenericRepresentation<?>> genericRepresentationList) {
-        RepresentationBuilder<?> poll = builders.pollLast();
+    private static void tryCreate(Deque<TypeInfoBuilder<?>> builders, List<TypeInfo<?>> typeInfoList) {
+        TypeInfoBuilder<?> poll = builders.pollLast();
 
         if (!builders.isEmpty()) {
-            RepresentationBuilder<?> representationBuilder = builders.peekLast();
+            TypeInfoBuilder<?> typeInfoBuilder = builders.peekLast();
 
-            if (!representationBuilder.getRelated().contains(poll)) {
-                genericRepresentationList.add(poll.build());
+            if (!typeInfoBuilder.getRelated().contains(poll)) {
+                typeInfoList.add(poll.build());
             }
         } else {
-            genericRepresentationList.add(poll.build());
+            typeInfoList.add(poll.build());
         }
     }
 
@@ -227,53 +227,69 @@ public class GenericRepresentation<T> implements Comparable<GenericRepresentatio
         return clazz;
     }
 
-    public static <T> RepresentationBuilder<T> to() {
+    public static <T> TypeInfoBuilder<T> to() {
         return referenceTo();
     }
 
-    public static <T> RepresentationBuilder<T> representationOf() {
-        return new RepresentationBuilder<>();
+    public static <T> TypeInfoBuilder<T> representationOf() {
+        return new TypeInfoBuilder<>();
+    }
+
+    public static <T> TypeInfoBuilder<T> representationOfUnique() {
+        return new TypeInfoBuilder<T>().setUnique(true);
     }
 
     @Deprecated
-    public static <T> RepresentationBuilder<T> referenceTo() {
-        return new RepresentationBuilder<>();
+    public static <T> TypeInfoBuilder<T> referenceTo() {
+        return new TypeInfoBuilder<>();
     }
 
-    public static <T> RepresentationBuilder<T> of(Class<T> aClass) {
-        return GenericRepresentation.<T>representationOf().a(aClass);
+    public static <T> TypeInfoBuilder<T> of(Class<T> aClass) {
+        return TypeInfo.<T>representationOf().a(aClass);
     }
 
-    public static <T> RepresentationBuilder<T> a(Class<T> aClass) {
-        return GenericRepresentation.<T>representationOf().a(aClass);
+    public static <T> TypeInfoBuilder<T> builderOfUnique(Class<T> aClass) {
+        return TypeInfo.<T>representationOf().a(aClass).setUnique(true);
     }
 
-    public static <T> GenericRepresentation<T> ofEnd(Class<T> aClass) {
-        return GenericRepresentation.<T>representationOf().a(aClass).build();
+    public static <T> TypeInfoBuilder<T> a(Class<T> aClass) {
+        return TypeInfo.<T>representationOf().a(aClass);
     }
 
-    public static <T> GenericRepresentation<T> aEnd(Class<T> aClass) {
-        return GenericRepresentation.<T>representationOf().a(aClass).build();
+    public static <T> TypeInfo<T> ofEnd(Class<T> aClass) {
+        return TypeInfo.<T>representationOf().a(aClass).build();
+    }
+
+    public static <T> TypeInfo<T> aEnd(Class<T> aClass) {
+        return TypeInfo.<T>representationOf().a(aClass).build();
+    }
+
+    public static <T> TypeInfo<T> ofUnique(Class<T> aClass) {
+        return TypeInfo.<T>representationOf().a(aClass).setUnique(true).build();
+    }
+
+    public static <T> TypeInfo<T> aUnique(Class<T> aClass) {
+        return TypeInfo.<T>representationOf().a(aClass).setUnique(true).build();
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> RepresentationBuilder<T> but(GenericRepresentation genericRepresentation) {
-        return GenericRepresentation.<T>representationOf().a(genericRepresentation.getAClass()).ofArray(genericRepresentation.getRelated());
+    public static <T> TypeInfoBuilder<T> but(TypeInfo typeInfo) {
+        return TypeInfo.<T>representationOf().a(typeInfo.getAClass()).ofArray(typeInfo.getRelated());
     }
 
-    public static GenericRepresentation[] fromProvider(TypeProvider provider) {
+    public static TypeInfo[] fromProvider(TypeProvider provider) {
         Type[] types = provider.getTypes();
-        GenericRepresentation[] genericRepresentations = new GenericRepresentation[types.length];
+        TypeInfo[] typeInfos = new TypeInfo[types.length];
 
         for (int i = 0; i < types.length; i++) {
-            genericRepresentations[i] = TypeUtil.toReference(types[i]);
+            typeInfos[i] = TypeUtil.toReference(types[i]);
         }
 
-        return genericRepresentations;
+        return typeInfos;
     }
 
-    public RepresentationBuilder<? extends T> but() {
-        return GenericRepresentation.but(this);
+    public TypeInfoBuilder<? extends T> but() {
+        return TypeInfo.but(this);
     }
 
     public Class<? extends T> getAClass() {
@@ -284,7 +300,7 @@ public class GenericRepresentation<T> implements Comparable<GenericRepresentatio
         return isUnique;
     }
 
-    public GenericRepresentation[] getRelated() {
+    public TypeInfo[] getRelated() {
         return related;
     }
 
@@ -312,16 +328,16 @@ public class GenericRepresentation<T> implements Comparable<GenericRepresentatio
         if(isUnique)
             return super.equals(obj);
 
-        if (!(obj instanceof GenericRepresentation))
+        if (!(obj instanceof TypeInfo))
             return false;
 
-        GenericRepresentation other = (GenericRepresentation) obj;
+        TypeInfo other = (TypeInfo) obj;
 
         return compareTo(other) == 0;
     }
 
     @Override
-    public int compareTo(@NotNull GenericRepresentation compareTo) {
+    public int compareTo(@NotNull TypeInfo compareTo) {
 
         if (getAClass() == compareTo.getAClass()) {
 
@@ -335,7 +351,7 @@ public class GenericRepresentation<T> implements Comparable<GenericRepresentatio
         return -1;
     }
 
-    public int compareToAssignable(@NotNull GenericRepresentation compareTo) {
+    public int compareToAssignable(@NotNull TypeInfo compareTo) {
 
         if (getAClass().isAssignableFrom(compareTo.getAClass())) {
 
@@ -343,8 +359,8 @@ public class GenericRepresentation<T> implements Comparable<GenericRepresentatio
                 return -1;
 
             for (int x = 0; x < getRelated().length; ++x) {
-                GenericRepresentation<?> mainRef = getRelated()[x];
-                GenericRepresentation<?> compareRef = compareTo.getRelated()[x];
+                TypeInfo<?> mainRef = getRelated()[x];
+                TypeInfo<?> compareRef = compareTo.getRelated()[x];
 
                 if (!mainRef.getAClass().isAssignableFrom(compareRef.getAClass())) {
                     if (compareRef.getAClass().isAssignableFrom(mainRef.getAClass())) {

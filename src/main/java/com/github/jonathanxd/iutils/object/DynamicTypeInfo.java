@@ -34,20 +34,20 @@ import com.github.jonathanxd.iutils.reflection.Reflection;
 /**
  * Created by jonathan on 02/04/16.
  */
-public class DynamicGenericRepresentation<T> extends GenericRepresentation<T> {
-    DynamicGenericRepresentation(Class<? extends T> aClass, GenericRepresentation[] related, boolean isUnique) {
+public class DynamicTypeInfo<T> extends TypeInfo<T> {
+    DynamicTypeInfo(Class<? extends T> aClass, TypeInfo[] related, boolean isUnique) {
         super(aClass, related, isUnique);
     }
 
-    public void addRelated(GenericRepresentation<?> genericRepresentation) {
+    public void addRelated(TypeInfo<?> typeInfo) {
         try {
-            Reflection.changeFinalField(RClass.getRClass(GenericRepresentation.class, this), "related", ArrayUtils.addToArray(getRelated(), genericRepresentation));
+            Reflection.changeFinalField(RClass.getRClass(TypeInfo.class, this), "related", ArrayUtils.addToArray(getRelated(), typeInfo));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    public GenericRepresentation<T> toReference() {
-        return new GenericRepresentation<>(this.getAClass(), this.getRelated(), this.isUnique());
+    public TypeInfo<T> toReference() {
+        return new TypeInfo<>(this.getAClass(), this.getRelated(), this.isUnique());
     }
 }

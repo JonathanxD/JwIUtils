@@ -27,34 +27,69 @@
  */
 package com.github.jonathanxd.iutils.object;
 
-/**
- * Created by jonathan on 24/06/16.
- */
+import java.util.Collection;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
- * A generic representation that hold an Object (same type of T).
- *
- * @param <T> Generic representation Type and Object Type
+ * Created by jonathan on 13/08/16.
  */
-public class THolderGenericRepresentation<T> extends GenericRepresentation<T> {
-
+public class Named<T> {
+    private final String name;
     private final T value;
 
-    private THolderGenericRepresentation(Class<? extends T> aClass, GenericRepresentation[] related, boolean isUnique, T value) {
-        super(aClass, related, isUnique);
+    public Named(String name, T value) {
+        this.name = name;
         this.value = value;
     }
 
-    public static <T> THolderGenericRepresentation<T> makeHold(GenericRepresentation<T> representation, T value) {
-        return new THolderGenericRepresentation<>(representation.getAClass(), representation.getRelated(), representation.isUnique(), value);
+    public Named(T value) {
+        this(null, value);
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public T getValue() {
+        return value;
     }
 
     /**
-     * Get value
+     * Find a {@link Named} element in a {@code collection}
      *
-     * @return Value
+     * @param collection Collection
+     * @return Named element in list
      */
-    public T getValue() {
-        return value;
+    public Optional<Named<?>> get(Collection<? extends Named<?>> collection) {
+        for (Named<?> named : collection) {
+            if (this.equals(named)) {
+                return Optional.of(named);
+            }
+        }
+
+        return Optional.empty();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Named<?>) {
+            Named named = (Named) obj;
+
+            return this.getValue().equals(named.getValue())
+                    && (this.getName() == null || named.getName() != null && this.getName().equals(named.getName()));
+        }
+
+        return super.equals(obj);
+    }
+
+    @Override
+    public int hashCode() {
+        if (this.getName() == null) {
+            return Objects.hash(this.value);
+        }
+
+        return Objects.hash(this.getName(), this.getValue());
+
     }
 }

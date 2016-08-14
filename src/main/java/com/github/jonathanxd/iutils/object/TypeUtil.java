@@ -67,11 +67,11 @@ public class TypeUtil {
         }
     }
 
-    public static <S, E extends S> GenericRepresentation<?> resolve(Class<E> classWithTypeVariable, Class<S> subClass) {
+    public static <S, E extends S> TypeInfo<?> resolve(Class<E> classWithTypeVariable, Class<S> subClass) {
         Type genericSuperclass = classWithTypeVariable.getGenericSuperclass();
         Class<?> superClass = classWithTypeVariable.getSuperclass();
 
-        GenericRepresentation<?> from = from(genericSuperclass, superClass, subClass);
+        TypeInfo<?> from = from(genericSuperclass, superClass, subClass);
 
         if (from == null) {
             Type[] genericInterfaces = classWithTypeVariable.getGenericInterfaces();
@@ -94,7 +94,7 @@ public class TypeUtil {
         return null;
     }
 
-    private static GenericRepresentation<?> from(Type type, Class<?> actual, Class<?> expected) {
+    private static TypeInfo<?> from(Type type, Class<?> actual, Class<?> expected) {
         if (type instanceof ParameterizedType) {
             ParameterizedType parameterizedType = (ParameterizedType) type;
 
@@ -113,7 +113,7 @@ public class TypeUtil {
         return null;
     }
 
-    public static GenericRepresentation<?>[] genericRepOfVariableTypes(Class<?> classWithTypeVariable) {
+    public static TypeInfo<?>[] genericRepOfVariableTypes(Class<?> classWithTypeVariable) {
 
         return toReferences(getTypeVariableTypes(classWithTypeVariable));
     }
@@ -141,17 +141,17 @@ public class TypeUtil {
         return types;
     }
 
-    public static GenericRepresentation<?>[] toReferences(Type[] param) {
-        GenericRepresentation<?>[] genericRepresentations = new GenericRepresentation[param.length];
+    public static TypeInfo<?>[] toReferences(Type[] param) {
+        TypeInfo<?>[] typeInfos = new TypeInfo[param.length];
 
         for (int i = 0; i < param.length; i++) {
-            genericRepresentations[i] = toReference(param[i]);
+            typeInfos[i] = toReference(param[i]);
         }
 
-        return genericRepresentations;
+        return typeInfos;
     }
 
-    public static GenericRepresentation<?> toReference(Type param) {
+    public static TypeInfo<?> toReference(Type param) {
         if (param instanceof ParameterizedType) {
             return toReference((ParameterizedType) param);
         }
@@ -159,7 +159,7 @@ public class TypeUtil {
         if (param instanceof GenericArrayType) {
 
             GenericArrayType genericArrayType = (GenericArrayType) param;
-            GenericRepresentation<?> genericRepresentation = toReference(genericArrayType.getGenericComponentType());
+            TypeInfo<?> typeInfo = toReference(genericArrayType.getGenericComponentType());
 
             String pr = param.toString();
 
@@ -173,25 +173,25 @@ public class TypeUtil {
             String fullName = (arrays + "L" + name) + ";";
 
             try {
-                Reflection.changeFinalField(RClass.getRClass(genericRepresentation), "aClass", Class.forName(fullName));
+                Reflection.changeFinalField(RClass.getRClass(typeInfo), "aClass", Class.forName(fullName));
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
 
-            return genericRepresentation;
+            return typeInfo;
 
         }
 
-        return GenericRepresentation.aEnd(from(param));
+        return TypeInfo.aEnd(from(param));
     }
 
-    public static <T, E extends T> GenericRepresentation<?> lambdaTypes(Class<E> lambdaClass, Class<T> functionalInterfaceClass) {
+    public static <T, E extends T> TypeInfo<?> lambdaTypes(Class<E> lambdaClass, Class<T> functionalInterfaceClass) {
 
         Map<String, Class<?>> types = new HashMap<>();
 
         TypeToolsMethods.fromConstantPool(lambdaClass, functionalInterfaceClass, types);
 
-        RepresentationBuilder<?> representationBuilder = new RepresentationBuilder<>().a(functionalInterfaceClass);
+        TypeInfoBuilder<?> typeInfoBuilder = new TypeInfoBuilder<>().a(functionalInterfaceClass);
 
         TypeVariable<Class<T>>[] typeParameters = functionalInterfaceClass.getTypeParameters();
 
@@ -199,31 +199,31 @@ public class TypeUtil {
             String name = typeParameter.getName();
             if (types.containsKey(name)) {
                 Class<?> aClass = types.get(name);
-                representationBuilder.of(aClass);
+                typeInfoBuilder.of(aClass);
             }
         }
 
-        return representationBuilder.build();
+        return typeInfoBuilder.build();
     }
 
-    public static GenericRepresentation<?> toReference(ParameterizedType param) {
-        RepresentationBuilder representationBuilder = GenericRepresentation.a(from(param.getRawType()));
+    public static TypeInfo<?> toReference(ParameterizedType param) {
+        TypeInfoBuilder typeInfoBuilder = TypeInfo.a(from(param.getRawType()));
         for (Type type : param.getActualTypeArguments()) {
             if (!(type instanceof ParameterizedType)) {
 
                 Class<?> from = from(type);
 
                 if (from != null) {
-                    representationBuilder.of(from);
+                    typeInfoBuilder.of(from);
                 } else {
                     break;
                 }
             } else {
                 ParameterizedType parameterizedType = (ParameterizedType) type;
-                representationBuilder.of(toReference(parameterizedType));
+                typeInfoBuilder.of(toReference(parameterizedType));
             }
         }
-        return representationBuilder.build();
+        return typeInfoBuilder.build();
     }
 
     public static Class<?> from(Type t) {

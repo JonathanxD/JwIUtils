@@ -30,8 +30,6 @@ package com.github.jonathanxd.iutils.object;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -39,7 +37,7 @@ import java.util.Objects;
  */
 
 /**
- * Provides a Type for {@link AbstractGenericRepresentation}s
+ * Provides a Type for {@link AbstractTypeInfo}s
  */
 public interface TypeProvider {
 
@@ -117,11 +115,11 @@ public interface TypeProvider {
     }
 
     @SuppressWarnings("unchecked")
-    default GenericRepresentation[] getReferences() {
+    default TypeInfo[] getReferences() {
         return TypeUtil.toReferences(Objects.requireNonNull(getTypes(), "Null Type!"));
     }
 
-    default GenericRepresentation[] getClassReferences() {
+    default TypeInfo[] getClassReferences() {
         return TypeUtil.toReferences(Objects.requireNonNull(getClassTypes(), "Null Type!"));
     }
 }

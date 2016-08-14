@@ -28,132 +28,124 @@
 package com.github.jonathanxd.iutils.reference;
 
 import com.github.jonathanxd.iutils.exceptions.RethrowException;
-import com.github.jonathanxd.iutils.object.AbstractGenericRepresentation;
-import com.github.jonathanxd.iutils.object.GenericRepresentation;
+import com.github.jonathanxd.iutils.object.AbstractTypeInfo;
+import com.github.jonathanxd.iutils.object.TypeInfo;
 import com.github.jonathanxd.iutils.object.TypeProvider;
 import com.github.jonathanxd.iutils.object.TypeUtil;
 
 import org.junit.Assert;
-import org.junit.Test;
 
 import java.io.Serializable;
-import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
-import java.time.Duration;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Formatter;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.StringJoiner;
 import java.util.function.Function;
 
 /**
  * Created by jonathan on 02/04/16.
  */
-public class GenericRepresentationTest {
+public class TypeInfoTest {
 
 
     @org.junit.Test
     public void testRef() {
 
-        GenericRepresentation<Dict<? extends CharSequence, ? super Number>> ref = new AbstractGenericRepresentation<Dict<? extends CharSequence, ? super Number>>() {};
+        TypeInfo<Dict<? extends CharSequence, ? super Number>> ref = new AbstractTypeInfo<Dict<? extends CharSequence, ? super Number>>() {};
 
         System.out.println("Ref: "+ref);
 
         Test<? extends CharSequence> test = new Test<>();
 
-        GenericRepresentation[] myRefs = test.getClassReferences();
+        TypeInfo[] myRefs = test.getClassReferences();
 
         System.out.println("Ref: "+ Arrays.toString(myRefs));
 
-        GenericRepresentation<Dict<List<String>, Integer>> dictGenericRepresentation = new AbstractGenericRepresentation<Dict<List<String>, Integer>>() {};
-        String toFullString1 = dictGenericRepresentation.toFullString();
+        TypeInfo<Dict<List<String>, Integer>> dictTypeInfo = new AbstractTypeInfo<Dict<List<String>, Integer>>() {};
+        String toFullString1 = dictTypeInfo.toFullString();
 
-        System.out.println("Dict: "+ dictGenericRepresentation);
+        System.out.println("Dict: "+ dictTypeInfo);
 
         System.out.println("Dict: "+ toFullString1);
 
         try {
-            System.out.println("Dict: "+ GenericRepresentation.fromFullString(toFullString1));
+            System.out.println("Dict: "+ TypeInfo.fromFullString(toFullString1));
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
 
 
-        GenericRepresentation<Map> genericRepresentation = GenericRepresentation.a(Map.class).of(String.class).and(GenericRepresentation.a(List.class).of(GenericRepresentation.a(Map.class).of(String.class).and(Integer[].class))).build();
+        TypeInfo<Map> typeInfo = TypeInfo.a(Map.class).of(String.class).and(TypeInfo.a(List.class).of(TypeInfo.a(Map.class).of(String.class).and(Integer[].class))).build();
 
-        String fullString = genericRepresentation.toFullString();
+        String fullString = typeInfo.toFullString();
 
         System.out.println(fullString);
 
         try {
-            System.out.println(GenericRepresentation.fromFullString(fullString));
-            System.out.println(GenericRepresentation.fromFullString("java.util.Map"));
+            System.out.println(TypeInfo.fromFullString(fullString));
+            System.out.println(TypeInfo.fromFullString("java.util.Map"));
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
 
         try {
-            Assert.assertEquals("[Map<String, List<Map<String, Integer[]>>>, Map<String, List<Map<String, Integer[]>>>]", GenericRepresentation.fromFullString("java.util.Map<java.lang.String, java.util.List<java.util.Map<java.lang.String, [Ljava.lang.Integer;>>>, java.util.Map<java.lang.String, java.util.List<java.util.Map<java.lang.String, [Ljava.lang.Integer;>>>").toString());
+            Assert.assertEquals("[Map<String, List<Map<String, Integer[]>>>, Map<String, List<Map<String, Integer[]>>>]", TypeInfo.fromFullString("java.util.Map<java.lang.String, java.util.List<java.util.Map<java.lang.String, [Ljava.lang.Integer;>>>, java.util.Map<java.lang.String, java.util.List<java.util.Map<java.lang.String, [Ljava.lang.Integer;>>>").toString());
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
 
-        GenericRepresentation<String> genericRepresentation1 = new AbstractGenericRepresentation<String>(){};
+        TypeInfo<String> typeInfo1 = new AbstractTypeInfo<String>(){};
 
-        System.out.println(genericRepresentation1);
+        System.out.println(typeInfo1);
 
 
-        GenericRepresentation<List<String>> genericRepresentation2 = new AbstractGenericRepresentation<List<String>>(){};
+        TypeInfo<List<String>> typeInfo2 = new AbstractTypeInfo<List<String>>(){};
 
-        System.out.println(genericRepresentation2);
+        System.out.println(typeInfo2);
 
-        GenericRepresentation<List<?>> genericRepresentation3 = new AbstractGenericRepresentation<List<?>>(){};
+        TypeInfo<List<?>> typeInfo3 = new AbstractTypeInfo<List<?>>(){};
 
-        System.out.println(genericRepresentation3);
+        System.out.println(typeInfo3);
 
         TV<String> stringTV = new TV<String>(){};
 
         System.out.println("stringTV -> "+Arrays.toString(stringTV.getReferences()));
 
-        GenericRepresentation<Class<List<String>>[][]>[] genericRepresentation4 = Data.A.getReferences();
+        TypeInfo<Class<List<String>>[][]>[] typeInfo4 = Data.A.getReferences();
 
-        System.out.println("Reference4 -> "+Arrays.toString(genericRepresentation4));
+        System.out.println("Reference4 -> "+Arrays.toString(typeInfo4));
 
-        String toFullString = genericRepresentation4[0].toFullString();
+        String toFullString = typeInfo4[0].toFullString();
 
         System.out.println(toFullString);
 
         try {
-            System.out.println(GenericRepresentation.fromFullString(toFullString));
+            System.out.println(TypeInfo.fromFullString(toFullString));
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
 
-        GenericRepresentation<?> listGenericRepresentation = TypeUtil.resolve(MyList.class, List.class);
+        TypeInfo<?> listTypeInfo = TypeUtil.resolve(MyList.class, List.class);
 
-        System.out.println("GenericRepresentation => "+ listGenericRepresentation);
+        System.out.println("GenericRepresentation => "+ listTypeInfo);
 
         Function<String, Integer> stringToInteger = Integer::valueOf;
 
-        GenericRepresentation<?> functionGenerics = TypeUtil.resolve(stringToInteger.getClass(), Function.class);
+        TypeInfo<?> functionGenerics = TypeUtil.resolve(stringToInteger.getClass(), Function.class);
 
         System.out.println("GenericRepresentations of Function<String, Integer> => "+ functionGenerics);
 
-        GenericRepresentation<?> genericRepresentation5 = TypeUtil.lambdaTypes(stringToInteger.getClass(), Function.class);
+        TypeInfo<?> typeInfo5 = TypeUtil.lambdaTypes(stringToInteger.getClass(), Function.class);
 
-        System.out.println("GenericRepresentations of Function<String, Integer> => "+ genericRepresentation5);
+        System.out.println("GenericRepresentations of Function<String, Integer> => "+ typeInfo5);
 
 
-        GenericRepresentation<?> representationN =
-                GenericRepresentation.of(List.class)
+        TypeInfo<?> representationN =
+                TypeInfo.of(List.class)
                 .of(String.class)
-                .and(GenericRepresentation.of(List.class).of(Integer.class))
-                .and(GenericRepresentation.of(List.class).of(String.class))
+                .and(TypeInfo.of(List.class).of(Integer.class))
+                .and(TypeInfo.of(List.class).of(String.class))
                 .build();
 
         System.out.println("MultiRepresentation of List<String, List<Integer>, List<String>> => "+ representationN);
@@ -163,7 +155,7 @@ public class GenericRepresentationTest {
         System.out.println("MultiRepresentation of List<String, List<Integer>, List<String>> Full: => "+ toFullString2);
 
         try {
-            System.out.println("MultiRepresentation of List<String, List<Integer>, List<String>> From Full: => "+ GenericRepresentation.fromFullString(toFullString2));
+            System.out.println("MultiRepresentation of List<String, List<Integer>, List<String>> From Full: => "+ TypeInfo.fromFullString(toFullString2));
         } catch (ClassNotFoundException e) {
             throw new RethrowException(e);
         }
@@ -195,13 +187,13 @@ public class GenericRepresentationTest {
     }
 
     private abstract static class TV<T> implements TypeProvider {
-        private final GenericRepresentation<T> genericRepresentation;
+        private final TypeInfo<T> typeInfo;
 
         @SuppressWarnings("unchecked")
         public TV() {
-            genericRepresentation = getReferences()[0];
+            typeInfo = getReferences()[0];
 
-            GenericRepresentation<?> reef = TypeUtil.toReference((ParameterizedType) getClass().getGenericSuperclass());
+            TypeInfo<?> reef = TypeUtil.toReference((ParameterizedType) getClass().getGenericSuperclass());
 
             System.out.println(reef);
         }

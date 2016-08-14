@@ -37,40 +37,40 @@ import java.util.List;
 /**
  * Created by jonathan on 13/02/16.
  */
-public final class RepresentationBuilder<T> {
+public final class TypeInfoBuilder<T> {
     private Class<? extends T> aClass = null;
-    private List<RepresentationBuilder<?>> related = new ArrayList<>();
+    private List<TypeInfoBuilder<?>> related = new ArrayList<>();
     //private Object hold = null;
     private boolean isUnique = false;
 
-    RepresentationBuilder() {
+    TypeInfoBuilder() {
     }
 
-    public static <T> RepresentationBuilder<T> from(GenericRepresentation<T> genericRepresentation) {
-        RepresentationBuilder<T> representationBuilder = new RepresentationBuilder<>();
-        representationBuilder.a(genericRepresentation.getAClass());
+    public static <T> TypeInfoBuilder<T> from(TypeInfo<T> typeInfo) {
+        TypeInfoBuilder<T> typeInfoBuilder = new TypeInfoBuilder<>();
+        typeInfoBuilder.a(typeInfo.getAClass());
 
-        for (GenericRepresentation<?> otherGenericRepresentation : genericRepresentation.getRelated()) {
-            representationBuilder.related.add(from(otherGenericRepresentation));
+        for (TypeInfo<?> otherTypeInfo : typeInfo.getRelated()) {
+            typeInfoBuilder.related.add(from(otherTypeInfo));
         }
 
-        return representationBuilder;
+        return typeInfoBuilder;
     }
 
-    public static <T> GenericRepresentation<T> to(RepresentationBuilder<T> representationBuilder) {
+    public static <T> TypeInfo<T> to(TypeInfoBuilder<T> typeInfoBuilder) {
 
-        DynamicGenericRepresentation<T> dynamicReference = new DynamicGenericRepresentation<>(representationBuilder.aClass, new GenericRepresentation[]{}, representationBuilder.isUnique());
+        DynamicTypeInfo<T> dynamicReference = new DynamicTypeInfo<>(typeInfoBuilder.aClass, new TypeInfo[]{}, typeInfoBuilder.isUnique());
 
-        if (representationBuilder.related.size() > 0) {
+        if (typeInfoBuilder.related.size() > 0) {
 
-            List<GenericRepresentation<?>> genericRepresentationList = new ArrayList<>();
+            List<TypeInfo<?>> typeInfoList = new ArrayList<>();
 
-            for (RepresentationBuilder<?> otherRepresentationBuilder : representationBuilder.related) {
-                genericRepresentationList.add(to(otherRepresentationBuilder));
+            for (TypeInfoBuilder<?> otherTypeInfoBuilder : typeInfoBuilder.related) {
+                typeInfoList.add(to(otherTypeInfoBuilder));
             }
 
-            for (GenericRepresentation<?> genericRepresentation : genericRepresentationList) {
-                dynamicReference.addRelated(genericRepresentation);
+            for (TypeInfo<?> typeInfo : typeInfoList) {
+                dynamicReference.addRelated(typeInfo);
             }
         }
 
@@ -81,7 +81,7 @@ public final class RepresentationBuilder<T> {
         return aClass;
     }
 
-    public List<RepresentationBuilder<?>> getRelated() {
+    public List<TypeInfoBuilder<?>> getRelated() {
         return related;
     }
 
@@ -89,54 +89,54 @@ public final class RepresentationBuilder<T> {
         return isUnique;
     }
 
-    public RepresentationBuilder<T> setUnique(boolean unique) {
+    public TypeInfoBuilder<T> setUnique(boolean unique) {
         this.isUnique = unique;
         return this;
     }
 
     @Required
-    public RepresentationBuilder<T> a(Class<? extends T> aClass) {
+    public TypeInfoBuilder<T> a(Class<? extends T> aClass) {
         this.aClass = aClass;
         return this;
     }
 
     // Of
     @Optional
-    public RepresentationBuilder<T> of(List<GenericRepresentation<?>> related) {
+    public TypeInfoBuilder<T> of(List<TypeInfo<?>> related) {
 
-        for (GenericRepresentation<?> genericRepresentation : related) {
-            this.related.add(from(genericRepresentation));
+        for (TypeInfo<?> typeInfo : related) {
+            this.related.add(from(typeInfo));
         }
 
         return this;
     }
 
     @Optional
-    public <E> RepresentationBuilder<T> ofE(List<GenericRepresentation<E>> related) {
+    public <E> TypeInfoBuilder<T> ofE(List<TypeInfo<E>> related) {
 
-        for (GenericRepresentation<E> genericRepresentation : related) {
-            this.related.add(from(genericRepresentation));
+        for (TypeInfo<E> typeInfo : related) {
+            this.related.add(from(typeInfo));
         }
 
         return this;
     }
 
     @Optional
-    public final <E> RepresentationBuilder<T> of(GenericRepresentation<?>... related) {
+    public final <E> TypeInfoBuilder<T> of(TypeInfo<?>... related) {
         this.of(Arrays.asList(related));
         return this;
     }
 
     @Optional
-    public final <E> RepresentationBuilder<T> ofArray(GenericRepresentation<?>[] related) {
+    public final <E> TypeInfoBuilder<T> ofArray(TypeInfo<?>[] related) {
         this.of(Arrays.asList(related));
         return this;
     }
 
     @Optional
-    public RepresentationBuilder<T> of(RepresentationBuilder... builders) {
+    public TypeInfoBuilder<T> of(TypeInfoBuilder... builders) {
 
-        for (RepresentationBuilder builder : builders) {
+        for (TypeInfoBuilder builder : builders) {
             this.related.add(builder);
         }
         return this;
@@ -144,22 +144,22 @@ public final class RepresentationBuilder<T> {
 
     @SafeVarargs
     @Optional
-    public final <E> RepresentationBuilder<T> of(Class<? extends E>... classes) {
+    public final <E> TypeInfoBuilder<T> of(Class<? extends E>... classes) {
 
-        List<GenericRepresentation<E>> genericRepresentations = new ArrayList<>();
+        List<TypeInfo<E>> typeInfos = new ArrayList<>();
 
         for (Class<? extends E> classz : classes) {
-            genericRepresentations.add(new RepresentationBuilder<E>().a(classz).build());
+            typeInfos.add(new TypeInfoBuilder<E>().a(classz).build());
         }
 
-        ofE(genericRepresentations);
+        ofE(typeInfos);
 
         return this;
     }
 
     // AND OF
     @Optional
-    public <E> RepresentationBuilder<T> and(List<GenericRepresentation<E>> related) {
+    public <E> TypeInfoBuilder<T> and(List<TypeInfo<E>> related) {
         andCheck();
         ofE(related);
         return this;
@@ -167,21 +167,21 @@ public final class RepresentationBuilder<T> {
 
     @SafeVarargs
     @Optional
-    public final <E> RepresentationBuilder<T> and(GenericRepresentation<E>... related) {
+    public final <E> TypeInfoBuilder<T> and(TypeInfo<E>... related) {
         andCheck();
         of(related);
         return this;
     }
 
     @Optional
-    public RepresentationBuilder<T> and(RepresentationBuilder... builders) {
+    public TypeInfoBuilder<T> and(TypeInfoBuilder... builders) {
         andCheck();
         of(builders);
         return this;
     }
 
     @Optional
-    public RepresentationBuilder<T> and(Class<?>... classes) {
+    public TypeInfoBuilder<T> and(Class<?>... classes) {
         andCheck();
         of(classes);
         return this;
@@ -192,7 +192,7 @@ public final class RepresentationBuilder<T> {
             throw new IllegalStateException("'and' cannot be used here! Usage ex: referenceTo().a(Object.class).of(String.class).and(Class.class)");
     }
 
-    public GenericRepresentation<T> build() {
+    public TypeInfo<T> build() {
         return to(this);
     }
 }

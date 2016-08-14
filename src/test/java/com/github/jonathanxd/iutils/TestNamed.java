@@ -25,31 +25,42 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.data;
+package com.github.jonathanxd.iutils;
 
-import com.github.jonathanxd.iutils.object.GenericRepresentation;
-import com.github.jonathanxd.iutils.object.HolderGenericRepresentation;
+import com.github.jonathanxd.iutils.object.ConcreteTypeInfo;
+import com.github.jonathanxd.iutils.object.Named;
+import com.github.jonathanxd.iutils.object.TypeInfo;
 
+import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 /**
  * Created by jonathan on 11/03/16.
  */
-public class TestData {
+public class TestNamed {
+
+    final List<Named<TypeInfo<?>>> namedList = new ArrayList<>();
 
     @Test
     public void testData() {
 
-        RepresentationData data = new RepresentationData();
+        namedList.add(new Named<TypeInfo<?>>("Player", new ConcreteTypeInfo<Player>() {}));
+        namedList.add(new Named<TypeInfo<?>>("boot", new ConcreteTypeInfo<String>() {}));
 
-        data.registerData(HolderGenericRepresentation.makeHold(GenericRepresentation.a(Optional.class).of(String.class).build(), Optional.of("Hi")));
+        Named<TypeInfo<Player>> named = new Named<>(null, new ConcreteTypeInfo<Player>() {});
 
-        data.invoke(new TestData(), m -> m.getName().equals("hello"));
+        Assert.assertTrue(named.get(namedList).isPresent());
     }
 
     public void hello(Optional name) {
         System.out.println(name);
+    }
+
+    static class Player {
+
     }
 }

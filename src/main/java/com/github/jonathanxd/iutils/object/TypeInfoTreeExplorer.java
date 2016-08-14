@@ -36,29 +36,29 @@ import java.util.Objects;
 /**
  * Created by jonathan on 30/04/16.
  */
-public class ReferenceTreeExplorer implements TreeExplore<RepresentationBuilder<?>> {
+public class TypeInfoTreeExplorer implements TreeExplore<TypeInfoBuilder<?>> {
     @Override
-    public TreeExplorer<RepresentationBuilder<?>> startExplore(RepresentationBuilder<?> element) {
+    public TreeExplorer<TypeInfoBuilder<?>> startExplore(TypeInfoBuilder<?> element) {
         return new Explorer(element);
     }
 
-    private static class Explorer implements TreeExplorer<RepresentationBuilder<?>> {
+    private static class Explorer implements TreeExplorer<TypeInfoBuilder<?>> {
 
         private Node current = null;
 
-        public Explorer(RepresentationBuilder<?> representationBuilder) {
-            current = new Node(null, representationBuilder);
+        public Explorer(TypeInfoBuilder<?> typeInfoBuilder) {
+            current = new Node(null, typeInfoBuilder);
         }
 
         @Override
-        public void join(RepresentationBuilder<?> element) {
+        public void join(TypeInfoBuilder<?> element) {
             Node node = new Node(current, element);
             current.child().add(node);
             current = node;
         }
 
         @Override
-        public RepresentationBuilder<?> current() {
+        public TypeInfoBuilder<?> current() {
             return Objects.requireNonNull(current, "No elements!").value();
         }
 
@@ -68,13 +68,13 @@ public class ReferenceTreeExplorer implements TreeExplore<RepresentationBuilder<
         }
     }
 
-    private static class Node implements TreeNode<RepresentationBuilder<?>, Node> {
+    private static class Node implements TreeNode<TypeInfoBuilder<?>, Node> {
 
         private final Node parent;
-        private final RepresentationBuilder<?> value;
+        private final TypeInfoBuilder<?> value;
         private final List<Node> childs = new ArrayList<>();
 
-        private Node(Node parent, RepresentationBuilder<?> value) {
+        private Node(Node parent, TypeInfoBuilder<?> value) {
             this.parent = parent;
             this.value = value;
         }
@@ -85,7 +85,7 @@ public class ReferenceTreeExplorer implements TreeExplore<RepresentationBuilder<
         }
 
         @Override
-        public RepresentationBuilder<?> value() {
+        public TypeInfoBuilder<?> value() {
             return value;
         }
 

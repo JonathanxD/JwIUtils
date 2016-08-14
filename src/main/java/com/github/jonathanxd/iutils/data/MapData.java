@@ -27,7 +27,7 @@
  */
 package com.github.jonathanxd.iutils.data;
 
-import com.github.jonathanxd.iutils.object.GenericRepresentation;
+import com.github.jonathanxd.iutils.object.TypeInfo;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -42,38 +42,38 @@ import java.util.Optional;
  */
 public class MapData {
 
-    private final Map<GenericRepresentation<?>, List<Object>> map = new HashMap<>();
+    private final Map<TypeInfo<?>, List<Object>> map = new HashMap<>();
 
-    public <T> int registerData(GenericRepresentation<T> genericRepresentation, T object) {
+    public <T> int registerData(TypeInfo<T> typeInfo, T object) {
 
-        if (!map.containsKey(genericRepresentation)) {
-            map.put(genericRepresentation, new ArrayList<>());
+        if (!map.containsKey(typeInfo)) {
+            map.put(typeInfo, new ArrayList<>());
         }
 
-        map.get(genericRepresentation).add(object);
+        map.get(typeInfo).add(object);
 
-        return map.get(genericRepresentation).size() - 1;
+        return map.get(typeInfo).size() - 1;
     }
 
-    public <T> void unregisterData(GenericRepresentation<T> genericRepresentation, T object) {
+    public <T> void unregisterData(TypeInfo<T> typeInfo, T object) {
 
-        if (!map.containsKey(genericRepresentation))
+        if (!map.containsKey(typeInfo))
             return;
 
-        map.get(genericRepresentation).remove(object);
+        map.get(typeInfo).remove(object);
 
-        if (map.get(genericRepresentation).isEmpty())
-            map.remove(genericRepresentation);
+        if (map.get(typeInfo).isEmpty())
+            map.remove(typeInfo);
 
     }
 
-    public <T> void unregisterAllData(GenericRepresentation<T> genericRepresentation) {
-        map.remove(genericRepresentation);
+    public <T> void unregisterAllData(TypeInfo<T> typeInfo) {
+        map.remove(typeInfo);
     }
 
     @SuppressWarnings("unchecked")
-    public <T> Collection<T> getAll(GenericRepresentation<T> genericRepresentation) {
-        Collection<T> ts = (Collection<T>) map.get(genericRepresentation);
+    public <T> Collection<T> getAll(TypeInfo<T> typeInfo) {
+        Collection<T> ts = (Collection<T>) map.get(typeInfo);
 
         if (ts == null)
             return Collections.emptyList();
@@ -82,8 +82,8 @@ public class MapData {
     }
 
     @SuppressWarnings("unchecked")
-    public <T> List<T> getAllAsList(GenericRepresentation<T> genericRepresentation) {
-        List<T> ts = (List<T>) map.get(genericRepresentation);
+    public <T> List<T> getAllAsList(TypeInfo<T> typeInfo) {
+        List<T> ts = (List<T>) map.get(typeInfo);
 
         if (ts == null)
             return Collections.emptyList();
@@ -92,8 +92,8 @@ public class MapData {
     }
 
     @SuppressWarnings("unchecked")
-    public <T> Optional<T> getOptional(GenericRepresentation<T> genericRepresentation) {
-        List<Object> objectList = map.get(genericRepresentation);
+    public <T> Optional<T> getOptional(TypeInfo<T> typeInfo) {
+        List<Object> objectList = map.get(typeInfo);
 
         if (objectList == null) {
             return Optional.empty();
@@ -103,9 +103,9 @@ public class MapData {
     }
 
     @SuppressWarnings("unchecked")
-    public <T, U extends T> Optional<U> getOptionalCasted(GenericRepresentation<T> genericRepresentation) {
+    public <T, U extends T> Optional<U> getOptionalCasted(TypeInfo<T> typeInfo) {
 
-        List<Object> objectList = map.get(genericRepresentation);
+        List<Object> objectList = map.get(typeInfo);
 
         if (objectList == null) {
             return Optional.empty();
@@ -114,19 +114,19 @@ public class MapData {
         return Optional.ofNullable((U) objectList.get(objectList.size() - 1));
     }
 
-    public <T> T getRequired(GenericRepresentation<T> genericRepresentation) {
-        return this.getOptional(genericRepresentation).get();
+    public <T> T getRequired(TypeInfo<T> typeInfo) {
+        return this.getOptional(typeInfo).get();
     }
 
-    public <T> T getRequired(GenericRepresentation<T> genericRepresentation, String message) {
-        return this.getOptional(genericRepresentation).orElseThrow(() -> new IllegalStateException(message));
+    public <T> T getRequired(TypeInfo<T> typeInfo, String message) {
+        return this.getOptional(typeInfo).orElseThrow(() -> new IllegalStateException(message));
     }
 
-    public <T, U extends T> U getRequiredCasted(GenericRepresentation<T> genericRepresentation) {
-        return this.<T, U>getOptionalCasted(genericRepresentation).get();
+    public <T, U extends T> U getRequiredCasted(TypeInfo<T> typeInfo) {
+        return this.<T, U>getOptionalCasted(typeInfo).get();
     }
 
-    public <T, U extends T> U getRequiredCasted(GenericRepresentation<T> genericRepresentation, String message) {
-        return this.<T, U>getOptionalCasted(genericRepresentation).orElseThrow(() -> new IllegalStateException(message));
+    public <T, U extends T> U getRequiredCasted(TypeInfo<T> typeInfo, String message) {
+        return this.<T, U>getOptionalCasted(typeInfo).orElseThrow(() -> new IllegalStateException(message));
     }
 }
