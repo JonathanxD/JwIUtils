@@ -129,4 +129,20 @@ public class MapData {
     public <T, U extends T> U getRequiredCasted(TypeInfo<T> typeInfo, String message) {
         return this.<T, U>getOptionalCasted(typeInfo).orElseThrow(() -> new IllegalStateException(message));
     }
+
+    /**
+     * Mix two {@link MapData}
+     *
+     * @param other Other data to mix with this
+     * @return A new {@link MapData} instance containing elements of this {@link MapData} and all
+     * elements of {@code other} {@link MapData}.
+     */
+    public MapData with(MapData other) {
+        MapData new_ = new MapData();
+
+        new_.map.putAll(this.map);
+        new_.map.putAll(other.map);
+
+        return new_;
+    }
 }
