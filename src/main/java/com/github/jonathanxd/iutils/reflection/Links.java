@@ -28,6 +28,7 @@
 package com.github.jonathanxd.iutils.reflection;
 
 import com.github.jonathanxd.iutils.arrays.ArrayUtils;
+import com.github.jonathanxd.iutils.object.TypeInfo;
 
 /**
  * Created by jonathan on 20/08/16.
@@ -46,6 +47,19 @@ public final class Links {
      */
     public static <T> Link<T> ofInvokable(Invokable<T> invokable) {
         return new InvokableLink<>(invokable);
+    }
+
+    /**
+     * Create a {@link NamedLink} from {@link Link} (Wrapped)
+     *
+     * @param link      Link
+     * @param name      Name
+     * @param tTypeInfo TypeInfo
+     * @param <T>       Type
+     * @return Named link.
+     */
+    public static <T> NamedLink<T> named(Link<T> link, String name, TypeInfo<T> tTypeInfo) {
+        return new WrapperNamedLink<>(link, name, tTypeInfo);
     }
 
     private static final class InvokableLink<T> implements Link<T> {
@@ -91,4 +105,51 @@ public final class Links {
         }
     }
 
+    private static class WrapperNamedLink<T> implements NamedLink<T> {
+
+        private final Link<T> link;
+        private final String name;
+        private final TypeInfo<T> tTypeInfo;
+
+        private WrapperNamedLink(Link<T> link, String name, TypeInfo<T> tTypeInfo) {
+            this.link = link;
+            this.name = name;
+            this.tTypeInfo = tTypeInfo;
+        }
+
+        @Override
+        public String getName() {
+            return this.name;
+        }
+
+        @Override
+        public TypeInfo<T> getTypeInfo() {
+            return this.tTypeInfo;
+        }
+
+        @Override
+        public <U> NamedBindLink<U, T> bind(U instance) {
+            return new WrapperNamedBindLink<>(this, this.getName(), this.getTypeInfo(), instance);
+        }
+
+        @Override
+        public T invoke(Object... args) {
+            return this.link.invoke(args);
+        }
+    }
+
+    private static final class WrapperNamedBindLink<U, T> extends WrapperNamedLink<T> implements NamedBindLink<U, T> {
+
+        private final U bind;
+
+        private WrapperNamedBindLink(Link<T> link, String name, TypeInfo<T> tTypeInfo, U bind) {
+            super(link, name, tTypeInfo);
+            this.bind = bind;
+        }
+
+        @Override
+        public U getBind() {
+            return this.bind;
+        }
+    }
 }
