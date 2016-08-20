@@ -29,12 +29,21 @@ package com.github.jonathanxd.iutils.data;
 
 import java.lang.reflect.Parameter;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Created by jonathan on 13/02/16.
  */
 public class ExtraData extends BaseData<Object> implements Cloneable {
+
+    private final Set<Object> dataSet = new HashSet<>();
+
+    @Override
+    public void removeData(Object data) {
+        this.dataSet.remove(data);
+    }
 
     @SuppressWarnings("unchecked")
     @Override
@@ -103,6 +112,15 @@ public class ExtraData extends BaseData<Object> implements Cloneable {
         }
 
         return Optional.empty();
+    }
+
+    @Override
+    public void addData(Object data, Object o) {
+        this.dataSet.add(o);
+    }
+
+    protected Set<Object> getDataSet() {
+        return dataSet;
     }
 
     @Override

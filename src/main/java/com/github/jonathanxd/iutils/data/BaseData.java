@@ -45,9 +45,12 @@ import java.util.function.Supplier;
 /**
  * Created by jonathan on 11/03/16.
  */
-public abstract class BaseData<T> {
 
-    private final Set<T> dataSet = new HashSet<>();
+/**
+ * Provides a Simple Data Injection on Members.
+ * @param <T> Type of Input
+ */
+public abstract class BaseData<T> {
 
     public static <T, E extends Executable> Object match(BaseData<T> baseData, Class<?> dataClass, Supplier<E[]> supplyElements, BiFunction<E, Object[], Object> function, Predicate<E> accept) {
 
@@ -155,19 +158,9 @@ public abstract class BaseData<T> {
         return BaseData.invoke(this, object, methodPredicate);
     }
 
-    /**
-     * Register Data
-     *
-     * @param data Data to register
-     */
-    public void registerData(T data) {
-        if (!findData(data.getClass()))
-            dataSet.add(data);
-    }
+    public abstract void addData(T data, Object o);
 
-    public void removeData(T data) {
-        dataSet.remove(data);
-    }
+    public abstract void removeData(T data);
 
 
     public abstract <X> Optional<X> getData(T data);
@@ -202,14 +195,6 @@ public abstract class BaseData<T> {
      * @return Optional of Data or {@link Optional#empty()}
      */
     public abstract <X> Optional<X> getDataAssignable(Class<? extends X> dataClass);
-
-    protected Set<T> getDataSet() {
-        return dataSet;
-    }
-
-    public Set<T> dataSet() {
-        return Collections.unmodifiableSet(dataSet);
-    }
 
     @Override
     public abstract BaseData clone();

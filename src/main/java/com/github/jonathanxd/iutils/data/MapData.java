@@ -28,7 +28,9 @@
 package com.github.jonathanxd.iutils.data;
 
 import com.github.jonathanxd.iutils.object.TypeInfo;
+import com.github.jonathanxd.iutils.object.TypeUtil;
 
+import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -40,7 +42,7 @@ import java.util.Optional;
 /**
  * Created by jonathan on 03/06/16.
  */
-public class MapData {
+public class MapData extends BaseData<TypeInfo<?>> {
 
     private final Map<TypeInfo<?>, List<Object>> map = new HashMap<>();
 
@@ -144,5 +146,50 @@ public class MapData {
         new_.map.putAll(other.map);
 
         return new_;
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> void addGenericData(TypeInfo<?> data, Object o) {
+        this.registerData((TypeInfo<T>) data, (T) o);
+    }
+
+    @Override
+    public void addData(TypeInfo<?> data, Object o) {
+        this.addGenericData(data, o);
+    }
+
+    @Override
+    public void removeData(TypeInfo<?> data) {
+
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <X> Optional<X> getData(TypeInfo<?> data) {
+        return this.getOptional((TypeInfo<X>) data);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <X> Optional<X> getData(Class<? extends X> dataClass) {
+        return this.getOptional((TypeInfo<X>) TypeInfo.aEnd(dataClass));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <X> Optional<X> getData(Parameter parameter) {
+        return this.getOptional((TypeInfo<X>) TypeUtil.toReference(parameter.getParameterizedType()));
+    }
+
+    @Override
+    public <X> Optional<X> getDataAssignable(Class<? extends X> dataClass) {
+        return this.getData(dataClass);
+    }
+
+    @Override
+    public BaseData clone() {
+        MapData mapData = new MapData();
+        mapData.map.putAll(this.map);
+        return mapData;
     }
 }
