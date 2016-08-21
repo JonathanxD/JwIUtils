@@ -151,5 +151,11 @@ public final class Links {
         public U getBind() {
             return this.bind;
         }
+
+        @Override
+        public T invoke(Object... args) {
+            return super.link.invoke(ArrayUtils.addAllToArray(new Object[]{this.getBind()}, args));
+        }
+
     }
 }
