@@ -29,6 +29,7 @@ package com.github.jonathanxd.iutils.reference;
 
 import com.github.jonathanxd.iutils.exceptions.RethrowException;
 import com.github.jonathanxd.iutils.object.AbstractTypeInfo;
+import com.github.jonathanxd.iutils.object.ConcreteTypeInfo;
 import com.github.jonathanxd.iutils.object.TypeInfo;
 import com.github.jonathanxd.iutils.object.TypeProvider;
 import com.github.jonathanxd.iutils.object.TypeUtil;
@@ -50,8 +51,9 @@ public class TypeInfoTest {
 
 
     @org.junit.Test
-    public void testRef() {
+    public <V> void testRef() {
 
+        TypeInfo<V> typeInf0 = new ConcreteTypeInfo<V>() {};
         TypeInfo<Dict<? extends CharSequence, ? super Number>> ref = new AbstractTypeInfo<Dict<? extends CharSequence, ? super Number>>() {};
 
         System.out.println("Ref: "+ref);
@@ -160,8 +162,31 @@ public class TypeInfoTest {
             throw new RethrowException(e);
         }
 
+        TypeInfo<List<Object>> typeInfo6 = new ConcreteTypeInfo<List<Object>>() {};
+        TypeInfo<List<String>> typeInfo7 = new ConcreteTypeInfo<List<String>>() {};
+        System.out.println(typeInfo6.compareToAssignable(typeInfo7));
+    }
+
+    @org.junit.Test
+    public void testSub() {
+
+        TypeInfo<A> aInfo = new ConcreteTypeInfo<A>() {};
+
+        TypeInfo<B<List<?>>> bInfo = new ConcreteTypeInfo<B<List<?>>>() {};
+
+        System.out.println(bInfo.compareToAssignable(aInfo));
+        System.out.println(bInfo.isAssignableFrom(aInfo));
+
+        Assert.assertTrue(bInfo.isAssignableFrom(aInfo));
+
 
     }
+
+    public static class A extends X<List<?>> {}
+    public static class X<E> extends B<E> { /*...*/ }
+    public static class B<E> { /*...*/ }
+
+
 
     public static class MyList extends ArrayList<String> {
 

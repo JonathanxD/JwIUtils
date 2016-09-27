@@ -195,4 +195,9 @@ public final class TypeInfoBuilder<T> {
     public TypeInfo<T> build() {
         return to(this);
     }
+
+    @SuppressWarnings("unchecked")
+    public <U> TypeInfo<U> buildGeneric() {
+        return (TypeInfo<U>) this.build();
+    }
 }

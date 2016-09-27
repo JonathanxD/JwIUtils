@@ -30,11 +30,16 @@ package com.github.jonathanxd.iutils.object;
 import com.github.jonathanxd.iutils.annotations.NotNull;
 
 import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Deque;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.function.Function;
@@ -62,7 +67,8 @@ public class TypeInfo<T> implements Comparable<TypeInfo> {
     //private final Object hold;
 
     /**
-     * Unique GenericRepresentation uses default {@link #equals(Object)} and {@link #hashCode()}, and identique
+     * Unique GenericRepresentation uses default {@link #equals(Object)} and {@link #hashCode()},
+     * and identique
      */
     private final boolean isUnique;
 
@@ -288,20 +294,123 @@ public class TypeInfo<T> implements Comparable<TypeInfo> {
         return typeInfos;
     }
 
+    public static void insertTypes(TypeInfo<?> resolvedType, Map<String, TypeInfo<?>> typeMap) {
+
+        Class<?> aClass = resolvedType.getAClass();
+        TypeInfo[] related = resolvedType.getRelated();
+        TypeVariable<? extends Class<?>>[] typeParameters = aClass.getTypeParameters();
+
+        if (related.length != typeParameters.length)
+            throw new IllegalArgumentException("Types not fully resolved!");
+
+        for (int i = 0; i < typeParameters.length; i++) {
+            TypeVariable<? extends Class<?>> typeParameter = typeParameters[i];
+            TypeInfo typeInfo = related[i];
+
+            String name = typeParameter.getName();
+
+            typeMap.put(name, typeInfo);
+        }
+
+    }
+
+    @SuppressWarnings("unchecked")
+    public TypeInfo<T> toUnique() {
+        return this.isUnique() ? this : (TypeInfo<T>) this.but().setUnique(true).build();
+    }
+
     public TypeInfoBuilder<? extends T> but() {
         return TypeInfo.but(this);
     }
 
     public Class<? extends T> getAClass() {
-        return aClass;
+        return this.aClass;
     }
 
     public boolean isUnique() {
-        return isUnique;
+        return this.isUnique;
     }
 
     public TypeInfo[] getRelated() {
-        return related;
+        return this.related;
+    }
+
+    public TypeInfo<?>[] getSubTypeInfos() {
+
+        return this.getSubTypeInfos(new HashMap<>());
+    }
+
+    private TypeInfo<?>[] getSubTypeInfos(Map<String, TypeInfo<?>> names) {
+        Class<? extends T> aClass = this.getAClass();
+
+        List<TypeInfo<?>> subInfos = new ArrayList<>();
+
+        Type genericSuperclass = aClass.getGenericSuperclass();
+
+        if (genericSuperclass != null) {
+            TypeInfo<?> typeInfo = TypeUtil.toReference(genericSuperclass, names);
+            TypeInfo.insertTypes(typeInfo, names);
+            subInfos.add(typeInfo);
+        }
+
+        Class<?>[] interfaces = aClass.getInterfaces();
+        Type[] genericInterfaces = aClass.getGenericInterfaces();
+
+        for (int i = 0; i < genericInterfaces.length; i++) {
+            //Class<?> interfaceClass = interfaces[i];
+            Type genericInterface = genericInterfaces[i];
+
+            TypeInfo<?> typeInfo = TypeUtil.toReference(genericInterface, names);
+            TypeInfo.insertTypes(typeInfo, names);
+
+            subInfos.add(typeInfo);
+        }
+
+
+        TypeInfo[] typeInfos = subInfos.stream().toArray(TypeInfo[]::new);
+
+        for (TypeInfo info : typeInfos) {
+            @SuppressWarnings("unchecked") TypeInfo<?>[] subTypeInfos = info.getSubTypeInfos(names);
+
+            if (subTypeInfos.length > 0) {
+                Collections.addAll(subInfos, subTypeInfos);
+            }
+        }
+
+        // bump
+        return subInfos.stream().toArray(TypeInfo[]::new);
+    }
+
+    public boolean isAssignableFrom(TypeInfo<?> other) {
+        if (this.compareTypeAndRelatedTo(other) == 0)
+            return true;
+
+        TypeInfo<?>[] subTypeInfos = this.getSubTypeInfos();
+        TypeInfo<?>[] otherSubTypeInfos = other.getSubTypeInfos();
+
+        for (TypeInfo<?> subTypeInfo : subTypeInfos) {
+            for (TypeInfo<?> otherSubTypeInfo : otherSubTypeInfos) {
+                if (subTypeInfo.isAssignableFrom(otherSubTypeInfo)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Cast this {@link TypeInfo} type to another.
+     *
+     * This method doesn't effectively cast the types, it only let the Type System to treat this
+     * {@link TypeInfo} as a info of type {@link U}.
+     *
+     * @param <U> New Type.
+     * @return Casted {@code this}.
+     */
+    @SuppressWarnings("unchecked")
+    public <U> TypeInfo<U> cast() {
+        return (TypeInfo<U>) this;
     }
 
     @Override
@@ -316,7 +425,7 @@ public class TypeInfo<T> implements Comparable<TypeInfo> {
     @Override
     public int hashCode() {
 
-        if(isUnique)
+        if (isUnique)
             return super.hashCode();
 
         return Objects.hash(aClass, Arrays.deepHashCode(related));
@@ -325,7 +434,7 @@ public class TypeInfo<T> implements Comparable<TypeInfo> {
     @Override
     public boolean equals(Object obj) {
 
-        if(isUnique)
+        if (isUnique)
             return super.equals(obj);
 
         if (!(obj instanceof TypeInfo))
@@ -339,9 +448,9 @@ public class TypeInfo<T> implements Comparable<TypeInfo> {
     @Override
     public int compareTo(@NotNull TypeInfo compareTo) {
 
-        if (getAClass() == compareTo.getAClass()) {
+        if (this.getAClass() == compareTo.getAClass()) {
 
-            if (Arrays.deepEquals(getRelated(), compareTo.getRelated())) {
+            if (Arrays.deepEquals(this.getRelated(), compareTo.getRelated())) {
                 return 0;
             }
 
@@ -351,6 +460,10 @@ public class TypeInfo<T> implements Comparable<TypeInfo> {
         return -1;
     }
 
+    /**
+     * @deprecated Don't work correctly for sub-types, use: {@link #isAssignableFrom(TypeInfo)}
+     */
+    @Deprecated
     public int compareToAssignable(@NotNull TypeInfo compareTo) {
 
         if (getAClass().isAssignableFrom(compareTo.getAClass())) {
@@ -373,6 +486,59 @@ public class TypeInfo<T> implements Comparable<TypeInfo> {
         }
 
         return -1;
+    }
+
+    /**
+     * Restrictively compare current type and related types to types and related types of another
+     * {@link TypeInfo}.
+     *
+     * @param compareTo Element to compare
+     * @return 0 if comparison succeed, positive or negative number if not.
+     */
+    public int compareTypeAndRelatedTo(@NotNull TypeInfo compareTo) {
+
+        if (getAClass().isAssignableFrom(compareTo.getAClass())) {
+
+            if (getRelated().length != compareTo.getRelated().length)
+                return -1;
+
+            for (int x = 0; x < getRelated().length; ++x) {
+                TypeInfo<?> mainRef = getRelated()[x];
+                TypeInfo<?> compareRef = compareTo.getRelated()[x];
+
+                if (!mainRef.getAClass().isAssignableFrom(compareRef.getAClass())) {
+                    if (compareRef.getAClass().isAssignableFrom(mainRef.getAClass())) {
+                        return 1;
+                    }
+                    return -1;
+                }
+            }
+            return 0;
+        }
+
+        return -1;
+    }
+
+    /**
+     * Same as {@link #compareTo(TypeInfo)}
+     */
+    public static class ExactlyComparator implements Comparator<TypeInfo<?>> {
+
+        @Override
+        public int compare(TypeInfo<?> o1, TypeInfo<?> o2) {
+            return o1.compareTo(o2);
+        }
+    }
+
+    /**
+     * Compare if {@link TypeInfo typeInfo1} is assignable to {@link TypeInfo typeInfo2}.
+     */
+    public static class AssignableComparator implements Comparator<TypeInfo<?>> {
+
+        @Override
+        public int compare(TypeInfo<?> o1, TypeInfo<?> o2) {
+            return o1.isAssignableFrom(o2) ? 0 : -1;
+        }
     }
 
 }
