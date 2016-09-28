@@ -385,14 +385,11 @@ public class TypeInfo<T> implements Comparable<TypeInfo> {
         if (this.compareTypeAndRelatedTo(other) == 0)
             return true;
 
-        TypeInfo<?>[] subTypeInfos = this.getSubTypeInfos();
         TypeInfo<?>[] otherSubTypeInfos = other.getSubTypeInfos();
 
-        for (TypeInfo<?> subTypeInfo : subTypeInfos) {
-            for (TypeInfo<?> otherSubTypeInfo : otherSubTypeInfos) {
-                if (subTypeInfo.isAssignableFrom(otherSubTypeInfo)) {
-                    return true;
-                }
+        for (TypeInfo<?> otherSubTypeInfo : otherSubTypeInfos) {
+            if (this.isAssignableFrom(otherSubTypeInfo)) {
+                return true;
             }
         }
 
