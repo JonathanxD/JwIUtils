@@ -36,19 +36,20 @@ public class RethrowException extends RuntimeException {
         super(cause.toString(), cause.getCause());
 
         for (Throwable throwable : cause.getSuppressed()) {
-            addSuppressed(throwable);
+            this.addSuppressed(throwable);
         }
 
+        this.setStackTrace(cause.getStackTrace());
     }
 
     public RethrowException(Throwable cause, Throwable rootCause) {
         super(cause.toString(), rootCause);
 
         for (Throwable throwable : cause.getSuppressed()) {
-            addSuppressed(throwable);
+            this.addSuppressed(throwable);
         }
 
-        setStackTrace(cause.getStackTrace());
+        this.setStackTrace(cause.getStackTrace());
 
     }
 

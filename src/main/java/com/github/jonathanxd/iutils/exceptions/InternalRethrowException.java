@@ -30,25 +30,26 @@ package com.github.jonathanxd.iutils.exceptions;
 /**
  * Created by jonathan on 27/05/16.
  */
-public class BiException extends RethrowException {
+class InternalRethrowException extends RuntimeException {
 
-    public BiException(Throwable cause1, Throwable cause2) {
-        super(build3(cause1, cause2));
-    }
+    public InternalRethrowException(Throwable cause) {
+        super(cause.toString(), cause.getCause());
 
-    private static Throwable build3(Throwable cause1, Throwable cause2) {
-        if (cause1.getCause() != null && cause1.getCause() != cause1) {
-            Throwable c = build3(cause1.getCause(), cause2);
-            return new InternalRethrowException(cause1, c);
-        } else {
-            return cause1.initCause(cause2);
+        for (Throwable throwable : cause.getSuppressed()) {
+            addSuppressed(throwable);
         }
+
     }
 
-    @Override
-    public String toString() {
-        String localizedMessage = super.toString();
+    public InternalRethrowException(Throwable cause, Throwable rootCause) {
+        super(cause.toString(), rootCause);
 
-        return localizedMessage.substring(localizedMessage.indexOf(':')+1);
+        for (Throwable throwable : cause.getSuppressed()) {
+            addSuppressed(throwable);
+        }
+
+        setStackTrace(cause.getStackTrace());
+
     }
+
 }
