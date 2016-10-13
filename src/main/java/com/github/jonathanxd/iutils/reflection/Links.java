@@ -39,7 +39,7 @@ public final class Links {
     }
 
     /**
-     * Create a {@link Link} from {@link Invokable}
+     * Create a {@link Link} from a {@link Invokable}
      *
      * @param invokable Invokable
      * @param <T>       Type
@@ -50,7 +50,7 @@ public final class Links {
     }
 
     /**
-     * Create a {@link NamedLink} from {@link Link} (Wrapped)
+     * Create a {@link NamedLink} from a {@link Link} (Wrapped)
      *
      * @param link      Link
      * @param name      Name
@@ -60,6 +60,19 @@ public final class Links {
      */
     public static <T> NamedLink<T> named(Link<T> link, String name, TypeInfo<T> tTypeInfo) {
         return new WrapperNamedLink<>(link, name, tTypeInfo);
+    }
+
+    /**
+     * Create a {@link NamedBindLink} from a {@link BindLink} (Wrapped)
+     *
+     * @param link      Link
+     * @param name      Name
+     * @param tTypeInfo TypeInfo
+     * @param <T>       Type
+     * @return Named link.
+     */
+    public static <U, T> NamedBindLink<U, T> bindNamed(BindLink<U, T> link, String name, TypeInfo<T> tTypeInfo) {
+        return new WrappedNamedBindLink<>(link, name, tTypeInfo);
     }
 
     private static final class InvokableLink<T> implements Link<T> {
@@ -155,6 +168,27 @@ public final class Links {
         @Override
         public T invoke(Object... args) {
             return super.link.invoke(ArrayUtils.addAllToArray(new Object[]{this.getBind()}, args));
+        }
+
+    }
+
+    private static final class WrappedNamedBindLink<U, T> extends WrapperNamedLink<T> implements NamedBindLink<U, T> {
+
+        private final BindLink<U, T> bindLink;
+
+        private WrappedNamedBindLink(BindLink<U, T> bindLink, String name, TypeInfo<T> tTypeInfo) {
+            super(bindLink, name, tTypeInfo);
+            this.bindLink = bindLink;
+        }
+
+        @Override
+        public U getBind() {
+            return this.bindLink.getBind();
+        }
+
+        @Override
+        public T invoke(Object... args) {
+            return super.link.invoke(args);
         }
 
     }
