@@ -84,9 +84,32 @@ public final class Invokables {
      * @param field Field
      * @param <T>   Type
      * @return {@link Invokable} instance from field
+     * @deprecated To avoid confusion, changed to: {@link #fromFieldGetter(Field)}
      */
+    @Deprecated
     public static <T> Invokable<T> fromField(Field field) {
-        return new FieldInvokable<>(field);
+        return Invokables.fromFieldGetter(field);
+    }
+
+    /**
+     * Create a {@link Invokable} instance from field getter
+     *
+     * @param field Field
+     * @param <T>   Type
+     * @return {@link Invokable} instance from field getter
+     */
+    public static <T> Invokable<T> fromFieldGetter(Field field) {
+        return new FieldGetterInvokable<>(field);
+    }
+
+    /**
+     * Create a {@link Invokable} instance from field setter
+     *
+     * @param field Field
+     * @return {@link Invokable} instance from field setter
+     */
+    public static Invokable<Void> fromFieldSetter(Field field) {
+        return new FieldSetterInvokable(field);
     }
 
     /**
@@ -231,11 +254,11 @@ public final class Invokables {
         }
     }
 
-    private static final class FieldInvokable<T> implements Invokable<T> {
+    private static final class FieldGetterInvokable<T> implements Invokable<T> {
 
         private final Field field;
 
-        private FieldInvokable(Field field) {
+        private FieldGetterInvokable(Field field) {
             this.field = field;
         }
 
@@ -254,6 +277,34 @@ public final class Invokables {
             } catch (IllegalAccessException ignored) {
                 throw new RethrowException(ignored);
             }
+        }
+    }
+
+    private static final class FieldSetterInvokable implements Invokable<Void> {
+
+        private final Field field;
+
+        private FieldSetterInvokable(Field field) {
+            this.field = field;
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        public Void invoke(Object... args) {
+
+            Object instance = null;
+
+            if (args.length != 0) {
+                instance = args[0];
+            }
+
+            try {
+                this.field.set(instance, args[1]);
+            } catch (IllegalAccessException ignored) {
+                throw new RethrowException(ignored);
+            }
+
+            return null;
         }
     }
 
