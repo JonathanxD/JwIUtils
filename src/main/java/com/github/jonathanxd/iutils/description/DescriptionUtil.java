@@ -125,6 +125,44 @@ public class DescriptionUtil {
     }
 
 
+    public static String internalToName(String name) {
+        Objects.requireNonNull(name, "Name cannot be null");
+
+        if (name.length() == 1) {
+            switch (name.charAt(0)) {
+                case 'V':
+                    return "void";
+                case 'Z':
+                    return "boolean";
+                case 'C':
+                    return "char";
+                case 'B':
+                    return "byte";
+                case 'S':
+                    return "short";
+                case 'I':
+                    return "int";
+                case 'F':
+                    return "float";
+                case 'J':
+                    return "long";
+                case 'D':
+                    return "double";
+            }
+        }
+
+
+        String typeName = name;
+
+        if (name.startsWith("L") && name.endsWith(";")) {
+            typeName = name.substring(1, name.length() - 1);
+        }
+
+        typeName = typeName.replace("/", ".");
+
+        return typeName;
+    }
+
     public static Class<?> resolve(String name, ClassLoader classLoader) throws ClassNotFoundException {
         Objects.requireNonNull(name, "Name cannot be null");
         Objects.requireNonNull(classLoader, "Class loader cannot be null");
@@ -237,8 +275,6 @@ public class DescriptionUtil {
             throw new IllegalArgumentException("Illegal description: " + desc);
         }
 
-        DescriptionUtil.checkValidDescription(desc);
-
         return DescriptionUtil.parseBinaryClassName(desc.substring(0, desc.indexOf(';') + 1));
     }
 
@@ -336,6 +372,15 @@ public class DescriptionUtil {
 
         if (name.startsWith("L") && name.endsWith(";"))
             return name.substring(1, name.indexOf(';'));
+
+        return name;
+    }
+
+    public static String binaryToName(String name) {
+        Objects.requireNonNull(name, "Name cannot be null");
+
+        if (name.startsWith("L") && name.endsWith(";"))
+            return name.substring(1, name.indexOf(';')).replace('/', '.');
 
         return name;
     }
