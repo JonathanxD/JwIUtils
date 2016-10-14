@@ -53,8 +53,6 @@ public class StaticList<T> implements IndexedListContainer<T>, Iterable<T>{
 	private int slotCache = 0;
 	
 	
-	// ? SUPER = QUALQUER CLASSE PAI DE T
-	// ? EXTENDS = QUALQUER CLASSE FILHA DE T
 	@SuppressWarnings("unchecked")
 	StaticList(Class<? extends T> clazz, int size) {
 		this.size = size;

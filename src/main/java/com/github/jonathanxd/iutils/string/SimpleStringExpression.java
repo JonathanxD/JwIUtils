@@ -27,11 +27,10 @@
  */
 package com.github.jonathanxd.iutils.string;
 
-import com.github.jonathanxd.iutils.arrays.JwArray;
 import com.github.jonathanxd.iutils.conditions.Conditions;
 import com.github.jonathanxd.iutils.exceptions.MaxRecursiveParseException;
 import com.github.jonathanxd.iutils.exceptions.RethrowException;
-import com.github.jonathanxd.iutils.object.Primitive;
+import com.github.jonathanxd.iutils.type.Primitive;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
@@ -355,7 +354,7 @@ public class SimpleStringExpression {
 
     private static String[] parseArguments(String string) {
 
-        JwArray<String> args = new JwArray<>();
+        List<String> args = new ArrayList<>();
 
         Matcher matcher = ARGUMENT_EXTRACTOR.matcher(string);
 
@@ -371,7 +370,7 @@ public class SimpleStringExpression {
             }
         }
 
-        return args.toGenericArray(String[].class);
+        return args.stream().toArray(String[]::new);
     }
 
     private static int parseMethodRange(String string, int ignore) {

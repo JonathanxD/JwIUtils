@@ -28,8 +28,8 @@
 package com.github.jonathanxd.iutils.function.extra;
 
 import com.github.jonathanxd.iutils.function.function.NodeFunction;
-import com.github.jonathanxd.iutils.object.Bi;
 import com.github.jonathanxd.iutils.object.Node;
+import com.github.jonathanxd.iutils.object.Pair;
 
 import java.util.function.BiPredicate;
 
@@ -38,13 +38,14 @@ import java.util.function.BiPredicate;
  */
 public final class FuncUtils {
 
-    private FuncUtils() {}
-
-    public static <T, U> boolean test(Bi<T, U> bi, BiPredicate<? super T, ? super U> biPredicate) {
-        return biPredicate.test(bi._1(), bi._2());
+    private FuncUtils() {
     }
 
-    public static <T, U, RK, RV> Node<? extends RK, ? extends RV> from(Bi<T, U> bi, NodeFunction<? super T, ? super U, ? extends RK, ? extends RV> mapper) {
-        return mapper.apply(bi._1(), bi._2());
+    public static <T, U> boolean test(Pair<T, U> pair, BiPredicate<? super T, ? super U> biPredicate) {
+        return biPredicate.test(pair._1(), pair._2());
+    }
+
+    public static <T, U, RK, RV> Node<? extends RK, ? extends RV> from(Pair<T, U> pair, NodeFunction<? super T, ? super U, ? extends RK, ? extends RV> mapper) {
+        return mapper.apply(pair._1(), pair._2());
     }
 }

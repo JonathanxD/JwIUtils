@@ -25,37 +25,60 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.function.stream;
+package com.github.jonathanxd.iutils.object;
 
-import com.github.jonathanxd.iutils.collection.Walkable;
-import com.github.jonathanxd.iutils.function.function.ToPairFunction;
-import com.github.jonathanxd.iutils.function.stream.walkable.WalkableNodeBiStream;
-import com.github.jonathanxd.iutils.object.Node;
-import com.github.jonathanxd.iutils.object.Pair;
+import java.util.function.Supplier;
 
-import java.util.stream.Stream;
+public enum  Pairs {
+    ;
 
-/**
- * Created by jonathan on 28/05/16.
- */
-
-/**
- * @param <O> Original Type
- * @param <T> New Type[1]
- * @param <U> New Type[2]
- */
-public class BiJavaStream<O, T, U> extends WalkableNodeBiStream<T, U> {
-
-    private BiJavaStream(Stream<O> stream, ToPairFunction<O, T, U> toPairFunction) {
-        super(Walkable.fromStream(stream).map(o -> {
-            Pair<T, U> apply = toPairFunction.apply(o);
-
-            return new Node<>(apply._1(), apply._2());
-        }));
+    public static <A, B> Pair<A, B> of(A a, B b) {
+        return new ObjectPair<>(a, b);
     }
 
-    public static <T, R1, R2> BiJavaStream<T, R1, R2> fromJavaStream(Stream<T> stream, ToPairFunction<T, R1, R2> toPairFunction) {
-        return new BiJavaStream<>(stream, toPairFunction);
+    public static <A, B> Pair<A, B> ofSupplier(Supplier<A> aSupplier, Supplier<B> bSupplier) {
+        return new SupplierPair<>(aSupplier, bSupplier);
     }
 
+    private static final class ObjectPair<A, B> extends Pair<A, B> {
+        private final A first;
+        private final B second;
+
+        ObjectPair(A first, B second) {
+            this.first = first;
+            this.second = second;
+        }
+
+        @Override
+        public A _1() {
+            return this.first;
+        }
+
+        @Override
+        public B _2() {
+            return this.second;
+        }
+
+    }
+
+    private static final class SupplierPair<A, B> extends Pair<A, B> {
+
+        private final Supplier<A> aSupplier;
+        private final Supplier<B> bSupplier;
+
+        private SupplierPair(Supplier<A> aSupplier, Supplier<B> bSupplier) {
+            this.aSupplier = aSupplier;
+            this.bSupplier = bSupplier;
+        }
+
+        @Override
+        public A _1() {
+            return this.aSupplier.get();
+        }
+
+        @Override
+        public B _2() {
+            return this.bSupplier.get();
+        }
+    }
 }

@@ -25,37 +25,20 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.function.stream;
+package com.github.jonathanxd.iutils.function.function;
 
-import com.github.jonathanxd.iutils.collection.Walkable;
-import com.github.jonathanxd.iutils.function.function.ToPairFunction;
-import com.github.jonathanxd.iutils.function.stream.walkable.WalkableNodeBiStream;
-import com.github.jonathanxd.iutils.object.Node;
 import com.github.jonathanxd.iutils.object.Pair;
-
-import java.util.stream.Stream;
 
 /**
  * Created by jonathan on 28/05/16.
  */
 
-/**
- * @param <O> Original Type
- * @param <T> New Type[1]
- * @param <U> New Type[2]
- */
-public class BiJavaStream<O, T, U> extends WalkableNodeBiStream<T, U> {
+@FunctionalInterface
+public interface PairToPairFunction<T1, T2, R1, R2> {
 
-    private BiJavaStream(Stream<O> stream, ToPairFunction<O, T, U> toPairFunction) {
-        super(Walkable.fromStream(stream).map(o -> {
-            Pair<T, U> apply = toPairFunction.apply(o);
+    Pair<R1, R2> apply(T1 t1, T2 t2);
 
-            return new Node<>(apply._1(), apply._2());
-        }));
+    default Pair<R1, R2> apply(Pair<T1, T2> pair) {
+        return this.apply(pair._1(), pair._2());
     }
-
-    public static <T, R1, R2> BiJavaStream<T, R1, R2> fromJavaStream(Stream<T> stream, ToPairFunction<T, R1, R2> toPairFunction) {
-        return new BiJavaStream<>(stream, toPairFunction);
-    }
-
 }

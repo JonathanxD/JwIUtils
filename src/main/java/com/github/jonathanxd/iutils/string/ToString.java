@@ -38,32 +38,33 @@ import java.util.function.Predicate;
  */
 public class ToString {
 
-    public static String toString(Object object, Predicate<String> fieldName) {
+    public static String toString(Object object, Predicate<Field> fieldFilter) {
         StringJoiner stringJoiner = new StringJoiner(", ", "[", "]");
 
         Class<?> clazz = object.getClass();
 
         for (Field f : clazz.getDeclaredFields()) {
 
-            if(!fieldName.test(f.getName()))
+            if (!fieldFilter.test(f))
                 continue;
 
-            if(Modifier.isStatic(f.getModifiers()))
+            if (Modifier.isStatic(f.getModifiers()))
                 continue;
 
             f.setAccessible(true);
             try {
                 Object o = f.get(object);
 
-                if(o != null && object.getClass().isAssignableFrom(o.getClass())) {
+                if (o != null && object.getClass().isAssignableFrom(o.getClass())) {
                     stringJoiner.add(f.getName() + " = { ? }");
                     continue;
                 }
 
-                if (o instanceof Collection) {
+                if (o instanceof Collection<?>) {
                     stringJoiner.add(f.getName() + " = {" + f.get(object) + "}");
                     continue;
                 } else if (o != null) {
+
                     if (o.getClass().isArray()) {
                         StringJoiner joiner = new StringJoiner(", ", "(", ")");
 
@@ -75,11 +76,12 @@ public class ToString {
                         continue;
                     }
 
-                    if (o instanceof Class) {
+                    if (o instanceof Class<?>) {
                         stringJoiner.add(f.getName() + " = '" + ((Class) o).getSimpleName() + "'");
                         continue;
                     }
                 }
+
                 stringJoiner.add(f.getName() + " = '" + o + "'");
 
             } catch (IllegalAccessException ignored) {
@@ -87,8 +89,7 @@ public class ToString {
         }
 
 
-
-        return object.getClass().getSimpleName()+stringJoiner.toString();
+        return object.getClass().getSimpleName() + stringJoiner.toString();
     }
 
     public static String toString(Object object) {

@@ -29,9 +29,6 @@ package com.github.jonathanxd.iutils.object;
 
 import java.util.Objects;
 
-/**
- * Created by jonathan on 14/02/16.
- */
 public class IntNode<V> {
 
     private final int key;
@@ -52,12 +49,24 @@ public class IntNode<V> {
 
     @Override
     public String toString() {
-        return "Node[" + getKey() + "=" + getValue() + "]";
+        return "Node[" + this.getKey() + "=" + this.getValue() + "]";
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(key, value);
+        return Objects.hash(this.getKey(), this.getValue());
     }
 
+    @Override
+    public boolean equals(Object obj) {
+
+        if(obj instanceof IntNode<?>) {
+            IntNode<?> node = (IntNode<?>) obj;
+
+            return this.getKey() == node.getKey()
+                    && this.getValue().equals(node.getValue());
+        }
+
+        return super.equals(obj);
+    }
 }

@@ -28,22 +28,16 @@
 package com.github.jonathanxd.iutils.collection;
 
 import com.github.jonathanxd.iutils.comparator.Compared;
-import com.github.jonathanxd.iutils.containers.IMutableContainer;
-import com.github.jonathanxd.iutils.containers.MutableContainer;
 import com.github.jonathanxd.iutils.containers.primitivecontainers.BooleanContainer;
 import com.github.jonathanxd.iutils.iterator.IteratorUtil;
-import com.github.jonathanxd.iutils.object.Bi;
 import com.github.jonathanxd.iutils.object.Node;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Spliterator;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;

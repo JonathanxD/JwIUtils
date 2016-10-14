@@ -28,7 +28,6 @@
 package com.github.jonathanxd.iutils.collection;
 
 import com.github.jonathanxd.iutils.annotations.Named;
-import com.github.jonathanxd.iutils.arrays.JwArray;
 import com.github.jonathanxd.iutils.exceptions.CannotCollectElementsException;
 import com.github.jonathanxd.iutils.exceptions.ExcludedElementIndexException;
 import com.github.jonathanxd.iutils.function.consumer.ObjIntIntConsumer;
@@ -41,7 +40,6 @@ import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.IntFunction;
-import java.util.function.Predicate;
 
 /**
  * Created by jonathan on 20/06/16.
@@ -245,9 +243,9 @@ public abstract class AbstractGrabber<T> implements Grabber<T> {
     }
 
     @Override
-    public JwArray<T> allElements() {
+    public List<T> allElements() {
 
-        JwArray<T> array = new JwArray<>();
+        List<T> array = new ArrayList<>();
 
         for (int x = 0; x < length; ++x) {
             array.add(this.get(x));
@@ -257,8 +255,8 @@ public abstract class AbstractGrabber<T> implements Grabber<T> {
     }
 
     @Override
-    public JwArray<T> includedElements() {
-        JwArray<T> array = new JwArray<>();
+    public List<T> includedElements() {
+        List<T> array = new ArrayList<>();
 
         for (int i = 0; i < excludedIndexes.length; i++) {
             if (!excludedIndexes[i])
@@ -269,8 +267,8 @@ public abstract class AbstractGrabber<T> implements Grabber<T> {
     }
 
     @Override
-    public JwArray<T> excludedElements() {
-        JwArray<T> array = new JwArray<>();
+    public List<T> excludedElements() {
+        List<T> array = new ArrayList<>();
 
         for (int i = 0; i < excludedIndexes.length; i++) {
             if (excludedIndexes[i])

@@ -25,37 +25,34 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.function.stream;
+package com.github.jonathanxd.iutils.type;
 
-import com.github.jonathanxd.iutils.collection.Walkable;
-import com.github.jonathanxd.iutils.function.function.ToPairFunction;
-import com.github.jonathanxd.iutils.function.stream.walkable.WalkableNodeBiStream;
-import com.github.jonathanxd.iutils.object.Node;
-import com.github.jonathanxd.iutils.object.Pair;
+import com.github.jonathanxd.iutils.reflection.RClass;
+import com.github.jonathanxd.iutils.reflection.Reflection;
 
-import java.util.stream.Stream;
+import java.lang.reflect.ParameterizedType;
 
 /**
- * Created by jonathan on 28/05/16.
+ * Created by jonathan on 08/04/16.
  */
+public abstract class ConcreteTypeInfo<T> extends TypeInfo<T> {
 
-/**
- * @param <O> Original Type
- * @param <T> New Type[1]
- * @param <U> New Type[2]
- */
-public class BiJavaStream<O, T, U> extends WalkableNodeBiStream<T, U> {
+    @SuppressWarnings("unchecked")
+    public ConcreteTypeInfo(boolean isUnique) {
+        super();
 
-    private BiJavaStream(Stream<O> stream, ToPairFunction<O, T, U> toPairFunction) {
-        super(Walkable.fromStream(stream).map(o -> {
-            Pair<T, U> apply = toPairFunction.apply(o);
+        TypeInfo<T> typeInfo = (TypeInfo<T>) TypeUtil.toReference(((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0]);
+        try {
+            Reflection.changeFinalField(RClass.getRClass(TypeInfo.class, this), "aClass", typeInfo.getAClass());
+            Reflection.changeFinalField(RClass.getRClass(TypeInfo.class, this), "related", typeInfo.getRelated());
+            Reflection.changeFinalField(RClass.getRClass(TypeInfo.class, this), "isUnique", isUnique);
+        } catch (Exception e) {
+            throw new Error(e);
+        }
 
-            return new Node<>(apply._1(), apply._2());
-        }));
     }
 
-    public static <T, R1, R2> BiJavaStream<T, R1, R2> fromJavaStream(Stream<T> stream, ToPairFunction<T, R1, R2> toPairFunction) {
-        return new BiJavaStream<>(stream, toPairFunction);
+    public ConcreteTypeInfo() {
+        this(false);
     }
-
 }

@@ -27,14 +27,15 @@
  */
 package com.github.jonathanxd.iutils.object;
 
+import com.github.jonathanxd.iutils.containers.BaseContainer;
+
 import java.util.Objects;
 import java.util.Optional;
 
-import com.github.jonathanxd.iutils.containers.BaseContainer;
-
 /**
- * Created by jonathan on 14/02/16.
+ * @deprecated Use {@link Pair}
  */
+@Deprecated
 public class TwoValues<E, E2> {
 
     private final E value1;

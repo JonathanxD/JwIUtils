@@ -41,7 +41,7 @@ public class ListHashMap<K, V> extends HashMap<K, List<V>> {
 
         List<V> list;
 
-        if(this.containsKey(key))
+        if (this.containsKey(key))
             list = this.get(key);
         else {
             list = new ArrayList<>();
@@ -52,30 +52,32 @@ public class ListHashMap<K, V> extends HashMap<K, List<V>> {
         list.add(value);
     }
 
+    @SuppressWarnings("SuspiciousMethodCalls")
     public boolean removeFromList(K key, Object value) {
-        if(!this.containsKey(key))
+        if (!this.containsKey(key))
             return false;
 
         List<V> vs = this.get(key);
 
         boolean success = vs.remove(value);
 
-        if(vs.isEmpty()) {
+        if (vs.isEmpty()) {
             this.remove(key);
         }
 
         return success;
     }
 
+    @SuppressWarnings("SuspiciousMethodCalls")
     public boolean removeAllFromList(K key, Collection<?> elements) {
-        if(!this.containsKey(key))
+        if (!this.containsKey(key))
             return false;
 
         List<V> vs = this.get(key);
 
         boolean success = vs.removeAll(elements);
 
-        if(vs.isEmpty()) {
+        if (vs.isEmpty()) {
             this.remove(key);
         }
 

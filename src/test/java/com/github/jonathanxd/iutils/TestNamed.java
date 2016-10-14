@@ -27,9 +27,9 @@
  */
 package com.github.jonathanxd.iutils;
 
-import com.github.jonathanxd.iutils.object.ConcreteTypeInfo;
+import com.github.jonathanxd.iutils.type.ConcreteTypeInfo;
 import com.github.jonathanxd.iutils.object.Named;
-import com.github.jonathanxd.iutils.object.TypeInfo;
+import com.github.jonathanxd.iutils.type.TypeInfo;
 
 import org.junit.Assert;
 import org.junit.Test;

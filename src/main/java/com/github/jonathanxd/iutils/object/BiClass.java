@@ -30,8 +30,9 @@ package com.github.jonathanxd.iutils.object;
 import com.github.jonathanxd.iutils.containers.BaseContainer;
 
 /**
- * BiClass (avoid erasure casts)
+ * @deprecated Use {@link Pair}
  */
+@Deprecated
 public class BiClass extends Bi<Class<?>, Class<?>> {
     private final Class<?> value1;
     private final Class<?> value2;

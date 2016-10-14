@@ -29,6 +29,8 @@ package com.github.jonathanxd.iutils.object;
 
 import com.github.jonathanxd.iutils.containers.BaseContainer;
 
+import java.util.Objects;
+
 /**
  * Created by jonathan on 28/05/16.
  */
@@ -57,5 +59,24 @@ public class Tri<T1, T2, T3> {
 
     public T3 _3() {
         return value3;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this._1(), this._2(), this._3());
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+
+        if (obj instanceof Tri<?, ?, ?>) {
+            Tri<?, ?, ?> tri = (Tri<?, ?, ?>) obj;
+
+            return this._1().equals(tri._1())
+                    && this._2().equals(tri._2())
+                    && this._3().equals(tri._3());
+        }
+
+        return super.equals(obj);
     }
 }

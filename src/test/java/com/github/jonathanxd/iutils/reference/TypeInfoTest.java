@@ -28,11 +28,11 @@
 package com.github.jonathanxd.iutils.reference;
 
 import com.github.jonathanxd.iutils.exceptions.RethrowException;
-import com.github.jonathanxd.iutils.object.AbstractTypeInfo;
-import com.github.jonathanxd.iutils.object.ConcreteTypeInfo;
-import com.github.jonathanxd.iutils.object.TypeInfo;
-import com.github.jonathanxd.iutils.object.TypeProvider;
-import com.github.jonathanxd.iutils.object.TypeUtil;
+import com.github.jonathanxd.iutils.type.AbstractTypeInfo;
+import com.github.jonathanxd.iutils.type.ConcreteTypeInfo;
+import com.github.jonathanxd.iutils.type.TypeInfo;
+import com.github.jonathanxd.iutils.type.TypeProvider;
+import com.github.jonathanxd.iutils.type.TypeUtil;
 
 import org.junit.Assert;
 
@@ -164,6 +164,7 @@ public class TypeInfoTest {
 
         TypeInfo<List<Object>> typeInfo6 = new ConcreteTypeInfo<List<Object>>() {};
         TypeInfo<List<String>> typeInfo7 = new ConcreteTypeInfo<List<String>>() {};
+        //noinspection deprecation
         System.out.println(typeInfo6.compareToAssignable(typeInfo7));
     }
 
@@ -174,6 +175,7 @@ public class TypeInfoTest {
 
         TypeInfo<B<List<?>>> bInfo = new ConcreteTypeInfo<B<List<?>>>() {};
 
+        //noinspection deprecation
         System.out.println(bInfo.compareToAssignable(aInfo));
         System.out.println(bInfo.isAssignableFrom(aInfo));
 

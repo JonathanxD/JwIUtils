@@ -66,7 +66,7 @@ public class TestLinks {
     public void testField() throws NoSuchFieldException {
         Field name = Person.class.getDeclaredField("name");
         name.setAccessible(true);
-        Link<String> link = Links.ofInvokable(Invokables.fromField(name));
+        Link<String> link = Links.ofInvokable(Invokables.fromFieldGetter(name));
 
         this.invoke(link);
     }

@@ -27,6 +27,9 @@
  */
 package com.github.jonathanxd.iutils.arrays;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Array2DToTable {
 	
 	
@@ -59,7 +62,7 @@ public class Array2DToTable {
 
 	public static String[] getAsTable(String[][] content){
 		
-		JwArray<String> arr = new JwArray<String>();
+		List<String> arr = new ArrayList<>();
 		
 		int maxLength = getMaxLength(content)+3;
 		StringBuilder indexes = new StringBuilder("|Index|");
@@ -83,7 +86,7 @@ public class Array2DToTable {
 			System.out.println(sb.toString());
 
 		}
-		return arr.toGenericArray(String[].class);
+		return arr.stream().toArray(String[]::new);
 		
 	}
 

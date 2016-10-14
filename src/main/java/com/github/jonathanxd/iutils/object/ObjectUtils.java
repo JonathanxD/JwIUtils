@@ -27,6 +27,9 @@
  */
 package com.github.jonathanxd.iutils.object;
 
+import com.github.jonathanxd.iutils.reflection.Reflection;
+import com.github.jonathanxd.iutils.string.StringHelper;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -36,40 +39,15 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.util.Collection;
+import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.function.Function;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.InflaterInputStream;
 
-import com.github.jonathanxd.iutils.arrays.JwArray;
-import com.github.jonathanxd.iutils.arrays.PrimitiveArrayConverter;
-import com.github.jonathanxd.iutils.reflection.Reflection;
-
 public class ObjectUtils {
 
-    public static JwArray<Byte> getObjectBytes(Object object) throws IOException {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ObjectOutputStream oos = new ObjectOutputStream(baos);
-
-        oos.writeObject(object);
-        oos.flush();
-        oos.close();
-
-        return JwArray.ofG(PrimitiveArrayConverter.fromPrimitive(baos.toByteArray()));
-    }
-
-    public static JwArray<Byte> getObjectBytesSecure(Object object) {
-        JwArray<Byte> bytes = new JwArray<>();
-
-        try {
-            bytes = getObjectBytes(object);
-        } catch (Exception e) {
-        }
-
-        return bytes;
-    }
-
-    public static byte[] getObjectBytesArray(Object object) throws IOException {
+    public static byte[] getObjectBytes(Object object) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream oos = new ObjectOutputStream(baos);
 
@@ -80,8 +58,17 @@ public class ObjectUtils {
         return baos.toByteArray();
     }
 
-    public static <T> T objectFromBytes(JwArray<Byte> bytes) throws IOException, ClassNotFoundException {
-        ByteArrayInputStream bais = new ByteArrayInputStream(PrimitiveArrayConverter.toPrimitive(bytes.toGenericArray()));
+    public static Optional<byte[]> getObjectBytesSafe(Object object) {
+        try {
+            return Optional.of(ObjectUtils.getObjectBytes(object));
+        } catch (Exception ignored) {
+        }
+
+        return Optional.empty();
+    }
+
+    public static <T> T getObjectFromBytes(byte[] bytes) throws IOException, ClassNotFoundException {
+        ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
         ObjectInputStream ois = new ObjectInputStream(bais);
 
         @SuppressWarnings("unchecked")
@@ -91,15 +78,13 @@ public class ObjectUtils {
         return object;
     }
 
-    public static Object objectFromBytesSecure(JwArray<Byte> bytes) {
-        Object object = null;
-
+    public static Optional<Object> getObjectFromBytesSafe(byte[] bytes) {
         try {
-            object = objectFromBytes(bytes);
-        } catch (Exception e) {
+            return Optional.of(ObjectUtils.getObjectFromBytes(bytes));
+        } catch (Exception ignored) {
         }
 
-        return object;
+        return Optional.empty();
     }
 
     public static StringHelper toHelper(Object object) {
@@ -129,8 +114,8 @@ public class ObjectUtils {
     }
 
     public static boolean isInstanceOfAny(Object source, Class<?>... instanceOfObjects) {
-        for(Class<?> instanceOf : instanceOfObjects) {
-            if(instanceOf.isAssignableFrom(source.getClass())) {
+        for (Class<?> instanceOf : instanceOfObjects) {
+            if (instanceOf.isInstance(source)) {
                 return true;
             }
         }
@@ -144,7 +129,7 @@ public class ObjectUtils {
 
         sj.add("");
 
-        for(E element : elements) {
+        for (E element : elements) {
             sj.add(elementStringFactory.apply(element));
         }
 
@@ -169,7 +154,7 @@ public class ObjectUtils {
         try {
             byte[] buffer = new byte[8192];
             int len;
-            while((len = in.read(buffer))>0)
+            while ((len = in.read(buffer)) > 0)
                 baos.write(buffer, 0, len);
             return baos.toByteArray();
         } catch (IOException e) {

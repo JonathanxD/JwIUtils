@@ -25,37 +25,20 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.function.stream;
+package com.github.jonathanxd.iutils.optional;
 
-import com.github.jonathanxd.iutils.collection.Walkable;
-import com.github.jonathanxd.iutils.function.function.ToPairFunction;
-import com.github.jonathanxd.iutils.function.stream.walkable.WalkableNodeBiStream;
-import com.github.jonathanxd.iutils.object.Node;
-import com.github.jonathanxd.iutils.object.Pair;
-
-import java.util.stream.Stream;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * Created by jonathan on 28/05/16.
+ * Created by jonathan on 13/02/16.
  */
 
 /**
- * @param <O> Original Type
- * @param <T> New Type[1]
- * @param <U> New Type[2]
+ * Required Method call
  */
-public class BiJavaStream<O, T, U> extends WalkableNodeBiStream<T, U> {
-
-    private BiJavaStream(Stream<O> stream, ToPairFunction<O, T, U> toPairFunction) {
-        super(Walkable.fromStream(stream).map(o -> {
-            Pair<T, U> apply = toPairFunction.apply(o);
-
-            return new Node<>(apply._1(), apply._2());
-        }));
-    }
-
-    public static <T, R1, R2> BiJavaStream<T, R1, R2> fromJavaStream(Stream<T> stream, ToPairFunction<T, R1, R2> toPairFunction) {
-        return new BiJavaStream<>(stream, toPairFunction);
-    }
-
-}
+@Retention(RetentionPolicy.CLASS)
+@Target(ElementType.METHOD)
+public @interface RequiredCall {}

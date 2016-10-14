@@ -31,7 +31,6 @@ import com.github.jonathanxd.iutils.conditions.Conditions;
 import com.github.jonathanxd.iutils.function.collector.BiCollectors;
 import com.github.jonathanxd.iutils.function.comparators.BiComparator;
 import com.github.jonathanxd.iutils.function.stream.MapStream;
-import com.github.jonathanxd.iutils.string.JString;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -59,9 +58,9 @@ public class MapUtils {
 
             Object key = elements[i];
 
-            Conditions.require((i + 1) < elements.length, "Missing value of key '"+key+"'");
+            Conditions.require((i + 1) < elements.length, "Missing value of key '" + key + "'");
 
-            map.put(key, elements[i+1]);
+            map.put(key, elements[i + 1]);
         }
 
         return (Map<K, V>) map;

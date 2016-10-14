@@ -25,37 +25,29 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.function.stream;
+package com.github.jonathanxd.iutils.type;
 
-import com.github.jonathanxd.iutils.collection.Walkable;
-import com.github.jonathanxd.iutils.function.function.ToPairFunction;
-import com.github.jonathanxd.iutils.function.stream.walkable.WalkableNodeBiStream;
-import com.github.jonathanxd.iutils.object.Node;
-import com.github.jonathanxd.iutils.object.Pair;
-
-import java.util.stream.Stream;
+import com.github.jonathanxd.iutils.arrays.ArrayUtils;
+import com.github.jonathanxd.iutils.reflection.RClass;
+import com.github.jonathanxd.iutils.reflection.Reflection;
 
 /**
- * Created by jonathan on 28/05/16.
+ * Created by jonathan on 02/04/16.
  */
-
-/**
- * @param <O> Original Type
- * @param <T> New Type[1]
- * @param <U> New Type[2]
- */
-public class BiJavaStream<O, T, U> extends WalkableNodeBiStream<T, U> {
-
-    private BiJavaStream(Stream<O> stream, ToPairFunction<O, T, U> toPairFunction) {
-        super(Walkable.fromStream(stream).map(o -> {
-            Pair<T, U> apply = toPairFunction.apply(o);
-
-            return new Node<>(apply._1(), apply._2());
-        }));
+public class DynamicTypeInfo<T> extends TypeInfo<T> {
+    DynamicTypeInfo(Class<? extends T> aClass, TypeInfo[] related, boolean isUnique) {
+        super(aClass, related, isUnique);
     }
 
-    public static <T, R1, R2> BiJavaStream<T, R1, R2> fromJavaStream(Stream<T> stream, ToPairFunction<T, R1, R2> toPairFunction) {
-        return new BiJavaStream<>(stream, toPairFunction);
+    public void addRelated(TypeInfo<?> typeInfo) {
+        try {
+            Reflection.changeFinalField(RClass.getRClass(TypeInfo.class, this), "related", ArrayUtils.addToArray(getRelated(), typeInfo));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
+    public TypeInfo<T> toReference() {
+        return new TypeInfo<>(this.getAClass(), this.getRelated(), this.isUnique());
+    }
 }

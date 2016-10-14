@@ -27,7 +27,6 @@
  */
 package com.github.jonathanxd.iutils.collection;
 
-import com.github.jonathanxd.iutils.arrays.JwArray;
 import com.github.jonathanxd.iutils.exceptions.CannotCollectElementsException;
 import com.github.jonathanxd.iutils.exceptions.ExcludedElementIndexException;
 import com.github.jonathanxd.iutils.function.consumer.ObjIntIntConsumer;
@@ -233,21 +232,21 @@ public interface Grabber<T> {
      *
      * @return All Elements
      */
-    JwArray<T> allElements();
+    List<T> allElements();
 
     /**
      * Non-Excluded elements
      *
      * @return Non-Excluded elements
      */
-    JwArray<T> includedElements();
+    List<T> includedElements();
 
     /**
      * Excluded elements
      *
      * @return Excluded elements
      */
-    JwArray<T> excludedElements();
+    List<T> excludedElements();
 
     /**
      * Create a clone of grabber (preserve state)

@@ -30,7 +30,8 @@ package com.github.jonathanxd.iutils.construct;
 import com.github.jonathanxd.iutils.construct.annotation.PropertyContainer;
 import com.github.jonathanxd.iutils.function.collector.BiCollectors;
 import com.github.jonathanxd.iutils.function.stream.BiJavaStream;
-import com.github.jonathanxd.iutils.object.Bi;
+import com.github.jonathanxd.iutils.object.Pair;
+import com.github.jonathanxd.iutils.optional.Require;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -107,7 +108,7 @@ public final class Properties extends HashSet<Prop> {
 
     public Map<String, Object> toMap() {
         return BiJavaStream
-                .fromJavaStream(this.stream().filter(prop -> prop.getValue().isPresent()), prop -> new Bi<>(prop.getId(), prop.getValue().get()))
+                .fromJavaStream(this.stream().filter(prop -> prop.getValue().isPresent()), prop -> Pair.of(prop.getId(), Require.require(prop.getValue())))
                 .collect(BiCollectors.toHashMap());
     }
 }

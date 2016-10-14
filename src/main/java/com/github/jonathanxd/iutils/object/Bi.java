@@ -32,8 +32,9 @@ import com.github.jonathanxd.iutils.containers.BaseContainer;
 import java.util.Objects;
 
 /**
- * Created by jonathan on 28/05/16.
+ * @deprecated Use {@link Pair}
  */
+@Deprecated
 public class Bi<T1, T2> {
     private final T1 value1;
     private final T2 value2;

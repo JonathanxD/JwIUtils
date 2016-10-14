@@ -32,6 +32,7 @@ import java.util.function.Function;
 /**
  * Created by jonathan on 13/02/16.
  */
+@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 public class Require {
 
     public static <T> T require(java.util.Optional<T> optional, String message) {
@@ -48,6 +49,7 @@ public class Require {
     public static <T, R> java.util.Optional<R> ifPresent(java.util.Optional<T> optional, Function<T, R> function) {
         if (optional.isPresent())
             return java.util.Optional.of(function.apply(optional.get()));
+
         return java.util.Optional.empty();
     }
 

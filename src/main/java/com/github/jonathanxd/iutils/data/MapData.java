@@ -27,8 +27,8 @@
  */
 package com.github.jonathanxd.iutils.data;
 
-import com.github.jonathanxd.iutils.object.TypeInfo;
-import com.github.jonathanxd.iutils.object.TypeUtil;
+import com.github.jonathanxd.iutils.type.TypeInfo;
+import com.github.jonathanxd.iutils.type.TypeUtil;
 
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;

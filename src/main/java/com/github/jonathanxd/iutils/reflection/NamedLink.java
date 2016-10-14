@@ -31,10 +31,10 @@ package com.github.jonathanxd.iutils.reflection;
  * Created by jonathan on 20/08/16.
  */
 
-import com.github.jonathanxd.iutils.object.TypeInfo;
+import com.github.jonathanxd.iutils.type.TypeInfo;
 
 /**
- * A link that have name and a {@link com.github.jonathanxd.iutils.object.TypeInfo} of {@link T}
+ * A link that have name and a {@link TypeInfo} of {@link T}
  *
  * @param <T> Type
  */

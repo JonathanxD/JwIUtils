@@ -25,37 +25,39 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.function.stream;
+package com.github.jonathanxd.iutils.object;
 
-import com.github.jonathanxd.iutils.collection.Walkable;
-import com.github.jonathanxd.iutils.function.function.ToPairFunction;
-import com.github.jonathanxd.iutils.function.stream.walkable.WalkableNodeBiStream;
-import com.github.jonathanxd.iutils.object.Node;
-import com.github.jonathanxd.iutils.object.Pair;
+import java.util.Objects;
+import java.util.function.Supplier;
 
-import java.util.stream.Stream;
-
-/**
- * Created by jonathan on 28/05/16.
- */
-
-/**
- * @param <O> Original Type
- * @param <T> New Type[1]
- * @param <U> New Type[2]
- */
-public class BiJavaStream<O, T, U> extends WalkableNodeBiStream<T, U> {
-
-    private BiJavaStream(Stream<O> stream, ToPairFunction<O, T, U> toPairFunction) {
-        super(Walkable.fromStream(stream).map(o -> {
-            Pair<T, U> apply = toPairFunction.apply(o);
-
-            return new Node<>(apply._1(), apply._2());
-        }));
+public abstract class Pair<A, B> {
+    public static <A, B> Pair<A, B> of(A a, B b) {
+        return Pairs.of(a, b);
     }
 
-    public static <T, R1, R2> BiJavaStream<T, R1, R2> fromJavaStream(Stream<T> stream, ToPairFunction<T, R1, R2> toPairFunction) {
-        return new BiJavaStream<>(stream, toPairFunction);
+    public static <A, B> Pair<A, B> ofSupplier(Supplier<A> aSupplier, Supplier<B> bSupplier) {
+        return Pairs.ofSupplier(aSupplier, bSupplier);
     }
 
+    public abstract A _1();
+
+    public abstract B _2();
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this._1(), this._2());
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+
+        if (obj instanceof Pair<?, ?>) {
+            Pair<?, ?> pair = (Pair<?, ?>) obj;
+
+            return this._1().equals(pair._1())
+                    && this._2().equals(pair._2());
+        }
+
+        return super.equals(obj);
+    }
 }
