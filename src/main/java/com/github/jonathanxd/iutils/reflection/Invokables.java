@@ -27,7 +27,7 @@
  */
 package com.github.jonathanxd.iutils.reflection;
 
-import com.github.jonathanxd.iutils.exceptions.RethrowException;
+import com.github.jonathanxd.iutils.exception.RethrowException;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.reflect.Constructor;

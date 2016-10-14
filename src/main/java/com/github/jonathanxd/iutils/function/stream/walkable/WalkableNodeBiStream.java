@@ -29,8 +29,8 @@ package com.github.jonathanxd.iutils.function.stream.walkable;
 
 import com.github.jonathanxd.iutils.collection.Walkable;
 import com.github.jonathanxd.iutils.comparator.Compared;
-import com.github.jonathanxd.iutils.containers.IMutableContainer;
-import com.github.jonathanxd.iutils.containers.MutableContainer;
+import com.github.jonathanxd.iutils.container.IMutableContainer;
+import com.github.jonathanxd.iutils.container.MutableContainer;
 import com.github.jonathanxd.iutils.function.binary.BiBinaryOperator;
 import com.github.jonathanxd.iutils.function.binary.NodeBiBinaryOperator;
 import com.github.jonathanxd.iutils.function.binary.StackBiBinaryOperator;
@@ -51,7 +51,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Spliterator;
 import java.util.function.BiConsumer;

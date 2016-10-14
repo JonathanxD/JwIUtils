@@ -28,7 +28,7 @@
 package com.github.jonathanxd.iutils.collection;
 
 import com.github.jonathanxd.iutils.comparator.Compared;
-import com.github.jonathanxd.iutils.containers.primitivecontainers.BooleanContainer;
+import com.github.jonathanxd.iutils.container.primitivecontainers.BooleanContainer;
 import com.github.jonathanxd.iutils.iterator.IteratorUtil;
 import com.github.jonathanxd.iutils.object.Node;
 

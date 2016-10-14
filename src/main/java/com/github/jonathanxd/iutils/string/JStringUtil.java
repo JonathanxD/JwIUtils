@@ -27,7 +27,7 @@
  */
 package com.github.jonathanxd.iutils.string;
 
-import com.github.jonathanxd.iutils.exceptions.JStringApplyException;
+import com.github.jonathanxd.iutils.exception.JStringApplyException;
 
 import java.util.Map;
 import java.util.regex.Matcher;

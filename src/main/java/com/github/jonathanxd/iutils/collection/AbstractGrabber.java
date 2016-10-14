@@ -27,9 +27,9 @@
  */
 package com.github.jonathanxd.iutils.collection;
 
-import com.github.jonathanxd.iutils.annotations.Named;
-import com.github.jonathanxd.iutils.exceptions.CannotCollectElementsException;
-import com.github.jonathanxd.iutils.exceptions.ExcludedElementIndexException;
+import com.github.jonathanxd.iutils.annotation.Named;
+import com.github.jonathanxd.iutils.exception.CannotCollectElementsException;
+import com.github.jonathanxd.iutils.exception.ExcludedElementIndexException;
 import com.github.jonathanxd.iutils.function.consumer.ObjIntIntConsumer;
 import com.github.jonathanxd.iutils.string.InJoiner;
 

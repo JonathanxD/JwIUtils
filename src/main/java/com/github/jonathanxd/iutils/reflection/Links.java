@@ -27,7 +27,7 @@
  */
 package com.github.jonathanxd.iutils.reflection;
 
-import com.github.jonathanxd.iutils.arrays.ArrayUtils;
+import com.github.jonathanxd.iutils.array.ArrayUtils;
 import com.github.jonathanxd.iutils.type.TypeInfo;
 
 /**

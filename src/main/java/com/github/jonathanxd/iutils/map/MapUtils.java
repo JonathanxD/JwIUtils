@@ -27,7 +27,7 @@
  */
 package com.github.jonathanxd.iutils.map;
 
-import com.github.jonathanxd.iutils.conditions.Conditions;
+import com.github.jonathanxd.iutils.condition.Conditions;
 import com.github.jonathanxd.iutils.function.collector.BiCollectors;
 import com.github.jonathanxd.iutils.function.comparators.BiComparator;
 import com.github.jonathanxd.iutils.function.stream.MapStream;

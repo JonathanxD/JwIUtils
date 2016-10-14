@@ -27,7 +27,7 @@
  */
 package com.github.jonathanxd.iutils;
 
-import com.github.jonathanxd.iutils.exceptions.BiException;
+import com.github.jonathanxd.iutils.exception.BiException;
 
 import org.junit.Test;
 

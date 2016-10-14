@@ -27,9 +27,9 @@
  */
 package com.github.jonathanxd.iutils.string;
 
-import com.github.jonathanxd.iutils.conditions.Conditions;
-import com.github.jonathanxd.iutils.exceptions.MaxRecursiveParseException;
-import com.github.jonathanxd.iutils.exceptions.RethrowException;
+import com.github.jonathanxd.iutils.condition.Conditions;
+import com.github.jonathanxd.iutils.exception.MaxRecursiveParseException;
+import com.github.jonathanxd.iutils.exception.RethrowException;
 import com.github.jonathanxd.iutils.type.Primitive;
 
 import java.lang.invoke.MethodHandle;

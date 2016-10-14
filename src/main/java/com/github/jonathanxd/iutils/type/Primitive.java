@@ -27,9 +27,7 @@
  */
 package com.github.jonathanxd.iutils.type;
 
-import com.github.jonathanxd.iutils.conditions.Conditions;
-
-import java.util.Objects;
+import com.github.jonathanxd.iutils.condition.Conditions;
 
 /**
  * Created by jonathan on 28/02/16.

@@ -27,7 +27,7 @@
  */
 package com.github.jonathanxd.iutils.reference;
 
-import com.github.jonathanxd.iutils.exceptions.RethrowException;
+import com.github.jonathanxd.iutils.exception.RethrowException;
 import com.github.jonathanxd.iutils.type.AbstractTypeInfo;
 import com.github.jonathanxd.iutils.type.ConcreteTypeInfo;
 import com.github.jonathanxd.iutils.type.TypeInfo;

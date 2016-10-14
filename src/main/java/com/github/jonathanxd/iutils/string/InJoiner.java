@@ -27,7 +27,7 @@
  */
 package com.github.jonathanxd.iutils.string;
 
-import com.github.jonathanxd.iutils.annotations.Ref;
+import com.github.jonathanxd.iutils.annotation.Ref;
 
 import java.util.StringJoiner;
 import java.util.function.Supplier;

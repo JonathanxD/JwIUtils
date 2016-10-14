@@ -27,7 +27,7 @@
  */
 package com.github.jonathanxd.iutils.type;
 
-import com.github.jonathanxd.iutils.annotations.NotNull;
+import com.github.jonathanxd.iutils.annotation.NotNull;
 
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;

@@ -27,7 +27,7 @@
  */
 package com.github.jonathanxd.iutils.object;
 
-import com.github.jonathanxd.iutils.containers.BaseContainer;
+import com.github.jonathanxd.iutils.container.BaseContainer;
 
 /**
  * @deprecated Use {@link Pair}

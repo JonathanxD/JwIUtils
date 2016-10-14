@@ -27,7 +27,7 @@
  */
 package com.github.jonathanxd.iutils.collection;
 
-import com.github.jonathanxd.iutils.exceptions.BiException;
+import com.github.jonathanxd.iutils.exception.BiException;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;

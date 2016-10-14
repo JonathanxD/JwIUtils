@@ -27,7 +27,7 @@
  */
 package com.github.jonathanxd.iutils.list;
 
-import com.github.jonathanxd.iutils.annotations.NotNull;
+import com.github.jonathanxd.iutils.annotation.NotNull;
 
 import java.lang.reflect.Array;
 import java.util.Collection;
