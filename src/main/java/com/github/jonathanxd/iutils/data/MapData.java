@@ -237,7 +237,7 @@ public class MapData extends BaseData<TypeInfo<?>> {
      * elements of {@code other} {@link MapData}.
      */
     public MapData with(MapData other) {
-        MapData new_ = new MapData();
+        MapData new_ = new MapData(this.parent);
 
         new_.map.putAll(this.map);
         new_.map.putAll(other.map);
@@ -303,7 +303,7 @@ public class MapData extends BaseData<TypeInfo<?>> {
 
     @Override
     public BaseData clone() {
-        MapData mapData = new MapData();
+        MapData mapData = new MapData(this.parent);
         mapData.map.putAll(this.map);
         return mapData;
     }
