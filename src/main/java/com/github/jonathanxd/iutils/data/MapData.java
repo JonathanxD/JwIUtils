@@ -27,6 +27,7 @@
  */
 package com.github.jonathanxd.iutils.data;
 
+import com.github.jonathanxd.iutils.optional.Require;
 import com.github.jonathanxd.iutils.type.TypeInfo;
 import com.github.jonathanxd.iutils.type.TypeUtil;
 
@@ -40,11 +41,25 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * Created by jonathan on 03/06/16.
+ * A map data, {@link MapData} can hold parent elements, {@link MapData} that hold parent element is
+ * called 'Child MapData'.
+ *
+ * The purpose of this class is to hold information to be retrieved later by another context.
+ *
+ * {@link MapData} hold a Map with {@link MapData} as key and a LIFO list as value.
  */
 public class MapData extends BaseData<TypeInfo<?>> {
 
     private final Map<TypeInfo<?>, List<Object>> map = new HashMap<>();
+    private final MapData parent;
+
+    public MapData() {
+        this(null);
+    }
+
+    protected MapData(MapData parent) {
+        this.parent = parent;
+    }
 
     public <T> int registerData(TypeInfo<T> typeInfo, T object) {
 
@@ -75,17 +90,38 @@ public class MapData extends BaseData<TypeInfo<?>> {
 
     @SuppressWarnings("unchecked")
     public <T> Collection<T> getAll(TypeInfo<T> typeInfo) {
-        Collection<T> ts = (Collection<T>) map.get(typeInfo);
+        Collection<T> ts = (Collection<T>) this.map.get(typeInfo);
 
         if (ts == null)
             return Collections.emptyList();
 
         return ts;
+    }
+
+    /**
+     * Gets all data including parent data.
+     *
+     * @param typeInfo Type info.
+     * @param <T>      Type of data.
+     * @return All data including parent data.
+     */
+    public <T> Collection<T> getAllAndParent(TypeInfo<T> typeInfo) {
+        Collection<T> collection = new ArrayList<>();
+
+        MapData parent = this.getParent();
+
+        if (parent != null) {
+            collection.addAll(parent.getAllAndParent(typeInfo));
+        }
+
+        collection.addAll(this.getAll(typeInfo));
+
+        return collection;
     }
 
     @SuppressWarnings("unchecked")
     public <T> List<T> getAllAsList(TypeInfo<T> typeInfo) {
-        List<T> ts = (List<T>) map.get(typeInfo);
+        List<T> ts = (List<T>) this.map.get(typeInfo);
 
         if (ts == null)
             return Collections.emptyList();
@@ -93,43 +129,104 @@ public class MapData extends BaseData<TypeInfo<?>> {
         return ts;
     }
 
+    /**
+     * Gets all data including parent data.
+     *
+     * @param typeInfo Type info.
+     * @param <T>      Type of data.
+     * @return All data including parent data.
+     */
+    public <T> List<T> getAllAsListAndParent(TypeInfo<T> typeInfo) {
+        List<T> list = new ArrayList<>();
+
+        MapData parent = this.getParent();
+
+        if (parent != null) {
+            list.addAll(parent.getAllAndParent(typeInfo));
+        }
+
+        list.addAll(this.getAll(typeInfo));
+
+        return list;
+    }
+
     @SuppressWarnings("unchecked")
     public <T> Optional<T> getOptional(TypeInfo<T> typeInfo) {
-        List<Object> objectList = map.get(typeInfo);
+        List<Object> objectList = this.map.get(typeInfo);
 
         if (objectList == null) {
+            return Optional.empty();
+        }
+
+        if (objectList.isEmpty()) {
+
+            this.map.remove(typeInfo);
+
             return Optional.empty();
         }
 
         return Optional.ofNullable((T) objectList.get(objectList.size() - 1));
     }
 
+    /**
+     * Gets the data in current map data, if not found, try to get in parent data.
+     *
+     * @param typeInfo Type info key.
+     * @param <T>      Type
+     * @return Data in current map data, if not found, try to get in parent data.
+     */
+    public <T> Optional<T> getOptionalOrParent(TypeInfo<T> typeInfo) {
+        Optional<T> optional = this.getOptional(typeInfo);
+
+        if (optional.isPresent())
+            return optional;
+
+
+        MapData parent = this.getParent();
+
+        return parent == null ? optional : parent.getOptionalOrParent(typeInfo);
+    }
+
     @SuppressWarnings("unchecked")
     public <T, U extends T> Optional<U> getOptionalCasted(TypeInfo<T> typeInfo) {
+        return (Optional<U>) this.getOptional(typeInfo);
+    }
 
-        List<Object> objectList = map.get(typeInfo);
-
-        if (objectList == null) {
-            return Optional.empty();
-        }
-
-        return Optional.ofNullable((U) objectList.get(objectList.size() - 1));
+    @SuppressWarnings("unchecked")
+    public <T, U extends T> Optional<U> getOptionalOrParentCasted(TypeInfo<T> typeInfo) {
+        return (Optional<U>) this.getOptionalOrParent(typeInfo);
     }
 
     public <T> T getRequired(TypeInfo<T> typeInfo) {
-        return this.getOptional(typeInfo).get();
+        return Require.require(this.getOptional(typeInfo));
+    }
+
+    public <T> T getRequiredOrParent(TypeInfo<T> typeInfo) {
+        return Require.require(this.getOptionalOrParent(typeInfo));
     }
 
     public <T> T getRequired(TypeInfo<T> typeInfo, String message) {
         return this.getOptional(typeInfo).orElseThrow(() -> new IllegalStateException(message));
     }
 
+    public <T> T getRequiredOrParent(TypeInfo<T> typeInfo, String message) {
+        return this.getOptionalOrParent(typeInfo).orElseThrow(() -> new IllegalStateException(message));
+    }
+
     public <T, U extends T> U getRequiredCasted(TypeInfo<T> typeInfo) {
-        return this.<T, U>getOptionalCasted(typeInfo).get();
+        return Require.require(this.<T, U>getOptionalCasted(typeInfo));
+    }
+
+    public <T, U extends T> U getRequiredOrParentCasted(TypeInfo<T> typeInfo) {
+        return Require.require(this.<T, U>getOptionalOrParentCasted(typeInfo));
     }
 
     public <T, U extends T> U getRequiredCasted(TypeInfo<T> typeInfo, String message) {
         return this.<T, U>getOptionalCasted(typeInfo).orElseThrow(() -> new IllegalStateException(message));
+    }
+
+    public <T, U extends T> U getRequiredOrParentCasted(TypeInfo<T> typeInfo, String message) {
+        return this.<T, U>getOptionalOrParentCasted(typeInfo).orElseThrow(() -> new IllegalStateException(message));
     }
 
     /**
@@ -160,7 +257,7 @@ public class MapData extends BaseData<TypeInfo<?>> {
 
     @Override
     public void removeData(TypeInfo<?> data) {
-
+        this.unregisterAllData(data);
     }
 
     @SuppressWarnings("unchecked")
@@ -184,6 +281,24 @@ public class MapData extends BaseData<TypeInfo<?>> {
     @Override
     public <X> Optional<X> getDataAssignable(Class<? extends X> dataClass) {
         return this.getData(dataClass);
+    }
+
+    /**
+     * Create a new child map data, returned map data will hold current map data as parent map data.
+     *
+     * @return Map data holding current as child.
+     */
+    public MapData newChild() {
+        return new MapData(this);
+    }
+
+    /**
+     * Gets the parent map data.
+     *
+     * @return Parent map data.
+     */
+    public MapData getParent() {
+        return this.parent;
     }
 
     @Override
