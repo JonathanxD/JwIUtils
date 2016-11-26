@@ -168,12 +168,16 @@ public class TypeInfoTest {
         System.out.println(typeInfo6.compareToAssignable(typeInfo7));
     }
 
+    final TypeInfo<A> aInfo = new ConcreteTypeInfo<A>() {};
+
+    final TypeInfo<B<List<?>>> bInfo = new ConcreteTypeInfo<B<List<?>>>() {};
+
     @org.junit.Test
     public void testSub() {
 
-        TypeInfo<A> aInfo = new ConcreteTypeInfo<A>() {};
 
-        TypeInfo<B<List<?>>> bInfo = new ConcreteTypeInfo<B<List<?>>>() {};
+
+        bInfo.isAssignableFrom(aInfo);
 
         //noinspection deprecation
         System.out.println(bInfo.compareToAssignable(aInfo));

@@ -33,6 +33,8 @@ import com.github.jonathanxd.iutils.machine.defaultspec.MSpec;
 import com.github.jonathanxd.iutils.machine.os.Linux;
 import com.github.jonathanxd.iutils.machine.os.Windows;
 
+import org.junit.Test;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -42,7 +44,8 @@ import java.util.Map;
 public class TestBiStream {
 
 
-    public static void main(String[] args) {
+    @Test
+    public void test() {
 
 
         Map<String, Map<String, Machine>> allMachines = new HashMap<>();

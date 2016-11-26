@@ -39,6 +39,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * A map data, {@link MapData} can hold parent elements, {@link MapData} that hold parent element is
@@ -148,6 +151,111 @@ public class MapData extends BaseData<TypeInfo<?>> {
         list.addAll(this.getAll(typeInfo));
 
         return list;
+    }
+
+    /**
+     * Find all elements of type {@code typeInfo} that matches {@code predicate}.
+     *
+     * @param typeInfo  Type Representation.
+     * @param predicate Predicate
+     * @param <T>       Type.
+     * @return Stream with a sequence of all found elements.
+     */
+    public <T> Stream<T> findAllToStream(TypeInfo<T> typeInfo, Predicate<T> predicate) {
+        return this.getAllAsList(typeInfo).stream().filter(predicate);
+    }
+
+    /**
+     * Find all elements of type {@code typeInfo} that matches {@code predicate} (including {@link
+     * #parent}).
+     *
+     * @param typeInfo  Type Representation.
+     * @param predicate Predicate
+     * @param <T>       Type.
+     * @return Stream with a sequence of all found elements.
+     */
+    public <T> Stream<T> findAllToStreamAndParent(TypeInfo<T> typeInfo, Predicate<T> predicate) {
+        return this.getAllAsListAndParent(typeInfo).stream().filter(predicate);
+    }
+
+
+    /**
+     * Find all elements of type {@code typeInfo} that matches {@code predicate}.
+     *
+     * @param typeInfo  Type Representation.
+     * @param predicate Predicate
+     * @param <T>       Type.
+     * @return List of all found elements.
+     */
+    public <T> List<T> findAll(TypeInfo<T> typeInfo, Predicate<T> predicate) {
+        return this.getAllAsList(typeInfo).stream().filter(predicate).collect(Collectors.toList());
+    }
+
+    /**
+     * Find all elements of type {@code typeInfo} that matches {@code predicate} (including {@link
+     * #parent}).
+     *
+     * @param typeInfo  Type Representation.
+     * @param predicate Predicate
+     * @param <T>       Type.
+     * @return Stream with a sequence of all found elements.
+     */
+    public <T> List<T> findAllAndParent(TypeInfo<T> typeInfo, Predicate<T> predicate) {
+        return this.getAllAsListAndParent(typeInfo).stream().filter(predicate).collect(Collectors.toList());
+    }
+
+    /**
+     * Find first element of type {@code typeInfo} that matches {@code predicate}.
+     *
+     * @param typeInfo  Type Representation.
+     * @param predicate Predicate
+     * @param <T>       Type.
+     * @return {@link Optional} of first found element, or a empty {@link Optional} if no one
+     * element was found.
+     */
+    public <T> Optional<T> findFirst(TypeInfo<T> typeInfo, Predicate<T> predicate) {
+        return this.getAllAsList(typeInfo).stream().filter(predicate).findFirst();
+    }
+
+    /**
+     * Find first element of type {@code typeInfo} that matches {@code predicate} (including {@link
+     * #parent}).
+     *
+     * @param typeInfo  Type Representation.
+     * @param predicate Predicate
+     * @param <T>       Type.
+     * @return {@link Optional} of first found element, or a empty {@link Optional} if no one
+     * element was found.
+     */
+    public <T> Optional<T> findFirstAndParent(TypeInfo<T> typeInfo, Predicate<T> predicate) {
+        return this.getAllAsListAndParent(typeInfo).stream().filter(predicate).findFirst();
+    }
+
+    /**
+     * Find first element of type {@code typeInfo} that matches {@code predicate}.
+     *
+     * @param typeInfo  Type Representation.
+     * @param predicate Predicate
+     * @param <T>       Type.
+     * @return The first found element.
+     * @throws IllegalStateException if no one element was found.
+     */
+    public <T> T findFirstRequired(TypeInfo<T> typeInfo, Predicate<T> predicate) {
+        return Require.require(this.getAllAsList(typeInfo).stream().filter(predicate).findFirst());
+    }
+
+    /**
+     * Find first element of type {@code typeInfo} that matches {@code predicate}  (including {@link
+     * #parent}).
+     *
+     * @param typeInfo  Type Representation.
+     * @param predicate Predicate
+     * @param <T>       Type.
+     * @return The first found element.
+     * @throws IllegalStateException if no one element was found.
+     */
+    public <T> T findFirstRequiredAndParent(TypeInfo<T> typeInfo, Predicate<T> predicate) {
+        return Require.require(this.getAllAsListAndParent(typeInfo).stream().filter(predicate).findFirst());
     }
 
     @SuppressWarnings("unchecked")

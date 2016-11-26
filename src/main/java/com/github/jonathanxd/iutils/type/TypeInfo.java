@@ -380,6 +380,9 @@ public class TypeInfo<T> implements Comparable<TypeInfo> {
 
         TypeInfo<?>[] otherSubTypeInfos = other.getSubTypeInfos();
 
+        if(otherSubTypeInfos.length == 1)
+            return this.isAssignableFrom(otherSubTypeInfos[0]);
+
         for (TypeInfo<?> otherSubTypeInfo : otherSubTypeInfos) {
             if (this.isAssignableFrom(otherSubTypeInfo)) {
                 return true;
@@ -487,22 +490,27 @@ public class TypeInfo<T> implements Comparable<TypeInfo> {
      */
     public int compareTypeAndRelatedTo(@NotNull TypeInfo compareTo) {
 
-        if (getAClass().isAssignableFrom(compareTo.getAClass())) {
+        if (this.getAClass().isAssignableFrom(compareTo.getAClass())) {
+            TypeInfo[] thisRelated = this.getRelated();
+            TypeInfo[] otherRelated = compareTo.getRelated();
 
-            if (getRelated().length != compareTo.getRelated().length)
+            if (thisRelated.length != otherRelated.length)
                 return -1;
 
-            for (int x = 0; x < getRelated().length; ++x) {
-                TypeInfo<?> mainRef = getRelated()[x];
-                TypeInfo<?> compareRef = compareTo.getRelated()[x];
+            for (int x = 0; x < thisRelated.length; ++x) {
+                Class<?> mainRefClass = thisRelated[x].getAClass();
+                Class<?> compareRefClass = otherRelated[x].getAClass();
 
-                if (!mainRef.getAClass().isAssignableFrom(compareRef.getAClass())) {
-                    if (compareRef.getAClass().isAssignableFrom(mainRef.getAClass())) {
+                if (!mainRefClass.isAssignableFrom(compareRefClass)) {
+
+                    if (compareRefClass.isAssignableFrom(mainRefClass)) {
                         return 1;
                     }
+
                     return -1;
                 }
             }
+
             return 0;
         }
 
