@@ -35,6 +35,20 @@ QuadFunction
 
 TriFunction
 
+## Predicates
+
+BiDoublePredicate `(double, double)`
+
+BiIntPredicate `(int, int)`
+
+BiLongPredicate `(long, long)`
+
+DoubleObjBiPredicate `(double, T)`
+
+IntObjBiPredicate `(int, T)`
+
+LongObjBiPredicate `(long, T)`
+
 ## Bi Stream
 
 Light implementation of Java 8 Streams for things like Map.
