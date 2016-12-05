@@ -1,4 +1,4 @@
-# JwIUTils [![](https://jitpack.io/v/JonathanxD/JwIUtils.svg)](https://jitpack.io/#JonathanxD/JwIUtils)
+# JwIUtils [![](https://jitpack.io/v/JonathanxD/JwIUtils.svg)](https://jitpack.io/#JonathanxD/JwIUtils)
 
 Java Utilities Library.
 
