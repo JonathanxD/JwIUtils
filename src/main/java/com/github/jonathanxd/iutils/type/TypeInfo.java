@@ -60,7 +60,7 @@ public class TypeInfo<T> implements Comparable<TypeInfo> {
     /**
      * Sub types info
      */
-    private final TypeInfo<?>[] subTypesInfo;
+    private TypeInfo<?>[] subTypesInfo;
 
     /**
      * Marking it as unique will make this to use default implementation of {@link #hashCode()} and
@@ -72,7 +72,6 @@ public class TypeInfo<T> implements Comparable<TypeInfo> {
         this.aClass = null;
         this.related = null;
         this.isUnique = false;
-        this.subTypesInfo = TypeInfo.createSubTypeInfos(this);
     }
 
 
@@ -80,14 +79,12 @@ public class TypeInfo<T> implements Comparable<TypeInfo> {
         this.related = typeInfo.related.clone();
         this.aClass = typeInfo.aClass;
         this.isUnique = typeInfo.isUnique;
-        this.subTypesInfo = TypeInfo.createSubTypeInfos(this);
     }
 
     TypeInfo(Class<? extends T> aClass, TypeInfo[] related, boolean isUnique) {
         this.aClass = Objects.requireNonNull(aClass);
         this.related = related != null ? related : new TypeInfo[0];
         this.isUnique = isUnique;
-        this.subTypesInfo = TypeInfo.createSubTypeInfos(this);
     }
 
     @NotNull
@@ -387,7 +384,7 @@ public class TypeInfo<T> implements Comparable<TypeInfo> {
     }
 
     public TypeInfo<?>[] getSubTypeInfos() {
-        return this.subTypesInfo.clone();
+        return this.fastGetSubTypeInfos().clone();
     }
 
     /**
@@ -396,6 +393,10 @@ public class TypeInfo<T> implements Comparable<TypeInfo> {
      * @return Original Array.
      */
     protected TypeInfo<?>[] fastGetSubTypeInfos() {
+
+        if(this.subTypesInfo == null)
+            this.subTypesInfo = TypeInfo.createSubTypeInfos(this);
+
         return this.subTypesInfo;
     }
 
