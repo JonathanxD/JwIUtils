@@ -44,9 +44,6 @@ import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.function.Function;
 
-/**
- * Created by jonathan on 13/02/16.
- */
 @SuppressWarnings("Duplicates")
 public class TypeInfo<T> implements Comparable<TypeInfo> {
 
@@ -61,6 +58,11 @@ public class TypeInfo<T> implements Comparable<TypeInfo> {
     private final TypeInfo[] related;
 
     /**
+     * Sub types info
+     */
+    private final TypeInfo<?>[] subTypesInfo;
+
+    /**
      * Marking it as unique will make this to use default implementation of {@link #hashCode()} and
      * {@link #equals(Object)} from {@link Object}
      */
@@ -70,6 +72,7 @@ public class TypeInfo<T> implements Comparable<TypeInfo> {
         this.aClass = null;
         this.related = null;
         this.isUnique = false;
+        this.subTypesInfo = TypeInfo.createSubTypeInfos(this);
     }
 
 
@@ -77,12 +80,14 @@ public class TypeInfo<T> implements Comparable<TypeInfo> {
         this.related = typeInfo.related.clone();
         this.aClass = typeInfo.aClass;
         this.isUnique = typeInfo.isUnique;
+        this.subTypesInfo = TypeInfo.createSubTypeInfos(this);
     }
 
     TypeInfo(Class<? extends T> aClass, TypeInfo[] related, boolean isUnique) {
         this.aClass = Objects.requireNonNull(aClass);
         this.related = related != null ? related : new TypeInfo[0];
         this.isUnique = isUnique;
+        this.subTypesInfo = TypeInfo.createSubTypeInfos(this);
     }
 
     @NotNull
@@ -92,11 +97,11 @@ public class TypeInfo<T> implements Comparable<TypeInfo> {
         String shortName = classToString.apply(typeInfo.getAClass());
         sb.append(shortName);
 
-        if (typeInfo.getRelated().length != 0) {
+        if (typeInfo.fastGetRelated().length != 0) {
             sb.append("<");
             StringJoiner sj = new StringJoiner(", ");
 
-            for (TypeInfo loopRef : typeInfo.getRelated()) {
+            for (TypeInfo loopRef : typeInfo.fastGetRelated()) {
                 sj.add(toString(loopRef, classToString));
             }
 
@@ -273,7 +278,7 @@ public class TypeInfo<T> implements Comparable<TypeInfo> {
 
     @SuppressWarnings("unchecked")
     public static <T> TypeInfoBuilder<T> but(TypeInfo typeInfo) {
-        return TypeInfo.<T>representationOf().a(typeInfo.getAClass()).ofArray(typeInfo.getRelated());
+        return TypeInfo.<T>representationOf().a(typeInfo.getAClass()).ofArray(typeInfo.fastGetRelated());
     }
 
     public static TypeInfo[] fromProvider(TypeProvider provider) {
@@ -290,7 +295,7 @@ public class TypeInfo<T> implements Comparable<TypeInfo> {
     public static void insertTypes(TypeInfo<?> resolvedType, Map<String, TypeInfo<?>> typeMap) {
 
         Class<?> aClass = resolvedType.getAClass();
-        TypeInfo[] related = resolvedType.getRelated();
+        TypeInfo[] related = resolvedType.fastGetRelated();
         TypeVariable<? extends Class<?>>[] typeParameters = aClass.getTypeParameters();
 
         if (related.length != typeParameters.length)
@@ -305,6 +310,50 @@ public class TypeInfo<T> implements Comparable<TypeInfo> {
             typeMap.put(name, typeInfo);
         }
 
+    }
+
+    protected static <T> TypeInfo<?>[] createSubTypeInfos(TypeInfo<T> receiver) {
+        return TypeInfo.getSubTypeInfos(receiver, new HashMap<>());
+    }
+
+    protected static <T> TypeInfo<?>[] getSubTypeInfos(TypeInfo<T> receiver, Map<String, TypeInfo<?>> names) {
+        Class<? extends T> aClass = receiver.getAClass();
+
+        if (aClass == null)
+            return new TypeInfo[0];
+
+        List<TypeInfo<?>> subInfos = new ArrayList<>();
+
+        Type genericSuperclass = aClass.getGenericSuperclass();
+
+        if (genericSuperclass != null) {
+            TypeInfo<?> typeInfo = TypeUtil.toReference(genericSuperclass, names);
+            TypeInfo.insertTypes(typeInfo, names);
+            subInfos.add(typeInfo);
+        }
+
+        Type[] genericInterfaces = aClass.getGenericInterfaces();
+
+        for (Type genericInterface : genericInterfaces) {
+            TypeInfo<?> typeInfo = TypeUtil.toReference(genericInterface, names);
+            TypeInfo.insertTypes(typeInfo, names);
+
+            subInfos.add(typeInfo);
+        }
+
+
+        TypeInfo[] typeInfos = subInfos.stream().toArray(TypeInfo[]::new);
+
+        for (TypeInfo info : typeInfos) {
+            @SuppressWarnings("unchecked") TypeInfo<?>[] subTypeInfos = TypeInfo.getSubTypeInfos(info, names);
+
+            if (subTypeInfos.length > 0) {
+                Collections.addAll(subInfos, subTypeInfos);
+            }
+        }
+
+        // bump
+        return subInfos.toArray(new TypeInfo[subInfos.size()]);
     }
 
     @SuppressWarnings("unchecked")
@@ -325,62 +374,38 @@ public class TypeInfo<T> implements Comparable<TypeInfo> {
     }
 
     public TypeInfo[] getRelated() {
+        return this.related.clone();
+    }
+
+    /**
+     * Gets the array without cloning.
+     *
+     * @return Original Array.
+     */
+    protected TypeInfo[] fastGetRelated() {
         return this.related;
     }
 
     public TypeInfo<?>[] getSubTypeInfos() {
-
-        return this.getSubTypeInfos(new HashMap<>());
+        return this.subTypesInfo.clone();
     }
 
-    private TypeInfo<?>[] getSubTypeInfos(Map<String, TypeInfo<?>> names) {
-        Class<? extends T> aClass = this.getAClass();
-
-        List<TypeInfo<?>> subInfos = new ArrayList<>();
-
-        Type genericSuperclass = aClass.getGenericSuperclass();
-
-        if (genericSuperclass != null) {
-            TypeInfo<?> typeInfo = TypeUtil.toReference(genericSuperclass, names);
-            TypeInfo.insertTypes(typeInfo, names);
-            subInfos.add(typeInfo);
-        }
-
-        Class<?>[] interfaces = aClass.getInterfaces();
-        Type[] genericInterfaces = aClass.getGenericInterfaces();
-
-        for (int i = 0; i < genericInterfaces.length; i++) {
-            //Class<?> interfaceClass = interfaces[i];
-            Type genericInterface = genericInterfaces[i];
-
-            TypeInfo<?> typeInfo = TypeUtil.toReference(genericInterface, names);
-            TypeInfo.insertTypes(typeInfo, names);
-
-            subInfos.add(typeInfo);
-        }
-
-
-        TypeInfo[] typeInfos = subInfos.stream().toArray(TypeInfo[]::new);
-
-        for (TypeInfo info : typeInfos) {
-            @SuppressWarnings("unchecked") TypeInfo<?>[] subTypeInfos = info.getSubTypeInfos(names);
-
-            if (subTypeInfos.length > 0) {
-                Collections.addAll(subInfos, subTypeInfos);
-            }
-        }
-
-        // bump
-        return subInfos.stream().toArray(TypeInfo[]::new);
+    /**
+     * Gets the array without cloning.
+     *
+     * @return Original Array.
+     */
+    protected TypeInfo<?>[] fastGetSubTypeInfos() {
+        return this.subTypesInfo;
     }
 
     public boolean isAssignableFrom(TypeInfo<?> other) {
         if (this.compareTypeAndRelatedTo(other) == 0)
             return true;
 
-        TypeInfo<?>[] otherSubTypeInfos = other.getSubTypeInfos();
+        TypeInfo<?>[] otherSubTypeInfos = other.fastGetSubTypeInfos();
 
-        if(otherSubTypeInfos.length == 1)
+        if (otherSubTypeInfos.length == 1)
             return this.isAssignableFrom(otherSubTypeInfos[0]);
 
         for (TypeInfo<?> otherSubTypeInfo : otherSubTypeInfos) {
@@ -443,7 +468,7 @@ public class TypeInfo<T> implements Comparable<TypeInfo> {
 
         if (this.getAClass() == compareTo.getAClass()) {
 
-            if (Arrays.deepEquals(this.getRelated(), compareTo.getRelated())) {
+            if (Arrays.deepEquals(this.fastGetRelated(), compareTo.fastGetRelated())) {
                 return 0;
             }
 
@@ -459,14 +484,17 @@ public class TypeInfo<T> implements Comparable<TypeInfo> {
     @Deprecated
     public int compareToAssignable(@NotNull TypeInfo compareTo) {
 
-        if (getAClass().isAssignableFrom(compareTo.getAClass())) {
+        if (this.getAClass().isAssignableFrom(compareTo.getAClass())) {
 
-            if (getRelated().length != compareTo.getRelated().length)
+            TypeInfo[] thisRelated = this.fastGetRelated();
+            TypeInfo[] compareToRelated = compareTo.fastGetRelated();
+
+            if (thisRelated.length != compareToRelated.length)
                 return -1;
 
-            for (int x = 0; x < getRelated().length; ++x) {
-                TypeInfo<?> mainRef = getRelated()[x];
-                TypeInfo<?> compareRef = compareTo.getRelated()[x];
+            for (int x = 0; x < thisRelated.length; ++x) {
+                TypeInfo<?> mainRef = thisRelated[x];
+                TypeInfo<?> compareRef = compareToRelated[x];
 
                 if (!mainRef.getAClass().isAssignableFrom(compareRef.getAClass())) {
                     if (compareRef.getAClass().isAssignableFrom(mainRef.getAClass())) {
@@ -491,8 +519,8 @@ public class TypeInfo<T> implements Comparable<TypeInfo> {
     public int compareTypeAndRelatedTo(@NotNull TypeInfo compareTo) {
 
         if (this.getAClass().isAssignableFrom(compareTo.getAClass())) {
-            TypeInfo[] thisRelated = this.getRelated();
-            TypeInfo[] otherRelated = compareTo.getRelated();
+            TypeInfo[] thisRelated = this.fastGetRelated();
+            TypeInfo[] otherRelated = compareTo.fastGetRelated();
 
             if (thisRelated.length != otherRelated.length)
                 return -1;

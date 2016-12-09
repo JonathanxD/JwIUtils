@@ -46,6 +46,7 @@ public abstract class ConcreteTypeInfo<T> extends TypeInfo<T> {
             Reflection.changeFinalField(RClass.getRClass(TypeInfo.class, this), "aClass", typeInfo.getAClass());
             Reflection.changeFinalField(RClass.getRClass(TypeInfo.class, this), "related", typeInfo.getRelated());
             Reflection.changeFinalField(RClass.getRClass(TypeInfo.class, this), "isUnique", isUnique);
+            Reflection.changeFinalField(RClass.getRClass(TypeInfo.class, this), "subTypesInfo", TypeInfo.createSubTypeInfos(typeInfo));
         } catch (Exception e) {
             throw new Error(e);
         }

@@ -177,14 +177,15 @@ public class TypeInfoTest {
 
 
 
+
         bInfo.isAssignableFrom(aInfo);
 
         //noinspection deprecation
         System.out.println(bInfo.compareToAssignable(aInfo));
         System.out.println(bInfo.isAssignableFrom(aInfo));
 
-        Assert.assertTrue(bInfo.isAssignableFrom(aInfo));
 
+        Assert.assertTrue(bInfo.isAssignableFrom(aInfo));
 
     }
 
