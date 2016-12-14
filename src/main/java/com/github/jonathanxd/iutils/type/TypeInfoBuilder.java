@@ -34,9 +34,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * Created by jonathan on 13/02/16.
- */
 public final class TypeInfoBuilder<T> {
     private Class<? extends T> aClass = null;
     private List<TypeInfoBuilder<?>> related = new ArrayList<>();
