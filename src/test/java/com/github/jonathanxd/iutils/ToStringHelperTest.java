@@ -25,32 +25,23 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.string;
+package com.github.jonathanxd.iutils;
 
-import java.util.StringJoiner;
+import com.github.jonathanxd.iutils.string.ToStringHelper;
 
-public class StringHelper {
+import org.junit.Assert;
+import org.junit.Test;
 
+public class ToStringHelperTest {
 
-    private String start = "";
-
-    private final StringJoiner joiner = new StringJoiner(", ", "{", "}");
-
-    public StringHelper() {
-    }
-
-    public StringHelper(Object object) {
-        start = String.valueOf(object.getClass().getSimpleName());
-    }
-
-    public StringHelper set(String field, Object value) {
-        joiner.add(field + " = "+ String.valueOf(value));
-        return this;
-    }
-
-    @Override
-    public String toString() {
-        return start + " = " + joiner.toString();
+    @Test
+    public void test() {
+        ToStringHelper helper = ToStringHelper.defaultHelper("Alpine");
+        helper.add("A", 9);
+        helper.add("B", 55);
+        helper.add("C", "--");
+        helper.add("D", "Indie");
+        Assert.assertEquals("Alpine{A = 9, B = 55, C = \"--\", D = \"Indie\"}", helper.toString());
     }
 
 }
