@@ -27,21 +27,26 @@
  */
 package com.github.jonathanxd.iutils.description;
 
-/**
- * Created by jonathan on 10/08/16.
- */
-
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
 /**
- * Description format: [CLASS_NAME]:[METHOD_NAME]([PARAMETERS])[RETURN_TYPE]
+ *
+ * Description format for classes: [CLASS_NAME]
+ *
+ * Description format for fields: [CLASS_NAME]:[FIELD_NAME]:[TYPE]
+ *
+ * Description format for methods: [CLASS_NAME]:[METHOD_NAME]([PARAMETERS])[RETURN_TYPE]
  *
  * [CLASS_NAME] = L[<a href="https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.2.1">BINARY_CLASS_NAME</a>];
+ *
+ * [FIELD_NAME] = PLAIN_STRING
  *
  * [METHOD_NAME] = PLAIN_STRING
  *
  * [PARAMETERS] = [CLASS_NAME]...
+ *
+ * [TYPE] = [CLASS_NAME]
  *
  * [RETURN_TYPE] = [CLASS_NAME]
  */
@@ -59,7 +64,7 @@ public class Description {
     /**
      * Method name
      */
-    private final String methodName;
+    private final String elementName;
 
     /**
      * Method parameter types binary class name
@@ -69,48 +74,109 @@ public class Description {
     /**
      * Method return type binary name
      */
-    private final String returnType;
+    private final String type;
 
     /**
-     * Plain description
+     * Element type
+     */
+    private final ElementType elementType;
+
+    /**
+     * Plain description.
      *
      * @param description     Description
      * @param binaryClassName Binary name of method declaring class
-     * @param methodName      Method name
+     * @param elementName     Method name
      * @param parameterTypes  Method parameter types binary name
-     * @param returnType      Return type binary name
+     * @param type      Return type binary name
+     * @param elementType     Element type.
      */
-    public Description(String description, String binaryClassName, String methodName, String[] parameterTypes, String returnType) {
-        this.description = description == null ? create(binaryClassName, methodName, parameterTypes, returnType) : description;
+    public Description(String description, String binaryClassName, String elementName, String[] parameterTypes, String type, ElementType elementType) {
+        this.description = description == null ? create(binaryClassName, elementName, parameterTypes, type, elementType) : description;
         this.binaryClassName = binaryClassName;
-        this.methodName = methodName;
+        this.elementName = elementName;
         this.parameterTypes = parameterTypes;
-        this.returnType = returnType;
+        this.type = type;
+        this.elementType = elementType;
+    }
+
+    /**
+     * Plain description of a method.
+     *
+     * @param description     Description
+     * @param binaryClassName Binary name of method declaring class
+     * @param elementName     Method name
+     * @param parameterTypes  Method parameter types binary name
+     * @param type      Return type binary name
+     */
+    @Deprecated
+    public Description(String description, String binaryClassName, String elementName, String[] parameterTypes, String type) {
+        this(description, binaryClassName, elementName, parameterTypes, type, ElementType.METHOD);
     }
 
     /**
      * Plain description
      *
      * @param binaryClassName Binary name of method declaring class
-     * @param methodName      Method name
+     * @param elementName     Method name
      * @param parameterTypes  Method parameter types binary name
-     * @param returnType      Return type binary name
+     * @param type      Return type binary name
      */
-    public Description(String binaryClassName, String methodName, String[] parameterTypes, String returnType) {
-        this(null, binaryClassName, methodName, parameterTypes, returnType);
+    public Description(String binaryClassName, String elementName, String[] parameterTypes, String type, ElementType elementType) {
+        this(null, binaryClassName, elementName, parameterTypes, type, elementType);
+    }
+
+    /**
+     * Plain description
+     *
+     * @param binaryClassName Binary name of method declaring class
+     * @param elementName     Method name
+     * @param parameterTypes  Method parameter types binary name
+     * @param type      Return type binary name
+     */
+    @Deprecated
+    public Description(String binaryClassName, String elementName, String[] parameterTypes, String type) {
+        this(null, binaryClassName, elementName, parameterTypes, type);
     }
 
     /**
      * Create description string from specified elements.
      *
      * @param binaryClassName Binary name of declaring class of method
-     * @param methodName      Method name
+     * @param elementName     Element name
      * @param parameterTypes  Parameter types
      * @param returnType      Return Type
      * @return Description
      */
-    private static String create(String binaryClassName, String methodName, String[] parameterTypes, String returnType) {
-        return binaryClassName + ":" + methodName + "(" + Arrays.stream(parameterTypes).collect(Collectors.joining("")) + ")" + returnType;
+    private static String create(String binaryClassName, String elementName, String[] parameterTypes, String returnType, ElementType elementType) {
+
+        StringBuilder stringBuilder = new StringBuilder();
+
+        stringBuilder.append(binaryClassName);
+
+        if(elementType == ElementType.CLASS)
+            return stringBuilder.toString();
+
+
+        stringBuilder.append(':');
+
+        stringBuilder.append(elementName);
+
+        if(elementType == ElementType.FIELD) {
+            stringBuilder.append(':');
+            stringBuilder.append(returnType);
+            return stringBuilder.toString();
+        }
+
+        stringBuilder.append('(');
+
+        stringBuilder.append(Arrays.stream(parameterTypes).collect(Collectors.joining("")));
+
+        stringBuilder.append(')');
+
+        stringBuilder.append(returnType);
+
+        return stringBuilder.toString();
     }
 
     /**
@@ -129,8 +195,18 @@ public class Description {
      *
      * @return Method name
      */
+    @Deprecated
     public String getMethodName() {
-        return this.methodName;
+        return this.elementName;
+    }
+
+    /**
+     * Gets the element name.
+     *
+     * @return Element name.
+     */
+    public String getElementName() {
+        return this.elementName;
     }
 
     /**
@@ -151,8 +227,29 @@ public class Description {
      * @see <a href="https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.2.1">Binary
      * Class and Interface Names: jvms 4.2.1</a>
      */
+    @Deprecated
     public String getReturnType() {
-        return this.returnType;
+        return this.type;
+    }
+
+    /**
+     * Gets binary class of element type.
+     *
+     * @return Binary class name of element type.
+     * @see <a href="https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.2.1">Binary
+     * Class and Interface Names: jvms 4.2.1</a>
+     */
+    public String getType() {
+        return this.type;
+    }
+
+    /**
+     * Gets the element name.
+     *
+     * @return Element name.
+     */
+    public ElementType getElementType() {
+        return this.elementType;
     }
 
     /**
@@ -171,9 +268,10 @@ public class Description {
             Description other = (Description) obj;
 
             return this.getBinaryClassName().equals(other.getBinaryClassName())
-                    && this.getMethodName().equals(other.getMethodName())
+                    && this.getElementName().equals(other.getElementName())
                     && Arrays.equals(this.getParameterTypes(), other.getParameterTypes())
-                    && this.getReturnType().equals(other.getReturnType());
+                    && this.getType().equals(other.getType())
+                    && this.getElementType().equals(other.getElementType());
 
         }
 

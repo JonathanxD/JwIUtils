@@ -30,6 +30,7 @@ package com.github.jonathanxd.iutils.description;
 import com.github.jonathanxd.iutils.exception.RethrowException;
 
 import java.lang.invoke.MethodType;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -91,7 +92,7 @@ public class DescriptionUtil {
         Objects.requireNonNull(description, "Description cannot be null");
         Objects.requireNonNull(classLoader, "Class loader cannot be null");
 
-        Class<?> returnType = DescriptionUtil.resolveUnsafe(description.getReturnType(), classLoader);
+        Class<?> returnType = DescriptionUtil.resolveUnsafe(description.getType(), classLoader);
 
         Class[] parameterTypes = DescriptionUtil.parametersToClass(description, classLoader);
 
@@ -124,31 +125,39 @@ public class DescriptionUtil {
         }
     }
 
+    private static String primitiveToName(String name) {
+        switch (name.charAt(0)) {
+            case 'V':
+                return "void";
+            case 'Z':
+                return "boolean";
+            case 'C':
+                return "char";
+            case 'B':
+                return "byte";
+            case 'S':
+                return "short";
+            case 'I':
+                return "int";
+            case 'F':
+                return "float";
+            case 'J':
+                return "long";
+            case 'D':
+                return "double";
+        }
+
+        return null;
+    }
 
     public static String internalToName(String name) {
         Objects.requireNonNull(name, "Name cannot be null");
 
         if (name.length() == 1) {
-            switch (name.charAt(0)) {
-                case 'V':
-                    return "void";
-                case 'Z':
-                    return "boolean";
-                case 'C':
-                    return "char";
-                case 'B':
-                    return "byte";
-                case 'S':
-                    return "short";
-                case 'I':
-                    return "int";
-                case 'F':
-                    return "float";
-                case 'J':
-                    return "long";
-                case 'D':
-                    return "double";
-            }
+            String toName = DescriptionUtil.primitiveToName(name);
+
+            if (toName != null)
+                return toName;
         }
 
 
@@ -206,7 +215,7 @@ public class DescriptionUtil {
 
         Objects.requireNonNull(classLoader, "ClassLoader cannot be null");
 
-        if(names == null || names.length == 0)
+        if (names == null || names.length == 0)
             return new Class[0];
 
         Class<?>[] classes = new Class[names.length];
@@ -236,41 +245,58 @@ public class DescriptionUtil {
         return DescriptionUtil.parseDescription(desc);
     }
 
+    public static Description from(Field field) {
+        Objects.requireNonNull(field, "Field cannot be null");
+
+        String desc = toJavaSpec(field.getDeclaringClass())
+                + ":"
+                + field.getName()
+                + ":"
+                + toJavaSpec(field.getType());
+
+        return DescriptionUtil.parseDescription(desc);
+    }
+
     public static Description parseDescription(String description) {
         Objects.requireNonNull(description, "Description cannot be null");
+
+        if (!DescriptionUtil.hasElementName(description))
+            return new Description(
+                    description,
+                    DescriptionUtil.getBinaryClassName(description),
+                    "",
+                    new String[0],
+                    "",
+                    ElementType.CLASS
+            );
+
+        if (!DescriptionUtil.hasParameters(description))
+            return new Description(
+                    description,
+                    DescriptionUtil.getBinaryClassName(description),
+                    DescriptionUtil.getElementNameName(description),
+                    new String[0],
+                    DescriptionUtil.getType(description),
+                    ElementType.FIELD
+            );
 
         return new Description(
                 description,
                 DescriptionUtil.getBinaryClassName(description),
-                DescriptionUtil.getMethodName(description),
+                DescriptionUtil.getElementNameName(description),
                 DescriptionUtil.getParameterTypes(description),
-                DescriptionUtil.getReturnType(description));
+                DescriptionUtil.getType(description),
+                ElementType.METHOD);
     }
 
     public static String getBinaryClassName(String desc) {
         Objects.requireNonNull(desc, "Description cannot be null");
 
         if (desc.length() == 1) {
-            switch (desc.charAt(0)) {
-                case 'V':
-                    return "void";
-                case 'Z':
-                    return "boolean";
-                case 'C':
-                    return "char";
-                case 'B':
-                    return "byte";
-                case 'S':
-                    return "short";
-                case 'I':
-                    return "int";
-                case 'F':
-                    return "float";
-                case 'J':
-                    return "long";
-                case 'D':
-                    return "double";
-            }
+            String toName = primitiveToName(desc);
+
+            if (toName != null)
+                return toName;
 
             throw new IllegalArgumentException("Illegal description: " + desc);
         }
@@ -278,10 +304,19 @@ public class DescriptionUtil {
         return DescriptionUtil.parseBinaryClassName(desc.substring(0, desc.indexOf(';') + 1));
     }
 
+    @Deprecated
     public static String getMethodName(String desc) {
+        return DescriptionUtil.getElementNameName(desc);
+    }
+
+    public static String getElementNameName(String desc) {
         Objects.requireNonNull(desc, "Description cannot be null");
 
-        return desc.substring(desc.indexOf(':') + 1, desc.indexOf('('));
+        int end = desc.indexOf('(');
+
+        if (end == -1) end = desc.length();
+
+        return desc.substring(desc.indexOf(':') + 1, end);
     }
 
     public static String[] getParameterTypes(String desc) {
@@ -292,14 +327,24 @@ public class DescriptionUtil {
         return DescriptionUtil.parametersToString(parameters);
     }
 
+    @Deprecated
     public static String getReturnType(String desc) {
+        return DescriptionUtil.getType(desc);
+    }
+
+    public static String getType(String desc) {
         Objects.requireNonNull(desc, "Description cannot be null");
 
-        return DescriptionUtil.parseBinaryClassName(desc.substring(desc.indexOf(')') + 1));
+        int index = desc.indexOf(')') +1;
+
+        if(index == -1)
+            index = desc.lastIndexOf(':') + 1;
+
+        return DescriptionUtil.parseBinaryClassName(desc.substring(index));
     }
 
     private static String[] parametersToString(String parameters) {
-        if(parameters == null)
+        if (parameters == null)
             return new String[0];
 
         // Parameter list
@@ -359,6 +404,14 @@ public class DescriptionUtil {
                 || desc.indexOf(')') == -1) {
             throw new IllegalArgumentException("Invalid description: '" + desc + "'. See " + Description.class.getCanonicalName() + " javadoc.");
         }
+    }
+
+    private static boolean hasElementName(String desc) {
+        return desc.contains(":");
+    }
+
+    private static boolean hasParameters(String desc) {
+        return desc.contains("(") && desc.contains(")");
     }
 
     /**

@@ -34,6 +34,8 @@ import java.util.Arrays;
 
 public class DescriptionTest {
 
+    private static final String OR = "or";
+
     @Test
     public void test() throws Exception {
 
@@ -47,8 +49,8 @@ public class DescriptionTest {
 
         ClassLoader classLoader = this.getClass().getClassLoader();
 
-        System.out.println(DescriptionUtil.getReturnType(plainDescription));
-        System.out.println(DescriptionUtil.resolveUnsafe(DescriptionUtil.getReturnType(plainDescription), classLoader));
+        System.out.println(DescriptionUtil.getType(plainDescription));
+        System.out.println(DescriptionUtil.resolveUnsafe(DescriptionUtil.getType(plainDescription), classLoader));
 
         System.out.println(Arrays.toString(DescriptionUtil.getParameterTypes(plainDescription)));
         System.out.println(Arrays.toString(DescriptionUtil.resolveUnsafe(DescriptionUtil.getParameterTypes(plainDescription), classLoader)));
@@ -57,8 +59,17 @@ public class DescriptionTest {
         System.out.println(DescriptionUtil.resolveUnsafe(DescriptionUtil.getBinaryClassName(plainDescription), classLoader));
 
 
-        System.out.println(DescriptionUtil.getMethodName(plainDescription));
+        System.out.println(DescriptionUtil.getElementNameName(plainDescription));
 
+
+        Description desc2 = DescriptionUtil.from(DescriptionTest.class.getDeclaredField("OR"));
+
+        System.out.println(desc2.getPlainDescription());
+
+
+        Description description1 = DescriptionUtil.parseDescription("Lcom.github.jonathanxd.iutils.description.DescriptionTest;:OR:Ljava.lang.String;");
+
+        Assert.assertTrue(description1.equals(desc2));
     }
 
 }
