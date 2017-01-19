@@ -36,81 +36,94 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 /**
- * Containers is a value holder, Containers make easy to modify values that needs be final, example: <br>
- * int x = 0;<br>
- * Consumer<Integer> consumer = (i) -> {<br>
- *     x += 1;<br>
- * };<br>
- * The value X needs to be "Local variable x defined in an enclosing scope must be final or effectively final"<br>
- * A way to solve this is using Container, see example using {@link Container}<br>
- * final Container<Integer> x = Container.of(0);<br>
- * Consumer<Integer> consumer = (i) -> {<br>
- *     x.set(x.get()+1);<br>
- * };<br>
- * also for int you can use {@link IntContainer}<br>
- * final IntContainer x = new IntContainer(0);<br>
- * Consumer<Integer> consumer = (i) -> {<br>
- *     x.add();<br>
- * };<br>
- * @author jonathan
+ * Containers is a value holder, Containers make easy to modify values that needs be final, example:
+ * <pre>
+ * {@code
+ * int x = 0;
+ * Consumer<Integer> consumer = (i) -> {
+ *     x += 1;
+ * };
+ * }
+ * </pre>
+ * The value X needs to be "Local variable x defined in an enclosing scope must be final or
+ * effectively final"<br> A way to solve this is using Container, see example using {@link
+ * Container}
  *
- * @param <T>
+ * <pre>
+ * {@code
+ * final Container<Integer> x = Container.of(0);
+ * Consumer<Integer> consumer = (i) -> {
+ *     x.set(x.get()+1);
+ * };
+ * }
+ * </pre>
+ * also for int you can use {@link IntContainer}
+ * <pre>
+ * {@code
+ * final IntContainer x = new IntContainer(0);
+ * Consumer<Integer> consumer = (i) -> {
+ *     x.add();
+ * };
+ * }
+ * </pre>
+ *
+ * @author jonathan
  */
 public interface BaseContainer<T> extends Comparable<BaseContainer<T>>, UnknownContainer<T> {
 
-	default <R> R map(Function<T, R> function) {
-		return function.apply(this.get());
-	}
+    default <R> R map(Function<T, R> function) {
+        return function.apply(this.get());
+    }
 
-	T getValue();
+    T getValue();
 
-	boolean isPresent();
+    boolean isPresent();
 
-	T getOrElse(T another);
+    T getOrElse(T another);
 
-	T getOr(BaseContainer<T> another);
+    T getOr(BaseContainer<T> another);
 
-	BaseContainer<T> getOrContainer(BaseContainer<T> another);
+    BaseContainer<T> getOrContainer(BaseContainer<T> another);
 
-	void ifPresent(Consumer<? super T> consumer);
+    void ifPresent(Consumer<? super T> consumer);
 
-	BaseContainer<T> filter(Predicate<? super T> predicate);
+    BaseContainer<T> filter(Predicate<? super T> predicate);
 
-	<X extends Throwable> T orElseThrow(Supplier<? extends X> exceptionSupplier) throws X;
+    <X extends Throwable> T orElseThrow(Supplier<? extends X> exceptionSupplier) throws X;
 
-	boolean equals(Object obj);
+    boolean equals(Object obj);
 
-	int hashCode();
+    int hashCode();
 
-	String toString();
+    String toString();
 
-	default T get() {
-		return getValue();
-	}
-	
-	default Optional<T> toOptional() {
-		if (!isPresent())
-			return Optional.empty();
-		return Optional.of(get());
-	}
-	
-	@Override
-	default int compareTo(BaseContainer<T> o) {
-		if(getValue() instanceof Comparable){
-			@SuppressWarnings("unchecked")
-			Comparable<T> comparable = (Comparable<T>) getValue();
-			return comparable.compareTo(o.get());
-		}
-		return -1;
-	}
+    default T get() {
+        return getValue();
+    }
 
-	@Override
-	default BaseContainer<T> box() {
-		return this;
-	}
+    default Optional<T> toOptional() {
+        if (!isPresent())
+            return Optional.empty();
+        return Optional.of(get());
+    }
 
-	@Override
-	default Class<?> type() {
-		return Object.class;
-	}
+    @Override
+    default int compareTo(BaseContainer<T> o) {
+        if (getValue() instanceof Comparable) {
+            @SuppressWarnings("unchecked")
+            Comparable<T> comparable = (Comparable<T>) getValue();
+            return comparable.compareTo(o.get());
+        }
+        return -1;
+    }
+
+    @Override
+    default BaseContainer<T> box() {
+        return this;
+    }
+
+    @Override
+    default Class<?> type() {
+        return Object.class;
+    }
 }

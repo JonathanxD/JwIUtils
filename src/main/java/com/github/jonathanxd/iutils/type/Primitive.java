@@ -35,7 +35,7 @@ import com.github.jonathanxd.iutils.condition.Conditions;
 public class Primitive {
 
     /**
-     * Box Type (return boxed type. (primitive) -> Wrapper)
+     * Box Type (return boxed type. (primitive) -&gt; Wrapper)
      * @param type Type to Box
      * @return Boxed Type or null if cannot box the {@code type}
      */
@@ -62,7 +62,7 @@ public class Primitive {
     }
 
     /**
-     * Unbox Type (return primitive type. (Wrapper) -> primitive)
+     * Unbox Type (return primitive type. (Wrapper) -&gt; primitive)
      *
      * @param type Type to Unbox
      * @return Primitive Type or null if type cannot be translated to primitive.
