@@ -294,6 +294,23 @@ public class ArrayUtils {
         return removeElement(array, element, true);
     }
 
+    /**
+     * Copy an array to a Array of Objects.
+     *
+     * @param array Array to convert.
+     * @return Array of objects.
+     */
+    public static Object[] toObjectArray(Object array) {
+        int length = Array.getLength(array);
+        Object[] objectArray = new Object[length];
+
+        for (int i = 0; i < objectArray.length; i++) {
+            objectArray[i] = Array.get(array, i);
+        }
+
+        return objectArray;
+    }
+
     @SuppressWarnings("Duplicates")
     public static class Primitive {
 
