@@ -29,13 +29,11 @@ package com.github.jonathanxd.iutils.type;
 
 import com.github.jonathanxd.iutils.condition.Conditions;
 
-/**
- * Created by jonathan on 28/02/16.
- */
 public class Primitive {
 
     /**
      * Box Type (return boxed type. (primitive) -&gt; Wrapper)
+     *
      * @param type Type to Box
      * @return Boxed Type or null if cannot box the {@code type}
      */
@@ -56,6 +54,8 @@ public class Primitive {
             return Double.class;
         } else if (char.class == type) {
             return Character.class;
+        } else if (void.class == type) {
+            return Void.class;
         } else {
             return null;
         }
@@ -84,6 +84,8 @@ public class Primitive {
             return double.class;
         } else if (Character.class == type) {
             return char.class;
+        } else if (Void.class == type) {
+            return void.class;
         } else {
             return null;
         }
@@ -92,7 +94,8 @@ public class Primitive {
     /**
      * Check if type equals boxing and unboxing types if necessary.
      *
-     * Example, if {@code type1} is primitive and {@code type2} is not, then type2 will be translated to primitive type
+     * Example, if {@code type1} is primitive and {@code type2} is not, then type2 will be
+     * translated to primitive type
      *
      * @param type1 Type 1
      * @param type2 Type 2
@@ -100,18 +103,18 @@ public class Primitive {
      */
     public static boolean typeEquals(Class<?> type1, Class<?> type2) {
 
-        if(type1.isPrimitive() != type2.isPrimitive()) {
+        if (type1.isPrimitive() != type2.isPrimitive()) {
             if (type1.isPrimitive()) {
                 Class<?> unbox = unbox(type2);
 
-                if(unbox == null)
+                if (unbox == null)
                     return false; // Not primitive, not equal
 
                 type2 = unbox;
             } else if (type2.isPrimitive()) {
                 Class<?> unbox = unbox(type1);
 
-                if(unbox == null)
+                if (unbox == null)
                     return false; // Not primitive, not equal
 
                 type1 = unbox;
@@ -124,23 +127,24 @@ public class Primitive {
     /**
      * Normalize {@code toNormalize} to {@code expected}
      *
-     * If {@link #typeEquals(Class, Class)} returns false, {@code throws} {@link IllegalArgumentException}
+     * If {@link #typeEquals(Class, Class)} returns false, {@code throws} {@link
+     * IllegalArgumentException}
      *
      * @param toNormalize Type to normalize
-     * @param expected Expected normalization
+     * @param expected    Expected normalization
      * @return Normalized class.
      * @throws IllegalArgumentException if {@link #typeEquals(Class, Class)} returns false
      */
     public static Class<?> normalize(Class<?> toNormalize, Class<?> expected) throws IllegalArgumentException {
-        Conditions.require(typeEquals(toNormalize, expected), "Cannot normalize type '"+toNormalize.getCanonicalName()+"' to '"+expected+"'. Different types!");
+        Conditions.require(typeEquals(toNormalize, expected), "Cannot normalize type '" + toNormalize.getCanonicalName() + "' to '" + expected + "'. Different types!");
 
-        if(expected.isPrimitive() == toNormalize.isPrimitive())
+        if (expected.isPrimitive() == toNormalize.isPrimitive())
             return toNormalize;
 
-        if(expected.isPrimitive() && !toNormalize.isPrimitive())
+        if (expected.isPrimitive() && !toNormalize.isPrimitive())
             return unbox(toNormalize);
 
-        if(!expected.isPrimitive() && toNormalize.isPrimitive())
+        if (!expected.isPrimitive() && toNormalize.isPrimitive())
             return box(toNormalize);
 
         return toNormalize;
