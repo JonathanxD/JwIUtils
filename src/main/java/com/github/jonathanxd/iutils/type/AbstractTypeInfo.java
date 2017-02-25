@@ -44,9 +44,8 @@ public abstract class AbstractTypeInfo<T> extends TypeInfo<T> {
 
         TypeInfo<T> typeInfo = (TypeInfo<T>) TypeUtil.toReference(((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0]);
         try {
-            Reflection.changeFinalField(RClass.getRClass(TypeInfo.class, this), "aClass", typeInfo.getAClass());
+            Reflection.changeFinalField(RClass.getRClass(TypeInfo.class, this), "classLiteral", typeInfo.getClassLiteral());
             Reflection.changeFinalField(RClass.getRClass(TypeInfo.class, this), "related", typeInfo.getRelated());
-            //Reflection.changeFinalField(RClass.getRClass(GenericRepresentation.class, this), "hold", genericRepresentation.get());
             Reflection.changeFinalField(RClass.getRClass(TypeInfo.class, this), "isUnique", isUnique);
         } catch (Exception e) {
             throw new Error(e);

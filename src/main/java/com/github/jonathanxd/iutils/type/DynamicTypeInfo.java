@@ -31,12 +31,13 @@ import com.github.jonathanxd.iutils.array.ArrayUtils;
 import com.github.jonathanxd.iutils.reflection.RClass;
 import com.github.jonathanxd.iutils.reflection.Reflection;
 
-/**
- * Created by jonathan on 02/04/16.
- */
 public class DynamicTypeInfo<T> extends TypeInfo<T> {
     DynamicTypeInfo(Class<? extends T> aClass, TypeInfo[] related, boolean isUnique) {
         super(aClass, related, isUnique);
+    }
+
+    DynamicTypeInfo(String classLiteral, TypeInfo[] related, boolean isUnique) {
+        super(classLiteral, related, isUnique);
     }
 
     public void addRelated(TypeInfo<?> typeInfo) {
@@ -48,6 +49,6 @@ public class DynamicTypeInfo<T> extends TypeInfo<T> {
     }
 
     public TypeInfo<T> toReference() {
-        return new TypeInfo<>(this.getAClass(), this.getRelated(), this.isUnique());
+        return new TypeInfo<>(this.getClassLiteral(), this.getRelated(), this.isUnique());
     }
 }

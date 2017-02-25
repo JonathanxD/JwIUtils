@@ -71,12 +71,7 @@ public class TypeInfoTest {
 
         System.out.println("Dict: "+ toFullString1);
 
-        try {
-            System.out.println("Dict: "+ TypeInfo.fromFullString(toFullString1));
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-
+        System.out.println("Dict: "+ TypeInfo.fromFullString(toFullString1));
 
         TypeInfo<Map> typeInfo = TypeInfo.a(Map.class).of(String.class).and(TypeInfo.a(List.class).of(TypeInfo.a(Map.class).of(String.class).and(Integer[].class))).build();
 
@@ -84,18 +79,10 @@ public class TypeInfoTest {
 
         System.out.println(fullString);
 
-        try {
-            System.out.println(TypeInfo.fromFullString(fullString));
-            System.out.println(TypeInfo.fromFullString("java.util.Map"));
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
+        System.out.println(TypeInfo.fromFullString(fullString));
+        System.out.println(TypeInfo.fromFullString("java.util.Map"));
 
-        try {
-            Assert.assertEquals("[Map<String, List<Map<String, Integer[]>>>, Map<String, List<Map<String, Integer[]>>>]", TypeInfo.fromFullString("java.util.Map<java.lang.String, java.util.List<java.util.Map<java.lang.String, [Ljava.lang.Integer;>>>, java.util.Map<java.lang.String, java.util.List<java.util.Map<java.lang.String, [Ljava.lang.Integer;>>>").toString());
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
+        Assert.assertEquals("[Map<String, List<Map<String, Integer[]>>>, Map<String, List<Map<String, Integer[]>>>]", TypeInfo.fromFullString("java.util.Map<java.lang.String, java.util.List<java.util.Map<java.lang.String, [Ljava.lang.Integer;>>>, java.util.Map<java.lang.String, java.util.List<java.util.Map<java.lang.String, [Ljava.lang.Integer;>>>").toString());
 
         TypeInfo<String> typeInfo1 = new AbstractTypeInfo<String>(){};
 
@@ -122,11 +109,7 @@ public class TypeInfoTest {
 
         System.out.println(toFullString);
 
-        try {
-            System.out.println(TypeInfo.fromFullString(toFullString));
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
+        System.out.println(TypeInfo.fromFullString(toFullString));
 
         TypeInfo<?> listTypeInfo = TypeUtil.resolve(MyList.class, List.class);
 
@@ -156,16 +139,17 @@ public class TypeInfoTest {
 
         System.out.println("MultiRepresentation of List<String, List<Integer>, List<String>> Full: => "+ toFullString2);
 
-        try {
-            System.out.println("MultiRepresentation of List<String, List<Integer>, List<String>> From Full: => "+ TypeInfo.fromFullString(toFullString2));
-        } catch (ClassNotFoundException e) {
-            throw new RethrowException(e);
-        }
+        System.out.println("MultiRepresentation of List<String, List<Integer>, List<String>> From Full: => "+ TypeInfo.fromFullString(toFullString2));
 
         TypeInfo<List<Object>> typeInfo6 = new ConcreteTypeInfo<List<Object>>() {};
         TypeInfo<List<String>> typeInfo7 = new ConcreteTypeInfo<List<String>>() {};
         //noinspection deprecation
         System.out.println(typeInfo6.compareToAssignable(typeInfo7));
+
+
+        String resolveTest = "java.lang.Classx[][]<java.util.List<java.lang.String>>";
+
+        System.out.println(TypeInfo.fromFullString(resolveTest));
     }
 
     final TypeInfo<A> aInfo = new ConcreteTypeInfo<A>() {};

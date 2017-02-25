@@ -44,45 +44,55 @@ import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.function.Function;
 
+import javax.lang.model.type.TypeMirror;
+
 @SuppressWarnings("Duplicates")
 public class TypeInfo<T> implements Comparable<TypeInfo> {
 
     /**
      * Accessed and modified via reflection in {@link AbstractTypeInfo}
+     * Class literal.
      */
-    private final Class<? extends T> aClass;
-
+    private final String classLiteral;
     /**
      * Accessed and modified via reflection in {@link AbstractTypeInfo} & {@link DynamicTypeInfo}
      */
     private final TypeInfo[] related;
-
-    /**
-     * Sub types info
-     */
-    private TypeInfo<?>[] subTypesInfo;
-
     /**
      * Marking it as unique will make this to use default implementation of {@link #hashCode()} and
      * {@link #equals(Object)} from {@link Object}
      */
     private final boolean isUnique;
+    private Class<? extends T> cachedAClass;
+    /**
+     * Sub types info
+     */
+    private TypeInfo<?>[] subTypesInfo;
 
     protected TypeInfo() {
-        this.aClass = null;
+        //this.aClass = null;
+        this.classLiteral = null;
         this.related = null;
         this.isUnique = false;
     }
 
 
     protected TypeInfo(TypeInfo<T> typeInfo) {
-        this.related = typeInfo.related.clone();
-        this.aClass = typeInfo.aClass;
-        this.isUnique = typeInfo.isUnique;
+        this.related = typeInfo.getRelated();
+        //this.aClass = typeInfo.aClass;
+        this.classLiteral = typeInfo.getClassLiteral();
+        this.isUnique = typeInfo.isUnique();
     }
 
     TypeInfo(Class<? extends T> aClass, TypeInfo[] related, boolean isUnique) {
-        this.aClass = Objects.requireNonNull(aClass);
+        //this.aClass = Objects.requireNonNull(aClass);
+        this.classLiteral = fixName(aClass.getName());
+        this.related = related != null ? related : new TypeInfo[0];
+        this.isUnique = isUnique;
+    }
+
+    TypeInfo(String classLiteral, TypeInfo[] related, boolean isUnique) {
+        this.classLiteral = fixName(classLiteral);
         this.related = related != null ? related : new TypeInfo[0];
         this.isUnique = isUnique;
     }
@@ -91,8 +101,13 @@ public class TypeInfo<T> implements Comparable<TypeInfo> {
     public static String toString(TypeInfo typeInfo, Function<Class<?>, String> classToString) {
 
         StringBuilder sb = new StringBuilder();
-        String shortName = classToString.apply(typeInfo.getAClass());
-        sb.append(shortName);
+
+        try {
+            String shortName = classToString.apply(typeInfo.getAClass());
+            sb.append(shortName);
+        } catch (Exception e) {
+            sb.append(typeInfo.getClassLiteral());
+        }
 
         if (typeInfo.fastGetRelated().length != 0) {
             sb.append("<");
@@ -110,20 +125,30 @@ public class TypeInfo<T> implements Comparable<TypeInfo> {
         return sb.toString();
     }
 
-
+    /**
+     * Returns a consistent generic string representation of {@code typeInfo}.
+     *
+     * @param typeInfo Type information.
+     * @return Consistent generic string representation of {@code typeInfo}.
+     */
     @NotNull
     public static String toFullString(TypeInfo typeInfo) {
-
         return toString(typeInfo, Class::getName);
     }
 
-    //java.util.Map<java.lang.String, java.util.List<java.util.Map<java.lang.String, [Ljava.lang.Integer;>>>
-
-    // < |-> Create
-    // , |-> Add
-    // > |-> Set as Child
-
-    public static List<TypeInfo<?>> fromFullString(String fullString) throws ClassNotFoundException {
+    /**
+     * Parse {@code fullString} and returns {@link TypeInfo TypeInfo list} that {@code fullString}
+     * represents.
+     *
+     * This method will not resolve the types, it will provide them as class literal, to resolve and
+     * load types use: {@link #loadTypes(Function)}.
+     *
+     * This method may parse {@link TypeMirror#toString() TypeMirror type representation}.
+     *
+     * @param fullString String representation of an {@link TypeInfo}.
+     * @return {@link TypeInfo TypeInfo list} that {@code fullString} represents.
+     */
+    public static List<TypeInfo<?>> fromFullString(String fullString) {
         Deque<TypeInfoBuilder<?>> builders = new ArrayDeque<>();
 
         List<TypeInfo<?>> typeInfoList = new ArrayList<>();
@@ -135,9 +160,10 @@ public class TypeInfo<T> implements Comparable<TypeInfo> {
             char current = chars[i];
 
             if (current == '<') {
-                Class<?> s = getCl(stringBuilder);
 
-                TypeInfoBuilder<?> a = new TypeInfoBuilder<>().a(s);
+                String classLiteral = getClLiteral(stringBuilder);
+
+                TypeInfoBuilder<?> a = new TypeInfoBuilder<>().a(classLiteral);
 
                 if (builders.isEmpty()) {
                     builders.offer(a);
@@ -148,8 +174,8 @@ public class TypeInfo<T> implements Comparable<TypeInfo> {
                 }
             } else if (current == ',') {
                 if (stringBuilder.length() > 0) {
-                    Class<?> s = getCl(stringBuilder);
-                    TypeInfoBuilder<?> a = new TypeInfoBuilder<>().a(s);
+                    String classLiteral = getClLiteral(stringBuilder);
+                    TypeInfoBuilder<?> a = new TypeInfoBuilder<>().a(classLiteral);
 
                     builders.peekLast().of(a);
                     //builders.offer(a); @Bug
@@ -157,8 +183,8 @@ public class TypeInfo<T> implements Comparable<TypeInfo> {
                 ++i; //Jump Space after comma
             } else if (current == '>') {
                 if (stringBuilder.length() != 0) {
-                    Class<?> s = getCl(stringBuilder);
-                    TypeInfoBuilder<?> a = new TypeInfoBuilder<>().a(s);
+                    String classLiteral = getClLiteral(stringBuilder);
+                    TypeInfoBuilder<?> a = new TypeInfoBuilder<>().a(classLiteral);
 
                     builders.peekLast().of(a);
                 }
@@ -198,8 +224,8 @@ public class TypeInfo<T> implements Comparable<TypeInfo> {
         }
 
         if (stringBuilder.length() > 0) {
-            Class cl = getCl(stringBuilder);
-            typeInfoList.add(TypeInfo.aEnd(cl));
+            String classLiteral = getClLiteral(stringBuilder);
+            typeInfoList.add(TypeInfo.aEnd(classLiteral));
         }
 
         return typeInfoList;
@@ -219,13 +245,42 @@ public class TypeInfo<T> implements Comparable<TypeInfo> {
         }
     }
 
+    private static String getClLiteral(StringBuilder stringBuilder) {
+        String classString = stringBuilder.toString();
+        stringBuilder.setLength(0);
+        return classString;
+    }
+
     private static Class getCl(StringBuilder stringBuilder) throws ClassNotFoundException {
         String classString = stringBuilder.toString();
 
-        Class clazz = Class.forName(classString);
+        Class clazz = TypeInfo.classForName(classString);
 
         stringBuilder.setLength(0);
         return clazz;
+    }
+
+    private static Class classForName(String str) throws ClassNotFoundException {
+        if (str.equals("byte"))
+            return Byte.TYPE;
+        if (str.equals("short"))
+            return Short.TYPE;
+        if (str.equals("char"))
+            return Character.TYPE;
+        if (str.equals("int"))
+            return Integer.TYPE;
+        if (str.equals("float"))
+            return Float.TYPE;
+        if (str.equals("double"))
+            return Double.TYPE;
+        if (str.equals("long"))
+            return Long.TYPE;
+        if (str.equals("boolean"))
+            return Boolean.TYPE;
+        if (str.equals("void"))
+            return Void.TYPE;
+
+        return Class.forName(str);
     }
 
     public static <T> TypeInfoBuilder<T> to() {
@@ -249,33 +304,61 @@ public class TypeInfo<T> implements Comparable<TypeInfo> {
         return TypeInfo.<T>representationOf().a(aClass);
     }
 
+    public static <T> TypeInfoBuilder<T> of(String classLiteral) {
+        return TypeInfo.<T>representationOf().a(classLiteral);
+    }
+
     public static <T> TypeInfoBuilder<T> builderOfUnique(Class<T> aClass) {
         return TypeInfo.<T>representationOf().a(aClass).setUnique(true);
+    }
+
+    public static <T> TypeInfoBuilder<T> builderOfUnique(String classLiteral) {
+        return TypeInfo.<T>representationOf().a(classLiteral).setUnique(true);
     }
 
     public static <T> TypeInfoBuilder<T> a(Class<T> aClass) {
         return TypeInfo.<T>representationOf().a(aClass);
     }
 
+    public static <T> TypeInfoBuilder<T> a(String classLiteral) {
+        return TypeInfo.<T>representationOf().a(classLiteral);
+    }
+
     public static <T> TypeInfo<T> ofEnd(Class<T> aClass) {
         return TypeInfo.<T>representationOf().a(aClass).build();
+    }
+
+    public static <T> TypeInfo<T> ofEnd(String classLiteral) {
+        return TypeInfo.<T>representationOf().a(classLiteral).build();
     }
 
     public static <T> TypeInfo<T> aEnd(Class<T> aClass) {
         return TypeInfo.<T>representationOf().a(aClass).build();
     }
 
+    public static <T> TypeInfo<T> aEnd(String classLiteral) {
+        return TypeInfo.<T>representationOf().a(classLiteral).build();
+    }
+
     public static <T> TypeInfo<T> ofUnique(Class<T> aClass) {
         return TypeInfo.<T>representationOf().a(aClass).setUnique(true).build();
+    }
+
+    public static <T> TypeInfo<T> ofUnique(String classLiteral) {
+        return TypeInfo.<T>representationOf().a(classLiteral).setUnique(true).build();
     }
 
     public static <T> TypeInfo<T> aUnique(Class<T> aClass) {
         return TypeInfo.<T>representationOf().a(aClass).setUnique(true).build();
     }
 
+    public static <T> TypeInfo<T> aUnique(String classLiteral) {
+        return TypeInfo.<T>representationOf().a(classLiteral).setUnique(true).build();
+    }
+
     @SuppressWarnings("unchecked")
     public static <T> TypeInfoBuilder<T> but(TypeInfo typeInfo) {
-        return TypeInfo.<T>representationOf().a(typeInfo.getAClass()).ofArray(typeInfo.fastGetRelated());
+        return TypeInfo.<T>representationOf().a(typeInfo.getClassLiteral()).ofArray(typeInfo.fastGetRelated());
     }
 
     public static TypeInfo[] fromProvider(TypeProvider provider) {
@@ -354,6 +437,40 @@ public class TypeInfo<T> implements Comparable<TypeInfo> {
     }
 
     @SuppressWarnings("unchecked")
+    public static <V> Class<? extends V> resolveClass(String classLiteral) {
+
+        String fixed = fixName(classLiteral);
+        try {
+            return (Class<? extends V>) TypeInfo.classForName(fixed);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException("Failed to resolve class literal: '" + classLiteral + "' fixed: '" + fixed + "'!", e);
+        }
+    }
+
+    private static String fixName(String classLiteral) {
+        StringBuilder stringBuilder = new StringBuilder();
+
+        if (classLiteral.endsWith("[]")) {
+
+            stringBuilder.append("L");
+
+            for (char c : classLiteral.toCharArray()) {
+                if (c != '[' && c != ']')
+                    stringBuilder.append(c);
+
+                if (c == '[')
+                    stringBuilder.insert(0, '[');
+            }
+
+            stringBuilder.append(";");
+        } else {
+            stringBuilder.append(classLiteral);
+        }
+
+        return stringBuilder.toString();
+    }
+
+    @SuppressWarnings("unchecked")
     public TypeInfo<T> toUnique() {
         return this.isUnique() ? this : (TypeInfo<T>) this.but().setUnique(true).build();
     }
@@ -362,8 +479,43 @@ public class TypeInfo<T> implements Comparable<TypeInfo> {
         return TypeInfo.but(this);
     }
 
+    /**
+     * This method will load and cache all types, including types of {@link #related} type info.
+     *
+     * @param function Function that resolves the class loader of the class by the {@link
+     *                 #getClassLiteral() literal name}.
+     */
+    @SuppressWarnings("unchecked")
+    public void loadTypes(Function<String, ClassLoader> function) {
+
+        if (this.cachedAClass == null) {
+            String classLiteral = this.getClassLiteral();
+            ClassLoader classLoader = function.apply(classLiteral);
+            try {
+                this.cachedAClass = (Class<? extends T>) classLoader.loadClass(classLiteral);
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException("Failed to resolve class '" + classLiteral + "' using class loader: '" + classLiteral + "'!");
+            }
+        }
+
+        for (TypeInfo typeInfo : related) {
+            typeInfo.loadTypes(function);
+        }
+
+    }
+
     public Class<? extends T> getAClass() {
-        return this.aClass;
+
+        if (this.cachedAClass != null)
+            return this.cachedAClass;
+        else {
+            this.cachedAClass = TypeInfo.resolveClass(this.classLiteral);
+            return this.cachedAClass;
+        }
+    }
+
+    public String getClassLiteral() {
+        return this.classLiteral;
     }
 
     public boolean isUnique() {
@@ -394,7 +546,7 @@ public class TypeInfo<T> implements Comparable<TypeInfo> {
      */
     protected TypeInfo<?>[] fastGetSubTypeInfos() {
 
-        if(this.subTypesInfo == null)
+        if (this.subTypesInfo == null)
             this.subTypesInfo = TypeInfo.createSubTypeInfos(this);
 
         return this.subTypesInfo;
@@ -432,28 +584,41 @@ public class TypeInfo<T> implements Comparable<TypeInfo> {
         return (TypeInfo<U>) this;
     }
 
+    /**
+     * Returns a simple string representation of this {@link TypeInfo}.
+     *
+     * This string may or may not be consistent, available types (cached types) will be represented
+     * by the {@link Class#getSimpleName() class simple name}, non-available types will be represented by the {@link #getClassLiteral() class literal}.
+     *
+     * @return Simple string representation of this {@link TypeInfo}.
+     */
     @Override
     public String toString() {
-        return toString(this, Class::getSimpleName);
+        return TypeInfo.toString(this, Class::getSimpleName);
     }
 
+    /**
+     * Returns a consistent generic string representation of this {@link TypeInfo}.
+     *
+     * @return Consistent generic string representation of this {@link TypeInfo}.
+     */
     public String toFullString() {
-        return toFullString(this);
+        return TypeInfo.toFullString(this);
     }
 
     @Override
     public int hashCode() {
 
-        if (isUnique)
+        if (this.isUnique())
             return super.hashCode();
 
-        return Objects.hash(aClass, Arrays.deepHashCode(related));
+        return Objects.hash(this.getClassLiteral(), Arrays.deepHashCode(this.fastGetRelated()));
     }
 
     @Override
     public boolean equals(Object obj) {
 
-        if (isUnique)
+        if (this.isUnique())
             return super.equals(obj);
 
         if (!(obj instanceof TypeInfo))
@@ -464,10 +629,11 @@ public class TypeInfo<T> implements Comparable<TypeInfo> {
         return compareTo(other) == 0;
     }
 
+
     @Override
     public int compareTo(@NotNull TypeInfo compareTo) {
 
-        if (this.getAClass() == compareTo.getAClass()) {
+        if (this.getClassLiteral().equals(compareTo.getClassLiteral())) {
 
             if (Arrays.deepEquals(this.fastGetRelated(), compareTo.fastGetRelated())) {
                 return 0;
@@ -480,6 +646,12 @@ public class TypeInfo<T> implements Comparable<TypeInfo> {
     }
 
     /**
+     * This method only works for types that are cached or available from the {@link TypeInfo}
+     * {@link ClassLoader class loader} context.
+     *
+     * If types are not available from the class loader, call the {@link #loadTypes(Function)}
+     * method to load them.
+     *
      * @deprecated Don't work correctly for sub-types, use: {@link #isAssignableFrom(TypeInfo)}
      */
     @Deprecated
@@ -513,6 +685,12 @@ public class TypeInfo<T> implements Comparable<TypeInfo> {
     /**
      * Restrictively compare current type and related types to types and related types of another
      * {@link TypeInfo}.
+     *
+     * This method only works for types that are cached or available from the {@link TypeInfo}
+     * {@link ClassLoader class loader} context.
+     *
+     * If types are not available from the class loader, call the {@link #loadTypes(Function)}
+     * method to load them.
      *
      * @param compareTo Element to compare
      * @return 0 if comparison succeed, positive or negative number if not.

@@ -204,7 +204,7 @@ public class TypeUtil {
             String fullName = (arrays + "L" + name) + ";";
 
             try {
-                Reflection.changeFinalField(RClass.getRClass(typeInfo), "aClass", Class.forName(fullName));
+                Reflection.changeFinalField(RClass.getRClass(typeInfo), "classLiteral", fullName);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

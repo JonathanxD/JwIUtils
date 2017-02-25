@@ -35,7 +35,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public final class TypeInfoBuilder<T> {
-    private Class<? extends T> aClass = null;
+    private String classLiteral = null;
     private List<TypeInfoBuilder<?>> related = new ArrayList<>();
     //private Object hold = null;
     private boolean isUnique = false;
@@ -56,7 +56,7 @@ public final class TypeInfoBuilder<T> {
 
     public static <T> TypeInfo<T> to(TypeInfoBuilder<T> typeInfoBuilder) {
 
-        DynamicTypeInfo<T> dynamicReference = new DynamicTypeInfo<>(typeInfoBuilder.aClass, new TypeInfo[]{}, typeInfoBuilder.isUnique());
+        DynamicTypeInfo<T> dynamicReference = new DynamicTypeInfo<>(typeInfoBuilder.classLiteral, new TypeInfo[]{}, typeInfoBuilder.isUnique());
 
         if (typeInfoBuilder.related.size() > 0) {
 
@@ -75,15 +75,19 @@ public final class TypeInfoBuilder<T> {
     }
 
     public Class<? extends T> getaClass() {
-        return aClass;
+        return TypeInfo.resolveClass(this.getClassLiteral());
+    }
+
+    public String getClassLiteral() {
+        return this.classLiteral;
     }
 
     public List<TypeInfoBuilder<?>> getRelated() {
-        return related;
+        return this.related;
     }
 
     public boolean isUnique() {
-        return isUnique;
+        return this.isUnique;
     }
 
     public TypeInfoBuilder<T> setUnique(boolean unique) {
@@ -93,7 +97,13 @@ public final class TypeInfoBuilder<T> {
 
     @RequiredCall
     public TypeInfoBuilder<T> a(Class<? extends T> aClass) {
-        this.aClass = aClass;
+        this.classLiteral = aClass.getName();
+        return this;
+    }
+
+    @RequiredCall
+    public TypeInfoBuilder<T> a(String classLiteral) {
+        this.classLiteral = classLiteral;
         return this;
     }
 
@@ -146,6 +156,20 @@ public final class TypeInfoBuilder<T> {
         List<TypeInfo<E>> typeInfos = new ArrayList<>();
 
         for (Class<? extends E> classz : classes) {
+            typeInfos.add(new TypeInfoBuilder<E>().a(classz).build());
+        }
+
+        ofE(typeInfos);
+
+        return this;
+    }
+
+    @OptionalCall
+    public final <E> TypeInfoBuilder<T> of(String... classes) {
+
+        List<TypeInfo<E>> typeInfos = new ArrayList<>();
+
+        for (String classz : classes) {
             typeInfos.add(new TypeInfoBuilder<E>().a(classz).build());
         }
 

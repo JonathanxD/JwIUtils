@@ -43,7 +43,7 @@ public abstract class ConcreteTypeInfo<T> extends TypeInfo<T> {
 
         TypeInfo<T> typeInfo = (TypeInfo<T>) TypeUtil.toReference(((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0]);
         try {
-            Reflection.changeFinalField(RClass.getRClass(TypeInfo.class, this), "aClass", typeInfo.getAClass());
+            Reflection.changeFinalField(RClass.getRClass(TypeInfo.class, this), "classLiteral", typeInfo.getClassLiteral());
             Reflection.changeFinalField(RClass.getRClass(TypeInfo.class, this), "related", typeInfo.getRelated());
             Reflection.changeFinalField(RClass.getRClass(TypeInfo.class, this), "isUnique", isUnique);
             Reflection.changeFinalField(RClass.getRClass(TypeInfo.class, this), "subTypesInfo", TypeInfo.createSubTypeInfos(typeInfo));
