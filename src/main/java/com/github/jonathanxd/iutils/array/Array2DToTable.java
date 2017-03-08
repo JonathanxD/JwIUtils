@@ -31,94 +31,85 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Array2DToTable {
-	
-	
-	public static void printTable(String[][] content){
-		
-		int maxLength = getMaxLength(content)+3;
-		StringBuilder indexes = new StringBuilder("|Index|");
-		
-		int max = maxElement(content) +1;
-		
-		for(int x = 0; x < max; ++x){
-			indexes.append(String.format("%"+maxLength+"d|", x));
-		}
-		System.out.println(indexes.toString());
-		for(int x = 0; x < content.length; ++x){
-			
-			String[] dimension1 = content[x];
 
-			StringBuffer sb = new StringBuffer(String.format("|%5d|", x));
-			
-			for(int y = 0; y < dimension1.length; ++y){
-				String value = dimension1[y];
-				sb.append(String.format("%"+maxLength+"s|", value));
-			}
-			System.out.println(sb.toString());
+    /**
+     * Prints the 2D string table content to {@link System#out}.
+     *
+     * @param content Content.
+     */
+    public static void printTable(String[][] content) {
+        String[] asTable = Array2DToTable.getAsTable(content);
 
-		}
-		
-	}
+        for (String s : asTable) {
+            System.out.println(s);
+        }
+    }
 
-	public static String[] getAsTable(String[][] content){
-		
-		List<String> arr = new ArrayList<>();
-		
-		int maxLength = getMaxLength(content)+3;
-		StringBuilder indexes = new StringBuilder("|Index|");
-		
-		int max = maxElement(content) +1;
-		
-		for(int x = 0; x < max; ++x){
-			indexes.append(String.format("%"+maxLength+"d|", x));
-		}
-		arr.add(indexes.toString());
-		for(int x = 0; x < content.length; ++x){
-			
-			String[] dimension1 = content[x];
+    /**
+     * Gets 2D string content as String 2D table.
+     *
+     * @param content Content.
+     * @return Array string will all table lines.
+     */
+    public static String[] getAsTable(String[][] content) {
 
-			StringBuffer sb = new StringBuffer(String.format("|%5d|", x));
-			
-			for(int y = 0; y < dimension1.length; ++y){
-				String value = dimension1[y];
-				arr.add(String.format("%"+maxLength+"s|", value));
-			}
-			System.out.println(sb.toString());
+        List<String> arr = new ArrayList<>();
 
-		}
-		return arr.stream().toArray(String[]::new);
-		
-	}
+        int maxLength = getMaxLength(content) + 3;
+        StringBuilder indexes = new StringBuilder("|Index|");
 
-	
-	public static int maxElement(String[][] content){
-		int maxElement = 0;
-		
-		for(int x = 0; x < content.length; ++x){
-			String[] dimension1 = content[x];
-			for(int y = 0; y < dimension1.length; ++y){
-				if(y > maxElement){
-					maxElement = y;
-				}
-			}
-		}
-		return maxElement;
+        int max = maxElement(content) + 1;
 
-	}
-	
-	public static int getMaxLength(String[][] content){
-		int maxLength = 0;
-		
-		for(int x = 0; x < content.length; ++x){
-			String[] dimension1 = content[x];
-			for(int y = 0; y < dimension1.length; ++y){
-				String value = dimension1[y];
-				if(value.length() > maxLength){
-					maxLength = value.length();
-				}
-			}
-		}
-		return maxLength;
-	}
-	
+        for (int x = 0; x < max; ++x) {
+            indexes.append(String.format("%" + maxLength + "d|", x));
+        }
+        arr.add(indexes.toString());
+        for (int x = 0; x < content.length; ++x) {
+
+            String[] dimension1 = content[x];
+
+            StringBuffer sb = new StringBuffer(String.format("|%5d|", x));
+
+            for (int y = 0; y < dimension1.length; ++y) {
+                String value = dimension1[y];
+                arr.add(String.format("%" + maxLength + "s|", value));
+            }
+            System.out.println(sb.toString());
+
+        }
+        return arr.stream().toArray(String[]::new);
+
+    }
+
+
+    public static int maxElement(String[][] content) {
+        int maxElement = 0;
+
+        for (int x = 0; x < content.length; ++x) {
+            String[] dimension1 = content[x];
+            for (int y = 0; y < dimension1.length; ++y) {
+                if (y > maxElement) {
+                    maxElement = y;
+                }
+            }
+        }
+        return maxElement;
+
+    }
+
+    public static int getMaxLength(String[][] content) {
+        int maxLength = 0;
+
+        for (int x = 0; x < content.length; ++x) {
+            String[] dimension1 = content[x];
+            for (int y = 0; y < dimension1.length; ++y) {
+                String value = dimension1[y];
+                if (value.length() > maxLength) {
+                    maxLength = value.length();
+                }
+            }
+        }
+        return maxLength;
+    }
+
 }
