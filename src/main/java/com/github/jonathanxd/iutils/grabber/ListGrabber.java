@@ -25,15 +25,15 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.collection;
+package com.github.jonathanxd.iutils.grabber;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 
 /**
- * Created by jonathan on 20/06/16.
+ * A {@link Grabber} backed by an {@link #list}.
  */
-public class ListGrabber<T> extends AbstractGrabber<T> {
+public final class ListGrabber<T> extends AbstractGrabber<T> {
 
     private final List<T> list;
 
@@ -53,9 +53,12 @@ public class ListGrabber<T> extends AbstractGrabber<T> {
     }
 
     @Override
-    <U> AbstractGrabber<U> makeNewFromArray(U[] array) {
-        return new ListGrabber<>(ListUtils.listFromArray(array));
+    <U> AbstractGrabber<U> makeNew(Iterable<U> elements, int size) {
+
+        List<U> list = new ArrayList<>();
+
+        elements.forEach(list::add);
+
+        return new ListGrabber<>(list);
     }
-
-
 }

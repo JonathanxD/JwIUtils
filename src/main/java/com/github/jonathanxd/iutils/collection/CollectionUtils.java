@@ -27,9 +27,8 @@
  */
 package com.github.jonathanxd.iutils.collection;
 
-import com.github.jonathanxd.iutils.exception.BiException;
+import com.github.jonathanxd.iutils.list.StaticList;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -41,40 +40,9 @@ import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
 /**
- * Created by jonathan on 05/03/16.
+ * Collection utilities.
  */
 public class CollectionUtils {
-
-    @SuppressWarnings("unchecked")
-    public static <T> Collection<T> same(Collection<?> collection) {
-        try {
-            return (Collection<T>) collection.getClass().newInstance();
-        } catch (InstantiationException | IllegalAccessException e) {
-            try {
-                return collection.getClass().getConstructor(Collection.class).newInstance(Collections.emptyList());
-            } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e1) {
-                return null;
-            }
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    public static <T> Collection<T> sameFilled(Collection<T> collection) {
-        try {
-            return collection.getClass().getConstructor(Collection.class).newInstance(collection);
-        } catch (Throwable t) {
-            try {
-                Collection rmk = collection.getClass().newInstance();
-
-                rmk.addAll(collection);
-
-                return (Collection<T>) rmk;
-            } catch (InstantiationException | IllegalAccessException e1) {
-                throw new BiException(t, e1);
-            }
-        }
-
-    }
 
     /**
      * Create a {@link T Sequence} of {@link E}.
@@ -132,6 +100,26 @@ public class CollectionUtils {
     }
 
     /**
+     * Create a {@link StaticList} of {@link E} and add {@code elements} to the {@link StaticList}.
+     *
+     * @param type     Type of elements.
+     * @param elements Elements to add to list.
+     * @param <E>      Element type.
+     * @return {@link StaticList} of {@link E} with {@code elements}.
+     */
+    @SafeVarargs
+    public static <E> StaticList<E> staticListOf(Class<E> type, E... elements) {
+        StaticList<E> list = StaticList.createStaticListOf(type, elements.length);
+
+
+        for (E element : elements) {
+            list.add(element);
+        }
+
+        return list;
+    }
+
+    /**
      * Create a {@link Set} of {@link E} and add {@code elements} to the {@link Set}.
      *
      * @param elements Elements to add to set.
@@ -163,4 +151,5 @@ public class CollectionUtils {
 
         return set;
     }
+
 }

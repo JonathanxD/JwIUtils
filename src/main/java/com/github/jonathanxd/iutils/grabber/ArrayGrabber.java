@@ -25,45 +25,48 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.iterator;
+package com.github.jonathanxd.iutils.grabber;
 
 import java.util.Iterator;
-import java.util.List;
 
 /**
- * Created by jonathan on 28/05/16.
+ * {@link Grabber} backed by an array.
+ *
+ * @param <T> Type of elements.
  */
-public class ListIterator<T> implements Iterator<T>, Cloneable {
-    private final List<T> list;
-    private int index;
+public final class ArrayGrabber<T> extends AbstractGrabber<T> {
 
-    public ListIterator(List<T> list) {
-        this.list = list;
+    /**
+     * Array.
+     */
+    private final T[] array;
 
+    public ArrayGrabber(T[] array) {
+        super(array.length);
+        this.array = array;
     }
 
     @Override
-    public T next() {
-        return list.get(++index);
+    protected T get(int index) {
+        return this.array[index];
     }
 
     @Override
-    public boolean hasNext() {
-        return index + 1 < list.size();
+    AbstractGrabber<T> makeNew() {
+        return new ArrayGrabber<>(array);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public void remove() {
-        list.remove(index);
-        --index;
-    }
+    <U> AbstractGrabber<U> makeNew(Iterable<U> elements, int size) {
+        U[] objects = (U[]) new Object[size];
 
-    @SuppressWarnings("CloneDoesntCallSuperClone")
-    @Override
-    public ListIterator<T> clone() {
-        ListIterator<T> iterator = new ListIterator<>(list);
-        iterator.index = this.index;
-        return iterator;
-    }
+        Iterator<U> iterator = elements.iterator();
 
+        for (int i = 0; i < size; i++) {
+            objects[i] = iterator.next();
+        }
+
+        return new ArrayGrabber<>(objects);
+    }
 }

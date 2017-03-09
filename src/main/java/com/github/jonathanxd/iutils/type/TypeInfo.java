@@ -27,8 +27,6 @@
  */
 package com.github.jonathanxd.iutils.type;
 
-import com.github.jonathanxd.iutils.annotation.NotNull;
-
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.util.ArrayDeque;
@@ -97,7 +95,6 @@ public class TypeInfo<T> implements Comparable<TypeInfo> {
         this.isUnique = isUnique;
     }
 
-    @NotNull
     public static String toString(TypeInfo typeInfo, Function<Class<?>, String> classToString) {
 
         StringBuilder sb = new StringBuilder();
@@ -131,7 +128,6 @@ public class TypeInfo<T> implements Comparable<TypeInfo> {
      * @param typeInfo Type information.
      * @return Consistent generic string representation of {@code typeInfo}.
      */
-    @NotNull
     public static String toFullString(TypeInfo typeInfo) {
         return toString(typeInfo, Class::getName);
     }
@@ -631,7 +627,8 @@ public class TypeInfo<T> implements Comparable<TypeInfo> {
 
 
     @Override
-    public int compareTo(@NotNull TypeInfo compareTo) {
+    public int compareTo(TypeInfo compareTo) {
+        Objects.requireNonNull(compareTo);
 
         if (this.getClassLiteral().equals(compareTo.getClassLiteral())) {
 
@@ -655,7 +652,9 @@ public class TypeInfo<T> implements Comparable<TypeInfo> {
      * @deprecated Don't work correctly for sub-types, use: {@link #isAssignableFrom(TypeInfo)}
      */
     @Deprecated
-    public int compareToAssignable(@NotNull TypeInfo compareTo) {
+    public int compareToAssignable(TypeInfo compareTo) {
+
+        Objects.requireNonNull(compareTo);
 
         if (this.getAClass().isAssignableFrom(compareTo.getAClass())) {
 
@@ -695,7 +694,9 @@ public class TypeInfo<T> implements Comparable<TypeInfo> {
      * @param compareTo Element to compare
      * @return 0 if comparison succeed, positive or negative number if not.
      */
-    public int compareTypeAndRelatedTo(@NotNull TypeInfo compareTo) {
+    public int compareTypeAndRelatedTo(TypeInfo compareTo) {
+
+        Objects.requireNonNull(compareTo);
 
         if (this.getAClass().isAssignableFrom(compareTo.getAClass())) {
             TypeInfo[] thisRelated = this.fastGetRelated();

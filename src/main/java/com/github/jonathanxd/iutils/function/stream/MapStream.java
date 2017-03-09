@@ -37,7 +37,7 @@ import java.util.Map;
  */
 public class MapStream<K, V> extends WalkableNodeBiStream<K, V> {
     public MapStream(Map<K, V> map) {
-        super(Walkable.asList(map));
+        super(Walkable.fromList(map));
     }
 
     public static <K, V> BiStream<K, V> of(Map<K, V> map) {

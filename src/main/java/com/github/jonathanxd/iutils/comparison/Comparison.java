@@ -25,19 +25,45 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.iterator;
+package com.github.jonathanxd.iutils.comparison;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
-import java.util.function.Predicate;
+import java.util.Optional;
 
-public interface Navigator<T> {
-	boolean has(int index);
+/**
+ * Represents compared elements.
+ *
+ * @param <T>
+ */
+public class Comparison<T> {
 
-	T navigateTo(int index);
-	T currentValue();
-	void goNextWhen(Predicate<T> predicate);
-	
-	int currentIndex();
+    private final List<T> comparedElements;
+    private final List<T> unmodifiableComparedElements;
 
-	List<T> collect(int to);
+    public Comparison(Collection<T> elements) {
+        this.comparedElements = new ArrayList<>(elements);
+        this.unmodifiableComparedElements = Collections.unmodifiableList(this.comparedElements);
+    }
+
+    public Optional<T> min() {
+
+        if(comparedElements.isEmpty())
+            return Optional.empty();
+
+        return Optional.of(comparedElements.get(comparedElements.size()-1));
+    }
+
+    public Optional<T> max() {
+        if(comparedElements.isEmpty())
+            return Optional.empty();
+
+        return Optional.of(comparedElements.get(0));
+    }
+
+    public List<T> getComparedElements() {
+        return this.unmodifiableComparedElements;
+    }
 }

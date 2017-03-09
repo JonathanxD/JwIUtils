@@ -25,40 +25,30 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.builder;
+package com.github.jonathanxd.iutils.function;
 
-import com.github.jonathanxd.iutils.builder.abstracts.AbstractByteBuilder;
+import java.util.function.Predicate;
 
-import java.io.Serializable;
-import java.util.Arrays;
+public final class Predicates {
+
+    private Predicates() {
+        throw new IllegalStateException();
+    }
 
 
-public class ByteBuilder extends AbstractByteBuilder implements Serializable{
+    @SuppressWarnings("unchecked")
+    public static <T> Predicate<T> acceptAll() {
+        return (Predicate<T>) AcceptAllPredicate.INSTANCE;
+    }
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -2941363571102579048L;
+    static final class AcceptAllPredicate<T> implements Predicate<T> {
 
-	public ByteBuilder() {
-		super(16);
-	}
+        static final AcceptAllPredicate<?> INSTANCE = new AcceptAllPredicate<>();
 
-	public ByteBuilder(int capacity) {
-		super(capacity);
-	}
-	
-	public ByteBuilder(Byte[] value){
-		super(value.length + 16);
-		append(value);
-	}
-	
-	@Override
-	public String toString() {
-		return Arrays.asList(subbyte(0)).toString();
-	}
-	
-	public Byte[] toByteArray(){
-		return subbyte(0);
-	}
+        @Override
+        public boolean test(T t) {
+            return true;
+        }
+    }
+
 }

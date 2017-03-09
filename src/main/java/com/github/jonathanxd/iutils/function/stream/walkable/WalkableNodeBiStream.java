@@ -28,7 +28,7 @@
 package com.github.jonathanxd.iutils.function.stream.walkable;
 
 import com.github.jonathanxd.iutils.collection.Walkable;
-import com.github.jonathanxd.iutils.comparator.Compared;
+import com.github.jonathanxd.iutils.comparison.Comparison;
 import com.github.jonathanxd.iutils.container.IMutableContainer;
 import com.github.jonathanxd.iutils.container.MutableContainer;
 import com.github.jonathanxd.iutils.function.binary.BiBinaryOperator;
@@ -78,7 +78,7 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
     }
 
     protected WalkableNodeBiStream(List<Node<T, U>> entries) {
-        super(Walkable.asWithoutStateList(entries));
+        super(Walkable.fromList(entries));
     }
 
 
@@ -128,7 +128,7 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
             newMap.put(node.getKey(), node.getValue());
         });
 
-        return new WalkableNodeBiStream<>(Walkable.asList(newMap));
+        return new WalkableNodeBiStream<>(Walkable.fromList(newMap));
     }
 
     @Override
@@ -214,7 +214,7 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
             }
         });
 
-        return new WalkableNodeBiStream<>(Walkable.asList(nodes));
+        return new WalkableNodeBiStream<>(Walkable.fromList(nodes));
 
     }
 
@@ -460,7 +460,7 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
 
     @Override
     public Node<T, U>[] toArray() {
-        return getWalkable().toArray();
+        return this.getWalkable().toArray();
     }
 
     @SuppressWarnings("unchecked")
@@ -688,9 +688,9 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
      */
     @Override
     public Optional<Node<T, U>> min(BiComparator<? super T, ? super U> comparator) {
-        Compared<Node<T, U>> compared = getWalkable().compare((c, c2) -> comparator.compare(c.getKey(), c.getValue(), c2.getKey(), c2.getValue()));
+        Comparison<Node<T, U>> comparison = getWalkable().compareToComparison((c, c2) -> comparator.compare(c.getKey(), c.getValue(), c2.getKey(), c2.getValue()));
 
-        return compared.min();
+        return comparison.min();
     }
 
     /**
@@ -701,9 +701,9 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
      */
     @Override
     public Optional<Node<T, U>> max(BiComparator<? super T, ? super U> comparator) {
-        Compared<Node<T, U>> compared = getWalkable().compare((c, c2) -> comparator.compare(c.getKey(), c.getValue(), c2.getKey(), c2.getValue()));
+        Comparison<Node<T, U>> comparison = getWalkable().compareToComparison((c, c2) -> comparator.compare(c.getKey(), c.getValue(), c2.getKey(), c2.getValue()));
 
-        return compared.max();
+        return comparison.max();
     }
 
     @Override
@@ -751,7 +751,7 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
     @Override
     public Optional<Node<T, U>> findFirst() {
 
-        List<Node<T, U>> currentList = getWalkable().currentAsList();
+        List<Node<T, U>> currentList = getWalkable().toList();
 
         return currentList == null || currentList.isEmpty() ? Optional.empty() : Optional.of(currentList.get(0));
     }

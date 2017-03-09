@@ -27,8 +27,8 @@
  */
 package com.github.jonathanxd.iutils;
 
-import com.github.jonathanxd.iutils.collection.Grabber;
-import com.github.jonathanxd.iutils.collection.ListGrabber;
+import com.github.jonathanxd.iutils.grabber.Grabber;
+import com.github.jonathanxd.iutils.grabber.ListGrabber;
 
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -52,7 +52,7 @@ public class TestGrabber {
 
         grabber.foreachRemaining(5, System.out::println);
 
-        Grabber<Integer> g = grabber.makeClone();
+        Grabber<Integer> g = grabber.createClone();
 
         Grabber<String> map = g.mapAll(String::valueOf);
 
@@ -60,7 +60,7 @@ public class TestGrabber {
 
         System.out.println("Map -> " + map);
 
-        Grabber<Integer> cloned = grabber.makeClone();
+        Grabber<Integer> cloned = grabber.createClone();
 
         List<Integer> integers = grabber.collectRemainingToList();
 

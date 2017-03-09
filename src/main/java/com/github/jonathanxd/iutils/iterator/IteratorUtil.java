@@ -31,21 +31,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-/**
- * Created by jonathan on 08/02/16.
- */
 public class IteratorUtil {
-
-    public static void goTo(Iterator<?> iterator, int index) {
-        int x = 0;
-        while (x != index) {
-            if (!iterator.hasNext()) {
-                throw new IndexOutOfBoundsException("Index out of bounds!");
-            }
-            iterator.next();
-            ++x;
-        }
-    }
 
     public static <E> List<E> toList(Iterator<E> iterator) {
         List<E> eList = new ArrayList<>();

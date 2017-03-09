@@ -32,7 +32,7 @@ import com.github.jonathanxd.iutils.container.Container;
 public interface ListContainer<T> {
 	
 	boolean add(T element);	
-	Container<T> addAndHold(T element);
+	Container<T> holdAndAdd(T element);
 	
 	boolean remove(T element);
 	default Container<T> removeAndHold(T element){

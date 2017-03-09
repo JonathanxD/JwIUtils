@@ -25,22 +25,21 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.collection;
+package com.github.jonathanxd.iutils.grabber;
 
 /**
- * Created by jonathan on 10/08/16.
+ * Position where the grabber is requesting.
  */
-public enum State {
-    STARTED(true),
-    NOT_STARTED(false);
+public enum Position {
 
-    private final boolean bool;
+    /**
+     * Grabber is requesting a start position (inclusive).
+     */
+    START,
 
-    State(boolean bool) {
-        this.bool = bool;
-    }
+    /**
+     * Grabber is requiring the end position (inclusive).
+     */
+    END
 
-    public boolean bool() {
-        return this.bool;
-    }
 }

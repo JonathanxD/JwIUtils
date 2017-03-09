@@ -29,13 +29,13 @@ package com.github.jonathanxd.iutils.container.list;
 
 import com.github.jonathanxd.iutils.container.Container;
 
-public interface IndexedListContainer<T> extends ListContainer<T>{
+public interface IndexedListContainer<T> extends ListContainer<T> {
 
 	boolean add(int index, T element);	
-	Container<T> addAndHold(int index, T element);
+	Container<T> holdAndAdd(int index, T element);
 	
 	boolean remove(int index);
-	Container<T> removeAndHold(int index);
+	Container<T> holdAndRemove(int index);
 
 	boolean hasEmptySlot();
 	int nextEmptySlot();

@@ -25,36 +25,47 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.comparator;
+package com.github.jonathanxd.iutils.grabber;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.Iterator;
 
 /**
- * Created by jonathan on 05/03/16.
+ * {@link Grabber} backed by a {@link String}.
  */
-public class Compared<T> {
+public final class StringCharGrabber extends AbstractGrabber<Character> {
 
-    private final List<T> comparedElements;
+    private final String string;
 
-    public Compared(Collection<T> elements) {
-        comparedElements = new ArrayList<>(elements);
+    public StringCharGrabber(String string) {
+        super(string.length());
+        this.string = string;
     }
 
-    public Optional<T> min() {
-
-        if(comparedElements.isEmpty())
-            return Optional.empty();
-
-        return Optional.of(comparedElements.get(comparedElements.size()-1));
+    @Override
+    protected Character get(int index) {
+        return this.string.charAt(index);
     }
 
-    public Optional<T> max() {
-        if(comparedElements.isEmpty())
-            return Optional.empty();
-
-        return Optional.of(comparedElements.get(0));
+    @Override
+    AbstractGrabber<Character> makeNew() {
+        return new StringCharGrabber(this.string);
     }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    <U> AbstractGrabber<U> makeNew(Iterable<U> elements, int size) {
+
+        U[] objects = (U[]) new Object[size];
+
+        Iterator<U> iterator = elements.iterator();
+
+        for (int i = 0; i < size; i++) {
+            objects[i] = iterator.next();
+        }
+
+        return new ArrayGrabber<>(objects);
+
+    }
+
+
 }

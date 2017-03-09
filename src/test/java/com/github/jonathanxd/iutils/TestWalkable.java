@@ -51,7 +51,7 @@ public class TestWalkable {
         map.put("diz", 32);
         map.put("niz", 895);
 
-        WalkableNodeBiStream<String, Integer> biStream = new WalkableNodeBiStream<>(Walkable.asList(map));
+        WalkableNodeBiStream<String, Integer> biStream = new WalkableNodeBiStream<>(Walkable.fromList(map));
 
         biStream.sorted((key, value, key2, value2) -> Integer.compare(value, value2)).forEach((key, value) -> {
             System.out.println(key+" = "+value);
@@ -71,13 +71,13 @@ public class TestWalkable {
 
         System.out.println("Sum: "+amount);
 
-        WalkableNodeBiStream<String, Integer> biStream2 = new WalkableNodeBiStream<>(Walkable.asList(map));
+        WalkableNodeBiStream<String, Integer> biStream2 = new WalkableNodeBiStream<>(Walkable.fromList(map));
 
         StringBuilder firstE = biStream2.collectKey(StringBuilder::new, StringBuilder::append);
         System.out.println("first: "+firstE.toString());
 
 
-        WalkableNodeBiStream<String, Integer> walkableBistream = new WalkableNodeBiStream<>(Walkable.asList(map));
+        WalkableNodeBiStream<String, Integer> walkableBistream = new WalkableNodeBiStream<>(Walkable.fromList(map));
         LinkedHashMap<String, Integer> otherMap = walkableBistream.collect(BiCollectors.toMap(LinkedHashMap::new));
 
         System.out.println("Other map: "+otherMap);

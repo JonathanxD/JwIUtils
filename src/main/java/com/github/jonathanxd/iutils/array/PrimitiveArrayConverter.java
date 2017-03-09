@@ -28,7 +28,7 @@
 package com.github.jonathanxd.iutils.array;
 
 /**
- * Created by jonathan on 27/05/16.
+ * Converts primitive array values to boxed version and vice-versa.
  */
 public class PrimitiveArrayConverter {
 

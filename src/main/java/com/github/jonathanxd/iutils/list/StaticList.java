@@ -27,318 +27,295 @@
  */
 package com.github.jonathanxd.iutils.list;
 
-import com.github.jonathanxd.iutils.container.list.IndexedListContainer;
 import com.github.jonathanxd.iutils.container.Container;
-import com.github.jonathanxd.iutils.iterator.BackableIterator;
+import com.github.jonathanxd.iutils.container.list.IndexedListContainer;
 
 import java.lang.reflect.Array;
 import java.util.Iterator;
 import java.util.Objects;
 
 /**
- * Static list is an max-index-defined list, and elements can be set to certain index, works like a java array.
- * 
- * @author jonathan
+ * A list with a predefined size. This size is constant and cannot be changed. This List only holds
+ * this amount of elements.
  *
+ * @param <T> Type of elements.
  */
-public class StaticList<T> implements IndexedListContainer<T>, Iterable<T>{
-	
-	private final int size;
-	private final T[] values;
-	private final Class<? extends T> clazz;
-	
-	/**
-	 * Cache the empty slots for a fast-add function.
-	 */
-	private int slotCache = 0;
-	
-	
-	@SuppressWarnings("unchecked")
-	StaticList(Class<? extends T> clazz, int size) {
-		this.size = size;
-		this.clazz = clazz;
-		this.values = (T[]) Array.newInstance(clazz, this.size);
-	}
-	
-	public static <T> StaticList<T> createStaticListOf(final Class<? extends T> listType, final int listSize){
-		if(listSize <= 0){			
-			throw new RuntimeException("Cannot create a static list with 0 or negative size!");
-		}
-		return new StaticList<>(Objects.requireNonNull(listType), listSize);
-	}
-	
-	public T[] getValues() {
-		@SuppressWarnings("unchecked")
-		T[] dest = (T[]) Array.newInstance(clazz, this.size);
-		System.arraycopy(values, 0, dest, 0, size);
-		return dest;
-	}
-	
-	public T[] __unsecureGetValues() {
-		return values;
-	}
-	/**
-	 * Indexer
-	 */
-	@Override
-	public boolean add(T element) {
-		int caching = nextEmptySlot();
-		if(caching != -1){
-			values[caching] = element;
-			nextEmptySlot();
-			return true;
-		}
-		return false;
-	}
+public class StaticList<T> implements IndexedListContainer<T>, Iterable<T> {
 
-	/**
-	 * {Indexer}
-	 * Add element to first empty index, or to last index.
-	 */
-	@Override
-	public Container<T> addAndHold(T element) {
-		int caching = nextEmptySlot();
-		
-		if(caching == -1){
-			caching = size-1;
-		}
-		
-		T oldValue = values[caching];
-		values[caching] = element;
-		nextEmptySlot();
-		return oldValue != null ? Container.of(oldValue) : Container.empty();
-	}
+    /**
+     * Size of the list.
+     */
+    private final int size;
 
-	/**
-	 * Forced Indexer
-	 */
-	@Override
-	public boolean remove(T element) {
-		for(int x = 0; x < size; ++x){
-			if(values[x] != null && values[x].equals(element)){
-				values[x] = null;
-				slotCache = x;
-				return true;
-			}
-		}
-		return false;
-	}
+    /**
+     * Value array with all values.
+     */
+    private final T[] values;
 
-	@Override
-	public boolean isEmpty() {		
-		return emptySlots() == values.length;
-	}
+    /**
+     * Type of elements.
+     */
+    private final Class<? extends T> clazz;
 
-	@Override
-	public int emptySlots() {
-		int empty = 0;
-		for(int x = 0; x < size; ++x){
-			if(values[x] == null){
-				++empty;
-			}
-		}
-		return empty;
-	}
+    /**
+     * Cache the empty slots for a fast-add function.
+     */
+    private int slotCache = 0;
 
-	@Override
-	public boolean isFull() {
-		return nextEmptySlot() == -1;
-	}
 
-	@Override
-	public int size() {
-		return size;
-	}
+    @SuppressWarnings("unchecked")
+    StaticList(Class<? extends T> clazz, int size) {
+        this.size = size;
+        this.clazz = clazz;
+        this.values = (T[]) Array.newInstance(clazz, this.size);
+    }
 
-	/**
-	 * Indexer
-	 */
-	@Override
-	public boolean add(int index, T element) {
-		checkIndex(index);
-		
-		if(values[index] == null){
-			values[index] = element;
-			nextEmptySlot();
-			return true;
-		}		
-		return false;
-	}
+    /**
+     * Creates a {@link StaticList} with predefined size.
+     *
+     * @param elementType Type of elements of the list.
+     * @param size        Predefined size of the list.
+     * @param <T>         Type of elements.
+     * @return {@link StaticList}.
+     */
+    public static <T> StaticList<T> createStaticListOf(final Class<T> elementType, final int size) {
+        if (size <= 0) {
+            throw new RuntimeException("Cannot create a static list with 0 or negative size!");
+        }
+        return new StaticList<>(Objects.requireNonNull(elementType), size);
+    }
 
-	/**
-	 * Indexer
-	 */
-	@Override
-	public Container<T> addAndHold(int index, T element) {
-		checkIndex(index);
-		
-		T old = values[index];
-		values[index] = element;
-		nextEmptySlot();
-		
-		return (old == null ? Container.empty() : Container.of(old));
-	}
+    /**
+     * Gets an array with all values in this {@link StaticList}.
+     *
+     * @return Array with all values in this {@link StaticList}.
+     */
+    @SuppressWarnings("unchecked")
+    public T[] getValues() {
+        T[] dest = (T[]) Array.newInstance(clazz, this.size());
+        System.arraycopy(values, 0, dest, 0, this.size());
+        return dest;
+    }
 
-	/**
-	 * Forced Indexer
-	 */
-	@Override
-	public boolean remove(int index) {
-		checkIndex(index);
-		
-		if(values[index] == null){
-			return false;
-		}
-		values[index] = null;
-		slotCache = index;
-		return true;
-	}
-	
-	/**
-	 * Forced Indexer
-	 */
-	@Override
-	public Container<T> removeAndHold(int index) {
-		checkIndex(index);
-		
-		if(values[index] == null){
-			return Container.empty();
-		}
-		T old = values[index];
-		values[index] = null;
-		slotCache = index;
-		return Container.of(old);
-	}
+    @Override
+    public boolean add(T element) {
+        int caching = this.nextEmptySlot();
+        if (caching != -1) {
+            this.values[caching] = element;
+            this.nextEmptySlot();
+            return true;
+        }
+        return false;
+    }
 
-	/**
-	 * Adds a element if has an empty slot.
-	 * @return
-	 */
-	@Override
-	public boolean hasEmptySlot(){
-		return nextEmptySlot() != -1;
-	}
+    @Override
+    public Container<T> holdAndAdd(T element) {
+        int caching = this.nextEmptySlot();
 
-	/**
-	 * Indexer
-	 */
-	@Override
-	public int nextEmptySlot() {
-		if(slotCache > -1 && slotCache < values.length){
-			if(values[slotCache] == null){
-				return slotCache;
-			}
-		}
-		for(int x = 0; x < values.length; ++x){
-			if(values[x] == null){
-				slotCache = x;
-				return x;
-			}			
-		}
-		return -1;
-	}
+        if (caching == -1) {
+            caching = this.size() - 1;
+        }
 
-	@Override
-	public Iterator<T> iterator() {
-		
-		return new Iter();
-	}
-	
-	private final class Iter implements BackableIterator<T> {
+        T oldValue = this.values[caching];
+        this.values[caching] = element;
+        this.nextEmptySlot();
+        return oldValue != null ? Container.of(oldValue) : Container.empty();
+    }
 
-		private int index = -1;
-		
-		@Override
-		public boolean hasNext() {			
-			return (index + 1) < size;
-		}
+    @Override
+    public boolean remove(T element) {
+        for (int x = 0; x < this.size(); ++x) {
+            if (this.values[x] != null && values[x].equals(element)) {
+                this.values[x] = null;
+                this.slotCache = x;
+                return true;
+            }
+        }
+        return false;
+    }
 
-		@Override
-		public T next() {
-			return values[++index];
-		}
+    @Override
+    public boolean isEmpty() {
+        return this.emptySlots() == this.values.length;
+    }
 
-		@Override
-		public boolean hasBack() {
-			return (index - 1) > -1;
-		}
+    @Override
+    public int emptySlots() {
+        int empty = 0;
+        for (int x = 0; x < size; ++x) {
+            if (this.values[x] == null) {
+                ++empty;
+            }
+        }
+        return empty;
+    }
 
-		@Override
-		public T back() {
-			return values[--index];
-		}
+    @Override
+    public boolean isFull() {
+        return this.nextEmptySlot() == -1;
+    }
 
-		@Override
-		public int getIndex() {
-			return index;
-		}
+    @Override
+    public int size() {
+        return this.size;
+    }
 
-	}
-	
+    @Override
+    public boolean add(int index, T element) {
+        this.checkIndex(index);
+
+        if (this.values[index] == null) {
+            this.values[index] = element;
+            this.nextEmptySlot();
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public Container<T> holdAndAdd(int index, T element) {
+        this.checkIndex(index);
+
+        T old = this.values[index];
+        this.values[index] = element;
+        this.nextEmptySlot();
+
+        return (old == null ? Container.empty() : Container.of(old));
+    }
+
+    @Override
+    public boolean remove(int index) {
+        this.checkIndex(index);
+
+        if (this.values[index] == null) {
+            return false;
+        }
+        this.values[index] = null;
+        this.slotCache = index;
+        return true;
+    }
+
+    @Override
+    public Container<T> holdAndRemove(int index) {
+        this.checkIndex(index);
+
+        if (this.values[index] == null) {
+            return Container.empty();
+        }
+
+        T old = values[index];
+        this.values[index] = null;
+        this.slotCache = index;
+        return Container.of(old);
+    }
+
+    @Override
+    public boolean hasEmptySlot() {
+        return this.nextEmptySlot() != -1;
+    }
+
+    @Override
+    public int nextEmptySlot() {
+        if (this.slotCache > -1 && this.slotCache < this.values.length) {
+            if (this.values[this.slotCache] == null) {
+                return this.slotCache;
+            }
+        }
+
+        for (int x = 0; x < this.values.length; ++x) {
+            if (this.values[x] == null) {
+                this.slotCache = x;
+                return x;
+            }
+        }
+
+        return -1;
+    }
+
+    @Override
+    public Iterator<T> iterator() {
+        return new Iter();
+    }
+
     public String toString() {
         Iterator<T> it = iterator();
-        if (! it.hasNext())
+        if (!it.hasNext())
             return "[]";
 
         StringBuilder sb = new StringBuilder();
         sb.append('[');
-        for (;;) {
+
+        for (; ; ) {
+
             T e = it.next();
+
             sb.append(e == this ? "(this Collection)" : e);
-            if (! it.hasNext()){
-            	sb.append(']');
-            	sb.append(". Data: [Size: "+size+", Empty Slots: "+emptySlots()+"]");
+
+            if (!it.hasNext()) {
+                sb.append(']');
+                sb.append(". Data: [Size: ").append(this.size()).append(", Empty Slots: ").append(this.emptySlots()).append("]");
                 return sb.toString();
             }
+
             sb.append(',').append(' ');
-        }        
+        }
     }
-	
-	//************************************//
-	
-	private void checkIndex(int index) {
-		if(index < 0 || index >= size){
-			throw new IndexOutOfBoundsException("Element["+this.toString()+"]. Suggested index: "+index);
-		}
-		
-	}
 
-	/**
-	 * Indexer
-	 */
-	@Override
-	public boolean contains(T element) {
-		for(int x = 0; x < size; ++x){
-			if(values[x] != null && values[x].equals(element)){
-				return true;
-			}else if(values[x] == null){
-				nextEmptySlot();
-			}
-		}
-		return false;
-	}
+    private void checkIndex(int index) {
+        if (index < 0 || index >= this.size()) {
+            throw new IndexOutOfBoundsException("Element[" + this.toString() + "]. Suggested index: " + index);
+        }
+    }
 
-	/**
-	 * Indexer
-	 */
-	@Override
-	public Container<T> get(int index) {
-		checkIndex(index);
-		
-		if(values[index] == null){
-			updateCache(index);
-			return Container.empty();
-		}
-		return Container.of(values[index]);
-	}
+    @Override
+    public boolean contains(T element) {
+        for (int x = 0; x < this.size(); ++x) {
+            if (this.values[x] != null && this.values[x].equals(element)) {
+                return true;
+            } else if (this.values[x] == null) {
+                this.nextEmptySlot();
+            }
+        }
+        return false;
+    }
 
-	private void updateCache(int index){
-		if(values[slotCache] != null && values[index] == null){
-			slotCache = index;
-		}
-	}
-	
-	public int getSlotCache() {
-		return slotCache;
-	}
+    /**
+     * Indexer
+     */
+    @Override
+    public Container<T> get(int index) {
+        checkIndex(index);
+
+        if (this.values[index] == null) {
+            updateCache(index);
+            return Container.empty();
+        }
+        return Container.of(this.values[index]);
+    }
+
+    private void updateCache(int index) {
+        if (this.values[slotCache] != null && this.values[index] == null) {
+            this.slotCache = index;
+        }
+    }
+
+    public int getSlotCache() {
+        return this.slotCache;
+    }
+
+    private final class Iter implements Iterator<T> {
+
+        private int index = -1;
+
+        @Override
+        public boolean hasNext() {
+            return (index + 1) < StaticList.this.size();
+        }
+
+        @Override
+        public T next() {
+            return StaticList.this.values[++index];
+        }
+
+    }
 }
