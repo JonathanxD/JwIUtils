@@ -29,13 +29,8 @@ package com.github.jonathanxd.iutils.function.function;
 
 import com.github.jonathanxd.iutils.object.Pair;
 
-/**
- * Created by jonathan on 28/05/16.
- */
-
 @FunctionalInterface
 public interface PairToPairFunction<T1, T2, R1, R2> {
-
     Pair<R1, R2> apply(T1 t1, T2 t2);
 
     default Pair<R1, R2> apply(Pair<T1, T2> pair) {

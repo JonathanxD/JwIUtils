@@ -29,12 +29,7 @@ package com.github.jonathanxd.iutils.function.function;
 
 import com.github.jonathanxd.iutils.object.Node;
 
-/**
- * Created by jonathan on 05/03/16.
- */
 @FunctionalInterface
 public interface NodeIntFunction<RK, RV> {
-
     Node<RK, RV> apply(int i);
-
 }

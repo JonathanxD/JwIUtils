@@ -30,16 +30,38 @@ package com.github.jonathanxd.iutils.container;
 import java.util.List;
 
 /**
- * Created by jonathan on 21/02/16.
+ * Base interface of all containers that holds a history of stored values (history is disabled by
+ * default).
+ *
+ * @param <T> Type of value.
  */
 public interface HistoryContainer<T> extends BaseContainer<T> {
 
-    void alloc(T value);
+    /**
+     * Add a value to history.
+     *
+     * @param value Value to add to history.
+     */
+    void addToHistory(T value);
 
+    /**
+     * Gets the value history list. (Immutable)
+     *
+     * @return Value history list. (Immutable)
+     */
     List<T> getValueHistory();
 
-    boolean enableHistory(boolean enable);
+    /**
+     * Sets the history enabled/disable.
+     *
+     * @param enable True to enable history, false to disable.
+     * @return Old state of history (enabled or disabled).
+     */
+    boolean setHistoryEnabled(boolean enable);
 
+    /**
+     * Cleanup the history.
+     */
     void clearHistory();
 
 }

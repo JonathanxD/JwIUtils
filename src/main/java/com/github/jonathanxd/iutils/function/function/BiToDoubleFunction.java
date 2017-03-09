@@ -27,11 +27,7 @@
  */
 package com.github.jonathanxd.iutils.function.function;
 
-/**
- * Created by jonathan on 05/03/16.
- */
 @FunctionalInterface
 public interface BiToDoubleFunction<T, U> {
-
     double applyAsDouble(T t, U u);
 }

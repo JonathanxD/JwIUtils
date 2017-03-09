@@ -28,7 +28,7 @@
 package com.github.jonathanxd.iutils.container.primitivecontainers;
 
 import com.github.jonathanxd.iutils.container.BaseContainer;
-import com.github.jonathanxd.iutils.container.Container;
+import com.github.jonathanxd.iutils.container.MutableContainer;
 import com.github.jonathanxd.iutils.container.UnknownContainer;
 
 /**
@@ -84,7 +84,7 @@ public class DoubleContainer implements UnknownContainer<Double> {
 
     @Override
     public BaseContainer<Double> box() {
-        return Container.of(d);
+        return MutableContainer.of(d);
     }
 
     @Override

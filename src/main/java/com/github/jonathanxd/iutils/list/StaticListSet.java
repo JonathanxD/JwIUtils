@@ -27,7 +27,8 @@
  */
 package com.github.jonathanxd.iutils.list;
 
-import com.github.jonathanxd.iutils.container.Container;
+import com.github.jonathanxd.iutils.container.BaseContainer;
+import com.github.jonathanxd.iutils.container.MutableContainer;
 
 import java.util.Objects;
 
@@ -71,21 +72,21 @@ public class StaticListSet<T> extends StaticList<T> {
     }
 
     @Override
-    public Container<T> holdAndAdd(int index, T element) {
+    public BaseContainer<T> holdAndAdd(int index, T element) {
         if (!this.contains(element)) {
             return super.holdAndAdd(index, element);
         }
 
-        return Container.empty();
+        return MutableContainer.empty();
     }
 
     @Override
-    public Container<T> holdAndAdd(T element) {
+    public BaseContainer<T> holdAndAdd(T element) {
         if (!this.contains(element)) {
             return super.holdAndAdd(element);
         }
 
-        return Container.empty();
+        return MutableContainer.empty();
     }
 
 }

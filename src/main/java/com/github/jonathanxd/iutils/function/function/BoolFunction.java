@@ -27,9 +27,6 @@
  */
 package com.github.jonathanxd.iutils.function.function;
 
-/**
- * Created by jonathan on 13/08/16.
- */
 @FunctionalInterface
 public interface BoolFunction<R> {
     R apply(boolean value);

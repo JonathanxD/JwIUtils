@@ -27,33 +27,49 @@
  */
 package com.github.jonathanxd.iutils.container;
 
-import com.github.jonathanxd.iutils.annotation.Named;
-
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public interface IMutableContainer<T> extends HistoryContainer<T> {
 
-    void setApplier(BiFunction<BaseContainer<T>, T, T> applier);
+    /**
+     * Value mapper.
+     *
+     * @param mapper Mapper.
+     */
+    void setMapper(BiFunction<BaseContainer<T>, T, T> mapper);
 
-    void apply(T value);
+    /**
+     * Map {@code value} with {@link #setMapper(BiFunction) defined mapper} and {@link
+     * #setValue(Object) sets} {@code this} container value.
+     *
+     * @param value Value to map and set.
+     */
+    void setMapped(T value);
 
+    /**
+     * Sets the current value.
+     *
+     * @param value Value.
+     */
     void setValue(T value);
 
+    /**
+     * Sets the current value.
+     *
+     * @param value Value.
+     */
     default void set(T value) {
         this.setValue(value);
     }
 
-    default <R> R applyAndSet(Function<@Named("Current value") T, @Named("Apply to new value") R> function, Function<@Named("Apply result") R, @Named("New value") T> newValFunction) {
-        R applied = function.apply(get());
-
-        set(newValFunction.apply(applied));
-
-        return applied;
-    }
-
-    default void set(Function<T, T> function) {
-        set(function.apply(get()));
+    /**
+     * Maps the current value.
+     *
+     * @param mapper Mapper.
+     */
+    default void mapThisValue(Function<T, T> mapper) {
+        this.set(mapper.apply(this.get()));
     }
 
 }

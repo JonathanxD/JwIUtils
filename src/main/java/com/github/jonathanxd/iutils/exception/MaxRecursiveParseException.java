@@ -28,7 +28,7 @@
 package com.github.jonathanxd.iutils.exception;
 
 /**
- * Created by jonathan on 22/06/16.
+ * Occurs when a parsing process exceeded the allowed limit of recursion.
  */
 public class MaxRecursiveParseException extends RuntimeException {
     public MaxRecursiveParseException() {

@@ -27,11 +27,7 @@
  */
 package com.github.jonathanxd.iutils.function.function;
 
-/**
- * Created by jonathan on 05/03/16.
- */
 @FunctionalInterface
 public interface BiToLongFunction<T, U> {
-
     long applyAsLong(T t, U u);
 }

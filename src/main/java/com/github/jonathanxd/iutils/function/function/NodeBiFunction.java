@@ -29,12 +29,7 @@ package com.github.jonathanxd.iutils.function.function;
 
 import com.github.jonathanxd.iutils.object.Node;
 
-/**
- * Created by jonathan on 05/03/16.
- */
 @FunctionalInterface
 public interface NodeBiFunction<T, U, V, W, RK, RV> {
-
     Node<RK, RV> apply(T key1, U value1, V key2, W value2);
-
 }

@@ -27,22 +27,70 @@
  */
 package com.github.jonathanxd.iutils.container.list;
 
-import com.github.jonathanxd.iutils.container.Container;
+import com.github.jonathanxd.iutils.container.BaseContainer;
 
+/**
+ * Standard specification of JwIUtils {@link com.github.jonathanxd.iutils.list.StaticList
+ * StaticLists}.
+ *
+ * @param <T> Type of elements.
+ */
 public interface ListContainer<T> {
-	
-	boolean add(T element);	
-	Container<T> holdAndAdd(T element);
-	
-	boolean remove(T element);
-	default Container<T> removeAndHold(T element){
-		return (!remove(element) ? Container.empty() : Container.of(element));
-	}
-	
-	boolean isEmpty();
-	boolean isFull();
-	boolean contains(T element);	
 
-	int size();
+    /**
+     * Adds a element.
+     *
+     * @param element Element to add.
+     * @return True if successfully added {@code element}, false if list is full.
+     */
+    boolean add(T element);
+
+    /**
+     * Holds element to be replaced and replace with the {@code element}.
+     *
+     * This method will replace last element in the list if it is full, other methods like {@link
+     * #add(Object)} will return false if list is full.
+     *
+     * @param element Element to add.
+     * @return Container with replaced value (or empty container if there is not value to replace).
+     */
+    BaseContainer<T> holdAndAdd(T element);
+
+    /**
+     * Removes the element.
+     *
+     * @param element Element to remove.
+     * @return True if successfully removed {@code element}.
+     */
+    boolean remove(T element);
+
+    /**
+     * Returns true if the list is empty.
+     *
+     * @return True if is empty.
+     */
+    boolean isEmpty();
+
+    /**
+     * Returns true if the list is full.
+     *
+     * @return True if the list is full.
+     */
+    boolean isFull();
+
+    /**
+     * Returns true if the list contains the element {@code element}.
+     *
+     * @param element Element.
+     * @return True if the list contains the element {@code element}.
+     */
+    boolean contains(T element);
+
+    /**
+     * Returns the size of list.
+     *
+     * @return Size of list.
+     */
+    int size();
 
 }

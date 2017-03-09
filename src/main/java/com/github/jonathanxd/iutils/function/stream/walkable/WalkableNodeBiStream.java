@@ -503,7 +503,7 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
 
         IMutableContainer<Node<List<T>, U>> nodeContainer = new MutableContainer<>(new Node<>(init, identify));
 
-        consume(n -> nodeContainer.set(
+        consume(n -> nodeContainer.mapThisValue(
                 current -> current.withNewValue(
                         accumulator.apply(nodeContainer.get().getKey(), nodeContainer.get().getValue(), n.getKey(), n.getValue())
                 )
@@ -518,7 +518,7 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
 
         IMutableContainer<Node<T, U>> nodeContainer = new MutableContainer<>(new Node<>(identify, identify2));
 
-        consume(n -> nodeContainer.set(
+        consume(n -> nodeContainer.mapThisValue(
                 (current) -> current.withNewKey(
                         accumulator.apply(current.getKey(), current.getValue(), n.getKey(), n.getValue())
                 )
@@ -531,7 +531,7 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
     public U reduceSecond(T identify, U identify2, BiBinaryOperator<U, T> accumulator) {
         IMutableContainer<Node<T, U>> nodeContainer = new MutableContainer<>(new Node<>(identify, identify2));
 
-        consume(n -> nodeContainer.set(
+        consume(n -> nodeContainer.mapThisValue(
                 (current) -> current.withNewValue(
                         accumulator.apply(current.getValue(), current.getKey(), n.getValue(), n.getKey())
                 )
@@ -549,7 +549,7 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
             if (!nodeContainer.isPresent())
                 nodeContainer.set(n);
             else
-                nodeContainer.set(current -> accumulator.apply(current.getKey(), current.getValue(), n.getKey(), n.getValue()));
+                nodeContainer.mapThisValue(current -> accumulator.apply(current.getKey(), current.getValue(), n.getKey(), n.getValue()));
         });
 
         return !nodeContainer.isPresent() ? Optional.empty() : Optional.of(nodeContainer.get());
@@ -563,7 +563,7 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
                     if (!nodeContainer.isPresent())
                         nodeContainer.set(n);
                     else
-                        nodeContainer.set(
+                        nodeContainer.mapThisValue(
                                 (current) -> current.withNewKey(
                                         accumulator.apply(current.getKey(), current.getValue(), n.getKey(), n.getValue())
                                 )
@@ -582,7 +582,7 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
                     if (!nodeContainer.isPresent())
                         nodeContainer.set(n);
                     else
-                        nodeContainer.set((current) -> current.withNewValue(
+                        nodeContainer.mapThisValue((current) -> current.withNewValue(
                                 accumulator.apply(current.getValue(), current.getKey(), n.getValue(), n.getKey())
                         ));
                 }
@@ -596,7 +596,7 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
 
         IMutableContainer<R> ret = new MutableContainer<>(identity);
 
-        consume(n -> ret.set(current -> accumulator.apply(current, n.getKey(), n.getValue())));
+        consume(n -> ret.mapThisValue(current -> accumulator.apply(current, n.getKey(), n.getValue())));
 
         return ret.get();
     }

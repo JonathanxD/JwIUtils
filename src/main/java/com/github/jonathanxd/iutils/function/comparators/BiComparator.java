@@ -32,19 +32,18 @@ import com.github.jonathanxd.iutils.function.function.BiToIntFunction;
 import com.github.jonathanxd.iutils.function.function.BiToLongFunction;
 
 import java.io.Serializable;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Objects;
 import java.util.function.BiFunction;
 
 /**
- * Created by jonathan on 05/03/16.
+ * Comparator of two values.
+ *
+ * @param <T> First value.
+ * @param <U> Second value.
  */
 @FunctionalInterface
 public interface BiComparator<T, U> {
-    static <T extends Comparable<? super T>> Comparator<T> reverseOrder() {
-        return Collections.reverseOrder();
-    }
 
     static <T, U, V> BiComparator<T, U> comparing(
             BiFunction<? super T, ? super U, ? extends V> keyExtractor,
@@ -80,8 +79,6 @@ public interface BiComparator<T, U> {
 
     int compare(T t, U u, T t2, U u2);
 
-    boolean equals(Object obj);
-
     default BiComparator<T, U> thenComparing(BiComparator<? super T, ? super U> other) {
         Objects.requireNonNull(other);
         return (BiComparator<T, U> & Serializable) (c1, c2, a1, a2) -> {
@@ -112,5 +109,6 @@ public interface BiComparator<T, U> {
     default BiComparator<T, U> thenComparingDouble(BiToDoubleFunction<? super T, ? super U> keyExtractor) {
         return thenComparing(comparingDouble(keyExtractor));
     }
+
 
 }

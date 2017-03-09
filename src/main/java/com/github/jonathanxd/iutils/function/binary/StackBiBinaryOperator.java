@@ -29,9 +29,6 @@ package com.github.jonathanxd.iutils.function.binary;
 
 import com.github.jonathanxd.iutils.function.function.QuadFunction;
 
-/**
- * Created by jonathan on 05/03/16.
- */
 @FunctionalInterface
 public interface StackBiBinaryOperator<T, PLAIN_T, U> extends QuadFunction<T, U, PLAIN_T, U, U> {
 

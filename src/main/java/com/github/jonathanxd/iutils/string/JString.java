@@ -27,7 +27,6 @@
  */
 package com.github.jonathanxd.iutils.string;
 
-import com.github.jonathanxd.iutils.construct.Properties;
 import com.github.jonathanxd.iutils.map.MapUtils;
 
 import java.util.Collections;
@@ -47,10 +46,6 @@ public class JString implements CharSequence {
 
     public JString(String string, Object... variables) {
         this(string, MapUtils.mapOf(variables));
-    }
-
-    public JString(String string, Properties props) {
-        this(string, props.toMap());
     }
 
     public JString(String string, Map<String, Object> variables) {

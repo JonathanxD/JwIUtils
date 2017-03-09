@@ -29,6 +29,9 @@ package com.github.jonathanxd.iutils.function;
 
 import java.util.function.Predicate;
 
+/**
+ * Set of predefined predicates.
+ */
 public final class Predicates {
 
     private Predicates() {
@@ -36,6 +39,12 @@ public final class Predicates {
     }
 
 
+    /**
+     * Returns a predicate that accepts all values.
+     *
+     * @param <T> Type.
+     * @return Predicate that accepts all values.
+     */
     @SuppressWarnings("unchecked")
     public static <T> Predicate<T> acceptAll() {
         return (Predicate<T>) AcceptAllPredicate.INSTANCE;

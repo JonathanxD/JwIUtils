@@ -27,12 +27,7 @@
  */
 package com.github.jonathanxd.iutils.function.function;
 
-/**
- * Created by jonathan on 05/03/16.
- */
 @FunctionalInterface
 public interface TriFunction<T, U, V, R> {
-
     R apply(T t, U u, V v);
-
 }

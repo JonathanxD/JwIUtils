@@ -27,9 +27,6 @@
  */
 package com.github.jonathanxd.iutils.container;
 
-import com.github.jonathanxd.iutils.exception.ContainerMakeException;
-import com.github.jonathanxd.iutils.reflection.Reflection;
-
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -49,25 +46,9 @@ public class ImmutableContainer<T> implements BaseContainer<T> {
         this.value = value;
     }
 
-    public static <T> ImmutableContainer<T> make(Class<? super T> clazz) throws ContainerMakeException {
-        T value;
-        try {
-            value = (T) Reflection.constructEmpty(clazz);
-        } catch (Exception e) {
-            throw new ContainerMakeException("Non public empty constructors found for class: " + clazz + "!");
-        }
-
-        return new ImmutableContainer<>(value);
-    }
-
     public static <T> ImmutableContainer<T> of(T value) {
         Objects.requireNonNull(value);
         return new ImmutableContainer<>(value);
-    }
-
-    public static <T> ImmutableContainer<T> of(Class<? super T> clazz) {
-        Objects.requireNonNull(clazz);
-        return ImmutableContainer.make(clazz);
     }
 
     @SuppressWarnings("unchecked")
@@ -115,7 +96,7 @@ public class ImmutableContainer<T> implements BaseContainer<T> {
         if (!isPresent()) {
             return this;
         } else {
-            return predicate.test(value) ? this : null;
+            return predicate.test(value) ? this : ImmutableContainer.empty();
         }
     }
 

@@ -27,7 +27,8 @@
  */
 package com.github.jonathanxd.iutils.list;
 
-import com.github.jonathanxd.iutils.container.Container;
+import com.github.jonathanxd.iutils.container.BaseContainer;
+import com.github.jonathanxd.iutils.container.MutableContainer;
 import com.github.jonathanxd.iutils.container.list.IndexedListContainer;
 
 import java.lang.reflect.Array;
@@ -100,16 +101,18 @@ public class StaticList<T> implements IndexedListContainer<T>, Iterable<T> {
     @Override
     public boolean add(T element) {
         int caching = this.nextEmptySlot();
+
         if (caching != -1) {
             this.values[caching] = element;
             this.nextEmptySlot();
             return true;
         }
+
         return false;
     }
 
     @Override
-    public Container<T> holdAndAdd(T element) {
+    public BaseContainer<T> holdAndAdd(T element) {
         int caching = this.nextEmptySlot();
 
         if (caching == -1) {
@@ -119,7 +122,7 @@ public class StaticList<T> implements IndexedListContainer<T>, Iterable<T> {
         T oldValue = this.values[caching];
         this.values[caching] = element;
         this.nextEmptySlot();
-        return oldValue != null ? Container.of(oldValue) : Container.empty();
+        return oldValue != null ? MutableContainer.of(oldValue) : MutableContainer.empty();
     }
 
     @Override
@@ -173,14 +176,14 @@ public class StaticList<T> implements IndexedListContainer<T>, Iterable<T> {
     }
 
     @Override
-    public Container<T> holdAndAdd(int index, T element) {
+    public BaseContainer<T> holdAndAdd(int index, T element) {
         this.checkIndex(index);
 
         T old = this.values[index];
         this.values[index] = element;
         this.nextEmptySlot();
 
-        return (old == null ? Container.empty() : Container.of(old));
+        return (old == null ? MutableContainer.empty() : MutableContainer.of(old));
     }
 
     @Override
@@ -196,17 +199,17 @@ public class StaticList<T> implements IndexedListContainer<T>, Iterable<T> {
     }
 
     @Override
-    public Container<T> holdAndRemove(int index) {
+    public BaseContainer<T> holdAndRemove(int index) {
         this.checkIndex(index);
 
         if (this.values[index] == null) {
-            return Container.empty();
+            return MutableContainer.empty();
         }
 
         T old = values[index];
         this.values[index] = null;
         this.slotCache = index;
-        return Container.of(old);
+        return MutableContainer.of(old);
     }
 
     @Override
@@ -283,14 +286,14 @@ public class StaticList<T> implements IndexedListContainer<T>, Iterable<T> {
      * Indexer
      */
     @Override
-    public Container<T> get(int index) {
+    public BaseContainer<T> get(int index) {
         checkIndex(index);
 
         if (this.values[index] == null) {
             updateCache(index);
-            return Container.empty();
+            return MutableContainer.empty();
         }
-        return Container.of(this.values[index]);
+        return MutableContainer.of(this.values[index]);
     }
 
     private void updateCache(int index) {

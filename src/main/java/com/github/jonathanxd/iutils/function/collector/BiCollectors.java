@@ -34,37 +34,81 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.stream.Collector;
 
 /**
- * Created by jonathan on 05/03/16.
+ * Common collectors.
  */
 public enum BiCollectors {
     ;
 
+    /**
+     * {@link Map} collector.
+     *
+     * @param <K> Key type.
+     * @param <V> Value type.
+     * @return {@link Map} collector.
+     */
     public static <K, V> BiCollector<K, V, Map<K, V>, Map<K, V>> toMap() {
         return new CommonBiCollector<>(HashMap::new, Map::put, map -> map);
     }
 
+    /**
+     * {@link Map} collector.
+     *
+     * @param mapSupplier Map instance supplier.
+     * @param <K>         Key type.
+     * @param <V>         Value type.
+     * @param <MAP>       Map type.
+     * @return {@link Map} collector.
+     */
     public static <K, V, MAP extends Map<K, V>> BiCollector<K, V, MAP, MAP> toMap(Supplier<MAP> mapSupplier) {
         return new CommonBiCollector<>(mapSupplier, Map::put, map -> map);
     }
 
+    /**
+     * {@link HashMap} collector.
+     *
+     * @param <K> Key type.
+     * @param <V> Value type.
+     * @return {@link HashMap} collector.
+     */
     public static <K, V> BiCollector<K, V, HashMap<K, V>, HashMap<K, V>> toHashMap() {
         return new CommonBiCollector<>(HashMap::new, Map::put, map -> map);
     }
 
+    /**
+     * {@link Node} {@link List} collector.
+     *
+     * @param listSupplier List supplier.
+     * @param <K>          Key type.
+     * @param <V>          Value type.
+     * @param <LIST>       List type.
+     * @return {@link Node} {@link List} collector.
+     */
     public static <K, V, LIST extends List<Node<K, V>>> BiCollector<K, V, LIST, LIST> toNodeList(Supplier<LIST> listSupplier) {
         return new CommonBiCollector<>(listSupplier, (list, key, value) -> list.add(new Node<>(key, value)), list -> list);
     }
 
+    /**
+     * {@link Node} {@link List} collector.
+     *
+     * @param <K> Key type.
+     * @param <V> Value type.
+     * @return {@link Node} {@link List} collector.
+     */
     public static <K, V> BiCollector<K, V, List<Node<K, V>>, List<Node<K, V>>> toNodeList() {
         return new CommonBiCollector<>(ArrayList::new, (list, key, value) -> list.add(new Node<>(key, value)), list -> list);
     }
 
+    /**
+     * {@link Node} {@link ArrayList} collector.
+     *
+     * @param <K> Key type.
+     * @param <V> Value type.
+     * @return {@link Node} {@link ArrayList} collector.
+     */
     public static <K, V> BiCollector<K, V, ArrayList<Node<K, V>>, ArrayList<Node<K, V>>> toNodeArrayList() {
         return new CommonBiCollector<>(ArrayList::new, (list, key, value) -> list.add(new Node<>(key, value)), list -> list);
     }

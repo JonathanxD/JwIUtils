@@ -27,9 +27,6 @@
  */
 package com.github.jonathanxd.iutils.function.consumer;
 
-/**
- * Created by jonathan on 03/07/16.
- */
 @FunctionalInterface
 public interface ObjIntIntConsumer<T> {
     void accept(T t, int i, int i2);

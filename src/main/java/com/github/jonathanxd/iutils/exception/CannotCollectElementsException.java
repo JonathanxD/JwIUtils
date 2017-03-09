@@ -28,7 +28,7 @@
 package com.github.jonathanxd.iutils.exception;
 
 /**
- * Created by jonathan on 27/05/16.
+ * Occurs when fails to grab elements.
  */
 public class CannotCollectElementsException extends RuntimeException {
     public CannotCollectElementsException() {
