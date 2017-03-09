@@ -50,12 +50,12 @@ public enum  Pairs {
         }
 
         @Override
-        public A _1() {
+        public A getFirst() {
             return this.first;
         }
 
         @Override
-        public B _2() {
+        public B getSecond() {
             return this.second;
         }
 
@@ -72,12 +72,12 @@ public enum  Pairs {
         }
 
         @Override
-        public A _1() {
+        public A getFirst() {
             return this.aSupplier.get();
         }
 
         @Override
-        public B _2() {
+        public B getSecond() {
             return this.bSupplier.get();
         }
     }

@@ -50,7 +50,7 @@ public class BiJavaStream<O, T, U> extends WalkableNodeBiStream<T, U> {
         super(Walkable.fromStream(stream).map(o -> {
             Pair<T, U> apply = toPairFunction.apply(o);
 
-            return new Node<>(apply._1(), apply._2());
+            return new Node<>(apply.getFirst(), apply.getSecond());
         }));
     }
 

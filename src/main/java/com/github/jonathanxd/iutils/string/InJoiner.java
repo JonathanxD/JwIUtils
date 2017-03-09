@@ -63,6 +63,11 @@ public final class InJoiner {
      */
     private StringJoiner currentSecond;
 
+    /**
+     * Count of appends to second joiner.
+     */
+    int secondAppends = 0;
+
     public InJoiner(StringJoiner first, Supplier<StringJoiner> secondSupplier) {
 
         Objects.requireNonNull(first);
@@ -93,7 +98,7 @@ public final class InJoiner {
             this.current = this.first;
         }
 
-        first.add(s);
+        this.first.add(s);
     }
 
     /**
@@ -104,6 +109,7 @@ public final class InJoiner {
     public void joinSecond(String s) {
         this.currentSecond.add(s);
         this.current = this.currentSecond;
+        this.secondAppends++;
     }
 
     /**
@@ -155,10 +161,11 @@ public final class InJoiner {
      * This method will change the {@link #current current joiner}.
      */
     private void joinSecondIntoFirst() {
-        if (this.currentSecond.length() > 2) {
+        if (this.secondAppends > 0) {
             this.first.add(this.currentSecond.toString());
 
             this.currentSecond = this.secondSupplier.get();
+            this.secondAppends = 0;
         }
     }
 

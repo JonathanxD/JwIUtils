@@ -29,9 +29,15 @@ package com.github.jonathanxd.iutils.function.function;
 
 import com.github.jonathanxd.iutils.object.Node;
 
+/**
+ * Takes two parameters and return a node array.
+ *
+ * @param <K> Node key type.
+ * @param <V> Node value type.
+ */
 @FunctionalInterface
-public interface NodeArrayIntFunction<RK, RV> {
+public interface NodeArrayIntFunction<K, V> {
 
-    Node<RK, RV>[] apply(int i);
+    Node<K, V>[] apply(int i);
 
 }

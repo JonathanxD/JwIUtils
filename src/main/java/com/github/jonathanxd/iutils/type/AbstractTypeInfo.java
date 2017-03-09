@@ -27,33 +27,61 @@
  */
 package com.github.jonathanxd.iutils.type;
 
-import com.github.jonathanxd.iutils.reflection.RClass;
-import com.github.jonathanxd.iutils.reflection.Reflection;
-
 import java.lang.reflect.ParameterizedType;
 
 /**
- * Created by jonathan on 08/04/16.
+ * Abstract type info (uses reflection to inject fields instance).
+ *
+ * @param <T> Type.
  */
 public abstract class AbstractTypeInfo<T> extends TypeInfo<T> {
 
+    private final TypeInfo<T> wrapped;
+    private final boolean isUnique;
 
     @SuppressWarnings("unchecked")
     public AbstractTypeInfo(boolean isUnique) {
         super();
 
-        TypeInfo<T> typeInfo = (TypeInfo<T>) TypeUtil.toReference(((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0]);
-        try {
-            Reflection.changeFinalField(RClass.getRClass(TypeInfo.class, this), "classLiteral", typeInfo.getClassLiteral());
-            Reflection.changeFinalField(RClass.getRClass(TypeInfo.class, this), "related", typeInfo.getRelated());
-            Reflection.changeFinalField(RClass.getRClass(TypeInfo.class, this), "isUnique", isUnique);
-        } catch (Exception e) {
-            throw new Error(e);
-        }
-
+        this.wrapped = (TypeInfo<T>) TypeUtil.toTypeInfo(((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0]);
+        this.isUnique = isUnique;
     }
 
     public AbstractTypeInfo() {
         this(false);
+    }
+
+    @Override
+    public TypeInfo[] getRelated() {
+        return this.getWrapped().getRelated();
+    }
+
+    @Override
+    protected TypeInfo[] fastGetRelated() {
+        return this.getWrapped().fastGetRelated();
+    }
+
+    @Override
+    public String getClassLiteral() {
+        return this.getWrapped().getClassLiteral();
+    }
+
+    @Override
+    public TypeInfo<?>[] getSubTypeInfos() {
+        return this.getWrapped().getSubTypeInfos();
+    }
+
+    @Override
+    protected TypeInfo<?>[] fastGetSubTypeInfos() {
+        return this.getWrapped().fastGetSubTypeInfos();
+    }
+
+    @Override
+    public boolean isUnique() {
+        return this.isUnique;
+    }
+
+    protected TypeInfo<T> getWrapped() {
+        return this.wrapped;
     }
 }

@@ -25,25 +25,66 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.list;
+package com.github.jonathanxd.iutils.sort;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
- * Created by jonathan on 03/07/16.
+ * Represents sorted elements.
+ *
+ * @param <T> Type of sorted.
  */
-public interface IPredicateList<E> extends List<E> {
+public final class SortingResult<T> {
 
     /**
-     * Return true if element is acceptable, false if not
-     * @param e Element to test
-     * @return True if element is acceptable, false if not
+     * Sorted elements.
      */
-    boolean test(E e);
+    private final List<T> sortedElements;
 
     /**
-     * Called if element isn't acceptable (if {@link #test(Object)} returns false)
-     * @param e Element rejected
+     * Creates a sorting result.
+     *
+     * @param elements Sorted list of elements.
      */
-    void reject(E e);
+    public SortingResult(List<T> elements) {
+        this.sortedElements = Collections.unmodifiableList(elements);
+    }
+
+    /**
+     * Gets the last (minimum) element of sorted list.
+     *
+     * @return {@link Optional} of last (minimum) element of sorted list, or a empty optional if
+     * there is no element in the list.
+     */
+    public Optional<T> min() {
+
+        if (this.sortedElements.isEmpty())
+            return Optional.empty();
+
+        return Optional.of(sortedElements.get(sortedElements.size() - 1));
+    }
+
+    /**
+     * Gets the first (maximum) element of sorted list.
+     *
+     * @return {@link Optional} of first (maximum) element of sorted list, or a empty optional if
+     * there is no element in the list.
+     */
+    public Optional<T> max() {
+        if (this.sortedElements.isEmpty())
+            return Optional.empty();
+
+        return Optional.of(this.sortedElements.get(0));
+    }
+
+    /**
+     * Gets the immutable list of sorted elements.
+     *
+     * @return Immutable list of sorted elements.
+     */
+    public List<T> getSortedElements() {
+        return this.sortedElements;
+    }
 }

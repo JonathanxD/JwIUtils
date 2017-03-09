@@ -28,7 +28,7 @@
 package com.github.jonathanxd.iutils.function.stream.walkable;
 
 import com.github.jonathanxd.iutils.collection.Walkable;
-import com.github.jonathanxd.iutils.comparison.Comparison;
+import com.github.jonathanxd.iutils.sort.SortingResult;
 import com.github.jonathanxd.iutils.container.IMutableContainer;
 import com.github.jonathanxd.iutils.container.MutableContainer;
 import com.github.jonathanxd.iutils.function.binary.BiBinaryOperator;
@@ -688,9 +688,9 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
      */
     @Override
     public Optional<Node<T, U>> min(BiComparator<? super T, ? super U> comparator) {
-        Comparison<Node<T, U>> comparison = getWalkable().compareToComparison((c, c2) -> comparator.compare(c.getKey(), c.getValue(), c2.getKey(), c2.getValue()));
+        SortingResult<Node<T, U>> sortingResult = getWalkable().compareToComparison((c, c2) -> comparator.compare(c.getKey(), c.getValue(), c2.getKey(), c2.getValue()));
 
-        return comparison.min();
+        return sortingResult.min();
     }
 
     /**
@@ -701,9 +701,9 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
      */
     @Override
     public Optional<Node<T, U>> max(BiComparator<? super T, ? super U> comparator) {
-        Comparison<Node<T, U>> comparison = getWalkable().compareToComparison((c, c2) -> comparator.compare(c.getKey(), c.getValue(), c2.getKey(), c2.getValue()));
+        SortingResult<Node<T, U>> sortingResult = getWalkable().compareToComparison((c, c2) -> comparator.compare(c.getKey(), c.getValue(), c2.getKey(), c2.getValue()));
 
-        return comparison.max();
+        return sortingResult.max();
     }
 
     @Override

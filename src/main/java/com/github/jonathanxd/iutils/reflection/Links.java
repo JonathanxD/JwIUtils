@@ -31,31 +31,32 @@ import com.github.jonathanxd.iutils.array.ArrayUtils;
 import com.github.jonathanxd.iutils.type.TypeInfo;
 
 /**
- * Created by jonathan on 20/08/16.
+ * Link factory class.
  */
 public final class Links {
+
     private Links() {
         throw new UnsupportedOperationException();
     }
 
     /**
-     * Create a {@link Link} from a {@link Invokable}
+     * Create a {@link Link} from a {@link Invokable}.
      *
-     * @param invokable Invokable
-     * @param <T>       Type
-     * @return {@link Link}
+     * @param invokable Invokable.
+     * @param <T>       Result type of {@link Invokable} invocation.
+     * @return {@link Link} from {@code invokable}.
      */
     public static <T> Link<T> ofInvokable(Invokable<T> invokable) {
         return new InvokableLink<>(invokable);
     }
 
     /**
-     * Create a {@link NamedLink} from a {@link Link} (Wrapped)
+     * Create a {@link NamedLink} from a {@link Link} (Wrapper).
      *
-     * @param link      Link
-     * @param name      Name
-     * @param tTypeInfo TypeInfo
-     * @param <T>       Type
+     * @param link      Link.
+     * @param name      Name.
+     * @param tTypeInfo Result type information.
+     * @param <T>       Result type of invocation.
      * @return Named link.
      */
     public static <T> NamedLink<T> named(Link<T> link, String name, TypeInfo<T> tTypeInfo) {
@@ -63,12 +64,12 @@ public final class Links {
     }
 
     /**
-     * Create a {@link NamedBindLink} from a {@link BindLink} (Wrapped)
+     * Create a {@link NamedBindLink} from a {@link BindLink} (Wrapper).
      *
-     * @param link      Link
-     * @param name      Name
-     * @param tTypeInfo TypeInfo
-     * @param <T>       Type
+     * @param link      Link.
+     * @param name      Name.
+     * @param tTypeInfo Result type information.
+     * @param <T>       Result type of invocation.
      * @return Named link.
      */
     public static <U, T> NamedBindLink<U, T> bindNamed(BindLink<U, T> link, String name, TypeInfo<T> tTypeInfo) {

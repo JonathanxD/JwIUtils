@@ -29,10 +29,8 @@ package com.github.jonathanxd.iutils.machine.os;
 
 import com.github.jonathanxd.iutils.machine.Machine;
 
-/**
- * Created by jonathan on 05/03/16.
- */
 public class Linux implements Machine.OS {
+
     @Override
     public String name() {
         return "Linux";
@@ -40,12 +38,12 @@ public class Linux implements Machine.OS {
 
     @Override
     public String version() {
-        return "4.4.1";
+        return "4.9.11";
     }
 
     @Override
     public String toString() {
-        return "Name[" + name() + "], Version["+version()+"]";
+        return "Name[" + name() + "], Version[" + version() + "]";
     }
 
 }

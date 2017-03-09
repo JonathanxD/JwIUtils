@@ -29,7 +29,14 @@ package com.github.jonathanxd.iutils.function.function;
 
 import com.github.jonathanxd.iutils.object.Pair;
 
+/**
+ * Takes a value and returns a pair of values.
+ *
+ * @param <T1> First parameter type.
+ * @param <P1> Pair first value type.
+ * @param <P2> Pair second value type.
+ */
 @FunctionalInterface
-public interface ToPairFunction<T1, R1, R2> {
-    Pair<R1, R2> apply(T1 t1);
+public interface ToPairFunction<T1, P1, P2> {
+    Pair<P1, P2> apply(T1 t1);
 }

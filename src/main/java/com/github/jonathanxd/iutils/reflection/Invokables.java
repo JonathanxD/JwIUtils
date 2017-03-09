@@ -38,96 +38,85 @@ import java.util.Arrays;
 import java.util.function.Function;
 
 /**
- * Created by jonathan on 20/08/16.
+ * Invokables factory.
  */
 public final class Invokables {
+
     private Invokables() {
         throw new UnsupportedOperationException();
     }
 
     /**
-     * Create a {@link Invokable} instance from Method
+     * Create a {@link Invokable} instance from a {@link Method}.
      *
-     * @param method Method
-     * @param <T>    Type
-     * @return {@link Invokable} from method.
+     * @param method Method.
+     * @param <T>    Result type of method invocation.
+     * @return {@link Invokable} from {@code method}.
      */
     public static <T> Invokable<T> fromMethod(Method method) {
         return new MethodInvokable<>(method);
     }
 
     /**
-     * Create a {@link Invokable} instance from Constructor
+     * Create a {@link Invokable} instance from a {@link Constructor}.
      *
-     * @param constructor Constructor
-     * @param <T>         Type
-     * @return {@link Invokable} instance from Constructor
+     * @param constructor Constructor.
+     * @param <T>         Result type of constructor invocation.
+     * @return {@link Invokable} instance from {@code constructor}.
      */
     public static <T> Invokable<T> fromConstructor(Constructor<T> constructor) {
         return new ConstructorInvokable<>(constructor);
     }
 
     /**
-     * Create a {@link Invokable} instance from Constructor (ignore first argument of invocation).
+     * Create a {@link Invokable} instance from a {@link Constructor} (ignore first argument of
+     * invocation).
      *
-     * @param constructor Constructor
+     * @param constructor Constructor.
      * @param <T>         Type
-     * @return {@link Invokable} instance from Constructor
+     * @return {@link Invokable} instance from {@code constructor}.
      */
     public static <T> Invokable<T> fromConstructorIF(Constructor<T> constructor) {
         return new ConstructorInvokableIF<>(constructor);
     }
 
     /**
-     * Create a {@link Invokable} instance from field
+     * Create a {@link Invokable} instance from a {@link Field} getter
      *
      * @param field Field
      * @param <T>   Type
-     * @return {@link Invokable} instance from field
-     * @deprecated To avoid confusion, changed to: {@link #fromFieldGetter(Field)}
-     */
-    @Deprecated
-    public static <T> Invokable<T> fromField(Field field) {
-        return Invokables.fromFieldGetter(field);
-    }
-
-    /**
-     * Create a {@link Invokable} instance from field getter
-     *
-     * @param field Field
-     * @param <T>   Type
-     * @return {@link Invokable} instance from field getter
+     * @return {@link Invokable} instance from {@code field} getter
      */
     public static <T> Invokable<T> fromFieldGetter(Field field) {
         return new FieldGetterInvokable<>(field);
     }
 
     /**
-     * Create a {@link Invokable} instance from field setter
+     * Create a {@link Invokable} instance from {@link Field} setter
      *
      * @param field Field
-     * @return {@link Invokable} instance from field setter
+     * @return {@link Invokable} instance from {@code field} setter.
      */
     public static Invokable<Void> fromFieldSetter(Field field) {
         return new FieldSetterInvokable(field);
     }
 
     /**
-     * Create a {@link Invokable} instance from MethodHandle
+     * Create a {@link Invokable} instance from a {@link MethodHandle}.
      *
-     * @param methodHandle Method Handle
-     * @param <T>          Type
-     * @return {@link Invokable} instance from MethodHandle
+     * @param methodHandle Method Handle.
+     * @param <T>          Result type of invocation of the {@code methodHandle}
+     * @return {@link Invokable} instance from {@code methodHandle}.
      */
     public static <T> Invokable<T> fromMethodHandle(MethodHandle methodHandle) {
         return new MethodHandleInvokable<>(methodHandle);
     }
 
     /**
-     * Create a {@link Invokable} from other {@link Invokable} (wrapper)
+     * Create a {@link Invokable} from other {@link Invokable} (wrapper).
      *
-     * @param invokable Invokable
-     * @param <T>       Type
+     * @param invokable Invokable.
+     * @param <T>       Result type of invocation.
      * @return Wrapped {@link Invokable}
      */
     public static <T> Invokable<T> fromInvokable(Invokable<T> invokable) {
@@ -135,14 +124,13 @@ public final class Invokables {
     }
 
     /**
-     * Create a {@link Invokable} that call {@code function} when {@link
-     * Invokable#invoke(Object...)} is called, an pass the result of the {@code function} to wrapped
-     * {@code invokable} instance.
+     * Creates a {@link Invokable} that sends arguments to a transformer {@code function} before
+     * invocation of the {@link Invokable}.
      *
-     * @param invokable Invokable
+     * @param invokable Invokable.
      * @param function  Function to modify arguments.
-     * @param <T>       Type
-     * @return Wrapped {@link Invokable} with an argument function.
+     * @param <T>       Result type.
+     * @return Wrapped {@link Invokable} with an argument transformer.
      */
     public static <T> Invokable<T> modifyArgs(Invokable<T> invokable, Function<Object[], Object[]> function) {
         return new ArgsModifierInvokable<>(invokable, function);
@@ -337,4 +325,5 @@ public final class Invokables {
             return super.invoke(this.argumentModifier.apply(args));
         }
     }
+
 }

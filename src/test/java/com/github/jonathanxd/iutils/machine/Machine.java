@@ -27,15 +27,8 @@
  */
 package com.github.jonathanxd.iutils.machine;
 
-import org.junit.Test;
-
-import java.time.Duration;
-import java.time.Instant;
 import java.util.Optional;
 
-/**
- * Created by jonathan on 05/03/16.
- */
 public class Machine {
 
     private final OS os;
@@ -54,22 +47,9 @@ public class Machine {
         return Optional.ofNullable(machineSpec);
     }
 
-    public interface Spec {
-
-        Optional<Integer> usbPorts();
-        Optional<Integer> satas();
-
-        MemorySlotSpec[] memorySlots();
-        ProcessorSpec[] processors();
-    }
-
-    public interface ProcessorSpec {
-        int cores();
-        String[] instructions();
-    }
-
-    public interface MemorySlotSpec {
-        Optional<MemoryVersion> version();
+    @Override
+    public String toString() {
+        return "Machine[ OS[" + getOs().orElse(null) + "], Spec[?]]";
     }
 
     public enum MemoryVersion {
@@ -79,14 +59,31 @@ public class Machine {
         DDR4
     }
 
-    public interface OS {
-        String name();
-        String version();
+    public interface Spec {
+
+        Optional<Integer> usbPorts();
+
+        Optional<Integer> satas();
+
+        MemorySlotSpec[] memorySlots();
+
+        ProcessorSpec[] processors();
     }
 
-    @Override
-    public String toString() {
-        return "Machine[ OS["+getOs().orElse(null)+"], Spec[?]]";
+    public interface ProcessorSpec {
+        int cores();
+
+        String[] instructions();
+    }
+
+    public interface MemorySlotSpec {
+        Optional<MemoryVersion> version();
+    }
+
+    public interface OS {
+        String name();
+
+        String version();
     }
 
 }

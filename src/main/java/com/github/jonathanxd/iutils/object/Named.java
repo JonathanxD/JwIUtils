@@ -32,34 +32,66 @@ import java.util.Objects;
 import java.util.Optional;
 
 /**
- * Created by jonathan on 13/08/16.
+ * Names a element of type {@link T}.
+ *
+ * @param <T> Type of element.
  */
 public class Named<T> {
+
+    /**
+     * Name of the element.
+     */
     private final String name;
+
+    /**
+     * Element.
+     */
     private final T value;
 
+    /**
+     * Creates a named element.
+     *
+     * @param name  Name associated to {@code value}.
+     * @param value Value to "add" a name.
+     */
     public Named(String name, T value) {
         this.name = name;
         this.value = value;
     }
 
+    /**
+     * Creates a named element with a null name.
+     *
+     * @param value Value to "add" null name.
+     */
     public Named(T value) {
         this(null, value);
     }
 
+    /**
+     * Gets the name of element (may be null).
+     *
+     * @return Name of element (may be null).
+     */
     public String getName() {
-        return name;
-    }
-
-    public T getValue() {
-        return value;
+        return this.name;
     }
 
     /**
-     * Find a {@link Named} element in a {@code collection}
+     * Gets the element.
+     *
+     * @return Element.
+     */
+    public T getValue() {
+        return this.value;
+    }
+
+    /**
+     * Finds {@code this} {@link Named} element in a {@code collection}.
      *
      * @param collection Collection
-     * @return Named element in list
+     * @return {@link Optional} of found name element, or a empty {@link Optional} if the named
+     * element cannot be found.
      */
     public Optional<Named<?>> get(Collection<? extends Named<?>> collection) {
         for (Named<?> named : collection) {

@@ -28,16 +28,12 @@
 package com.github.jonathanxd.iutils;
 
 import com.github.jonathanxd.iutils.function.stream.MapStream;
-import com.github.jonathanxd.iutils.reflection.Reflection;
 
 import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Created by jonathan on 20/05/16.
- */
 public class JavaStreamvBiStream {
 
     static final Map<Integer, String> map = new HashMap<>();
@@ -48,12 +44,22 @@ public class JavaStreamvBiStream {
         map.put(10, "A");
     }
 
+    private static void print(Integer integer, String s) {
+        System.out.printf("Integer = %d, String = %s%n", integer, s);
+    }
+
+    private static void printStack(StackTraceElement[] stackTraceElements) {
+        for (StackTraceElement callInformation : stackTraceElements) {
+            System.out.println(callInformation);
+        }
+    }
+
     @Test
     public void javaStream() {
         System.out.println("Java Stream");
 
         map.entrySet().stream().filter(integerStringEntry -> {
-            printStack(Reflection.getCallInformations());
+            printStack(new RuntimeException().getStackTrace());
 
             return integerStringEntry.getKey() < 0;
         }).forEach(System.out::println);
@@ -64,20 +70,10 @@ public class JavaStreamvBiStream {
         System.out.println("Jw BiStream");
 
         MapStream.of(map).filter((integer, s) -> {
-            printStack(Reflection.getCallInformations());
+            printStack(new RuntimeException().getStackTrace());
 
             return integer < 0;
         }).forEach(JavaStreamvBiStream::print);
-    }
-
-    private static void print(Integer integer, String s) {
-        System.out.printf("Integer = %d, String = %s%n", integer, s);
-    }
-
-    private static void printStack(StackTraceElement[] callInformations) {
-        for (StackTraceElement callInformation : callInformations) {
-            System.out.println(callInformation);
-        }
     }
 
 }

@@ -27,9 +27,12 @@
  */
 package com.github.jonathanxd.iutils;
 
+import com.github.jonathanxd.iutils.array.PrimitiveArrayConverter;
+import com.github.jonathanxd.iutils.collection.CollectionUtils;
 import com.github.jonathanxd.iutils.grabber.Grabber;
 import com.github.jonathanxd.iutils.grabber.ListGrabber;
 
+import org.junit.Assert;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -38,9 +41,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * Created by jonathan on 05/03/16.
- */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class TestGrabber {
 
@@ -56,19 +56,19 @@ public class TestGrabber {
 
         Grabber<String> map = g.mapAll(String::valueOf);
 
-        map.grab(7);
+        Assert.assertEquals("8", map.grab(7));
 
-        System.out.println("Map -> " + map);
+        Assert.assertEquals("[-(1, 2, 3, 4, 5), 6, 7, -(8), 9, 10]", map.toString());
 
         Grabber<Integer> cloned = grabber.createClone();
 
         List<Integer> integers = grabber.collectRemainingToList();
 
-        System.out.println(integers);
+        Assert.assertEquals(CollectionUtils.listOf(6, 7, 8, 9, 10), integers);
 
-        Integer[] array = cloned.collectRemainingToArray(Integer[]::new);
+        int[] array = PrimitiveArrayConverter.toPrimitive(cloned.collectRemainingToArray(Integer[]::new));
 
-        System.out.println(Arrays.toString(array));
+        Assert.assertArrayEquals(new int[]{6, 7, 8, 9, 10}, array);
 
 
     }

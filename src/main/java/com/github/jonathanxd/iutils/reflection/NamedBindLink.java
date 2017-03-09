@@ -28,7 +28,10 @@
 package com.github.jonathanxd.iutils.reflection;
 
 /**
- * Created by jonathan on 20/08/16.
+ * A {@link BindLink} that extends {@link NamedLink}.
+ *
+ * @param <U> Bind type.
+ * @param <T> Result type.
  */
 public interface NamedBindLink<U, T> extends NamedLink<T>, BindLink<U, T> {
 }

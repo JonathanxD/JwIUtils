@@ -25,28 +25,14 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.treeexplore;
-
-import java.util.List;
+package com.github.jonathanxd.iutils.function.function;
 
 /**
- * Created by jonathan on 02/04/16.
+ * Takes a {@code boolean} and returns a value of type {@link R}.
+ *
+ * @param <R> Output type.
  */
-public interface TreeExplore<T> {
-
-    TreeExplorer<T> startExplore(T element);
-
-    interface TreeExplorer<T> {
-        void join(T element);
-        T current();
-        void exit();
-    }
-
-    interface TreeNode<T, U extends TreeNode<T, U>> {
-        U parent();
-
-        T value();
-
-        List<U> child();
-    }
+@FunctionalInterface
+public interface BooleanFunction<R> {
+    R apply(boolean value);
 }

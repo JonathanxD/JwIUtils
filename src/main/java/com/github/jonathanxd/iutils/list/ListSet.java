@@ -30,9 +30,12 @@ package com.github.jonathanxd.iutils.list;
 import java.util.Collection;
 
 /**
- * Created by jonathan on 03/07/16.
+ * A {@link java.util.Set Set-like} {@link java.util.List}.
+ *
+ * @param <E> Element type.
  */
 public class ListSet<E> extends AbstractPredicateList<E> {
+
     public ListSet(int initialCapacity) {
         super(initialCapacity);
     }
@@ -46,10 +49,12 @@ public class ListSet<E> extends AbstractPredicateList<E> {
     }
 
     @Override
-    public boolean test(E e) {
+    public boolean isAcceptable(E e) {
         return !this.contains(e);
     }
 
     @Override
-    public void reject(E e) {}
+    public void onReject(E e) {
+    }
+
 }

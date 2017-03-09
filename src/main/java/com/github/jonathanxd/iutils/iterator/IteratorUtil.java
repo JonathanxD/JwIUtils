@@ -31,8 +31,18 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+/**
+ * Iterator utility.
+ */
 public class IteratorUtil {
 
+    /**
+     * Adds iterator remaining elements to a list.
+     *
+     * @param iterator Iterator.
+     * @param <E>      Type of elements.
+     * @return List of reimaning elements of {@code iterator}.
+     */
     public static <E> List<E> toList(Iterator<E> iterator) {
         List<E> eList = new ArrayList<>();
 

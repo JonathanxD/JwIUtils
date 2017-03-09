@@ -30,61 +30,102 @@ package com.github.jonathanxd.iutils.option;
 import com.github.jonathanxd.iutils.function.stream.BiStream;
 import com.github.jonathanxd.iutils.function.stream.MapStream;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 /**
- * Created by jonathan on 07/08/16.
+ * {@link Option} holder. This class holds all options and store values defined for the option.
  */
-public class Options {
+public final class Options {
 
-    private final Map<Option<?>, Object> value = new HashMap<>();
+    /**
+     * Map to stores values defined for options.
+     */
+    private final Map<Option<?>, Object> optionMap = new HashMap<>();
+    private final Map<Option<?>, Object> immutableOptionMap = Collections.unmodifiableMap(this.optionMap);
 
+    /**
+     * Sets a {@link Option} value.
+     *
+     * @param option Option.
+     * @param value  Option value.
+     * @param <T>    Type of option value.
+     * @return {@code this}.
+     */
     public <T> Options set(Option<T> option, T value) {
-        this.value.put(option, value);
+        this.optionMap.put(option, value);
         return this;
     }
 
+    /**
+     * Gets the value of {@code option}.
+     *
+     * @param option Option.
+     * @param <T>    Option value type.
+     * @return Value defined for {@code option}, or the default value of the option (may be null).
+     */
     @SuppressWarnings("unchecked")
-    public <T> Optional<T> get(Option<T> option) {
-        if (!value.containsKey(option))
-            return Optional.ofNullable(option.getDefaultValue());
+    public <T> T get(Option<T> option) {
+        if (!this.optionMap.containsKey(option))
+            return option.getDefaultValue();
 
-        return Optional.ofNullable((T) value.get(option));
+        return (T) this.optionMap.get(option);
     }
 
-    public <T> T getOrNull(Option<T> option) {
-        return this.getOrElse(option, (T) null);
-    }
-
+    /**
+     * Gets the option value if present, or returns {@code value} if not.
+     *
+     * @param option Option.
+     * @param value  Value to return if option is not set.
+     * @param <T>    Option value type.
+     * @return Value defined for the {@code option}, or the {@code value} if option value is not
+     * defined.
+     */
     public <T> T getOrElse(Option<T> option, T value) {
-        return this.get(option).orElse(value);
-    }
 
-    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-    public <T> Optional<T> getOrElseOptional(Option<T> option, Optional<T> value) {
-        Optional<T> t = this.get(option);
-
-        if (!t.isPresent())
+        if (!this.optionMap.containsKey(option))
             return value;
 
-        return t;
+        return this.get(option);
     }
 
+    /**
+     * Returns true if a value for the {@code option} is defined.
+     *
+     * @param option Option.
+     * @param <T>    Option value type.
+     * @return True if a value for the {@code option} is defined.
+     */
     public <T> boolean contains(Option<T> option) {
-        return this.value.containsKey(option);
+        return this.optionMap.containsKey(option);
     }
 
+    /**
+     * Returns true if {@code value} is defined for any option.
+     *
+     * @param value Value.
+     * @return True if {@code value} is defined for any option.
+     */
     public boolean containsValue(Object value) {
-        return this.value.containsValue(value);
+        return this.optionMap.containsValue(value);
     }
 
+    /**
+     * Returns a {@link BiStream} of all options and their values.
+     *
+     * @return {@link BiStream} of all options and their values.
+     */
     public BiStream<Option<?>, Object> stream() {
-        return MapStream.of(this.value);
+        return MapStream.of(this.optionMap);
     }
 
-    public Map<Option<?>, Object> getValueMap() {
-        return this.value;
+    /**
+     * Gets a immutable map of options and their defined values.
+     *
+     * @return Immutable map of options and their defined values.
+     */
+    public Map<Option<?>, Object> getOptionValueMap() {
+        return this.immutableOptionMap;
     }
 }

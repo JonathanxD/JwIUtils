@@ -27,6 +27,12 @@
  */
 package com.github.jonathanxd.iutils.function.function;
 
+/**
+ * Takes two parameters and returns a {@code long}.
+ *
+ * @param <T> First parameter type.
+ * @param <U> Second parameter type.
+ */
 @FunctionalInterface
 public interface BiToLongFunction<T, U> {
     long applyAsLong(T t, U u);

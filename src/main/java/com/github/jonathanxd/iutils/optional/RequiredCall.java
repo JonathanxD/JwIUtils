@@ -33,12 +33,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Created by jonathan on 13/02/16.
- */
-
-/**
- * Required Method call
+ * Invocation of this method is required (if it does not occurs, the final constructor method may
+ * throw a exception).
  */
 @Retention(RetentionPolicy.CLASS)
 @Target(ElementType.METHOD)
-public @interface RequiredCall {}
+public @interface RequiredCall {
+}

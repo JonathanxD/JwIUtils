@@ -29,17 +29,18 @@ package com.github.jonathanxd.iutils;
 
 import com.github.jonathanxd.iutils.function.stream.BiStream;
 import com.github.jonathanxd.iutils.function.stream.MapStream;
-import com.github.jonathanxd.iutils.string.ToString;
+import com.github.jonathanxd.iutils.string.ToStringHelper;
 
 import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Created by jonathan on 20/05/16.
- */
 public class Readme {
+
+    private static void print(Priority priority, Person person) {
+        System.out.printf("Priority = %s, Person = %s%n", priority.toString(), person.toString());
+    }
 
     @Test
     public void testMapStream() {
@@ -90,10 +91,6 @@ public class Readme {
                 .forEach(Readme::print);
     }
 
-    private static void print(Priority priority, Person person) {
-        System.out.printf("Priority = %s, Person = %s%n", priority.toString(), person.toString());
-    }
-
     private enum Priority {
         LOW,
         NORMAL,
@@ -111,16 +108,19 @@ public class Readme {
         }
 
         public String getName() {
-            return name;
+            return this.name;
         }
 
         public int getAge() {
-            return age;
+            return this.age;
         }
 
         @Override
         public String toString() {
-            return ToString.toString(this);
+            return ToStringHelper.helper("Person", ", ", "[", "]")
+                    .add("name", this.getName())
+                    .add("age", this.getAge())
+                    .toString();
         }
     }
 }

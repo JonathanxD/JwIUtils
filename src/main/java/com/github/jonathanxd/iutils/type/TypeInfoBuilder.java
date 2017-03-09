@@ -34,27 +34,46 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * {@link TypeInfo} builder.
+ *
+ * @param <T> Type.
+ */
 public final class TypeInfoBuilder<T> {
+
     private String classLiteral = null;
     private List<TypeInfoBuilder<?>> related = new ArrayList<>();
-    //private Object hold = null;
     private boolean isUnique = false;
 
     TypeInfoBuilder() {
     }
 
+    /**
+     * Creates a {@link TypeInfoBuilder} from {@code typeInfo}.
+     *
+     * @param typeInfo Source.
+     * @param <T>      Type.
+     * @return {@link TypeInfoBuilder} from {@code typeInfo}.
+     */
     public static <T> TypeInfoBuilder<T> from(TypeInfo<T> typeInfo) {
         TypeInfoBuilder<T> typeInfoBuilder = new TypeInfoBuilder<>();
-        typeInfoBuilder.a(typeInfo.getAClass());
+        typeInfoBuilder.a(typeInfo.getTypeClass());
 
         for (TypeInfo<?> otherTypeInfo : typeInfo.getRelated()) {
-            typeInfoBuilder.related.add(from(otherTypeInfo));
+            typeInfoBuilder.related.add(TypeInfoBuilder.from(otherTypeInfo));
         }
 
         return typeInfoBuilder;
     }
 
-    public static <T> TypeInfo<T> to(TypeInfoBuilder<T> typeInfoBuilder) {
+    /**
+     * Creates a {@link TypeInfo} from {@code typeInfoBuilder}.
+     *
+     * @param typeInfoBuilder Builder.
+     * @param <T>             Type.
+     * @return {@link TypeInfo} from {@code typeInfoBuilder}.
+     */
+    public static <T> TypeInfo<T> build(TypeInfoBuilder<T> typeInfoBuilder) {
 
         DynamicTypeInfo<T> dynamicReference = new DynamicTypeInfo<>(typeInfoBuilder.classLiteral, new TypeInfo[]{}, typeInfoBuilder.isUnique());
 
@@ -63,7 +82,7 @@ public final class TypeInfoBuilder<T> {
             List<TypeInfo<?>> typeInfoList = new ArrayList<>();
 
             for (TypeInfoBuilder<?> otherTypeInfoBuilder : typeInfoBuilder.related) {
-                typeInfoList.add(to(otherTypeInfoBuilder));
+                typeInfoList.add(TypeInfoBuilder.build(otherTypeInfoBuilder));
             }
 
             for (TypeInfo<?> typeInfo : typeInfoList) {
@@ -74,33 +93,63 @@ public final class TypeInfoBuilder<T> {
         return dynamicReference.toReference();
     }
 
-    public Class<? extends T> getaClass() {
-        return TypeInfo.resolveClass(this.getClassLiteral());
+    /**
+     * @see TypeInfo#getTypeClass()
+     */
+    public Class<? extends T> getTypeClass() {
+        return TypeUtil.resolveClass(this.getClassLiteral());
     }
 
+    /**
+     * @see TypeInfo#getClassLiteral()
+     */
     public String getClassLiteral() {
         return this.classLiteral;
     }
 
+    /**
+     * @see TypeInfo#getRelated()
+     */
     public List<TypeInfoBuilder<?>> getRelated() {
         return this.related;
     }
 
+    /**
+     * @see TypeInfo#isUnique()
+     */
     public boolean isUnique() {
         return this.isUnique;
     }
 
+    /**
+     * Marks {@link TypeInfoBuilder} to create a unique {@link TypeInfo} or not.
+     *
+     * @param unique Is unique.
+     * @return {@code this}.
+     */
     public TypeInfoBuilder<T> setUnique(boolean unique) {
         this.isUnique = unique;
         return this;
     }
 
+    /**
+     * Sets the type.
+     *
+     * @param aClass Type.
+     * @return {@code this}.
+     */
     @RequiredCall
     public TypeInfoBuilder<T> a(Class<? extends T> aClass) {
         this.classLiteral = aClass.getName();
         return this;
     }
 
+    /**
+     * Sets the type.
+     *
+     * @param classLiteral Type.
+     * @return {@code this}.
+     */
     @RequiredCall
     public TypeInfoBuilder<T> a(String classLiteral) {
         this.classLiteral = classLiteral;
@@ -108,6 +157,13 @@ public final class TypeInfoBuilder<T> {
     }
 
     // Of
+
+    /**
+     * Adds related types.
+     *
+     * @param related Related types.
+     * @return {@code this}.
+     */
     @OptionalCall
     public TypeInfoBuilder<T> of(List<TypeInfo<?>> related) {
 
@@ -118,6 +174,13 @@ public final class TypeInfoBuilder<T> {
         return this;
     }
 
+    /**
+     * Adds related types of the type {@link E}.
+     *
+     * @param related Related types.
+     * @param <E>     Type.
+     * @return {@code this}.
+     */
     @OptionalCall
     public <E> TypeInfoBuilder<T> ofE(List<TypeInfo<E>> related) {
 
@@ -128,18 +191,36 @@ public final class TypeInfoBuilder<T> {
         return this;
     }
 
+    /**
+     * Adds related types.
+     *
+     * @param related Related types.
+     * @return {@code this}.
+     */
     @OptionalCall
-    public final <E> TypeInfoBuilder<T> of(TypeInfo<?>... related) {
+    public final TypeInfoBuilder<T> of(TypeInfo<?>... related) {
         this.of(Arrays.asList(related));
         return this;
     }
 
+    /**
+     * Adds related types.
+     *
+     * @param related Related types.
+     * @return {@code this}.
+     */
     @OptionalCall
-    public final <E> TypeInfoBuilder<T> ofArray(TypeInfo<?>[] related) {
+    public final TypeInfoBuilder<T> ofArray(TypeInfo<?>[] related) {
         this.of(Arrays.asList(related));
         return this;
     }
 
+    /**
+     * Adds related types.
+     *
+     * @param builders Related types builders.
+     * @return {@code this}.
+     */
     @OptionalCall
     public TypeInfoBuilder<T> of(TypeInfoBuilder... builders) {
 
@@ -149,6 +230,12 @@ public final class TypeInfoBuilder<T> {
         return this;
     }
 
+    /**
+     * Adds related types.
+     *
+     * @param classes Related types classes.
+     * @return {@code this}.
+     */
     @SafeVarargs
     @OptionalCall
     public final <E> TypeInfoBuilder<T> of(Class<? extends E>... classes) {
@@ -164,6 +251,12 @@ public final class TypeInfoBuilder<T> {
         return this;
     }
 
+    /**
+     * Adds related types.
+     *
+     * @param classes Related types classes literal.
+     * @return {@code this}.
+     */
     @OptionalCall
     public final <E> TypeInfoBuilder<T> of(String... classes) {
 
@@ -178,45 +271,20 @@ public final class TypeInfoBuilder<T> {
         return this;
     }
 
-    // AND OF
-    @OptionalCall
-    public <E> TypeInfoBuilder<T> and(List<TypeInfo<E>> related) {
-        andCheck();
-        ofE(related);
-        return this;
-    }
-
-    @SafeVarargs
-    @OptionalCall
-    public final <E> TypeInfoBuilder<T> and(TypeInfo<E>... related) {
-        andCheck();
-        of(related);
-        return this;
-    }
-
-    @OptionalCall
-    public TypeInfoBuilder<T> and(TypeInfoBuilder... builders) {
-        andCheck();
-        of(builders);
-        return this;
-    }
-
-    @OptionalCall
-    public TypeInfoBuilder<T> and(Class<?>... classes) {
-        andCheck();
-        of(classes);
-        return this;
-    }
-
-    private void andCheck() {
-        if (related.size() == 0)
-            throw new IllegalStateException("'and' cannot be used here! Usage ex: referenceTo().a(Object.class).of(String.class).and(Class.class)");
-    }
-
+    /**
+     * Builds {@link TypeInfo} from this {@link TypeInfoBuilder}.
+     *
+     * @return {@link TypeInfo} from this {@link TypeInfoBuilder}.
+     */
     public TypeInfo<T> build() {
-        return to(this);
+        return TypeInfoBuilder.build(this);
     }
 
+    /**
+     * Builds {@link TypeInfo} of generic type {@link U} from this {@link TypeInfoBuilder}.
+     *
+     * @return {@link TypeInfo} of generic type {@link U} from this {@link TypeInfoBuilder}.
+     */
     @SuppressWarnings("unchecked")
     public <U> TypeInfo<U> buildGeneric() {
         return (TypeInfo<U>) this.build();

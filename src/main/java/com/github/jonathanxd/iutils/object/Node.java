@@ -27,74 +27,93 @@
  */
 package com.github.jonathanxd.iutils.object;
 
-import com.github.jonathanxd.iutils.container.BaseContainer;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.function.BiConsumer;
 
 /**
- * Created by jonathan on 14/02/16.
+ * Node is a representation of association of a key to a value.
+ *
+ * @param <K> Key type.
+ * @param <V> Value type.
  */
-public class Node<K, V> {
+public final class Node<K, V> {
 
+    /**
+     * Key.
+     */
     private final K key;
+
+    /**
+     * Value.
+     */
     private final V value;
 
+    /**
+     * Creates a node.
+     *
+     * @param key   Node key.
+     * @param value Node value.
+     */
     public Node(K key, V value) {
         this.key = key;
         this.value = value;
     }
 
-    public Node(Map.Entry<K, V> entry) {
-        this(entry.getKey(), entry.getValue());
-    }
-
-    public Node(BaseContainer<K> container1, BaseContainer<V> container2) {
-        this.key = container1.orElseThrow(() -> new NullPointerException("Empty container 1!"));
-        this.value = container2.orElseThrow(() -> new NullPointerException("Empty container 2!"));
-    }
-
-    public Node(Optional<K> container1, Optional<V> container2) {
-        this.key = container1.orElseThrow(() -> new NullPointerException("Empty optional 1!"));
-        this.value = container2.orElseThrow(() -> new NullPointerException("Empty optional 2!"));
-    }
-
-    public static <K, V> Node<? extends K, ? extends V> fromEntry(Map.Entry<? extends K, ? extends V> entry) {
+    /**
+     * Creates a node from a java map entry.
+     *
+     * @param entry Map entry.
+     * @return Node from java map entry values.
+     */
+    public static <K, V> Node<K, V> fromEntry(Map.Entry<? extends K, ? extends V> entry) {
         return new Node<>(entry.getKey(), entry.getValue());
     }
 
-    public static <K, V> Node<K, V> fromFlatEntry(Map.Entry<K, V> entry) {
-        return new Node<>(entry.getKey(), entry.getValue());
-    }
-
+    /**
+     * Creates a collection of nodes from a collection of map entries.
+     *
+     * @param entries Map entries.
+     * @param <K>     Key type.
+     * @param <V>     Value type.
+     * @return Collection of nodes from a collection of map entries.
+     */
     public static <K, V> Collection<Node<K, V>> fromEntryCollection(Collection<Map.Entry<K, V>> entries) {
 
-        if(entries == null)
+        if (entries == null)
             return Collections.emptyList();
 
         Collection<Node<K, V>> collection = new ArrayList<>();
 
-        entries.forEach(e -> collection.add(fromFlatEntry(e)));
+        entries.forEach(e -> collection.add(fromEntry(e)));
 
         return collection;
     }
 
+    /**
+     * Gets the key of this node.
+     *
+     * @return Key of this node.
+     */
     public K getKey() {
-        return key;
+        return this.key;
     }
 
+    /**
+     * Gets the value of this node.
+     *
+     * @return Value of this node.
+     */
     public V getValue() {
-        return value;
+        return this.value;
     }
 
     @Override
     public String toString() {
-        return "Node["+getKey()+"="+getValue()+"]";
+        return "Node[" + getKey() + "=" + getValue() + "]";
     }
 
     @Override
@@ -105,7 +124,7 @@ public class Node<K, V> {
     @Override
     public boolean equals(Object obj) {
 
-        if(obj instanceof Node) {
+        if (obj instanceof Node) {
             return ((Node) obj).key.equals(this.key) && ((Node) obj).value.equals(this.value);
         }
 
@@ -116,10 +135,22 @@ public class Node<K, V> {
         biConsumer.accept(this.getKey(), this.getValue());
     }
 
+    /**
+     * Creates a new instance of current node with a new {@link #key}.
+     *
+     * @param key new key.
+     * @return New instance of current node with a new {@link #key}.
+     */
     public Node<K, V> withNewKey(K key) {
         return new Node<>(key, this.getValue());
     }
 
+    /**
+     * Creates a new instance of current node with a new {@link #value}.
+     *
+     * @param value new value.
+     * @return New instance of current node with a new {@link #value}.
+     */
     public Node<K, V> withNewValue(V value) {
         return new Node<>(this.getKey(), value);
     }

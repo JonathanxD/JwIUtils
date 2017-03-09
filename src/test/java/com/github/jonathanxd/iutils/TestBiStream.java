@@ -38,9 +38,6 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Created by jonathan on 05/03/16.
- */
 public class TestBiStream {
 
 

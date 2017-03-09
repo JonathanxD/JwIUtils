@@ -27,30 +27,26 @@
  */
 package com.github.jonathanxd.iutils.reflection;
 
-/**
- * Created by jonathan on 20/08/16.
- */
-
 import com.github.jonathanxd.iutils.type.TypeInfo;
 
 /**
- * A link that have name and a {@link TypeInfo} of {@link T}
+ * A link that have name and a {@link TypeInfo Type Information} of {@link T result type}.
  *
- * @param <T> Type
+ * @param <T> Result type of invocation.
  */
 public interface NamedLink<T> extends Link<T> {
 
     /**
-     * Name of linked element.
+     * Gets the name of the link.
      *
-     * @return Name of linked element.
+     * @return Name of the link.
      */
     String getName();
 
     /**
-     * {@link TypeInfo} of linked element.
+     * Gets the {@link TypeInfo Type Information} of result type.
      *
-     * @return {@link TypeInfo} of linked element.
+     * @return {@link TypeInfo Type Information} of result type..
      */
     TypeInfo<T> getTypeInfo();
 

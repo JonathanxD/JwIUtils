@@ -31,16 +31,17 @@ import com.github.jonathanxd.iutils.collection.Walkable;
 import com.github.jonathanxd.iutils.function.collector.BiCollectors;
 import com.github.jonathanxd.iutils.function.stream.walkable.WalkableNodeBiStream;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-/**
- * Created by jonathan on 05/03/16.
- */
 public class TestWalkable {
 
-    public static void main(String[] args) {
+    @Test
+    public void test() {
 
         Map<String, Integer> map = new HashMap<>();
 
@@ -56,31 +57,21 @@ public class TestWalkable {
         biStream.sorted((key, value, key2, value2) -> Integer.compare(value, value2)).forEach((key, value) -> {
             System.out.println(key+" = "+value);
         });
-        /*
-        biStream.reduceTwo("", 0, (key, value, key2, value2) -> new Node<>(key + "&" + key2, value + value2));
-
-        biStream.reduceMixed(new ArrayList<>(), 0, (value, value2, value3, value4) -> {
-            value.add(value3);
-            return value2 + value4;
-        });*/
-
 
         int amount = biStream.reduceSecond("", 0, (value, key, value2, key2) -> value + value2);
 
-        System.out.println(map);
-
-        System.out.println("Sum: "+amount);
+        Assert.assertEquals(3061, amount);
 
         WalkableNodeBiStream<String, Integer> biStream2 = new WalkableNodeBiStream<>(Walkable.fromList(map));
 
         StringBuilder firstE = biStream2.collectKey(StringBuilder::new, StringBuilder::append);
-        System.out.println("first: "+firstE.toString());
 
+        Assert.assertEquals("bardizvizfoowizniz", firstE.toString());
 
         WalkableNodeBiStream<String, Integer> walkableBistream = new WalkableNodeBiStream<>(Walkable.fromList(map));
         LinkedHashMap<String, Integer> otherMap = walkableBistream.collect(BiCollectors.toMap(LinkedHashMap::new));
 
-        System.out.println("Other map: "+otherMap);
+        Assert.assertEquals(map, otherMap);
 
 
     }

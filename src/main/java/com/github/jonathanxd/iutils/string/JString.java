@@ -33,55 +33,107 @@ import java.util.Collections;
 import java.util.Map;
 
 /**
- * Created by jonathan on 27/05/16.
+ * A simple String that supports expression evaluation.
+ *
+ * Expressions must be added between
+ * <pre>${</pre>
+ * and
+ * <br>
+ * </pre>}</pre>.
+ *
+ * A map with available instances must be provided.
  */
 public class JString implements CharSequence {
 
+    /**
+     * Original string.
+     */
     private final String original;
-    private final String replaced;
 
+    /**
+     * Evaluated string.
+     */
+    private final String evaluated;
+
+    /**
+     * Creates a simple JString without provided variables.
+     *
+     * @param string Original string.
+     */
     public JString(String string) {
         this(string, Collections.emptyMap());
     }
 
+    /**
+     * Creates a JString and provide variables.
+     *
+     * @param string    Original string.
+     * @param variables Provided variables.
+     * @see MapUtils#mapOf(Object...)
+     */
     public JString(String string, Object... variables) {
         this(string, MapUtils.mapOf(variables));
     }
 
+    /**
+     * Creates a JString and provide variables.
+     *
+     * @param string    Original string.
+     * @param variables Provided variables.
+     */
     public JString(String string, Map<String, Object> variables) {
         this.original = string;
-        this.replaced = JStringUtil.apply(this.original, variables);
+        this.evaluated = JStringUtil.evaluate(this.original, variables);
     }
 
+    /**
+     * Creates a JString and provide variables.
+     *
+     * @param string    Original string.
+     * @param variables Provided variables.
+     * @return New {@link JString}.
+     * @see MapUtils#mapOf(Object...)
+     */
     public static JString of(String string, Object... variables) {
         return new JString(string, variables);
     }
 
     @Override
     public int length() {
-        return replaced.length();
+        return this.getEvaluated().length();
     }
 
     @Override
     public char charAt(int index) {
-        return replaced.charAt(length());
+        return this.getEvaluated().charAt(length());
     }
 
     @Override
     public CharSequence subSequence(int start, int end) {
-        return replaced.subSequence(start, end);
+        return this.getEvaluated().subSequence(start, end);
     }
 
+    /**
+     * Gets the original string.
+     *
+     * @return Original string.
+     */
     public String getOriginal() {
-        return original;
+        return this.original;
     }
 
-    public String getReplaced() {
-        return replaced;
+    /**
+     * Gets the evaluated string.
+     *
+     * @return Evaluated string.
+     */
+    public String getEvaluated() {
+        return this.evaluated;
     }
 
     @Override
     public String toString() {
-        return replaced;
+        return this.getEvaluated();
     }
+
 }

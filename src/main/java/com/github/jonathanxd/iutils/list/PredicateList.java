@@ -25,48 +25,30 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.object;
+package com.github.jonathanxd.iutils.list;
 
-import java.util.Objects;
+import java.util.List;
 
-public class IntNode<V> {
+/**
+ * A predicate list, the {@link #isAcceptable(Object)} method is called before adding the element, if it
+ * returns false, this list calls {@link #onReject(Object)} and does not add the element.
+ *
+ * @param <E> Type of element.
+ */
+public interface PredicateList<E> extends List<E> {
 
-    private final int key;
-    private final V value;
+    /**
+     * Return true if element is acceptable, false otherwise.
+     *
+     * @param e Element to test
+     * @return True if element is acceptable, false otherwise.
+     */
+    boolean isAcceptable(E e);
 
-    public IntNode(int key, V value) {
-        this.key = key;
-        this.value = value;
-    }
-
-    public int getKey() {
-        return key;
-    }
-
-    public V getValue() {
-        return value;
-    }
-
-    @Override
-    public String toString() {
-        return "Node[" + this.getKey() + "=" + this.getValue() + "]";
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(this.getKey(), this.getValue());
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-
-        if(obj instanceof IntNode<?>) {
-            IntNode<?> node = (IntNode<?>) obj;
-
-            return this.getKey() == node.getKey()
-                    && this.getValue().equals(node.getValue());
-        }
-
-        return super.equals(obj);
-    }
+    /**
+     * Called if element cannot be added because of a rejection of the predicate.
+     *
+     * @param e Element rejected
+     */
+    void onReject(E e);
 }

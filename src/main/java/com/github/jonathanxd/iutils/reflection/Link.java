@@ -28,34 +28,32 @@
 package com.github.jonathanxd.iutils.reflection;
 
 /**
- * Created by jonathan on 20/08/16.
- */
-
-/**
- * Represents a Link to an element that return a value of type {@link T}.
+ * Represents a link to a invokable element.
  *
- * A {@link Link} holds an element, this element must be {@link Invokable}.
- *
- * @param <T> Type of value that this element returns.
+ * @param <T> Result type of invocation of the element.
  */
 public interface Link<T> {
 
     /**
-     * Bind a instance to invocation, the bind-ed instance will be used to {@link
-     * #invoke(Object...)} element without providing the instance explicit.
+     * Binds a instance to invocation.
      *
-     * @param instance Instance to bind
-     * @param <U>      Type of instance
-     * @return Instance Bind-ed link.
+     * This method will not check if the target element requires a instance.
+     *
+     * @param instance Instance to bind.
+     * @param <U>      Type of instance.
+     * @return A link with the instance bind-ed.
      */
     <U> BindLink<U, T> bind(U instance);
 
     /**
-     * Invoke the linked element.
+     * Invokes the linked invokable element.
      *
-     * @param args Arguments, if this element is not static and has no instance bind-ed to link,
-     *             first argument MUST be the instance to be used to invoke the element.
-     * @return Element invocation result.
+     * If this is not a {@link BindLink} and the linked invokable element is a instance element, the
+     * first argument should be the instance (or you can bind the instance using {@link
+     * #bind(Object)}).
+     *
+     * @param args Arguments to pass to the invokable element.
+     * @return Result of invocation.
      */
     T invoke(Object... args);
 

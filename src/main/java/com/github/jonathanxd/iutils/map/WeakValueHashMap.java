@@ -44,7 +44,12 @@ import java.util.function.BiPredicate;
 import java.util.stream.Collectors;
 
 /**
- * Created by jonathan on 19/05/16.
+ * Weak Value version of {@link java.util.WeakHashMap}.
+ *
+ * All values are weak, when the value is collected by the GC, their associated key will be removed.
+ *
+ * @param <K> Key type.
+ * @param <V> Value type.
  */
 public class WeakValueHashMap<K, V> extends AbstractMap<K, V> {
 

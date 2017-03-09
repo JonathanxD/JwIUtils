@@ -156,8 +156,8 @@ public abstract class AbstractGrabber<T> implements Grabber<T> {
 
         T[] ts = generator.apply(size);
 
-        this.foreachRemainingIndexed((t, value, indexInArray) -> {
-            ts[value] = t;
+        this.foreachRemainingIndexed((t, value, count) -> {
+            ts[count] = t;
         });
 
         return ts;
@@ -169,8 +169,8 @@ public abstract class AbstractGrabber<T> implements Grabber<T> {
 
         T[] ts = generator.apply(size);
 
-        this.foreachRemainingIndexed(amount, (t, value, indexInArray) -> {
-            ts[value] = t;
+        this.foreachRemainingIndexed(amount, (t, value, count) -> {
+            ts[count] = t;
         });
 
         return ts;
@@ -212,7 +212,7 @@ public abstract class AbstractGrabber<T> implements Grabber<T> {
     public void foreachRemainingIndexed(ObjIntIntConsumer<T> consumer) {
         int includedIndex = 0;
 
-        for (int i = 0; i < this.getBlacklistedIndexes().length; i++) {
+        for (int i = 0; i < this.size(); i++) {
             if (!this.getBlacklistedIndexes()[i]) {
                 this.getBlacklistedIndexes()[i] = true;
 
@@ -229,7 +229,7 @@ public abstract class AbstractGrabber<T> implements Grabber<T> {
     public void foreachRemaining(int amount, Consumer<T> consumer) {
         int currentAmount = 0;
 
-        for (int i = 0; i < this.getBlacklistedIndexes().length; i++) {
+        for (int i = 0; i < this.size(); i++) {
             if (!this.getBlacklistedIndexes()[i]) {
                 this.getBlacklistedIndexes()[i] = true;
 
@@ -251,7 +251,7 @@ public abstract class AbstractGrabber<T> implements Grabber<T> {
     public void foreachRemainingIndexed(int amount, ObjIntIntConsumer<T> consumer) {
         int currentAmount = 0;
 
-        for (int i = 0; i < this.getBlacklistedIndexes().length; i++) {
+        for (int i = 0; i < this.size(); i++) {
             if (!this.getBlacklistedIndexes()[i]) {
                 this.getBlacklistedIndexes()[i] = true;
                 // In this case, the current amount variable can be used instead of 'included Element Index'
@@ -286,7 +286,7 @@ public abstract class AbstractGrabber<T> implements Grabber<T> {
     public List<T> whitelistedElements() {
         List<T> list = new ArrayList<>();
 
-        for (int i = 0; i < this.getBlacklistedIndexes().length; i++) {
+        for (int i = 0; i < this.size(); i++) {
             if (!this.getBlacklistedIndexes()[i])
                 list.add(list.get(i));
         }
@@ -298,7 +298,7 @@ public abstract class AbstractGrabber<T> implements Grabber<T> {
     public List<T> blacklistedElements() {
         List<T> array = new ArrayList<>();
 
-        for (int i = 0; i < this.getBlacklistedIndexes().length; i++) {
+        for (int i = 0; i < this.size(); i++) {
             if (this.getBlacklistedIndexes()[i])
                 array.add(array.get(i));
         }
@@ -311,7 +311,7 @@ public abstract class AbstractGrabber<T> implements Grabber<T> {
     }
 
     protected int calculateNonExcludedIndex() {
-        for (int i = 0; i < this.getBlacklistedIndexes().length; i++) {
+        for (int i = 0; i < this.size(); i++) {
             if (!this.getBlacklistedIndexes()[i])
                 return i;
         }
@@ -431,8 +431,8 @@ public abstract class AbstractGrabber<T> implements Grabber<T> {
      */
     @Override
     public String toString() {
-        InJoiner inJoiner = new InJoiner(new @Named("Included") StringJoiner(", ", "[", "]"),
-                () -> new @Named("Excluded") StringJoiner(", ", "(", ")"));
+        InJoiner inJoiner = new InJoiner(new StringJoiner(", ", "[", "]"),
+                () -> new StringJoiner(", ", "-(", ")"));
 
         for (int x = 0; x < this.allElementsSize(); ++x) {
             if (this.getBlacklistedIndexes()[x])

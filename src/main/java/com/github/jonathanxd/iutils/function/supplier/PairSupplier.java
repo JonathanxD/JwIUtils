@@ -30,7 +30,10 @@ package com.github.jonathanxd.iutils.function.supplier;
 import com.github.jonathanxd.iutils.object.Pair;
 
 /**
- * Created by jonathan on 05/03/16.
+ * A supplier of a pair.
+ *
+ * @param <T> First pair value type.
+ * @param <U> Second pair value type.
  */
 @FunctionalInterface
 public interface PairSupplier<T, U> {

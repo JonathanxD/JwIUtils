@@ -27,6 +27,9 @@
  */
 package com.github.jonathanxd.iutils.function.predicate;
 
+/**
+ * A predicate of two {@code long} arguments.
+ */
 @FunctionalInterface
 public interface BiLongPredicate {
 

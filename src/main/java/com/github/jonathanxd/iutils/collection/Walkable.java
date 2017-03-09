@@ -27,7 +27,7 @@
  */
 package com.github.jonathanxd.iutils.collection;
 
-import com.github.jonathanxd.iutils.comparison.Comparison;
+import com.github.jonathanxd.iutils.sort.SortingResult;
 import com.github.jonathanxd.iutils.function.Predicates;
 import com.github.jonathanxd.iutils.iterator.IteratorUtil;
 import com.github.jonathanxd.iutils.object.Node;
@@ -333,15 +333,15 @@ public interface Walkable<T> {
 
     /**
      * Compares all elements of this walkable and returns a list sorted list boxed in {@link
-     * Comparison}.
+     * SortingResult}.
      *
      * @param comparator Comparator.
      * @return Comparison of elements.
      */
-    default Comparison<T> compareToComparison(Comparator<? super T> comparator) {
+    default SortingResult<T> compareToComparison(Comparator<? super T> comparator) {
         List<T> sorted = this.allElementsToList().stream().sorted(comparator).collect(Collectors.toList());
 
-        return new Comparison<>(sorted);
+        return new SortingResult<>(sorted);
     }
 
     /**

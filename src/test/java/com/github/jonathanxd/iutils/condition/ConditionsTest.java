@@ -31,13 +31,11 @@ import com.github.jonathanxd.iutils.exception.ArraySizeException;
 
 import org.junit.Test;
 
-/**
- * Created by jonathan on 28/05/16.
- */
 public class ConditionsTest {
 
     @Test(expected = ArraySizeException.class)
     public void conditionsTest() {
         Conditions.checkSize(new String[8], 1, 7);
     }
+
 }

@@ -27,6 +27,15 @@
  */
 package com.github.jonathanxd.iutils.function.function;
 
+/**
+ * Quad function. Takes four parameters and returns a value of type {@link R}.
+ *
+ * @param <T> First parameter type.
+ * @param <U> Second parameter type.
+ * @param <V> Third parameter type.
+ * @param <D> Fourth parameter type.
+ * @param <R> Result value type.
+ */
 @FunctionalInterface
 public interface QuadFunction<T, U, V, D, R> {
     R apply(T t, U u, V v, D d);

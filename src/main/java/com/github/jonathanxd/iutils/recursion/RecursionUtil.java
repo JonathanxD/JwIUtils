@@ -25,66 +25,82 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.function;
+package com.github.jonathanxd.iutils.recursion;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.stream.Stream;
 
 /**
- * Created by jonathan on 28/02/16.
+ * Utilities to work with recursion.
  */
-public class FunctionUtil {
+public final class RecursionUtil {
 
-    @SuppressWarnings("unchecked")
-    public static <T, R> R[] as(T[] array, Function<T, R> translator) {
-        List<R> list = new ArrayList<>();
-
-        Class<?> type = null;
-        for(T t : array) {
-            R o =translator.apply(t);
-            list.add(o);
-            if(type == null)
-                type = o.getClass();
-        }
-
-        if(type != null) {
-            return list.toArray((R[]) Array.newInstance(type, list.size()));
-        }else{
-            return (R[]) new Object[]{};
-        }
+    private RecursionUtil() {
+        throw new UnsupportedOperationException();
     }
 
-    public static <T> String[] asString(T[] array) {
-        return as(array, Object::toString);
-    }
-
+    /**
+     * Recursively foreach elements of {@code list}.
+     *
+     * Recursive loop stops when {@code function} returns a null value for {@link
+     * Function#apply(Object)} method.
+     *
+     * @param list     List.
+     * @param function Function to extract list from the list value.
+     * @param <T>      Type of values.
+     */
     public static <T> void recursiveForEach(List<? extends T> list, Function<T, List<? extends T>> function) {
+        Objects.requireNonNull(list);
+        Objects.requireNonNull(function);
+
         for (T t : list) {
             List<? extends T> apply = function.apply(t);
 
-            if(apply != null) {
-                recursiveForEach(apply, function);
+            if (apply != null) {
+                RecursionUtil.recursiveForEach(apply, function);
             }
         }
     }
 
+    /**
+     * Recursively foreach a value.
+     *
+     * Recursive loop stops when {@code func} returns a null value for {@link
+     * Function#apply(Object)} method.
+     *
+     * @param value Value.
+     * @param func  Function to extract new value (the value returned by the function is nullable).
+     * @param <T>   Type of value.
+     */
     public static <T> void recursiveValForeach(T value, Function<T, T> func) {
+        Objects.requireNonNull(value);
+        Objects.requireNonNull(func);
+
         T other = func.apply(value);
 
-        if(other != null)
-            recursiveValForeach(other, func);
+        if (other != null)
+            RecursionUtil.recursiveValForeach(other, func);
     }
 
 
+    /**
+     * Recursively loop values and add them to list.
+     *
+     * Recursive loop stops when {@code func} returns a null value for {@link
+     * Function#apply(Object)} method.
+     *
+     * @param value Value.
+     * @param func  Function to extract new value (the value returned by the function is nullable).
+     * @param <T>   Type of value.
+     * @return A list with all values.
+     */
     public static <T> List<T> recursiveValToList(T value, Function<T, T> func) {
         List<T> list = new ArrayList<>();
 
-        recursiveValForeach(value, t -> {
+        RecursionUtil.recursiveValForeach(value, t -> {
             list.add(t);
             return func.apply(t);
         });
@@ -92,34 +108,4 @@ public class FunctionUtil {
         return list;
     }
 
-
-    public static class Optionals {
-
-        public static <T> void recursiveValForeach(T value, Function<T, Optional<T>> func) {
-            func.apply(value).ifPresent(other -> recursiveValForeach(other, func));
-        }
-
-
-        public static <T> List<T> recursiveValToList(T value, Function<T, Optional<T>> func) {
-            List<T> list = new ArrayList<>();
-
-            recursiveValForeach(value, t -> {
-                list.add(t);
-                return func.apply(t);
-            });
-
-            return list;
-        }
-
-        public static <T> void recursiveForEach(List<? extends T> list, Function<T, Optional<List<? extends T>>> function) {
-            for (T t : list) {
-                Optional<List<? extends T>> apply = function.apply(t);
-
-                if(apply.isPresent()) {
-                    recursiveForEach(apply.get(), function);
-                }
-            }
-        }
-
-    }
 }

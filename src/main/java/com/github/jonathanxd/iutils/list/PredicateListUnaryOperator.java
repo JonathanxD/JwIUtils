@@ -25,36 +25,33 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.reflection;
+package com.github.jonathanxd.iutils.list;
 
-public class RClass {
-	
-	private Class<?> clazz;
-	private Object obj = null;
-	
-	RClass(Class<?> classRef, Object object) {
-		this.clazz = classRef;
-		this.obj = object;
-	}
-	
-	public Class<?> getClassRef() {
-		return clazz;
-	}
-	
-	public Object getObjectRef() {
-		return obj;
-	}
-	
-	public static RClass getRClass(Class<?> clazz){
-		return new RClass(clazz, null);
-	}
+import java.util.function.UnaryOperator;
 
-	public static RClass getRClass(Object classInstance){
-		return new RClass(classInstance.getClass(), classInstance);
-	}
+/**
+ * PredicateList unary operator.
+ *
+ * @param <T> Type of elements.
+ */
+class PredicateListUnaryOperator<T> implements UnaryOperator<T> {
 
-	public static RClass getRClass(Class<?> clazz, Object classInstance){
-		return new RClass(clazz, classInstance);
-	}
+    private final PredicateList<T> predicate;
+    private final UnaryOperator<T> unaryOperator;
 
+    PredicateListUnaryOperator(PredicateList<T> predicate, UnaryOperator<T> unaryOperator) {
+        this.predicate = predicate;
+        this.unaryOperator = unaryOperator;
+    }
+
+    @Override
+    public T apply(T t) {
+
+        T result = this.unaryOperator.apply(t);
+
+        if (!this.predicate.isAcceptable(result))
+            throw new IllegalArgumentException("Cannot replace element '" + t + "' with '" + result + "': Predicate rejected the element.");
+
+        return result;
+    }
 }

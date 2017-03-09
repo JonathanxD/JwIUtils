@@ -28,37 +28,66 @@
 package com.github.jonathanxd.iutils.list;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.function.Predicate;
 
 /**
- * Created by jonathan on 12/05/16.
+ * A predicate {@link java.util.ArrayList}.
+ *
+ * @param <E> Element type.
  */
-public class PredicateArrayList<E> extends AbstractPredicateList<E> implements IPredicateList<E> {
+public class PredicateArrayList<E> extends AbstractPredicateList<E> implements PredicateList<E> {
 
+    /**
+     * Predicate to test elements to add.
+     */
     private final Predicate<E> predicate;
 
+    /**
+     * Creates a predicate array list.
+     *
+     * @param initialCapacity Initial capacity of list.
+     * @param predicate       Predicate to test elements to add.
+     */
     public PredicateArrayList(int initialCapacity, Predicate<E> predicate) {
         super(initialCapacity);
         this.predicate = predicate;
     }
 
+    /**
+     * Creates a predicate array list.
+     *
+     * @param predicate Predicate to test elements to add.
+     */
     public PredicateArrayList(Predicate<E> predicate) {
         super();
         this.predicate = predicate;
     }
 
+    /**
+     * Creates a predicate array list.
+     *
+     * @param c         Initial elements.
+     * @param predicate Predicate to test elements to add.
+     */
     public PredicateArrayList(Collection<? extends E> c, Predicate<E> predicate) {
         super(c);
         this.predicate = predicate;
     }
 
     @Override
-    public boolean test(E e) {
+    public boolean isAcceptable(E e) {
         return predicate.test(e);
     }
 
     @Override
-    public void reject(E e) {
-        throw new IllegalArgumentException("Cannot accept element '"+e+"'");
+    public void onReject(E e) {
+        throw new IllegalArgumentException("Cannot accept element '" + e + "'");
     }
+
+    @Override
+    public List<E> subList(int fromIndex, int toIndex) {
+        return new PredicateArrayList<>(super.subList(fromIndex, toIndex), this.predicate);
+    }
+
 }

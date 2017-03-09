@@ -27,28 +27,49 @@
  */
 package com.github.jonathanxd.iutils.type;
 
-import com.github.jonathanxd.iutils.array.ArrayUtils;
-import com.github.jonathanxd.iutils.reflection.RClass;
-import com.github.jonathanxd.iutils.reflection.Reflection;
+import java.util.ArrayList;
+import java.util.List;
 
-public class DynamicTypeInfo<T> extends TypeInfo<T> {
+/**
+ * A {@link TypeInfo} that have dyamic related elements.
+ *
+ * @param <T> Type.
+ */
+public final class DynamicTypeInfo<T> extends TypeInfo<T> {
+
+    private final List<TypeInfo<?>> related = new ArrayList<>();
+
     DynamicTypeInfo(Class<? extends T> aClass, TypeInfo[] related, boolean isUnique) {
         super(aClass, related, isUnique);
+
+        for (TypeInfo typeInfo : related) {
+            this.related.add(typeInfo);
+        }
     }
 
     DynamicTypeInfo(String classLiteral, TypeInfo[] related, boolean isUnique) {
         super(classLiteral, related, isUnique);
+
+        for (TypeInfo typeInfo : related) {
+            this.related.add(typeInfo);
+        }
     }
 
     public void addRelated(TypeInfo<?> typeInfo) {
-        try {
-            Reflection.changeFinalField(RClass.getRClass(TypeInfo.class, this), "related", ArrayUtils.addToArray(getRelated(), typeInfo));
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        this.related.add(typeInfo);
     }
 
     public TypeInfo<T> toReference() {
         return new TypeInfo<>(this.getClassLiteral(), this.getRelated(), this.isUnique());
+    }
+
+    @Override
+    public TypeInfo[] getRelated() {
+        return this.related.toArray(new TypeInfo[this.related.size()]);
+    }
+
+    @Override
+    protected TypeInfo[] fastGetRelated() {
+        return this.getRelated();
     }
 }

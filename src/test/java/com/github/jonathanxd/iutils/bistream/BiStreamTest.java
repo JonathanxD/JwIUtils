@@ -37,9 +37,6 @@ import org.junit.Test;
 import java.util.Collections;
 import java.util.Map;
 
-/**
- * Created by jonathan on 25/06/16.
- */
 public class BiStreamTest {
 
     @Test
@@ -52,24 +49,12 @@ public class BiStreamTest {
                 .filter((s, integer) -> integer == 1)
                 .collect(BiCollectors.toMap());
 
-        System.out.println(collect);
-
         Assert.assertEquals(2, collect.size());
 
+        Assert.assertTrue(MapStream.of(Collections.emptyMap()).count() == 0);
 
-        MapStream.of(Collections.emptyMap()).forEach((o, o2) -> System.out.println(o+", "+o2));
-
-        MapStream.of(null).filter((o, o2) -> o != Integer.valueOf(0)).forEach((o, o2) -> System.out.println(o+", "+o2));
-
-        MapStream.of(Collections.<String, Integer>emptyMap())
-                .filter((s, integer) -> integer < 0)
-                .forEach((s, integer) -> System.out.println(s+", "+integer));
-
-        MapStream.of(Collections.emptyMap()).collect(BiCollectors.toMap());
-
-        MapStream.of(myMap).filter((s, integer) -> integer < 0).forEach((s, integer) -> System.out.println(s+", "+integer));
         Map<String, Integer> collect1 = MapStream.of(myMap).filter((s, integer) -> integer < 0).collect(BiCollectors.toMap());
 
-        System.out.println(collect1);
+        Assert.assertTrue(collect1.isEmpty());
     }
 }
