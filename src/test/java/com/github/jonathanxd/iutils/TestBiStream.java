@@ -27,6 +27,7 @@
  */
 package com.github.jonathanxd.iutils;
 
+import com.github.jonathanxd.iutils.function.stream.BiStreams;
 import com.github.jonathanxd.iutils.function.stream.MapStream;
 import com.github.jonathanxd.iutils.machine.Machine;
 import com.github.jonathanxd.iutils.machine.defaultspec.MSpec;
@@ -62,8 +63,8 @@ public class TestBiStream {
 
         allMachines.put("MACHINE_MAP_2", machineMap2);
         //////////////////////////////////////////////////////////////////////////////
-        MapStream.of(allMachines)
-                .flatMap((key, value) -> MapStream.of(value))
+        BiStreams.mapStream(allMachines)
+                .flatMap((key, value) -> BiStreams.mapStream(value))
                 .forEach((s, machine1) -> System.out.println("Machine name: " + s + ". Machine: " + machine1));
 
 

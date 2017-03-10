@@ -28,6 +28,7 @@
 package com.github.jonathanxd.iutils.option;
 
 import com.github.jonathanxd.iutils.function.stream.BiStream;
+import com.github.jonathanxd.iutils.function.stream.BiStreams;
 import com.github.jonathanxd.iutils.function.stream.MapStream;
 
 import java.util.Collections;
@@ -117,7 +118,7 @@ public final class Options {
      * @return {@link BiStream} of all options and their values.
      */
     public BiStream<Option<?>, Object> stream() {
-        return MapStream.of(this.optionMap);
+        return BiStreams.mapStream(this.optionMap);
     }
 
     /**

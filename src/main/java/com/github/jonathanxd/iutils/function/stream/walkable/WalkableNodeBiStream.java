@@ -28,7 +28,6 @@
 package com.github.jonathanxd.iutils.function.stream.walkable;
 
 import com.github.jonathanxd.iutils.collection.Walkable;
-import com.github.jonathanxd.iutils.sort.SortingResult;
 import com.github.jonathanxd.iutils.container.IMutableContainer;
 import com.github.jonathanxd.iutils.container.MutableContainer;
 import com.github.jonathanxd.iutils.function.binary.BiBinaryOperator;
@@ -45,6 +44,7 @@ import com.github.jonathanxd.iutils.function.function.NodeFunction;
 import com.github.jonathanxd.iutils.function.function.TriFunction;
 import com.github.jonathanxd.iutils.function.stream.BiStream;
 import com.github.jonathanxd.iutils.object.Node;
+import com.github.jonathanxd.iutils.sort.SortingResult;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -67,11 +67,12 @@ import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
 /**
- * Created by jonathan on 05/03/16.
+ * A {@link BiStream} backed by a {@link Walkable}.
+ *
+ * @param <T> First value type.
+ * @param <U> Second value type.
  */
 public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<Node<T, U>>> {
-
-    //int index = 0;
 
     public WalkableNodeBiStream(Walkable<Node<T, U>> entries) {
         super(entries);
@@ -506,8 +507,7 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
         consume(n -> nodeContainer.mapThisValue(
                 current -> current.withNewValue(
                         accumulator.apply(nodeContainer.get().getKey(), nodeContainer.get().getValue(), n.getKey(), n.getValue())
-                )
-                )
+                ))
         );
 
         return nodeContainer.get();

@@ -27,6 +27,7 @@
  */
 package com.github.jonathanxd.iutils.type;
 
+import com.github.jonathanxd.iutils.object.Pair;
 import com.github.jonathanxd.iutils.reflection.Reflection;
 
 import java.lang.reflect.GenericArrayType;
@@ -37,10 +38,31 @@ import java.lang.reflect.WildcardType;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Created by jonathan on 28/02/16.
- */
 public class TypeUtil {
+
+    /**
+     * Gets the array base type.
+     *
+     * @param arrayType Array type.
+     * @return Pair of array base type and dimensions.
+     */
+    public static Pair<Class<?>, Integer> getArrayBaseType(Class<?> arrayType) {
+
+        if (arrayType.isArray()) {
+            Class<?> component = arrayType;
+
+            int dimensions = 0;
+
+            do {
+                ++dimensions;
+            } while ((component = component.getComponentType()).isArray());
+
+
+            return Pair.of(component, dimensions);
+        } else {
+            return Pair.of(arrayType, 0);
+        }
+    }
 
     /**
      * Creates a {@link TypeInfo} from type variables of {@code subClass} using reified types of

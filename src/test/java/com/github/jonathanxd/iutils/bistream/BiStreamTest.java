@@ -28,6 +28,7 @@
 package com.github.jonathanxd.iutils.bistream;
 
 import com.github.jonathanxd.iutils.function.collector.BiCollectors;
+import com.github.jonathanxd.iutils.function.stream.BiStreams;
 import com.github.jonathanxd.iutils.function.stream.MapStream;
 import com.github.jonathanxd.iutils.map.MapUtils;
 
@@ -45,15 +46,15 @@ public class BiStreamTest {
 
         Map<String, Integer> myMap = MapUtils.mapOf("A:1", 1, "B:2", 2, "C:1", 1, "D:3", 3);
 
-        Map<String, Integer> collect = MapStream.of(myMap)
+        Map<String, Integer> collect = BiStreams.mapStream(myMap)
                 .filter((s, integer) -> integer == 1)
                 .collect(BiCollectors.toMap());
 
         Assert.assertEquals(2, collect.size());
 
-        Assert.assertTrue(MapStream.of(Collections.emptyMap()).count() == 0);
+        Assert.assertTrue(BiStreams.mapStream(Collections.emptyMap()).count() == 0);
 
-        Map<String, Integer> collect1 = MapStream.of(myMap).filter((s, integer) -> integer < 0).collect(BiCollectors.toMap());
+        Map<String, Integer> collect1 = BiStreams.mapStream(myMap).filter((s, integer) -> integer < 0).collect(BiCollectors.toMap());
 
         Assert.assertTrue(collect1.isEmpty());
     }

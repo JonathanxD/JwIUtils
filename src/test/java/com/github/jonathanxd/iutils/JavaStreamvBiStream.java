@@ -27,6 +27,7 @@
  */
 package com.github.jonathanxd.iutils;
 
+import com.github.jonathanxd.iutils.function.stream.BiStreams;
 import com.github.jonathanxd.iutils.function.stream.MapStream;
 
 import org.junit.Test;
@@ -69,7 +70,18 @@ public class JavaStreamvBiStream {
     public void jwBiStream() {
         System.out.println("Jw BiStream");
 
-        MapStream.of(map).filter((integer, s) -> {
+        BiStreams.mapStream(map).filter((integer, s) -> {
+            printStack(new RuntimeException().getStackTrace());
+
+            return integer < 0;
+        }).forEach(JavaStreamvBiStream::print);
+    }
+
+    @Test
+    public void jwJavaBiStream() {
+        System.out.println("Jw BiStream");
+
+        BiStreams.fromJavaStream(map.entrySet().stream()).filter((integer, s) -> {
             printStack(new RuntimeException().getStackTrace());
 
             return integer < 0;

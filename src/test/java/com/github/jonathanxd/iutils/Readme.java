@@ -28,6 +28,7 @@
 package com.github.jonathanxd.iutils;
 
 import com.github.jonathanxd.iutils.function.stream.BiStream;
+import com.github.jonathanxd.iutils.function.stream.BiStreams;
 import com.github.jonathanxd.iutils.function.stream.MapStream;
 import com.github.jonathanxd.iutils.string.ToStringHelper;
 
@@ -53,7 +54,7 @@ public class Readme {
         personMap.put(Priority.NORMAL, new Person("Mark", 19));
 
         // Create stream
-        BiStream<Priority, Person> biStream = MapStream.of(personMap);
+        BiStream<Priority, Person> biStream = BiStreams.mapStream(personMap);
 
         // Print elements
 
@@ -63,7 +64,7 @@ public class Readme {
         System.out.println("Sort by priority");
 
         // Sort by priority
-        MapStream.of(personMap)
+        BiStreams.mapStream(personMap)
                 // Compare priorities
                 .sorted((priority, person, priority2, person2) -> priority.compareTo(priority2))
                 // Print
@@ -74,7 +75,7 @@ public class Readme {
         System.out.println("Sort by age");
 
         // Sort by age
-        MapStream.of(personMap)
+        BiStreams.mapStream(personMap)
                 // Compare ages
                 .sorted((priority, person, priority2, person2) -> Integer.compare(person.getAge(), person2.getAge()))
                 // Print
@@ -84,7 +85,7 @@ public class Readme {
         System.out.println("Sort by name");
 
         // Sort by name
-        MapStream.of(personMap)
+        BiStreams.mapStream(personMap)
                 // Compare Person names
                 .sorted((priority, person, priority2, person2) -> person.getName().compareTo(person2.getName()))
                 // Print

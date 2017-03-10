@@ -27,6 +27,7 @@
  */
 package com.github.jonathanxd.iutils.reflection;
 
+import com.github.jonathanxd.iutils.function.stream.BiStreams;
 import com.github.jonathanxd.iutils.function.stream.MapStream;
 import com.github.jonathanxd.iutils.list.ListSet;
 
@@ -99,7 +100,7 @@ public final class ClassUtil {
 
         }
 
-        return MapStream.of(map).streamMap((e, integer) -> new Leveled<>(integer, e)).collect(Collectors.toList());
+        return BiStreams.mapStream(map).streamMap((e, integer) -> new Leveled<>(integer, e)).collect(Collectors.toList());
     }
 
     private static void getSuperTypesLeveled(Class<?> aClass, List<Leveled<Class<?>>> list, int level) {

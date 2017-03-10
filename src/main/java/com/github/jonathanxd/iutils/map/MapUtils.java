@@ -30,6 +30,7 @@ package com.github.jonathanxd.iutils.map;
 import com.github.jonathanxd.iutils.condition.Conditions;
 import com.github.jonathanxd.iutils.function.collector.BiCollectors;
 import com.github.jonathanxd.iutils.function.comparators.BiComparator;
+import com.github.jonathanxd.iutils.function.stream.BiStreams;
 import com.github.jonathanxd.iutils.function.stream.MapStream;
 import com.github.jonathanxd.iutils.object.Pair;
 
@@ -57,7 +58,7 @@ public final class MapUtils {
      * @return Sorted map.
      */
     public static <K, V> Map<K, V> sorted(Map<K, V> map, BiComparator<K, V> biComparator) {
-        return MapStream.of(map).sorted(biComparator).collect(BiCollectors.toMap());
+        return BiStreams.mapStream(map).sorted(biComparator).collect(BiCollectors.toMap());
     }
 
     /**
@@ -73,7 +74,7 @@ public final class MapUtils {
      * @return Sorted map of type {@link MAP}.
      */
     public static <K, V, MAP extends Map<K, V>> MAP sorted(Map<K, V> map, Supplier<MAP> mapSupplier, BiComparator<K, V> biComparator) {
-        return MapStream.of(map).sorted(biComparator).collect(BiCollectors.toMap(mapSupplier));
+        return BiStreams.mapStream(map).sorted(biComparator).collect(BiCollectors.toMap(mapSupplier));
     }
 
     /**
