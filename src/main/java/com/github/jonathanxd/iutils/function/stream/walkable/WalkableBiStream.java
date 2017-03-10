@@ -31,9 +31,14 @@ import com.github.jonathanxd.iutils.collection.Walkable;
 import com.github.jonathanxd.iutils.function.stream.BiStream;
 
 /**
- * Created by jonathan on 05/03/16.
+ * Abstract simple implementation of {@link BiStream} that holds a {@link Walkable}.
+ *
+ * @param <T> First value type.
+ * @param <U> Second value type.
+ * @param <W> Walkable type.
  */
 public abstract class WalkableBiStream<T, U, W extends Walkable> implements BiStream<T, U> {
+
     private final W walkable;
     private final Runnable closeRunnable;
 
@@ -47,27 +52,34 @@ public abstract class WalkableBiStream<T, U, W extends Walkable> implements BiSt
         this.closeRunnable = closeRunnable;
     }
 
+    /**
+     * Always a sequential stream, if you want a parallel stream use the {@link
+     * com.github.jonathanxd.iutils.function.stream.BiJavaStream} that wraps and delegates
+     * operations to a {@link java.util.stream.Stream Java Stream}.
+     *
+     * {@inheritDoc}
+     */
     @Override
     public boolean isParallel() {
         return false;
     }
 
     protected W getWalkable() {
-        return walkable;
+        return this.walkable;
     }
 
     protected void updateState() {
-        if(!getWalkable().hasNext())
-            close();
+        if (!this.getWalkable().hasNext())
+            this.close();
     }
 
     @Override
     public void close() {
 
-        if(getWalkable().hasNext())
-            getWalkable().walkToEnd();
+        if (this.getWalkable().hasNext())
+            this.getWalkable().walkToEnd();
 
-        if(closeRunnable != null)
-            closeRunnable.run();
+        if (this.closeRunnable != null)
+            this.closeRunnable.run();
     }
 }

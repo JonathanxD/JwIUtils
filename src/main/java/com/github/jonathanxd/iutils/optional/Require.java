@@ -30,11 +30,24 @@ package com.github.jonathanxd.iutils.optional;
 import java.util.function.Function;
 
 /**
- * Created by jonathan on 13/02/16.
+ * Optional require.
  */
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-public class Require {
+public final class Require {
 
+    private Require() {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Require that {@code optional} have a present value.
+     *
+     * @param optional Optional.
+     * @param message  Message to show if the optional does not have a value.
+     * @param <T>      Type of the value.
+     * @return Value if present.
+     * @throws IllegalStateException If there is not value in the {@code optional}.
+     */
     public static <T> T require(java.util.Optional<T> optional, String message) {
         if (optional == null || !optional.isPresent())
             throw new IllegalStateException(message);
@@ -42,15 +55,16 @@ public class Require {
         return optional.get();
     }
 
+    /**
+     * Require that {@code optional} have a present value.
+     *
+     * @param optional Optional.
+     * @param <T>      Type of the value.
+     * @return Value if present.
+     * @throws IllegalStateException If there is not value in the {@code optional}.
+     */
     public static <T> T require(java.util.Optional<T> optional) {
-        return require(optional, "Optional cannot be EMPTY");
-    }
-
-    public static <T, R> java.util.Optional<R> ifPresent(java.util.Optional<T> optional, Function<T, R> function) {
-        if (optional.isPresent())
-            return java.util.Optional.of(function.apply(optional.get()));
-
-        return java.util.Optional.empty();
+        return require(optional, "Optional cannot be empty!");
     }
 
 }

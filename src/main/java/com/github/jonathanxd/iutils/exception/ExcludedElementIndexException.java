@@ -28,7 +28,7 @@
 package com.github.jonathanxd.iutils.exception;
 
 /**
- * Created by jonathan on 27/05/16.
+ * Occurs when tries to grab a excluded element.
  */
 public class ExcludedElementIndexException extends RuntimeException {
     public ExcludedElementIndexException() {

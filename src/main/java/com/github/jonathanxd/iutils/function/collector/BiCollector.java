@@ -29,29 +29,69 @@ package com.github.jonathanxd.iutils.function.collector;
 
 import com.github.jonathanxd.iutils.function.consumer.TriConsumer;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
- * Created by jonathan on 05/03/16.
+ * BiCollector version of {@link java.util.stream.Collector}.
+ *
+ * @param <T> Type of input element.
+ * @param <U> Type of second input element.
+ * @param <A> Accumulator type.
+ * @param <R> Result type.
  */
 public interface BiCollector<T, U, A, R> {
 
+    /**
+     * Creates a BiCollector from {@code supplier} and {@code accumulator}.
+     *
+     * @param supplier    Supplier.
+     * @param accumulator Accumulator.
+     * @param <T>         Type of input element.
+     * @param <U>         Type of second input element.
+     * @param <R>         Result type.
+     * @return BiCollector from {@code supplier} and {@code accumulator}.
+     */
     static <T, U, R> BiCollector<T, U, R, R> of(Supplier<R> supplier, TriConsumer<R, T, U> accumulator) {
         return new BiCollectors.CommonBiCollector<>(supplier, accumulator);
     }
 
+    /**
+     * Creates a BiCollector from {@code supplier} and {@code accumulator} and finishes with {@code
+     * finisher}.
+     *
+     * @param supplier    Supplier.
+     * @param accumulator Accumulator.
+     * @param <T>         Type of input element.
+     * @param <U>         Type of second input element.
+     * @param <A>         Accumulator type.
+     * @param <R>         Result type.
+     * @return BiCollector from {@code supplier} and {@code accumulator} and finishes with {@code
+     * finisher}.
+     */
     static <T, U, A, R> BiCollector<T, U, A, R> of(Supplier<A> supplier, TriConsumer<A, T, U> accumulator, Function<A, R> finisher) {
         return new BiCollectors.CommonBiCollector<>(supplier, accumulator, finisher);
     }
 
+    /**
+     * Accumulator supplier.
+     *
+     * @return Accumulator supplier.
+     */
     Supplier<A> supplier();
 
+    /**
+     * Accumulator.
+     *
+     * @return Accumulator.
+     */
     TriConsumer<A, T, U> accumulator();
 
+    /**
+     * Reduction finisher.
+     *
+     * @return Reduction finisher.
+     */
     Function<A, R> finisher();
 
 

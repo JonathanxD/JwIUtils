@@ -28,18 +28,20 @@
 package com.github.jonathanxd.iutils;
 
 import com.github.jonathanxd.iutils.function.stream.BiStream;
+import com.github.jonathanxd.iutils.function.stream.BiStreams;
 import com.github.jonathanxd.iutils.function.stream.MapStream;
-import com.github.jonathanxd.iutils.string.ToString;
+import com.github.jonathanxd.iutils.string.ToStringHelper;
 
 import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Created by jonathan on 20/05/16.
- */
 public class Readme {
+
+    private static void print(Priority priority, Person person) {
+        System.out.printf("Priority = %s, Person = %s%n", priority.toString(), person.toString());
+    }
 
     @Test
     public void testMapStream() {
@@ -52,7 +54,7 @@ public class Readme {
         personMap.put(Priority.NORMAL, new Person("Mark", 19));
 
         // Create stream
-        BiStream<Priority, Person> biStream = MapStream.of(personMap);
+        BiStream<Priority, Person> biStream = BiStreams.mapStream(personMap);
 
         // Print elements
 
@@ -62,7 +64,7 @@ public class Readme {
         System.out.println("Sort by priority");
 
         // Sort by priority
-        MapStream.of(personMap)
+        BiStreams.mapStream(personMap)
                 // Compare priorities
                 .sorted((priority, person, priority2, person2) -> priority.compareTo(priority2))
                 // Print
@@ -73,7 +75,7 @@ public class Readme {
         System.out.println("Sort by age");
 
         // Sort by age
-        MapStream.of(personMap)
+        BiStreams.mapStream(personMap)
                 // Compare ages
                 .sorted((priority, person, priority2, person2) -> Integer.compare(person.getAge(), person2.getAge()))
                 // Print
@@ -83,15 +85,11 @@ public class Readme {
         System.out.println("Sort by name");
 
         // Sort by name
-        MapStream.of(personMap)
+        BiStreams.mapStream(personMap)
                 // Compare Person names
                 .sorted((priority, person, priority2, person2) -> person.getName().compareTo(person2.getName()))
                 // Print
                 .forEach(Readme::print);
-    }
-
-    private static void print(Priority priority, Person person) {
-        System.out.printf("Priority = %s, Person = %s%n", priority.toString(), person.toString());
     }
 
     private enum Priority {
@@ -111,16 +109,19 @@ public class Readme {
         }
 
         public String getName() {
-            return name;
+            return this.name;
         }
 
         public int getAge() {
-            return age;
+            return this.age;
         }
 
         @Override
         public String toString() {
-            return ToString.toString(this);
+            return ToStringHelper.helper("Person", ", ", "[", "]")
+                    .add("name", this.getName())
+                    .add("age", this.getAge())
+                    .toString();
         }
     }
 }

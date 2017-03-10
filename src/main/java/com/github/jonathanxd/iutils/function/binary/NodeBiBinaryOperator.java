@@ -29,9 +29,6 @@ package com.github.jonathanxd.iutils.function.binary;
 
 import com.github.jonathanxd.iutils.function.function.NodeBiFunction;
 
-/**
- * Created by jonathan on 05/03/16.
- */
 @FunctionalInterface
 public interface NodeBiBinaryOperator<T, U> extends NodeBiFunction<T, U, T, U, T, U> {
 }

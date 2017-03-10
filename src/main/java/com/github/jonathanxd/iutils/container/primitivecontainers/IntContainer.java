@@ -28,7 +28,7 @@
 package com.github.jonathanxd.iutils.container.primitivecontainers;
 
 import com.github.jonathanxd.iutils.container.BaseContainer;
-import com.github.jonathanxd.iutils.container.Container;
+import com.github.jonathanxd.iutils.container.MutableContainer;
 import com.github.jonathanxd.iutils.container.UnknownContainer;
 
 /**
@@ -76,7 +76,7 @@ public class IntContainer implements UnknownContainer<Integer> {
 
     @Override
     public BaseContainer<Integer> box() {
-        return Container.of(i);
+        return MutableContainer.of(i);
     }
 
     @Override

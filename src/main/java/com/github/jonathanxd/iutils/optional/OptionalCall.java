@@ -33,12 +33,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Created by jonathan on 13/02/16.
- */
-
-/**
- * Optional Method call
+ * Method invocation is optional.
  */
 @Retention(RetentionPolicy.CLASS)
 @Target(ElementType.METHOD)
-public @interface OptionalCall {}
+public @interface OptionalCall {
+}

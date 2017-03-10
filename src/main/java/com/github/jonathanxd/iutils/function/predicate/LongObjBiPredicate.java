@@ -27,6 +27,11 @@
  */
 package com.github.jonathanxd.iutils.function.predicate;
 
+/**
+ * A predicate of a {@code long} and {@link T}.
+ *
+ * @param <T> second parameter type.
+ */
 @FunctionalInterface
 public interface LongObjBiPredicate<T> {
 

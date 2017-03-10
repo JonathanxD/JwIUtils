@@ -32,21 +32,17 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * Created by jonathan on 08/02/16.
+ * Iterator utility.
  */
 public class IteratorUtil {
 
-    public static void goTo(Iterator<?> iterator, int index) {
-        int x = 0;
-        while (x != index) {
-            if (!iterator.hasNext()) {
-                throw new IndexOutOfBoundsException("Index out of bounds!");
-            }
-            iterator.next();
-            ++x;
-        }
-    }
-
+    /**
+     * Adds iterator remaining elements to a list.
+     *
+     * @param iterator Iterator.
+     * @param <E>      Type of elements.
+     * @return List of reimaning elements of {@code iterator}.
+     */
     public static <E> List<E> toList(Iterator<E> iterator) {
         List<E> eList = new ArrayList<>();
 

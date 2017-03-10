@@ -31,15 +31,13 @@ import com.github.jonathanxd.iutils.map.MapUtils;
 import com.github.jonathanxd.iutils.string.JString;
 import com.github.jonathanxd.iutils.string.SimpleStringExpression;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-/**
- * Created by jonathan on 28/05/16.
- */
 public class JStringTest {
 
     @Test
@@ -52,31 +50,30 @@ public class JStringTest {
 
         personList.add(new Person("Marcelo", 21));
 
-        personList.forEach(person -> System.out.println(JString.of("Nome: ${person.name}, Idade: ${person.idade}.", "person", person)));
+        personList.forEach(person -> System.out.println(JString.of("Name: ${person.name}, Age: ${person.age}.", "person", person)));
 
-        System.out.println(
-                JString.of("Primeiro da list: ${personList.get(0).getName()}", "personList", personList).toString()
-        );
+        Assert.assertEquals("First: Maria", JString.of("First: ${personList.get(0).getName()}", "personList", personList).toString());
 
-        SimpleStringExpression.executeExpression("System.out.println(\"Hello World\")", MapUtils.mapOf("System", System.class));
+        SimpleStringExpression.evaluateExpression("System.out.println(\"Hello World\")", MapUtils.mapOf("System", System.class));
     }
 
     @Test
     public void propertyTag() {
-        System.out.println(
+        Assert.assertEquals("A->B = hi. b:c = k. x.y = l",
                 JString.of("A->B = ${a->b}. b:c = ${b:c}. x.y = ${x.y}", "a->b", "hi",
                         "b:c", "k",
-                        "x.y", "l").toString()
+                        "x.y", "l")
+                        .toString()
         );
     }
 
     public static class Person {
         public final String name;
-        public final int idade;
+        public final int age;
 
-        public Person(String name, int idade) {
+        public Person(String name, int age) {
             this.name = name;
-            this.idade = idade;
+            this.age = age;
         }
 
         public String getName() {
@@ -85,14 +82,14 @@ public class JStringTest {
 
         @Override
         public int hashCode() {
-            return Objects.hash(name, idade);
+            return Objects.hash(name, age);
         }
 
         @Override
         public boolean equals(Object obj) {
 
-            if(obj instanceof Person) {
-                return ((Person) obj).name.equals(this.name) && ((Person) obj).idade == this.idade;
+            if (obj instanceof Person) {
+                return ((Person) obj).name.equals(this.name) && ((Person) obj).age == this.age;
             }
 
             return super.equals(obj);
@@ -100,7 +97,7 @@ public class JStringTest {
 
         @Override
         public String toString() {
-            return name +" -> "+idade;
+            return name + " -> " + age;
         }
     }
 }

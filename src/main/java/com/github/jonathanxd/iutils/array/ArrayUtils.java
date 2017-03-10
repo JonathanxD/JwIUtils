@@ -33,15 +33,16 @@ import java.lang.reflect.Array;
 import java.util.Objects;
 
 /**
- * Created by jonathan on 30/04/16.
+ * Array utilities.
  */
 public class ArrayUtils {
 
     /**
-     * Loop {@link Array} and find specific {@code element}
-     * @param array Array
+     * Checks if the {@code array} contains specified {@code element}.
+     *
+     * @param array   Array
      * @param element Element to find
-     * @param <E> Element Type
+     * @param <E>     Element Type
      * @return True if {@link Array} contains {@code element}
      */
     public static <E> boolean arrayContains(E[] array, E element) {
@@ -54,11 +55,12 @@ public class ArrayUtils {
     }
 
     /**
-     * Remove element at specified index
-     * @param array Array
-     * @param index Index
-     * @param <E> Element type
-     * @return New {@link Array} without element at {@code index}
+     * Removes element from {@code array} in the specified {@code index}.
+     *
+     * @param array Array.
+     * @param index Index.
+     * @param <E>   Element type.
+     * @return New {@link Array} without the removed element.
      */
     @SuppressWarnings("unchecked")
     public static <E> E[] removeElementAtIndex(E[] array, int index) {
@@ -82,11 +84,12 @@ public class ArrayUtils {
     }
 
     /**
-     * Remove elements at specified indexes
-     * @param array Array
-     * @param indexes Indexes
-     * @param <E> Element type
-     * @return New {@link Array} without elements at {@code indexes}.
+     * Remove elements from {@code array} in the specified {@code indexes}.
+     *
+     * @param array   Array.
+     * @param indexes Indexes.
+     * @param <E>     Element type.
+     * @return New {@link Array} without removed elements.
      */
     @SuppressWarnings("unchecked")
     public static <E> E[] removeElementAtIndexes(E[] array, int[] indexes) {
@@ -110,10 +113,11 @@ public class ArrayUtils {
     }
 
     /**
-     * Count occurrences of specified {@code element} in {@link Array}
-     * @param array Array
+     * Count occurrences of specified {@code element} in {@code array}.
+     *
+     * @param array   Array
      * @param element element
-     * @param <E> Element type
+     * @param <E>     Element type
      * @return Number of occurrences of specified {@code element}
      */
     public static <E> int count(E[] array, E element) {
@@ -129,12 +133,12 @@ public class ArrayUtils {
     }
 
     /**
-     * Count occurrences of {@code elements} in {@link Array}
-     * @param array Array
+     * Count occurrences of all {@code elements} in {@code array}
+     *
+     * @param array    Array
      * @param elements Elements to count
-     * @param <E> Element type
-     * @return Number of occurrences of {@code elements}
-     * @since 2.2
+     * @param <E>      Element type
+     * @return Number of occurrences of all {@code elements}
      */
     public static <E> int count(E[] array, E[] elements) {
         Objects.requireNonNull(array);
@@ -152,11 +156,12 @@ public class ArrayUtils {
     }
 
     /**
-     * Add a {@code element} to {@link Array}
-     * @param array Array to add {@code element}
-     * @param element Element to add
-     * @param <E> Element type
-     * @return Copy of old {@link Array} with specified {@code element}
+     * Adds a {@code element} to specified {@code array}
+     *
+     * @param array   Array to add the element.
+     * @param element Element to add.
+     * @param <E>     Element type.
+     * @return {@link Array} with added {@code element}.
      */
     public static <E> E[] addToArray(E[] array, E element) {
         Objects.requireNonNull(array);
@@ -170,11 +175,12 @@ public class ArrayUtils {
     }
 
     /**
-     * Add multiple {@code elements} to {@link Array}
-     * @param array Array to add {@code elements}
-     * @param elements Element to add
-     * @param <E> Element type
-     * @return Copy of old {@link Array} with specified {@code elements}
+     * Adds all {@code elements} to specified {@code array}
+     *
+     * @param array    Array to add all {@code elements}.
+     * @param elements Elements to add.
+     * @param <E>      Element type.
+     * @return {@link Array} with added {@code elements}.
      * @since 2.2
      */
     @SuppressWarnings("Duplicates")
@@ -185,7 +191,7 @@ public class ArrayUtils {
 
         array = java.util.Arrays.copyOf(array, len + elements.length);
 
-        for(int x = len; x < array.length; ++x) {
+        for (int x = len; x < array.length; ++x) {
             array[x] = elements[x - len];
         }
 
@@ -193,11 +199,12 @@ public class ArrayUtils {
     }
 
     /**
-     * Expand an {@link Array}
-     * @param array Array to expand
-     * @param size Size to increment (negative size to decrement)
-     * @param <E> Array Type
-     * @return Resized {@link Array}
+     * Expands the {@code array} to a new {@code size}.
+     *
+     * @param array Array to expand.
+     * @param size  Size to increment (negative size to decrement).
+     * @param <E>   Array Type.
+     * @return Resized {@link Array}.
      */
     public static <E> E[] expandArray(E[] array, int size) {
         Objects.requireNonNull(array);
@@ -209,16 +216,17 @@ public class ArrayUtils {
     }
 
     /**
-     * Remove {@code element} from {@link Array}
-     * @param array Array
-     * @param element Element to remove
-     * @param recursive Recursive remove (if false, remove only the first occurrence)
-     * @param <E> Element Type
-     * @return New {@link Array} without specified {@code element}
+     * Removes {@code element} from {@code array}
+     *
+     * @param array     Array.
+     * @param element   Element to remove.
+     * @param recursive Recursive remove (remove all elements, false to remove first occurrence).
+     * @param <E>       Element Type
+     * @return New {@link Array} without specified {@code element}.
      */
     public static <E> E[] removeElement(E[] array, E element, boolean recursive) {
         int len = (recursive ?
-                array.length - count(array, element)
+                array.length - ArrayUtils.count(array, element)
                 : array.length - 1);
 
 
@@ -243,11 +251,12 @@ public class ArrayUtils {
     }
 
     /**
-     * Remove {@code elements} from {@link Array}, always recursive
-     * @param array Array
-     * @param elements Elements to remove
-     * @param <E> Element Type
-     * @return {@link Array} without specified {@code elements}
+     * Recursively removes all {@code elements} from {@code array}.
+     *
+     * @param array    Array.
+     * @param elements Elements to remove.
+     * @param <E>      Element Type.
+     * @return {@link Array} without {@code elements}
      * @since 2.2
      */
     public static <E> E[] removeElements(E[] array, E[] elements) {
@@ -262,7 +271,7 @@ public class ArrayUtils {
         for (int x = 0; x < array.length; ++x) {
             E e = array[x];
 
-            if(!arrayContains(elements, e)) {
+            if (!arrayContains(elements, e)) {
                 arrayCp[l] = e;
                 ++l;
             }
@@ -274,28 +283,30 @@ public class ArrayUtils {
 
     /**
      * Remove first occurrence of {@code element} from {@link Array}
-     * @param array Array
-     * @param element Element
-     * @param <E> Element Type
-     * @return New {@link Array} without {@code element}
+     *
+     * @param array   Array.
+     * @param element Element.
+     * @param <E>     Element Type.
+     * @return New {@link Array} without {@code element}.
      */
     public static <E> E[] removeFirstElement(E[] array, E element) {
-        return removeElement(array, element, false);
+        return ArrayUtils.removeElement(array, element, false);
     }
 
     /**
-     * Recursively Remove a {@code element} from {@link Array}
-     * @param array Array
-     * @param element Element
-     * @param <E> Element Type
-     * @return New {@link Array} without specified element
+     * Recursively removes a {@code element} from {@link Array}.
+     *
+     * @param array   Array.
+     * @param element Element.
+     * @param <E>     Element Type.
+     * @return New {@link Array} without specified {@code element}.
      */
     public static <E> E[] removeElement(E[] array, E element) {
         return removeElement(array, element, true);
     }
 
     /**
-     * Copy an array to a Array of Objects.
+     * Copy an array to a Array of Objects (works with primitive arrays).
      *
      * @param array Array to convert.
      * @return Array of objects.
@@ -318,6 +329,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #count(Object[], Object)}
+         *
          * @since 2.2
          */
         @Generated
@@ -335,6 +347,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #count(Object[], Object)}
+         *
          * @since 2.2
          */
         @Generated
@@ -352,6 +365,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #count(Object[], Object)}
+         *
          * @since 2.2
          */
         @Generated
@@ -369,6 +383,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #count(Object[], Object)}
+         *
          * @since 2.2
          */
         @Generated
@@ -386,6 +401,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #count(Object[], Object)}
+         *
          * @since 2.2
          */
         @Generated
@@ -403,6 +419,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #count(Object[], Object)}
+         *
          * @since 2.2
          */
         @Generated
@@ -420,6 +437,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #count(Object[], Object)}
+         *
          * @since 2.2
          */
         @Generated
@@ -437,6 +455,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #count(Object[], Object)}
+         *
          * @since 2.2
          */
         @Generated
@@ -456,6 +475,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #count(Object[], Object[])}
+         *
          * @since 2.2
          */
         @Generated
@@ -475,6 +495,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #count(Object[], Object[])}
+         *
          * @since 2.2
          */
         @Generated
@@ -494,6 +515,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #count(Object[], Object[])}
+         *
          * @since 2.2
          */
         @Generated
@@ -513,6 +535,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #count(Object[], Object[])}
+         *
          * @since 2.2
          */
         @Generated
@@ -532,6 +555,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #count(Object[], Object[])}
+         *
          * @since 2.2
          */
         @Generated
@@ -551,6 +575,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #count(Object[], Object[])}
+         *
          * @since 2.2
          */
         @Generated
@@ -570,6 +595,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #count(Object[], Object[])}
+         *
          * @since 2.2
          */
         @Generated
@@ -589,6 +615,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #count(Object[], Object[])}
+         *
          * @since 2.2
          */
         @Generated
@@ -610,6 +637,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #removeElement(Object[], Object, boolean)}
+         *
          * @since 2.2
          */
         @Generated
@@ -632,6 +660,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #removeElement(Object[], Object, boolean)}
+         *
          * @since 2.2
          */
         @Generated
@@ -654,6 +683,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #removeElement(Object[], Object, boolean)}
+         *
          * @since 2.2
          */
         @Generated
@@ -676,6 +706,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #removeElement(Object[], Object, boolean)}
+         *
          * @since 2.2
          */
         @Generated
@@ -698,6 +729,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #removeElement(Object[], Object, boolean)}
+         *
          * @since 2.2
          */
         @Generated
@@ -720,6 +752,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #removeElement(Object[], Object, boolean)}
+         *
          * @since 2.2
          */
         @Generated
@@ -742,6 +775,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #removeElement(Object[], Object, boolean)}
+         *
          * @since 2.2
          */
         @Generated
@@ -764,6 +798,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #removeElement(Object[], Object, boolean)}
+         *
          * @since 2.2
          */
         @Generated
@@ -789,6 +824,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #removeElements(Object[], Object[])}
+         *
          * @since 2.2
          */
         @Generated
@@ -798,7 +834,7 @@ public class ArrayUtils {
             int l = 0;
             for (int x = 0; x < array.length; ++x) {
                 byte e = array[x];
-                if(!arrayContains(elements, e)) {
+                if (!arrayContains(elements, e)) {
                     arrayCp[l] = e;
                     ++l;
                 }
@@ -808,6 +844,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #removeElements(Object[], Object[])}
+         *
          * @since 2.2
          */
         @Generated
@@ -817,7 +854,7 @@ public class ArrayUtils {
             int l = 0;
             for (int x = 0; x < array.length; ++x) {
                 short e = array[x];
-                if(!arrayContains(elements, e)) {
+                if (!arrayContains(elements, e)) {
                     arrayCp[l] = e;
                     ++l;
                 }
@@ -827,6 +864,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #removeElements(Object[], Object[])}
+         *
          * @since 2.2
          */
         @Generated
@@ -836,7 +874,7 @@ public class ArrayUtils {
             int l = 0;
             for (int x = 0; x < array.length; ++x) {
                 int e = array[x];
-                if(!arrayContains(elements, e)) {
+                if (!arrayContains(elements, e)) {
                     arrayCp[l] = e;
                     ++l;
                 }
@@ -846,6 +884,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #removeElements(Object[], Object[])}
+         *
          * @since 2.2
          */
         @Generated
@@ -855,7 +894,7 @@ public class ArrayUtils {
             int l = 0;
             for (int x = 0; x < array.length; ++x) {
                 long e = array[x];
-                if(!arrayContains(elements, e)) {
+                if (!arrayContains(elements, e)) {
                     arrayCp[l] = e;
                     ++l;
                 }
@@ -865,6 +904,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #removeElements(Object[], Object[])}
+         *
          * @since 2.2
          */
         @Generated
@@ -874,7 +914,7 @@ public class ArrayUtils {
             int l = 0;
             for (int x = 0; x < array.length; ++x) {
                 float e = array[x];
-                if(!arrayContains(elements, e)) {
+                if (!arrayContains(elements, e)) {
                     arrayCp[l] = e;
                     ++l;
                 }
@@ -885,6 +925,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #removeElements(Object[], Object[])}
+         *
          * @since 2.2
          */
         @Generated
@@ -894,7 +935,7 @@ public class ArrayUtils {
             int l = 0;
             for (int x = 0; x < array.length; ++x) {
                 double e = array[x];
-                if(!arrayContains(elements, e)) {
+                if (!arrayContains(elements, e)) {
                     arrayCp[l] = e;
                     ++l;
                 }
@@ -904,6 +945,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #removeElements(Object[], Object[])}
+         *
          * @since 2.2
          */
         @Generated
@@ -913,7 +955,7 @@ public class ArrayUtils {
             int l = 0;
             for (int x = 0; x < array.length; ++x) {
                 boolean e = array[x];
-                if(!arrayContains(elements, e)) {
+                if (!arrayContains(elements, e)) {
                     arrayCp[l] = e;
                     ++l;
                 }
@@ -923,6 +965,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #removeElements(Object[], Object[])}
+         *
          * @since 2.2
          */
         @Generated
@@ -932,7 +975,7 @@ public class ArrayUtils {
             int l = 0;
             for (int x = 0; x < array.length; ++x) {
                 char e = array[x];
-                if(!arrayContains(elements, e)) {
+                if (!arrayContains(elements, e)) {
                     arrayCp[l] = e;
                     ++l;
                 }
@@ -944,6 +987,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #arrayContains(Object[], Object)}
+         *
          * @since 2.2
          */
         @Generated
@@ -958,6 +1002,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #arrayContains(Object[], Object)}
+         *
          * @since 2.2
          */
         @Generated
@@ -972,6 +1017,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #arrayContains(Object[], Object)}
+         *
          * @since 2.2
          */
         @Generated
@@ -986,6 +1032,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #arrayContains(Object[], Object)}
+         *
          * @since 2.2
          */
         @Generated
@@ -1000,6 +1047,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #arrayContains(Object[], Object)}
+         *
          * @since 2.2
          */
         @Generated
@@ -1014,6 +1062,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #arrayContains(Object[], Object)}
+         *
          * @since 2.2
          */
         @Generated
@@ -1028,6 +1077,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #arrayContains(Object[], Object)}
+         *
          * @since 2.2
          */
         @Generated
@@ -1042,6 +1092,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #arrayContains(Object[], Object)}
+         *
          * @since 2.2
          */
         @Generated
@@ -1058,6 +1109,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #removeElementAtIndex(Object[], int)}
+         *
          * @since 2.2
          */
         @SuppressWarnings("unchecked")
@@ -1078,6 +1130,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #removeElementAtIndex(Object[], int)}
+         *
          * @since 2.2
          */
         @SuppressWarnings("unchecked")
@@ -1098,6 +1151,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #removeElementAtIndex(Object[], int)}
+         *
          * @since 2.2
          */
         @SuppressWarnings("unchecked")
@@ -1118,6 +1172,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #removeElementAtIndex(Object[], int)}
+         *
          * @since 2.2
          */
         @SuppressWarnings("unchecked")
@@ -1138,6 +1193,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #removeElementAtIndex(Object[], int)}
+         *
          * @since 2.2
          */
         @SuppressWarnings("unchecked")
@@ -1158,6 +1214,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #removeElementAtIndex(Object[], int)}
+         *
          * @since 2.2
          */
         @SuppressWarnings("unchecked")
@@ -1178,6 +1235,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #removeElementAtIndex(Object[], int)}
+         *
          * @since 2.2
          */
         @SuppressWarnings("unchecked")
@@ -1198,6 +1256,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #removeElementAtIndex(Object[], int)}
+         *
          * @since 2.2
          */
         @SuppressWarnings("unchecked")
@@ -1220,6 +1279,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #removeElementAtIndexes(Object[], int[])}
+         *
          * @since 2.2
          */
         @Generated
@@ -1239,6 +1299,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #removeElementAtIndexes(Object[], int[])}
+         *
          * @since 2.2
          */
         @Generated
@@ -1258,6 +1319,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #removeElementAtIndexes(Object[], int[])}
+         *
          * @since 2.2
          */
         @Generated
@@ -1277,6 +1339,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #removeElementAtIndexes(Object[], int[])}
+         *
          * @since 2.2
          */
         @Generated
@@ -1296,6 +1359,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #removeElementAtIndexes(Object[], int[])}
+         *
          * @since 2.2
          */
         @Generated
@@ -1315,6 +1379,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #removeElementAtIndexes(Object[], int[])}
+         *
          * @since 2.2
          */
         @Generated
@@ -1334,6 +1399,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #removeElementAtIndexes(Object[], int[])}
+         *
          * @since 2.2
          */
         @Generated
@@ -1353,6 +1419,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #removeElementAtIndexes(Object[], int[])}
+         *
          * @since 2.2
          */
         @Generated
@@ -1374,6 +1441,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #addToArray(Object[], Object)}
+         *
          * @since 2.2
          */
         @Generated
@@ -1387,6 +1455,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #addToArray(Object[], Object)}
+         *
          * @since 2.2
          */
         @Generated
@@ -1400,6 +1469,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #addToArray(Object[], Object)}
+         *
          * @since 2.2
          */
         @Generated
@@ -1413,6 +1483,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #addToArray(Object[], Object)}
+         *
          * @since 2.2
          */
         @Generated
@@ -1426,6 +1497,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #addToArray(Object[], Object)}
+         *
          * @since 2.2
          */
         @Generated
@@ -1439,6 +1511,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #addToArray(Object[], Object)}
+         *
          * @since 2.2
          */
         @Generated
@@ -1452,6 +1525,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #addToArray(Object[], Object)}
+         *
          * @since 2.2
          */
         @Generated
@@ -1465,6 +1539,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #addToArray(Object[], Object)}
+         *
          * @since 2.2
          */
         @Generated
@@ -1477,8 +1552,10 @@ public class ArrayUtils {
         }
 
         // Add All to Array Methods
+
         /**
          * Primitive version of method {@link #addAllToArray(Object[], Object[])}
+         *
          * @since 2.2
          */
         @Generated
@@ -1495,6 +1572,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #addAllToArray(Object[], Object[])}
+         *
          * @since 2.2
          */
         @Generated
@@ -1511,6 +1589,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #addAllToArray(Object[], Object[])}
+         *
          * @since 2.2
          */
         @Generated
@@ -1527,6 +1606,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #addAllToArray(Object[], Object[])}
+         *
          * @since 2.2
          */
         @Generated
@@ -1543,6 +1623,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #addAllToArray(Object[], Object[])}
+         *
          * @since 2.2
          */
         @Generated
@@ -1559,6 +1640,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #addAllToArray(Object[], Object[])}
+         *
          * @since 2.2
          */
         @Generated
@@ -1576,6 +1658,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #addAllToArray(Object[], Object[])}
+         *
          * @since 2.2
          */
         @Generated
@@ -1592,6 +1675,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #addAllToArray(Object[], Object[])}
+         *
          * @since 2.2
          */
         @Generated
@@ -1611,6 +1695,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #expandArray(Object[], int)}
+         *
          * @since 2.2
          */
         @Generated
@@ -1623,6 +1708,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #expandArray(Object[], int)}
+         *
          * @since 2.2
          */
         @Generated
@@ -1635,6 +1721,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #expandArray(Object[], int)}
+         *
          * @since 2.2
          */
         @Generated
@@ -1647,6 +1734,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #expandArray(Object[], int)}
+         *
          * @since 2.2
          */
         @Generated
@@ -1659,6 +1747,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #expandArray(Object[], int)}
+         *
          * @since 2.2
          */
         @Generated
@@ -1671,6 +1760,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #expandArray(Object[], int)}
+         *
          * @since 2.2
          */
         @Generated
@@ -1683,6 +1773,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #expandArray(Object[], int)}
+         *
          * @since 2.2
          */
         @Generated
@@ -1695,6 +1786,7 @@ public class ArrayUtils {
 
         /**
          * Primitive version of method {@link #expandArray(Object[], int)}
+         *
          * @since 2.2
          */
         @Generated

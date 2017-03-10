@@ -29,10 +29,8 @@ package com.github.jonathanxd.iutils.machine.os;
 
 import com.github.jonathanxd.iutils.machine.Machine;
 
-/**
- * Created by jonathan on 05/03/16.
- */
 public class Windows implements Machine.OS {
+
     @Override
     public String name() {
         return "Windows";
@@ -47,4 +45,5 @@ public class Windows implements Machine.OS {
     public String toString() {
         return "Name[" + name() + "], Version["+version()+"]";
     }
+
 }

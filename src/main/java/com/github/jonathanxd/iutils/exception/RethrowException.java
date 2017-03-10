@@ -28,7 +28,7 @@
 package com.github.jonathanxd.iutils.exception;
 
 /**
- * Created by jonathan on 27/05/16.
+ * Rethrow exception. Does not hold stack trace of this instance.
  */
 public class RethrowException extends RuntimeException {
 

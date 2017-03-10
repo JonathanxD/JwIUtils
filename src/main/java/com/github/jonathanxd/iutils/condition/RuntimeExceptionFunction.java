@@ -28,9 +28,17 @@
 package com.github.jonathanxd.iutils.condition;
 
 /**
- * Created by jonathan on 22/06/16.
+ * A function that returns a {@link RuntimeException} from a {@code message}.
  */
 @FunctionalInterface
 public interface RuntimeExceptionFunction {
+
+    /**
+     * Apply the message to the {@link RuntimeException}.
+     *
+     * @param message Message.
+     * @return Exception with the {@code message}.
+     */
     RuntimeException apply(String message);
+
 }

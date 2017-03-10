@@ -29,7 +29,14 @@ package com.github.jonathanxd.iutils.type;
 
 import com.github.jonathanxd.iutils.condition.Conditions;
 
-public class Primitive {
+/**
+ * Primitive boxing and unboxing utility.
+ */
+public final class Primitive {
+
+    private Primitive() {
+        throw new UnsupportedOperationException();
+    }
 
     /**
      * Box Type (return boxed type. (primitive) -&gt; Wrapper)

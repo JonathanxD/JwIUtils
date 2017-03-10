@@ -28,25 +28,39 @@
 package com.github.jonathanxd.iutils.option;
 
 /**
- * Created by jonathan on 06/08/16.
- */
-
-/**
- * An Option
- * @param <T> Type of Option Value
+ * Option instance class, all options have a defaultValue (may be null).
+ *
+ * @param <T> Type of Option Value.
  */
 public class Option<T> {
+
+    /**
+     * Default value of this option.
+     */
     private final T defaultValue;
 
+    /**
+     * Creates a Option with a null default value.
+     */
     public Option() {
         this(null);
     }
 
+    /**
+     * Creates a Option with a specified default value.
+     *
+     * @param defaultValue Default value of the option.
+     */
     public Option(T defaultValue) {
         this.defaultValue = defaultValue;
     }
 
+    /**
+     * Gets the default value of Option.
+     *
+     * @return Option default value.
+     */
     public T getDefaultValue() {
-        return defaultValue;
+        return this.defaultValue;
     }
 }

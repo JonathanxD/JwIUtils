@@ -29,6 +29,7 @@ package com.github.jonathanxd.iutils;
 
 import com.github.jonathanxd.iutils.reflection.ClassUtil;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -40,7 +41,7 @@ public class ClassUtilTest {
     public void testHierarchy() {
         List<Class<?>> types = ClassUtil.getSortedSuperTypes(ArrayList.class);
 
-        System.out.println(types);
+        Assert.assertEquals("[class java.util.AbstractList, interface java.lang.Cloneable, interface java.util.RandomAccess, interface java.io.Serializable, class java.util.AbstractCollection, interface java.util.List, interface java.util.Collection, interface java.lang.Iterable]", types.toString());
     }
 
     interface C {

@@ -116,10 +116,10 @@ public interface TypeProvider {
 
     @SuppressWarnings("unchecked")
     default TypeInfo[] getReferences() {
-        return TypeUtil.toReferences(Objects.requireNonNull(getTypes(), "Null Type!"));
+        return TypeUtil.toTypeInfo(Objects.requireNonNull(getTypes(), "Null Type!"));
     }
 
     default TypeInfo[] getClassReferences() {
-        return TypeUtil.toReferences(Objects.requireNonNull(getClassTypes(), "Null Type!"));
+        return TypeUtil.toTypeInfo(Objects.requireNonNull(getClassTypes(), "Null Type!"));
     }
 }

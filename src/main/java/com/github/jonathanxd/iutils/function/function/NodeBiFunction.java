@@ -30,11 +30,16 @@ package com.github.jonathanxd.iutils.function.function;
 import com.github.jonathanxd.iutils.object.Node;
 
 /**
- * Created by jonathan on 05/03/16.
+ * Takes key and value of two nodes and returns a new node.
+ *
+ * @param <FK> First node key type.
+ * @param <FV> First node value type.
+ * @param <SK> Second node key type.
+ * @param <SV> Second node value type.
+ * @param <RK> Result node key type.
+ * @param <RV> Result node value type.
  */
 @FunctionalInterface
-public interface NodeBiFunction<T, U, V, W, RK, RV> {
-
-    Node<RK, RV> apply(T key1, U value1, V key2, W value2);
-
+public interface NodeBiFunction<FK, FV, SK, SV, RK, RV> {
+    Node<RK, RV> apply(FK key1, FV value1, SK key2, SV value2);
 }

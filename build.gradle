@@ -1,9 +1,9 @@
 plugins {
-    id 'com.github.hierynomus.license' version '0.11.0'
+    id 'com.github.hierynomus.license' version '0.13.1'
 }
 
 group 'com.github.jonathanxd'
-version '3.6.0'
+version '4.0.0'
 
 apply plugin: 'java'
 apply plugin: 'license'
@@ -13,17 +13,6 @@ defaultTasks 'licenseFormat', 'build', 'jar', 'uploadArchives'
 
 sourceCompatibility = 1.8
 
-sourceSets {
-    main {
-        java {
-            srcDirs 'src/main/java'
-        }        
-        resources {
-            srcDirs 'src/main/resources'
-        }
-    }
-}
-
 jar {
     manifest {
         attributes 'Implementation-Title': 'JwIUtils',
@@ -32,9 +21,6 @@ jar {
 }
 
 repositories {
-    flatDir {
-        dirs 'libs'
-    }
     mavenCentral()
 }
 

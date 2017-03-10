@@ -28,11 +28,14 @@
 package com.github.jonathanxd.iutils.function.function;
 
 /**
- * Created by jonathan on 05/03/16.
+ * Tri function. Takes three parameters and returns a value of type {@link R}
+ *
+ * @param <T> First parameter type.
+ * @param <U> Second parameter type.
+ * @param <V> Third parameter type.
+ * @param <R> Result type.
  */
 @FunctionalInterface
 public interface TriFunction<T, U, V, R> {
-
     R apply(T t, U u, V v);
-
 }

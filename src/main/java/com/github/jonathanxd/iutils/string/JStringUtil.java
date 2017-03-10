@@ -34,13 +34,24 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Created by jonathan on 27/05/16.
+ * JString parser utility.
  */
-public class JStringUtil {
+public final class JStringUtil {
 
     private static final Pattern VARIABLE_FORMAT_REFEX = Pattern.compile("\\$((?<svar>\\w+)|(\\{(?<var>[^.}]+)\\s*(\\.\\s*(?<access>[^}]*))?\\})?)");
 
-    public static String apply(String original, Map<String, Object> variables) {
+    private JStringUtil() {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Evaluates all expressions in {@code original} string and returns evaluated string.
+     *
+     * @param original  Original string.
+     * @param variables Variables.
+     * @return Evaluated string.
+     */
+    public static String evaluate(String original, Map<String, Object> variables) {
 
         StringBuffer replacing = new StringBuffer(original.length());
 
@@ -65,7 +76,7 @@ public class JStringUtil {
 
                 String inMap = var + "." + access;
 
-                if(variables.containsKey(inMap)) {
+                if (variables.containsKey(inMap)) {
                     toReplace = (String) variables.get(inMap);
                 } else {
 
@@ -75,7 +86,7 @@ public class JStringUtil {
                         if (access == null || access.isEmpty()) {
                             toReplace = val.toString();
                         } else {
-                            Object o = SimpleStringExpression.executeExpression(var + SimpleStringExpression.METHOD_INVOKE_SYMBOL + access, variables);
+                            Object o = SimpleStringExpression.evaluateExpression(var + SimpleStringExpression.METHOD_INVOKE_SYMBOL + access, variables);
 
                             toReplace = o.toString();
                         }
@@ -84,8 +95,8 @@ public class JStringUtil {
             }
             try {
                 matcher.appendReplacement(replacing, Matcher.quoteReplacement(toReplace));
-            }catch (Exception e) {
-                throw new JStringApplyException("Failed to process String: '"+original+"'. group: '"+matcher.group()+"'. matcher: '"+matcher+"'.", e);
+            } catch (Exception e) {
+                throw new JStringApplyException("Failed to process String: '" + original + "'. group: '" + matcher.group() + "'. matcher: '" + matcher + "'.", e);
             }
         }
 

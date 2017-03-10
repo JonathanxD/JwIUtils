@@ -28,7 +28,7 @@
 package com.github.jonathanxd.iutils.exception;
 
 /**
- * Created by jonathan on 15/07/16.
+ * Occurs when {@link com.github.jonathanxd.iutils.string.JStringUtil} fails to process a string.
  */
 public class JStringApplyException extends RuntimeException {
     public JStringApplyException() {

@@ -29,13 +29,16 @@ package com.github.jonathanxd.iutils.list;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.function.Predicate;
+import java.util.List;
+import java.util.ListIterator;
 import java.util.function.UnaryOperator;
 
 /**
- * Created by jonathan on 12/05/16.
+ * Abstract implementation of {@link PredicateList}.
+ *
+ * @param <E> Element type.
  */
-public abstract class AbstractPredicateList<E> extends ArrayList<E> implements IPredicateList<E> {
+public abstract class AbstractPredicateList<E> extends ArrayList<E> implements PredicateList<E> {
 
     public AbstractPredicateList(int initialCapacity) {
         super(initialCapacity);
@@ -49,14 +52,13 @@ public abstract class AbstractPredicateList<E> extends ArrayList<E> implements I
         for (E e : c) {
             this.add(e);
         }
-        //super(c);
     }
 
     @Override
     public boolean add(E e) {
-        if (!this.test(e)) {
-            reject(e);
-        }else {
+        if (!this.isAcceptable(e)) {
+            onReject(e);
+        } else {
             return super.add(e);
         }
 
@@ -65,8 +67,8 @@ public abstract class AbstractPredicateList<E> extends ArrayList<E> implements I
 
     @Override
     public void add(int index, E element) {
-        if (!this.test(element)) {
-            reject(element);
+        if (!this.isAcceptable(element)) {
+            onReject(element);
         } else {
             super.add(index, element);
         }
@@ -78,10 +80,10 @@ public abstract class AbstractPredicateList<E> extends ArrayList<E> implements I
         Collection<E> toAdd = new ArrayList<>();
 
         for (E e : c) {
-            if (this.test(e)) {
+            if (this.isAcceptable(e)) {
                 toAdd.add(e);
             } else {
-                reject(e);
+                onReject(e);
             }
         }
 
@@ -94,10 +96,10 @@ public abstract class AbstractPredicateList<E> extends ArrayList<E> implements I
         Collection<E> toAdd = new ArrayList<>();
 
         for (E e : c) {
-            if (this.test(e)) {
+            if (this.isAcceptable(e)) {
                 toAdd.add(e);
             } else {
-                reject(e);
+                onReject(e);
             }
         }
 
@@ -107,8 +109,8 @@ public abstract class AbstractPredicateList<E> extends ArrayList<E> implements I
 
     @Override
     public E set(int index, E element) {
-        if (!this.test(element)) {
-            reject(element);
+        if (!this.isAcceptable(element)) {
+            onReject(element);
         } else {
             super.set(index, element);
         }
@@ -118,30 +120,17 @@ public abstract class AbstractPredicateList<E> extends ArrayList<E> implements I
 
     @Override
     public void replaceAll(UnaryOperator<E> operator) {
-        super.replaceAll(new PredicateUnaryOperator<>(this::test, operator));
+        super.replaceAll(new PredicateListUnaryOperator<>(this, operator));
     }
 
-    private static class PredicateUnaryOperator<T> implements UnaryOperator<T> {
+    @Override
+    public ListIterator<E> listIterator() {
+        return new PredicateWrappedListIterator<>(this, super.listIterator());
+    }
 
-        private final Predicate<T> predicate;
-        private final UnaryOperator<T> unaryOperator;
-
-        private PredicateUnaryOperator(Predicate<T> predicate, UnaryOperator<T> unaryOperator) {
-            this.predicate = predicate;
-            this.unaryOperator = unaryOperator;
-        }
-
-
-        @Override
-        public T apply(T t) {
-
-            T result = unaryOperator.apply(t);
-
-            if (!predicate.test(result))
-                throw new IllegalArgumentException("Cannot accept element '" + result + "' (original element '" + t + "')");
-
-            return result;
-        }
+    @Override
+    public ListIterator<E> listIterator(int index) {
+        return new PredicateWrappedListIterator<>(this, super.listIterator(index));
     }
 
 }

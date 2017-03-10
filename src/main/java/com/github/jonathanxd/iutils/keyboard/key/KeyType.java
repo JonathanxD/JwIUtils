@@ -27,17 +27,68 @@
  */
 package com.github.jonathanxd.iutils.keyboard.key;
 
+/**
+ * Type of keys.
+ */
 public enum KeyType {
-	MANIPULATION,
-	CONTROL,
-	KEY_BOARD_STATES,
-	POSITION,
-	NUMBERS,
-	NUMPAD_NUMBERS,
-	ALPHABET,
-	WINDOW_KEYS,
-	TOOL,
-	MATH_MANIPULATION,
-	FUNCTION,	
-	OTHERS
+
+    /**
+     * Manipulation keys, like space, enter, insert, etc...
+     */
+    MANIPULATION,
+
+    /**
+     * Control keys, like shift, break, etc, etc...
+     */
+    CONTROL,
+
+    /**
+     * Keyboard state key like caps lock, num lock, scroll lock, etc...
+     */
+    KEY_BOARD_STATES,
+
+    /**
+     * Position keys like direction arrows, page up, page down, etc...
+     */
+    POSITION,
+
+    /**
+     * Numbers (not num-pad numbers).
+     */
+    NUMBERS,
+
+    /**
+     * Num-pad numbers.
+     */
+    NUMPAD_NUMBERS,
+
+    /**
+     * Alphabet characters.
+     */
+    ALPHABET,
+
+    /**
+     * Super keys (left and right).
+     */
+    SUPER_KEYS,
+
+    /**
+     * Tool key
+     */
+    TOOL,
+
+    /**
+     * Math keys like plus, minus, decimal point (.)...
+     */
+    MATH_MANIPULATION,
+
+    /**
+     * Function keys (F1-F12)
+     */
+    FUNCTION,
+
+    /**
+     * Other keys like comma, period, bracket, quotes, right slash.
+     */
+    OTHERS
 }

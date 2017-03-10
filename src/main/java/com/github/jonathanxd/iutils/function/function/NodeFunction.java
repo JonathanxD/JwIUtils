@@ -30,11 +30,14 @@ package com.github.jonathanxd.iutils.function.function;
 import com.github.jonathanxd.iutils.object.Node;
 
 /**
- * Created by jonathan on 05/03/16.
+ * Takes two values and returns a node.
+ *
+ * @param <K>  First value type.
+ * @param <V>  Second value type.
+ * @param <RK> Result node key type.
+ * @param <RV> Result node value type.
  */
 @FunctionalInterface
-public interface NodeFunction<T, U, RK, RV> {
-
-    Node<RK, RV> apply(T t, U u);
-
+public interface NodeFunction<K, V, RK, RV> {
+    Node<RK, RV> apply(K k, V v);
 }

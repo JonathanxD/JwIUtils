@@ -27,24 +27,51 @@
  */
 package com.github.jonathanxd.iutils.string;
 
-import com.github.jonathanxd.iutils.annotation.Ref;
+import com.github.jonathanxd.iutils.grabber.Grabber;
 
+import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.function.Supplier;
 
 /**
- * Created by jonathan on 24/06/16.
+ * Utilities to work with two {@link StringJoiner StringJoiners}.
+ *
+ * This class allows to mix two {@link StringJoiner StringJoiners} into one joining process, this
+ * class provides utility methods to join the result of a second {@link StringJoiner} into first,
+ * this class is used by {@link com.github.jonathanxd.iutils.grabber.AbstractGrabber} to compose the
+ * string representation specified in {@link Grabber#toString()};
  */
-public class InJoiner {
+public final class InJoiner {
 
+    /**
+     * First joiner.
+     */
     private final StringJoiner first;
+
+    /**
+     * Provider of second joiner.
+     */
     private final Supplier<StringJoiner> secondSupplier;
-    @Ref
+
+    /**
+     * Current joiner.
+     */
     private StringJoiner current = null;
-    @Ref
+
+    /**
+     * Current second joiner.
+     */
     private StringJoiner currentSecond;
 
+    /**
+     * Count of appends to second joiner.
+     */
+    int secondAppends = 0;
+
     public InJoiner(StringJoiner first, Supplier<StringJoiner> secondSupplier) {
+
+        Objects.requireNonNull(first);
+        Objects.requireNonNull(secondSupplier);
 
         this.first = first;
         this.secondSupplier = secondSupplier;
@@ -54,55 +81,97 @@ public class InJoiner {
         this.currentSecond = secondSupplier.get();
     }
 
+    /**
+     * Joins the string {@code s} in the first joiner.
+     *
+     * If current joiner is not the {@link #first} joiner, the {@link #joinSecondIntoFirst()} is
+     * called (before joining the string {@code s}).
+     *
+     * @param s String to join.
+     * @see #joinSecondIntoFirst()
+     */
     public void joinFirst(String s) {
-        if (current != first) {
+        if (this.current != this.first) {
 
-            joinSecondInFirst();
+            this.joinSecondIntoFirst();
 
-            current = first;
+            this.current = this.first;
         }
 
-        first.add(s);
+        this.first.add(s);
     }
 
+    /**
+     * Joins string {@code s} in the second joiner.
+     *
+     * @param s String to join.
+     */
     public void joinSecond(String s) {
-        currentSecond.add(s);
-        current = currentSecond;
+        this.currentSecond.add(s);
+        this.current = this.currentSecond;
+        this.secondAppends++;
     }
 
+    /**
+     * Selects the first joiner, if current joiner is not the first joiner, the {@link
+     * #joinSecondIntoFirst()} method is called.
+     *
+     * @see #joinSecondIntoFirst()
+     */
     public void selectFirst() {
-        if (current != first) {
-            joinSecondInFirst();
+        if (this.current != this.first) {
+            this.joinSecondIntoFirst();
 
-            current = first;
+            this.current = this.first;
         }
     }
 
+    /**
+     * Selects the second joiner.
+     */
     public void selectSecond() {
-        current = currentSecond;
+        this.current = this.currentSecond;
     }
 
+    /**
+     * Joins the string {@code s} in the current selected joiner.
+     *
+     * @param s String to join.
+     */
     public void joinToCurrent(String s) {
-        current.add(s);
+        this.current.add(s);
     }
 
+    /**
+     * Finished the joining process (calls the {@link #joinSecondIntoFirst()} if the current joiner
+     * is not the first joiner).
+     */
     private void joinFinish() {
-        if (current != currentSecond) {
-            joinSecondInFirst();
+        if (this.current != this.currentSecond) {
+            this.joinSecondIntoFirst();
+            this.current = this.first;
         }
     }
 
-    private void joinSecondInFirst() {
-        if (currentSecond.length() > 2) {
-            first.add(currentSecond.toString());
+    /**
+     * Append the result of {@link #currentSecond#toString() second joiner} to the {@link #first
+     * first joiner} and sets the {@link #currentSecond current second joiner} to a new instance
+     * supplied by {@link #secondSupplier second joiner supplier}.
+     *
+     * This method will change the {@link #current current joiner}.
+     */
+    private void joinSecondIntoFirst() {
+        if (this.secondAppends > 0) {
+            this.first.add(this.currentSecond.toString());
 
-            currentSecond = secondSupplier.get();
+            this.currentSecond = this.secondSupplier.get();
+            this.secondAppends = 0;
         }
     }
 
     @Override
     public String toString() {
         this.joinFinish();
-        return first.toString();
+        return this.first.toString();
     }
 }

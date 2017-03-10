@@ -28,6 +28,7 @@
 package com.github.jonathanxd.iutils.map;
 
 import com.github.jonathanxd.iutils.function.collector.BiCollectors;
+import com.github.jonathanxd.iutils.function.stream.BiStreams;
 import com.github.jonathanxd.iutils.function.stream.MapStream;
 import com.github.jonathanxd.iutils.object.Node;
 
@@ -37,6 +38,7 @@ import java.util.AbstractMap;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
@@ -44,7 +46,12 @@ import java.util.function.BiPredicate;
 import java.util.stream.Collectors;
 
 /**
- * Created by jonathan on 19/05/16.
+ * Weak Value version of {@link java.util.WeakHashMap}.
+ *
+ * All values are weak, when the value is collected by the GC, their associated key will be removed.
+ *
+ * @param <K> Key type.
+ * @param <V> Value type.
  */
 public class WeakValueHashMap<K, V> extends AbstractMap<K, V> {
 
@@ -100,7 +107,7 @@ public class WeakValueHashMap<K, V> extends AbstractMap<K, V> {
     public void putAll(Map<? extends K, ? extends V> m) {
         this.updateMap();
 
-        map.putAll(MapStream.of(m).map((o, o2) -> new Node<>(o, create(o, o2))).collect(BiCollectors.toMap()));
+        map.putAll(BiStreams.mapStream(m).map((o, o2) -> new Node<>(o, create(o, o2))).collect(BiCollectors.toMap()));
     }
 
     @Override
@@ -128,7 +135,7 @@ public class WeakValueHashMap<K, V> extends AbstractMap<K, V> {
 
         this.updateMap();
 
-        Optional<Node<K, Weak<V>>> first = MapStream.of(map).filter((k, vWeak) -> equals(getReferenceValue(vWeak), value)).findFirst();
+        Optional<Node<K, Weak<V>>> first = BiStreams.mapStream(map).filter((k, vWeak) -> equals(getReferenceValue(vWeak), value)).findFirst();
 
         return !(!first.isPresent() || first.get().getValue() == null);
     }
@@ -144,7 +151,7 @@ public class WeakValueHashMap<K, V> extends AbstractMap<K, V> {
     public Collection<V> values() {
         this.updateMap();
 
-        return map.values().stream().filter(d -> d != null).map(this::getReferenceValue).collect(Collectors.toList());
+        return map.values().stream().filter(Objects::nonNull).map(this::getReferenceValue).collect(Collectors.toList());
     }
 
     @Override
@@ -219,7 +226,7 @@ public class WeakValueHashMap<K, V> extends AbstractMap<K, V> {
     public void forEach(BiConsumer<? super K, ? super V> action) {
         this.updateMap();
 
-        MapStream.of(map).map((k, v) -> new Node<>(k, getReferenceValue(v))).forEach(action);
+        BiStreams.mapStream(map).map((k, v) -> new Node<>(k, getReferenceValue(v))).forEach(action);
     }
 
     @Override

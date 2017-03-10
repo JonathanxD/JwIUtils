@@ -33,10 +33,19 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * Created by jonathan on 03/07/16.
+ * A hash map that holds a {@link List} of {@link V values}.
+ *
+ * @param <K> Key type.
+ * @param <V> Value type.
  */
 public class ListHashMap<K, V> extends HashMap<K, List<V>> {
 
+    /**
+     * Puts a {@code value} to list associated to the {@code key}.
+     *
+     * @param key   Key to get list.
+     * @param value Value to add to list.
+     */
     public void putToList(K key, V value) {
 
         List<V> list;
@@ -52,6 +61,13 @@ public class ListHashMap<K, V> extends HashMap<K, List<V>> {
         list.add(value);
     }
 
+    /**
+     * Removes a {@code value} from a list associated to the {@code key}.
+     *
+     * @param key   Key to get list.
+     * @param value Value to remove from list.
+     * @return True if successfully removed the value, false otherwise.
+     */
     @SuppressWarnings("SuspiciousMethodCalls")
     public boolean removeFromList(K key, Object value) {
         if (!this.containsKey(key))
@@ -68,6 +84,13 @@ public class ListHashMap<K, V> extends HashMap<K, List<V>> {
         return success;
     }
 
+    /**
+     * Removes all {@code elements} from a list associated to the {@code key}.
+     *
+     * @param key      Key to get list.
+     * @param elements Elements to remove from the list.
+     * @return True if successfully removed at least one element, false otherwise.
+     */
     @SuppressWarnings("SuspiciousMethodCalls")
     public boolean removeAllFromList(K key, Collection<?> elements) {
         if (!this.containsKey(key))

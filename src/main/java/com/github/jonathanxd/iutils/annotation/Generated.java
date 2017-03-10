@@ -27,8 +27,5 @@
  */
 package com.github.jonathanxd.iutils.annotation;
 
-/**
- * Created by jonathan on 27/05/16.
- */
 public @interface Generated {
 }

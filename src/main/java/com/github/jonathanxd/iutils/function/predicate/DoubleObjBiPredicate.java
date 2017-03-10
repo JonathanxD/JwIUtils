@@ -27,11 +27,15 @@
  */
 package com.github.jonathanxd.iutils.function.predicate;
 
+/**
+ * A predicate of a {@code double} and {@link T}.
+ *
+ * @param <T> second parameter type.
+ */
 @FunctionalInterface
 public interface DoubleObjBiPredicate<T> {
 
     boolean test(double d, T t);
-
 
     default DoubleObjBiPredicate<T> negate() {
         return (d, t) -> !this.test(d, t);

@@ -39,13 +39,13 @@ public abstract class Pair<A, B> {
         return Pairs.ofSupplier(aSupplier, bSupplier);
     }
 
-    public abstract A _1();
+    public abstract A getFirst();
 
-    public abstract B _2();
+    public abstract B getSecond();
 
     @Override
     public int hashCode() {
-        return Objects.hash(this._1(), this._2());
+        return Objects.hash(this.getFirst(), this.getSecond());
     }
 
     @Override
@@ -54,8 +54,8 @@ public abstract class Pair<A, B> {
         if (obj instanceof Pair<?, ?>) {
             Pair<?, ?> pair = (Pair<?, ?>) obj;
 
-            return this._1().equals(pair._1())
-                    && this._2().equals(pair._2());
+            return this.getFirst().equals(pair.getFirst())
+                    && this.getSecond().equals(pair.getSecond());
         }
 
         return super.equals(obj);

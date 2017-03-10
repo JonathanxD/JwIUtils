@@ -33,14 +33,13 @@ import com.github.jonathanxd.iutils.function.stream.walkable.WalkableNodeBiStrea
 import java.util.Map;
 
 /**
- * Created by jonathan on 05/03/16.
+ * A stream of map nodes.
+ *
+ * @param <K> Key type.
+ * @param <V> Value type.
  */
 public class MapStream<K, V> extends WalkableNodeBiStream<K, V> {
-    public MapStream(Map<K, V> map) {
-        super(Walkable.asList(map));
-    }
-
-    public static <K, V> BiStream<K, V> of(Map<K, V> map) {
-        return new MapStream<>(map);
+    MapStream(Map<K, V> map) {
+        super(Walkable.fromList(map));
     }
 }

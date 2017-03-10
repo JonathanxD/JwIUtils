@@ -28,7 +28,8 @@
 package com.github.jonathanxd.iutils.exception;
 
 /**
- * Created by jonathan on 27/05/16.
+ * Occurs when array size does not matches the {@link com.github.jonathanxd.iutils.condition.Conditions#checkSize(Object[],
+ * int, int) size condition}.
  */
 public class ArraySizeException extends RuntimeException {
     public ArraySizeException() {

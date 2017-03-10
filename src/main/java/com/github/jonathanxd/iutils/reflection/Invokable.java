@@ -28,13 +28,9 @@
 package com.github.jonathanxd.iutils.reflection;
 
 /**
- * Created by jonathan on 20/08/16.
- */
-
-/**
- * Represents an element that can be invoked.
+ * Represents a invokable element.
  *
- * @param <T> Return Type of element.
+ * @param <T> Result type of the invocation.
  */
 @FunctionalInterface
 public interface Invokable<T> {
@@ -42,8 +38,8 @@ public interface Invokable<T> {
     /**
      * Invoke the element.
      *
-     * @param args Arguments. If element is not static, first argument must be an instance.
-     * @return Result of invoked element.
+     * @param args Arguments to pass to element invocation.
+     * @return Result of invocation.
      */
     T invoke(Object... args);
 

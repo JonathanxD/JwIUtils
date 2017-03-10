@@ -28,10 +28,12 @@
 package com.github.jonathanxd.iutils.function.function;
 
 /**
- * Created by jonathan on 05/03/16.
+ * Takes two parameter and returns a {@code double}.
+ *
+ * @param <T> First parameter type.
+ * @param <U> Second parameter type.
  */
 @FunctionalInterface
 public interface BiToDoubleFunction<T, U> {
-
     double applyAsDouble(T t, U u);
 }

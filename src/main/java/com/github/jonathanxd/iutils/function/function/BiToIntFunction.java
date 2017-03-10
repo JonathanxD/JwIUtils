@@ -28,10 +28,11 @@
 package com.github.jonathanxd.iutils.function.function;
 
 /**
- * Created by jonathan on 05/03/16.
+ * Takes two parameters and returns a {@code int}.
+ * @param <T>
+ * @param <U>
  */
 @FunctionalInterface
 public interface BiToIntFunction<T, U> {
-
     int applyAsInt(T t, U u);
 }

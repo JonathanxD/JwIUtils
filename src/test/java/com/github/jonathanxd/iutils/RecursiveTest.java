@@ -27,18 +27,13 @@
  */
 package com.github.jonathanxd.iutils;
 
-import com.github.jonathanxd.iutils.function.FunctionUtil;
+import com.github.jonathanxd.iutils.recursion.RecursionUtil;
 
 import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
-/**
- * Created by jonathan on 26/05/16.
- */
 public class RecursiveTest {
 
     @Test
@@ -54,7 +49,7 @@ public class RecursiveTest {
         nodeList.add(new Node(new Node(89), new Node(74, new Node(35))));
 
 
-        FunctionUtil.recursiveForEach(nodeList, node -> {
+        RecursionUtil.recursiveForEach(nodeList, node -> {
 
             System.out.println("Visit node: "+node.toString());
 

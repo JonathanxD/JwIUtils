@@ -28,7 +28,7 @@
 package com.github.jonathanxd.iutils.container.primitivecontainers;
 
 import com.github.jonathanxd.iutils.container.BaseContainer;
-import com.github.jonathanxd.iutils.container.Container;
+import com.github.jonathanxd.iutils.container.MutableContainer;
 import com.github.jonathanxd.iutils.container.UnknownContainer;
 
 /**
@@ -85,7 +85,7 @@ public class FloatContainer implements UnknownContainer<Float> {
 
     @Override
     public BaseContainer<Float> box() {
-        return Container.of(f);
+        return MutableContainer.of(f);
     }
 
     @Override

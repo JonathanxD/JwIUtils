@@ -27,7 +27,7 @@
  */
 package com.github.jonathanxd.iutils.type;
 
-import com.github.jonathanxd.iutils.reflection.RClass;
+import com.github.jonathanxd.iutils.object.Pair;
 import com.github.jonathanxd.iutils.reflection.Reflection;
 
 import java.lang.reflect.GenericArrayType;
@@ -37,41 +37,48 @@ import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Predicate;
 
-/**
- * Created by jonathan on 28/02/16.
- */
 public class TypeUtil {
 
+    /**
+     * Gets the array base type.
+     *
+     * @param arrayType Array type.
+     * @return Pair of array base type and dimensions.
+     */
+    public static Pair<Class<?>, Integer> getArrayBaseType(Class<?> arrayType) {
+
+        if (arrayType.isArray()) {
+            Class<?> component = arrayType;
+
+            int dimensions = 0;
+
+            do {
+                ++dimensions;
+            } while ((component = component.getComponentType()).isArray());
 
 
-    public static Class<?>[] typesAsClass(Type[] parTypes) throws ClassNotFoundException {
-        Class<?>[] typesClass = new Class<?>[parTypes.length];
-
-        for (int x = 0; x < parTypes.length; ++x) {
-            typesClass[x] = Class.forName(parTypes[x].getTypeName());
+            return Pair.of(component, dimensions);
+        } else {
+            return Pair.of(arrayType, 0);
         }
-
-        return typesClass;
     }
 
-    public static <T> void deepTypes(Type[] types, Predicate<Type> continueIf, Function<Type, T> converter, Consumer<T> typeConsumer) {
-        for (Type type : types) {
-            if (continueIf.test(type)) {
-                T converted = converter.apply(type);
-                typeConsumer.accept(converted);
-            }
-        }
+    /**
+     * Creates a {@link TypeInfo} from type variables of {@code subClass} using reified types of
+     * {@code classWithReifiedTypes}.
+     *
+     * @param classWithReifiedTypes Class that provides reified types.
+     * @param subClass              Base class to create {@link TypeInfo}.
+     * @param <S>                   Base class type.
+     * @param <E>                   Reified types provider class type.
+     * @return {@link TypeInfo}.
+     */
+    public static <S, E extends S> TypeInfo<?> resolve(Class<E> classWithReifiedTypes, Class<S> subClass) {
+        return TypeUtil.resolve(classWithReifiedTypes, subClass, new HashMap<>());
     }
 
-    public static <S, E extends S> TypeInfo<?> resolve(Class<E> classWithTypeVariable, Class<S> subClass) {
-        return TypeUtil.resolve(classWithTypeVariable, subClass, new HashMap<>());
-    }
-
-    public static <S, E extends S> TypeInfo<?> resolve(Class<E> classWithTypeVariable, Class<S> subClass, Map<String, TypeInfo<?>> names) {
+    private static <S, E extends S> TypeInfo<?> resolve(Class<E> classWithTypeVariable, Class<S> subClass, Map<String, TypeInfo<?>> names) {
         Type genericSuperclass = classWithTypeVariable.getGenericSuperclass();
         Class<?> superClass = classWithTypeVariable.getSuperclass();
 
@@ -98,45 +105,66 @@ public class TypeUtil {
         return null;
     }
 
-    private static TypeInfo<?> from(Type type, Class<?> actual, Class<?> expected) {
-        return TypeUtil.from(type, actual, expected, new HashMap<>());
-    }
-
     private static TypeInfo<?> from(Type type, Class<?> actual, Class<?> expected, Map<String, TypeInfo<?>> names) {
         if (type instanceof ParameterizedType) {
             ParameterizedType parameterizedType = (ParameterizedType) type;
 
             if (expected.isAssignableFrom(actual)) {
-                return TypeUtil.toReference(parameterizedType, names);
+                return TypeUtil.toTypeInfo(parameterizedType, names);
             }
 
         } else if (type instanceof TypeVariable) {
             TypeVariable typeVariable = (TypeVariable) type;
             Type[] bounds = typeVariable.getBounds();
             if (bounds.length > 0) {
-                return TypeUtil.toReference(bounds[0], names);
+                return TypeUtil.toTypeInfo(bounds[0], names);
             }
         }
 
         return null;
     }
 
-    public static TypeInfo<?>[] genericRepOfVariableTypes(Class<?> classWithTypeVariable) {
-        return TypeUtil.genericRepOfVariableTypes(classWithTypeVariable, new HashMap<>());
+    /**
+     * Creates a array of {@link TypeInfo} from type variables of {@code classWithTypeVariables}.
+     *
+     * @param classWithTypeVariables Class with type variables.
+     * @return Array of {@link TypeInfo} from type variables of {@code classWithTypeVariables}.
+     */
+    public static TypeInfo<?>[] infoOfTypeVariables(Class<?> classWithTypeVariables) {
+        return TypeUtil.infoOfTypeVariables(classWithTypeVariables, new HashMap<>());
     }
 
-    public static TypeInfo<?>[] genericRepOfVariableTypes(Class<?> classWithTypeVariable, Map<String, TypeInfo<?>> names) {
-
-        return TypeUtil.toReferences(TypeUtil.getTypeVariableTypes(classWithTypeVariable, names), names);
+    /**
+     * Creates a array of {@link TypeInfo} from type variables of {@code classWithTypeVariables}.
+     *
+     * @param classWithTypeVariables Class with type variables.
+     * @param names                  Map of type variable name to inferred type.
+     * @return Array of {@link TypeInfo} from type variables of {@code classWithTypeVariables}.
+     */
+    public static TypeInfo<?>[] infoOfTypeVariables(Class<?> classWithTypeVariables, Map<String, TypeInfo<?>> names) {
+        return TypeUtil.toTypeInfo(TypeUtil.getTypeVariableTypes(classWithTypeVariables, names), names);
     }
 
-    public static Type[] getTypeVariableTypes(Class<?> classWithTypeVariable) {
-        return TypeUtil.getTypeVariableTypes(classWithTypeVariable, new HashMap<>());
+    /**
+     * Gets array of {@link Type} from {@code classWithTypeVariables}.
+     *
+     * @param classWithTypeVariables Class with type variables.
+     * @return Array of {@link Type} from {@code classWithTypeVariables}.
+     */
+    public static Type[] getTypeVariableTypes(Class<?> classWithTypeVariables) {
+        return TypeUtil.getTypeVariableTypes(classWithTypeVariables, new HashMap<>());
     }
 
-    public static Type[] getTypeVariableTypes(Class<?> classWithTypeVariable, Map<String, TypeInfo<?>> names) {
+    /**
+     * Gets array of {@link Type} from {@code classWithTypeVariables}.
+     *
+     * @param classWithTypeVariables Class with type variables.
+     * @param names                  Map of type variable name to inferred type.
+     * @return Array of {@link Type} from {@code classWithTypeVariables}.
+     */
+    public static Type[] getTypeVariableTypes(Class<?> classWithTypeVariables, Map<String, TypeInfo<?>> names) {
 
-        TypeVariable<? extends Class<?>>[] typeParameters = classWithTypeVariable.getTypeParameters();
+        TypeVariable<? extends Class<?>>[] typeParameters = classWithTypeVariables.getTypeParameters();
 
         if (typeParameters.length == 0) {
             throw new IllegalStateException("No Type Variables");
@@ -147,8 +175,8 @@ public class TypeUtil {
         for (int i = 0; i < typeParameters.length; i++) {
             TypeVariable<? extends Class<?>> typeParameter = typeParameters[i];
 
-            if(names.containsKey(typeParameter.getName())) {
-                types[i] = names.get(typeParameter.getName()).getAClass();
+            if (names.containsKey(typeParameter.getName())) {
+                types[i] = names.get(typeParameter.getName()).getTypeClass();
             } else {
 
                 Type[] bounds = typeParameter.getBounds();
@@ -164,33 +192,59 @@ public class TypeUtil {
         return types;
     }
 
-    public static TypeInfo<?>[] toReferences(Type[] param) {
-        return TypeUtil.toReferences(param, new HashMap<>());
+    /**
+     * Creates an array of {@link TypeInfo TypeInfos} from {@link Type type array}.
+     *
+     * @param param Type array.
+     * @return Array of {@link TypeInfo TypeInfos} from {@link Type type array}.
+     */
+    public static TypeInfo<?>[] toTypeInfo(Type[] param) {
+        return TypeUtil.toTypeInfo(param, new HashMap<>());
     }
 
-    public static TypeInfo<?>[] toReferences(Type[] param, Map<String, TypeInfo<?>> names) {
+    /**
+     * Creates an array of {@link TypeInfo TypeInfos} from {@link Type type array}.
+     *
+     * @param param Type array.
+     * @param names Map of type variable name to inferred type.
+     * @return Array of {@link TypeInfo TypeInfos} from {@link Type type array}.
+     */
+    public static TypeInfo<?>[] toTypeInfo(Type[] param, Map<String, TypeInfo<?>> names) {
         TypeInfo<?>[] typeInfos = new TypeInfo[param.length];
 
         for (int i = 0; i < param.length; i++) {
-            typeInfos[i] = TypeUtil.toReference(param[i], names);
+            typeInfos[i] = TypeUtil.toTypeInfo(param[i], names);
         }
 
         return typeInfos;
     }
 
-    public static TypeInfo<?> toReference(Type param) {
-        return TypeUtil.toReference(param, new HashMap<>());
+    /**
+     * Creates a {@link TypeInfo} from {@link Type}.
+     *
+     * @param param Type.
+     * @return {@link TypeInfo} from {@link Type}.
+     */
+    public static TypeInfo<?> toTypeInfo(Type param) {
+        return TypeUtil.toTypeInfo(param, new HashMap<>());
     }
 
-    public static TypeInfo<?> toReference(Type param, Map<String, TypeInfo<?>> names) {
+    /**
+     * Creates a {@link TypeInfo} from {@link Type}.
+     *
+     * @param param Type.
+     * @param names Map of type variable name to inferred type.
+     * @return {@link TypeInfo} from {@link Type}.
+     */
+    public static TypeInfo<?> toTypeInfo(Type param, Map<String, TypeInfo<?>> names) {
         if (param instanceof ParameterizedType) {
-            return TypeUtil.toReference((ParameterizedType) param, names);
+            return TypeUtil.toTypeInfo((ParameterizedType) param, names);
         }
 
         if (param instanceof GenericArrayType) {
 
             GenericArrayType genericArrayType = (GenericArrayType) param;
-            TypeInfo<?> typeInfo = TypeUtil.toReference(genericArrayType.getGenericComponentType(), names);
+            TypeInfo<?> typeInfo = TypeUtil.toTypeInfo(genericArrayType.getGenericComponentType(), names);
 
             String pr = param.toString();
 
@@ -204,7 +258,7 @@ public class TypeUtil {
             String fullName = (arrays + "L" + name) + ";";
 
             try {
-                Reflection.changeFinalField(RClass.getRClass(typeInfo), "classLiteral", fullName);
+                Reflection.changeFinalField(TypeInfo.class, typeInfo, "classLiteral", fullName);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -213,52 +267,44 @@ public class TypeUtil {
 
         }
 
-        if(param instanceof TypeVariable) {
+        if (param instanceof TypeVariable) {
             TypeVariable typeVariable = (TypeVariable) param;
 
-            if(names.containsKey(typeVariable.getName())) {
+            if (names.containsKey(typeVariable.getName())) {
                 return names.get(typeVariable.getName());
             }
 
         }
 
-        return TypeInfo.aEnd(TypeUtil.from(param, names));
+        return TypeInfo.of(TypeUtil.from(param, names));
     }
 
-    public static <T, E extends T> TypeInfo<?> lambdaTypes(Class<E> lambdaClass, Class<T> functionalInterfaceClass) {
-
-        Map<String, Class<?>> types = new HashMap<>();
-
-        TypeToolsMethods.fromConstantPool(lambdaClass, functionalInterfaceClass, types);
-
-        TypeInfoBuilder<?> typeInfoBuilder = new TypeInfoBuilder<>().a(functionalInterfaceClass);
-
-        TypeVariable<Class<T>>[] typeParameters = functionalInterfaceClass.getTypeParameters();
-
-        for (TypeVariable<Class<T>> typeParameter : typeParameters) {
-            String name = typeParameter.getName();
-            if (types.containsKey(name)) {
-                Class<?> aClass = types.get(name);
-                typeInfoBuilder.of(aClass);
-            }
-        }
-
-        return typeInfoBuilder.build();
+    /**
+     * Creates a {@link TypeInfo} from {@link ParameterizedType}.
+     *
+     * @param param Parameterized type.
+     * @return {@link TypeInfo} from {@link ParameterizedType}.
+     */
+    public static TypeInfo<?> toTypeInfo(ParameterizedType param) {
+        return TypeUtil.toTypeInfo(param, new HashMap<>());
     }
 
-    public static TypeInfo<?> toReference(ParameterizedType param) {
-        return TypeUtil.toReference(param, new HashMap<>());
-    }
-
-    public static TypeInfo<?> toReference(ParameterizedType param, Map<String, TypeInfo<?>> names) {
-        TypeInfoBuilder<?> typeInfoBuilder = TypeInfo.a(TypeUtil.from(param.getRawType(), names));
+    /**
+     * Creates a {@link TypeInfo} from {@link ParameterizedType}.
+     *
+     * @param param Parameterized type.
+     * @param names Map of type variable name to inferred type.
+     * @return {@link TypeInfo} from {@link ParameterizedType}.
+     */
+    public static TypeInfo<?> toTypeInfo(ParameterizedType param, Map<String, TypeInfo<?>> names) {
+        TypeInfoBuilder<?> typeInfoBuilder = TypeInfo.builderOf(TypeUtil.from(param.getRawType(), names));
         for (Type type : param.getActualTypeArguments()) {
             if (!(type instanceof ParameterizedType)) {
 
-                if(type instanceof TypeVariable) {
+                if (type instanceof TypeVariable) {
                     TypeVariable typeVar = (TypeVariable) type;
 
-                    if(names.containsKey(typeVar.getName())) {
+                    if (names.containsKey(typeVar.getName())) {
                         TypeInfo<?> typeInfo = names.get(typeVar.getName());
 
                         typeInfoBuilder.of(typeInfo);
@@ -275,16 +321,29 @@ public class TypeUtil {
                 }
             } else {
                 ParameterizedType parameterizedType = (ParameterizedType) type;
-                typeInfoBuilder.of(TypeUtil.toReference(parameterizedType, names));
+                typeInfoBuilder.of(TypeUtil.toTypeInfo(parameterizedType, names));
             }
         }
         return typeInfoBuilder.build();
     }
 
+    /**
+     * Tries to resolve {@link Class} from {@link Type}.
+     *
+     * @param t Type.
+     * @return Resolved type or null if cannot resolve.
+     */
     public static Class<?> from(Type t) {
         return TypeUtil.from(t, new HashMap<>());
     }
 
+    /**
+     * Tries to resolve {@link Class} from {@link Type}.
+     *
+     * @param t     Type.
+     * @param names Map of type variable name to inferred type.
+     * @return Resolved type or null if cannot resolve.
+     */
     public static Class<?> from(Type t, Map<String, TypeInfo<?>> names) {
         if (t instanceof Class) {
             return (Class<?>) t;
@@ -304,8 +363,8 @@ public class TypeUtil {
         if (t instanceof TypeVariable) {
             String name = ((TypeVariable) t).getName();
 
-            if(names.containsKey(name)) {
-                return names.get(name).getAClass();
+            if (names.containsKey(name)) {
+                return names.get(name).getTypeClass();
             }
 
             return Object.class;
@@ -318,39 +377,47 @@ public class TypeUtil {
         }
     }
 
+    /**
+     * Finds {@code parameterizedType} generic information provided by {@code classToAnalyze}.
+     *
+     * @param classToAnalyze    Class to analyze.
+     * @param parameterizedType Base type to infer types from generic information provided by {@code
+     *                          classToAnalyze}.
+     * @return {@link ParameterizedType} of {@code parameterizedType} provided by {@code
+     * classToAnalyze}, or null if cannot find.
+     */
+    public static ParameterizedType findParameterizedClass(Class<?> classToAnalyze, Class<?> parameterizedType) {
+        Class<?> superClass = classToAnalyze.getSuperclass();
 
-    public static ParameterizedType findParameterizedClass(Class<?> in, Class<?> parameterizedType) {
-        Class<?> superClass = in.getSuperclass();
-
-        if(superClass.equals(parameterizedType)) {
-            if(in.getGenericSuperclass() instanceof ParameterizedType) {
-               return (ParameterizedType) in.getGenericSuperclass();
+        if (superClass.equals(parameterizedType)) {
+            if (classToAnalyze.getGenericSuperclass() instanceof ParameterizedType) {
+                return (ParameterizedType) classToAnalyze.getGenericSuperclass();
             }
         }
 
-        Class[] types = in.getInterfaces();
-        Type[] genericInterfaces = in.getGenericInterfaces();
+        Class[] types = classToAnalyze.getInterfaces();
+        Type[] genericInterfaces = classToAnalyze.getGenericInterfaces();
 
         for (int i = 0; i < types.length; i++) {
-            if(types[i].equals(parameterizedType)) {
-                if(genericInterfaces[i] instanceof ParameterizedType) {
+            if (types[i].equals(parameterizedType)) {
+                if (genericInterfaces[i] instanceof ParameterizedType) {
                     return (ParameterizedType) genericInterfaces[i];
                 }
             }
         }
 
-        if(!superClass.equals(Object.class)) {
+        if (!superClass.equals(Object.class)) {
             ParameterizedType find = findParameterizedClass(superClass, parameterizedType);
-            if(find != null) {
+            if (find != null) {
                 return find;
             }
         }
 
-        if(parameterizedType.isInterface()) {
+        if (parameterizedType.isInterface()) {
             for (Class type : types) {
                 ParameterizedType find = findParameterizedClass(type, parameterizedType);
 
-                if(find != null) {
+                if (find != null) {
                     return find;
                 }
             }
@@ -358,4 +425,78 @@ public class TypeUtil {
 
         return null;
     }
+
+    /**
+     * Gets the {@link Class} instance from {@code str}.
+     *
+     * @param str Name of the class.
+     * @return {@link Class} instance.
+     * @throws ClassNotFoundException If class with name {@code str} cannot be found.
+     */
+    public static Class classForName(String str) throws ClassNotFoundException {
+        if (str.equals("byte"))
+            return Byte.TYPE;
+        if (str.equals("short"))
+            return Short.TYPE;
+        if (str.equals("char"))
+            return Character.TYPE;
+        if (str.equals("int"))
+            return Integer.TYPE;
+        if (str.equals("float"))
+            return Float.TYPE;
+        if (str.equals("double"))
+            return Double.TYPE;
+        if (str.equals("long"))
+            return Long.TYPE;
+        if (str.equals("boolean"))
+            return Boolean.TYPE;
+        if (str.equals("void"))
+            return Void.TYPE;
+
+        return Class.forName(str);
+    }
+
+    /**
+     * Tries to resolve {@link Class} from {@code classLiteral}.
+     *
+     * @param classLiteral Class literal.
+     * @param <V>          Class type.
+     * @return {@link Class} resolved from {@code classLiteral}.
+     * @throws RuntimeException if class cannot be found.
+     */
+    @SuppressWarnings("unchecked")
+    public static <V> Class<? extends V> resolveClass(String classLiteral) {
+
+        String fixed = fixName(classLiteral);
+        try {
+            return (Class<? extends V>) TypeUtil.classForName(fixed);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException("Failed to resolve class literal: '" + classLiteral + "' fixed: '" + fixed + "'!", e);
+        }
+    }
+
+    static String fixName(String classLiteral) {
+        StringBuilder stringBuilder = new StringBuilder();
+
+        if (classLiteral.endsWith("[]")) {
+
+            stringBuilder.append("L");
+
+            for (char c : classLiteral.toCharArray()) {
+                if (c != '[' && c != ']')
+                    stringBuilder.append(c);
+
+                if (c == '[')
+                    stringBuilder.insert(0, '[');
+            }
+
+            stringBuilder.append(";");
+        } else {
+            stringBuilder.append(classLiteral);
+        }
+
+        return stringBuilder.toString();
+    }
+
+
 }

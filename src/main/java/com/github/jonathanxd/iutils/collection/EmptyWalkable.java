@@ -34,9 +34,10 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 /**
- * Created by jonathan on 18/07/16.
+ * Empty walkable.
  */
 public class EmptyWalkable implements Walkable {
+
     @Override
     public Object next() {
         throw new NoSuchElementException();
@@ -50,11 +51,6 @@ public class EmptyWalkable implements Walkable {
     @Override
     public void remove() {
         throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public boolean checkIndex() {
-        return false;
     }
 
     @Override
@@ -89,7 +85,7 @@ public class EmptyWalkable implements Walkable {
     }
 
     @Override
-    public int computeSize() {
+    public int getRemainingElementsAmount() {
         return 0;
     }
 

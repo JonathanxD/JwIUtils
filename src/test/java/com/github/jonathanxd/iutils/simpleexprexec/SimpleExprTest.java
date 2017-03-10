@@ -28,9 +28,9 @@
 package com.github.jonathanxd.iutils.simpleexprexec;
 
 import com.github.jonathanxd.iutils.map.MapUtils;
-import com.github.jonathanxd.iutils.string.JString;
 import com.github.jonathanxd.iutils.string.SimpleStringExpression;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 /**
@@ -38,9 +38,15 @@ import org.junit.Test;
  */
 public class SimpleExprTest {
 
-    @Test
-    public void simpleExprTest() {
-        SimpleStringExpression.executeExpression("Out.println(simpleVar);", MapUtils.mapOf("Out", System.out, "simpleVar", "Teste"));
+    public static String test(String s) {
+        return s + " 9";
     }
 
+    @Test
+    public void simpleExprTest() {
+        Assert.assertEquals("Hello 9",
+                SimpleStringExpression.evaluateExpression("SimpleExprTest.test(\"Hello\");",
+                        MapUtils.mapOf("SimpleExprTest", SimpleExprTest.class))
+        );
+    }
 }

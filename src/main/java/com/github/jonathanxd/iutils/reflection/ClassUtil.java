@@ -27,6 +27,7 @@
  */
 package com.github.jonathanxd.iutils.reflection;
 
+import com.github.jonathanxd.iutils.function.stream.BiStreams;
 import com.github.jonathanxd.iutils.function.stream.MapStream;
 import com.github.jonathanxd.iutils.list.ListSet;
 
@@ -35,18 +36,29 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class ClassUtil {
+public final class ClassUtil {
+
+    private ClassUtil() {
+        throw new UnsupportedOperationException();
+    }
+
 
     /**
      * Create a sorted list representing the class hierarchy.
      *
-     * @param aClass Class
+     * @param aClass Class.
      * @return Sorted list representing the class hierarchy.
      */
     public static List<Class<?>> getSortedSuperTypes(Class<?> aClass) {
         return ClassUtil.getSuperTypesLeveled(aClass).stream().map(Leveled::getValue).collect(Collectors.toList());
     }
 
+    /**
+     * Creates a list representing the class hierarchy by level.
+     *
+     * @param aClass Class.
+     * @return List representing the class hierarchy by level.
+     */
     public static List<Leveled<Class<?>>> getSuperTypesLeveled(Class<?> aClass) {
         List<Leveled<Class<?>>> list = new ListSet<>();
 
@@ -58,10 +70,10 @@ public class ClassUtil {
 
             int compare = Integer.compare(o1.getLevel(), o2.getLevel());
 
-            if(compare != 0) {
+            if (compare != 0) {
                 return compare;
             } else {
-                if(!o1.getValue().isInterface()) { // Classes always first
+                if (!o1.getValue().isInterface()) { // Classes always first
                     return -1;
                 } else {
                     return compare + 1;
@@ -88,7 +100,7 @@ public class ClassUtil {
 
         }
 
-        return MapStream.of(map).streamMap((e, integer) -> new Leveled<>(integer, e)).collect(Collectors.toList());
+        return BiStreams.mapStream(map).streamMap((e, integer) -> new Leveled<>(integer, e)).collect(Collectors.toList());
     }
 
     private static void getSuperTypesLeveled(Class<?> aClass, List<Leveled<Class<?>>> list, int level) {
@@ -115,8 +127,21 @@ public class ClassUtil {
         }
     }
 
-    public static class Leveled<T> {
+    /**
+     * Level holder.
+     *
+     * @param <T> Element type.
+     */
+    public static final class Leveled<T> {
+
+        /**
+         * Level of this element.
+         */
         private final int level;
+
+        /**
+         * Element.
+         */
         private final T value;
 
         Leveled(int level, T value) {
@@ -124,10 +149,20 @@ public class ClassUtil {
             this.value = value;
         }
 
+        /**
+         * Gets the level of element.
+         *
+         * @return Level of element.
+         */
         public int getLevel() {
             return this.level;
         }
 
+        /**
+         * Gets the element.
+         *
+         * @return Element.
+         */
         public T getValue() {
             return this.value;
         }

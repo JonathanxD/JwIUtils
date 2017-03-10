@@ -27,6 +27,7 @@
  */
 package com.github.jonathanxd.iutils.reflection;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -80,7 +81,7 @@ public class TestLinks {
     }
 
     public void invoke(Link<String> link) {
-        System.out.println("Name is: "+link.invoke(person));
+        Assert.assertEquals("Mary", link.invoke(person));
     }
 
 

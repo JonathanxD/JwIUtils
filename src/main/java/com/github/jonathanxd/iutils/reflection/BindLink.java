@@ -28,10 +28,6 @@
 package com.github.jonathanxd.iutils.reflection;
 
 /**
- * Created by jonathan on 20/08/16.
- */
-
-/**
  * Represent an {@link Link} that have a instance bind-ed to invocation.
  *
  * @param <U> Type of instance

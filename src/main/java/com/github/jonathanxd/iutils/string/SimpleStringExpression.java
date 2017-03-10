@@ -46,7 +46,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Created by jonathan on 27/05/16.
+ * String expression evaluator.
  */
 public class SimpleStringExpression {
 
@@ -55,7 +55,18 @@ public class SimpleStringExpression {
     private static final Pattern ARGUMENT_EXTRACTOR = Pattern.compile("\\b[^()]+\\((.*)\\)(;)?$");
     private static final Pattern ARGUMENT_MATCHER = Pattern.compile("([^,]+\\(.+?\\))|([^,]+)");
 
-    private static Object executeExpression(String string, Map<String, Object> variables, int resultN, List<Object> results) {
+    /**
+     * Evaluates the expression string {@code string} and returns the resulting object.
+     *
+     * @param string    String expression.
+     * @param variables Provided variables.
+     * @return Evaluated Object.
+     */
+    public static Object evaluateExpression(String string, Map<String, Object> variables) {
+        return SimpleStringExpression.evaluateExpression(string, variables, -1, new ArrayList<>());
+    }
+
+    private static Object evaluateExpression(String string, Map<String, Object> variables, int resultN, List<Object> results) {
         if (resultN >= 256)
             throw new MaxRecursiveParseException("Exceeded limit of 256 local variables.");
 
@@ -96,43 +107,12 @@ public class SimpleStringExpression {
 
                 int methodNameStart = indexOfMethod + METHOD_INVOKE_SYMBOL.length();
 
-                //String methodName = string.substring(methodNameStart, string.indexOf('(', methodNameStart)).trim();
-
                 String argumentsStr = string.substring(0, range + 1);
 
 
                 String[] arguments = parseArguments(argumentsStr);
 
-                return executeMethodOfObject(varValue, aClass, string, arguments, methodNameStart, range, variables, resultN, results);
-
-                /*Object[] filledArguments = fillArguments(arguments, variables);
-                MethodHandle method = findMethod(aClass, methodName, varValue, filledArguments);
-
-                if(varValue != null)
-                    method = method.bindTo(varValue);
-
-                Object resultL;
-
-                try {
-                    resultL = method.invokeWithArguments(filledArguments);
-                } catch (Throwable throwable) {
-                    throw new RuntimeException(throwable);
-                }
-
-                String afterClose = string.substring(range + 1);
-
-                if(afterClose.length() == 0 || afterClose.equals(";"))
-                    return resultL;
-
-                if(afterClose.startsWith(".")) {
-                    afterClose = afterClose.substring(1);
-                }
-
-                List<Object> results2 = new ArrayList<>(results);
-
-                results2.add(resultL);
-
-                return executeExpression(afterClose, variables, resultN + 1, results2);*/
+                return SimpleStringExpression.executeMethodOfObject(varValue, aClass, string, arguments, methodNameStart, range, variables, resultN, results);
             } else {
                 int pos = indexOfMethod + METHOD_INVOKE_SYMBOL.length();
                 int end = string.indexOf(METHOD_INVOKE_SYMBOL, pos);
@@ -160,7 +140,7 @@ public class SimpleStringExpression {
 
                     results2.add(v);
 
-                    return executeExpression(rangeRes, variables, resultN + 1, results2);
+                    return SimpleStringExpression.evaluateExpression(rangeRes, variables, resultN + 1, results2);
 
 
                 } catch (NoSuchFieldException | IllegalAccessException e) {
@@ -170,10 +150,7 @@ public class SimpleStringExpression {
 
                     throw ex;
                 }
-
-
             }
-
 
         } else {
             Object parseValue;
@@ -190,7 +167,7 @@ public class SimpleStringExpression {
 
                     Object value = Objects.requireNonNull(results.get(resultN), "Null local value at index '" + resultN + "'!");
 
-                    int range = parseMethodRange(string, 0);
+                    int range = SimpleStringExpression.parseMethodRange(string, 0);
 
                     if (range != -1) {
                         int methodNameStart = indexOfMethod + METHOD_INVOKE_SYMBOL.length();
@@ -199,7 +176,7 @@ public class SimpleStringExpression {
 
                         String[] arguments = parseArguments(argumentsStr);
 
-                        return executeMethodOfObject(value, value.getClass(), string, arguments, methodNameStart, range, variables, resultN, results);
+                        return SimpleStringExpression.executeMethodOfObject(value, value.getClass(), string, arguments, methodNameStart, range, variables, resultN, results);
                     } else {
 
                         try {
@@ -223,7 +200,7 @@ public class SimpleStringExpression {
 
         Object[] filledArguments = fillArguments(arguments, variables);
 
-        MethodHandle method = findMethod(aClass, methodName, varValue, filledArguments);
+        MethodHandle method = SimpleStringExpression.findMethod(aClass, methodName, varValue, filledArguments);
 
         if (varValue != null)
             method = method.bindTo(varValue);
@@ -249,28 +226,23 @@ public class SimpleStringExpression {
 
         results2.add(resultL);
 
-        return executeExpression(afterClose, variables, resultN + 1, results2);
-    }
-
-    public static Object executeExpression(String string, Map<String, Object> variables) {
-
-        return executeExpression(string, variables, -1, new ArrayList<>());
-
+        return SimpleStringExpression.evaluateExpression(afterClose, variables, resultN + 1, results2);
     }
 
     private static Object parseValue(String s) {
         try {
             return Integer.parseInt(s);
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException ignored) {
         }
+
         try {
             return Long.parseLong(s);
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException ignored) {
         }
 
         try {
             return Double.parseDouble(s);
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException ignored) {
         }
 
         if (s.length() > 1 && s.startsWith("\"") && s.endsWith("\"")) {
@@ -333,20 +305,12 @@ public class SimpleStringExpression {
         return true;
     }
 
-    private static Class<?> reflectGetReturnType(Class<?> clazz, String methodName, Class<?>[] argTypes) {
-        try {
-            return clazz.getDeclaredMethod(methodName, argTypes).getReturnType();
-        } catch (NoSuchMethodException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     private static Object[] fillArguments(String[] arguments, Map<String, Object> variables) {
 
         Object[] objects = new Object[arguments.length];
 
         for (int i = 0; i < arguments.length; i++) {
-            objects[i] = executeExpression(arguments[i], variables);
+            objects[i] = evaluateExpression(arguments[i], variables);
         }
 
         return objects;
@@ -396,7 +360,7 @@ public class SimpleStringExpression {
                 } else if (c == ')' && openTags == closeTags) {
                     return x;
                 } else if (c == '.' && openTags == closeTags) {
-                    if(ignore == 0)
+                    if (ignore == 0)
                         return -1;
                     else
                         --ignore;

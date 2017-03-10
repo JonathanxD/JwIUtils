@@ -28,7 +28,6 @@
 package com.github.jonathanxd.iutils.function.stream.walkable;
 
 import com.github.jonathanxd.iutils.collection.Walkable;
-import com.github.jonathanxd.iutils.comparator.Compared;
 import com.github.jonathanxd.iutils.container.IMutableContainer;
 import com.github.jonathanxd.iutils.container.MutableContainer;
 import com.github.jonathanxd.iutils.function.binary.BiBinaryOperator;
@@ -45,6 +44,7 @@ import com.github.jonathanxd.iutils.function.function.NodeFunction;
 import com.github.jonathanxd.iutils.function.function.TriFunction;
 import com.github.jonathanxd.iutils.function.stream.BiStream;
 import com.github.jonathanxd.iutils.object.Node;
+import com.github.jonathanxd.iutils.sort.SortingResult;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -67,18 +67,19 @@ import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
 /**
- * Created by jonathan on 05/03/16.
+ * A {@link BiStream} backed by a {@link Walkable}.
+ *
+ * @param <T> First value type.
+ * @param <U> Second value type.
  */
 public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<Node<T, U>>> {
-
-    //int index = 0;
 
     public WalkableNodeBiStream(Walkable<Node<T, U>> entries) {
         super(entries);
     }
 
     protected WalkableNodeBiStream(List<Node<T, U>> entries) {
-        super(Walkable.asWithoutStateList(entries));
+        super(Walkable.fromList(entries));
     }
 
 
@@ -128,7 +129,7 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
             newMap.put(node.getKey(), node.getValue());
         });
 
-        return new WalkableNodeBiStream<>(Walkable.asList(newMap));
+        return new WalkableNodeBiStream<>(Walkable.fromList(newMap));
     }
 
     @Override
@@ -214,7 +215,7 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
             }
         });
 
-        return new WalkableNodeBiStream<>(Walkable.asList(nodes));
+        return new WalkableNodeBiStream<>(Walkable.fromList(nodes));
 
     }
 
@@ -460,7 +461,7 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
 
     @Override
     public Node<T, U>[] toArray() {
-        return getWalkable().toArray();
+        return this.getWalkable().toArray();
     }
 
     @SuppressWarnings("unchecked")
@@ -503,11 +504,10 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
 
         IMutableContainer<Node<List<T>, U>> nodeContainer = new MutableContainer<>(new Node<>(init, identify));
 
-        consume(n -> nodeContainer.set(
+        consume(n -> nodeContainer.mapThisValue(
                 current -> current.withNewValue(
                         accumulator.apply(nodeContainer.get().getKey(), nodeContainer.get().getValue(), n.getKey(), n.getValue())
-                )
-                )
+                ))
         );
 
         return nodeContainer.get();
@@ -518,7 +518,7 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
 
         IMutableContainer<Node<T, U>> nodeContainer = new MutableContainer<>(new Node<>(identify, identify2));
 
-        consume(n -> nodeContainer.set(
+        consume(n -> nodeContainer.mapThisValue(
                 (current) -> current.withNewKey(
                         accumulator.apply(current.getKey(), current.getValue(), n.getKey(), n.getValue())
                 )
@@ -531,7 +531,7 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
     public U reduceSecond(T identify, U identify2, BiBinaryOperator<U, T> accumulator) {
         IMutableContainer<Node<T, U>> nodeContainer = new MutableContainer<>(new Node<>(identify, identify2));
 
-        consume(n -> nodeContainer.set(
+        consume(n -> nodeContainer.mapThisValue(
                 (current) -> current.withNewValue(
                         accumulator.apply(current.getValue(), current.getKey(), n.getValue(), n.getKey())
                 )
@@ -549,7 +549,7 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
             if (!nodeContainer.isPresent())
                 nodeContainer.set(n);
             else
-                nodeContainer.set(current -> accumulator.apply(current.getKey(), current.getValue(), n.getKey(), n.getValue()));
+                nodeContainer.mapThisValue(current -> accumulator.apply(current.getKey(), current.getValue(), n.getKey(), n.getValue()));
         });
 
         return !nodeContainer.isPresent() ? Optional.empty() : Optional.of(nodeContainer.get());
@@ -563,7 +563,7 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
                     if (!nodeContainer.isPresent())
                         nodeContainer.set(n);
                     else
-                        nodeContainer.set(
+                        nodeContainer.mapThisValue(
                                 (current) -> current.withNewKey(
                                         accumulator.apply(current.getKey(), current.getValue(), n.getKey(), n.getValue())
                                 )
@@ -582,7 +582,7 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
                     if (!nodeContainer.isPresent())
                         nodeContainer.set(n);
                     else
-                        nodeContainer.set((current) -> current.withNewValue(
+                        nodeContainer.mapThisValue((current) -> current.withNewValue(
                                 accumulator.apply(current.getValue(), current.getKey(), n.getValue(), n.getKey())
                         ));
                 }
@@ -596,7 +596,7 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
 
         IMutableContainer<R> ret = new MutableContainer<>(identity);
 
-        consume(n -> ret.set(current -> accumulator.apply(current, n.getKey(), n.getValue())));
+        consume(n -> ret.mapThisValue(current -> accumulator.apply(current, n.getKey(), n.getValue())));
 
         return ret.get();
     }
@@ -688,9 +688,9 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
      */
     @Override
     public Optional<Node<T, U>> min(BiComparator<? super T, ? super U> comparator) {
-        Compared<Node<T, U>> compared = getWalkable().compare((c, c2) -> comparator.compare(c.getKey(), c.getValue(), c2.getKey(), c2.getValue()));
+        SortingResult<Node<T, U>> sortingResult = getWalkable().compareToComparison((c, c2) -> comparator.compare(c.getKey(), c.getValue(), c2.getKey(), c2.getValue()));
 
-        return compared.min();
+        return sortingResult.min();
     }
 
     /**
@@ -701,9 +701,9 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
      */
     @Override
     public Optional<Node<T, U>> max(BiComparator<? super T, ? super U> comparator) {
-        Compared<Node<T, U>> compared = getWalkable().compare((c, c2) -> comparator.compare(c.getKey(), c.getValue(), c2.getKey(), c2.getValue()));
+        SortingResult<Node<T, U>> sortingResult = getWalkable().compareToComparison((c, c2) -> comparator.compare(c.getKey(), c.getValue(), c2.getKey(), c2.getValue()));
 
-        return compared.max();
+        return sortingResult.max();
     }
 
     @Override
@@ -751,7 +751,7 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
     @Override
     public Optional<Node<T, U>> findFirst() {
 
-        List<Node<T, U>> currentList = getWalkable().currentAsList();
+        List<Node<T, U>> currentList = getWalkable().toList();
 
         return currentList == null || currentList.isEmpty() ? Optional.empty() : Optional.of(currentList.get(0));
     }

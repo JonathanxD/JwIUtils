@@ -27,26 +27,29 @@
  */
 package com.github.jonathanxd.iutils.object;
 
-import com.github.jonathanxd.iutils.reflection.Reflection;
-import com.github.jonathanxd.iutils.string.StringHelper;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.OutputStream;
-import java.lang.reflect.Field;
-import java.util.Collection;
 import java.util.Optional;
-import java.util.StringJoiner;
-import java.util.function.Function;
-import java.util.zip.DeflaterOutputStream;
-import java.util.zip.InflaterInputStream;
 
-public class ObjectUtils {
+/**
+ * Object utilities.
+ */
+public final class ObjectUtils {
 
+    private ObjectUtils() {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Serialize {@code object} to a byte array.
+     *
+     * @param object Object to serialize.
+     * @return Object array of serialized object.
+     * @throws IOException See {@link ObjectOutputStream#writeObject(Object)}.
+     */
     public static byte[] getObjectBytes(Object object) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream oos = new ObjectOutputStream(baos);
@@ -58,6 +61,13 @@ public class ObjectUtils {
         return baos.toByteArray();
     }
 
+    /**
+     * Serialize {@code object} to a byte array.
+     *
+     * @param object Object to serialize.
+     * @return {@link Optional} of object array, or a empty {@link Optional} if serialization
+     * failed.
+     */
     public static Optional<byte[]> getObjectBytesSafe(Object object) {
         try {
             return Optional.of(ObjectUtils.getObjectBytes(object));
@@ -67,6 +77,15 @@ public class ObjectUtils {
         return Optional.empty();
     }
 
+    /**
+     * Deserialized object from the array.
+     *
+     * @param bytes Array with serialized object.
+     * @param <T>   Type of object.
+     * @return Instance of object.
+     * @throws IOException            See {@link ObjectInputStream#readObject()}
+     * @throws ClassNotFoundException See {@link ObjectInputStream#readObject()}
+     */
     public static <T> T getObjectFromBytes(byte[] bytes) throws IOException, ClassNotFoundException {
         ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
         ObjectInputStream ois = new ObjectInputStream(bais);
@@ -78,6 +97,13 @@ public class ObjectUtils {
         return object;
     }
 
+    /**
+     * Deserialized object from the array.
+     *
+     * @param bytes Array with serialized object.
+     * @return {@link Optional} of instance of deserilized object, or a empty {@link Optional} if
+     * deserialization failed.
+     */
     public static Optional<Object> getObjectFromBytesSafe(byte[] bytes) {
         try {
             return Optional.of(ObjectUtils.getObjectFromBytes(bytes));
@@ -87,79 +113,21 @@ public class ObjectUtils {
         return Optional.empty();
     }
 
-    public static StringHelper toHelper(Object object) {
-        return new StringHelper(object);
-    }
-
-    public static StringHelper deepFields(Object object) {
-        return deepFields(object, false);
-    }
-
-    public static StringHelper deepFields(Object object, boolean semiRecursive) {
-
-        StringHelper helper = toHelper(object);
-
-        Collection<Field> fields = Reflection.fieldCollection(object, semiRecursive, false, false);
-        for (Field field : fields) {
-            if (!field.isAccessible())
-                field.setAccessible(true);
-
-            try {
-                helper.set(field.getName(), field.get(object));
-            } catch (IllegalAccessException e) {
-            }
-        }
-
-        return helper;
-    }
-
-    public static boolean isInstanceOfAny(Object source, Class<?>... instanceOfObjects) {
-        for (Class<?> instanceOf : instanceOfObjects) {
+    /**
+     * Returns true if {@code source} is a instance of any {@code instanceOfClasses}.
+     *
+     * @param source            Instance to test.
+     * @param instanceOfClasses Classes to check if {@code source} is instance.
+     * @return True if {@code source} is a instance of any {@code instanceOfClasses}.
+     */
+    public static boolean isInstanceOfAny(Object source, Class<?>... instanceOfClasses) {
+        for (Class<?> instanceOf : instanceOfClasses) {
             if (instanceOf.isInstance(source)) {
                 return true;
             }
         }
 
         return false;
-    }
-
-    public static <E> String strip(E[] elements, Function<E, String> elementStringFactory) {
-
-        StringJoiner sj = new StringJoiner("\n");
-
-        sj.add("");
-
-        for (E element : elements) {
-            sj.add(elementStringFactory.apply(element));
-        }
-
-        return sj.toString();
-    }
-
-    public static byte[] compress(byte[] bytes) {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        try {
-            OutputStream out = new DeflaterOutputStream(baos);
-            out.write(bytes);
-            out.close();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        return baos.toByteArray();
-    }
-
-    public static byte[] decompress(byte[] bytes) {
-        InputStream in = new InflaterInputStream(new ByteArrayInputStream(bytes));
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        try {
-            byte[] buffer = new byte[8192];
-            int len;
-            while ((len = in.read(buffer)) > 0)
-                baos.write(buffer, 0, len);
-            return baos.toByteArray();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 
 }

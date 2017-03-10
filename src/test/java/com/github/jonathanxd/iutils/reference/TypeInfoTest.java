@@ -27,145 +27,113 @@
  */
 package com.github.jonathanxd.iutils.reference;
 
-import com.github.jonathanxd.iutils.exception.RethrowException;
 import com.github.jonathanxd.iutils.type.AbstractTypeInfo;
 import com.github.jonathanxd.iutils.type.ConcreteTypeInfo;
 import com.github.jonathanxd.iutils.type.TypeInfo;
+import com.github.jonathanxd.iutils.type.TypeInfoUtil;
 import com.github.jonathanxd.iutils.type.TypeProvider;
 import com.github.jonathanxd.iutils.type.TypeUtil;
 
 import org.junit.Assert;
 
 import java.io.Serializable;
-import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 
-/**
- * Created by jonathan on 02/04/16.
- */
 public class TypeInfoTest {
 
 
+    private final TypeInfo<A> aInfo = new ConcreteTypeInfo<A>() {
+    };
+    private final TypeInfo<B<List<?>>> bInfo = new ConcreteTypeInfo<B<List<?>>>() {
+    };
+
     @org.junit.Test
-    public <V> void testRef() {
+    public void testRef() {
 
-        TypeInfo<V> typeInf0 = new ConcreteTypeInfo<V>() {};
-        TypeInfo<Dict<? extends CharSequence, ? super Number>> ref = new AbstractTypeInfo<Dict<? extends CharSequence, ? super Number>>() {};
+        TypeInfo<Dict<? extends CharSequence, ? super Number>> ref = new AbstractTypeInfo<Dict<? extends CharSequence, ? super Number>>() {
+        };
 
-        System.out.println("Ref: "+ref);
+        Assert.assertEquals("Dict<CharSequence, Object>", ref.toString());
 
         Test<? extends CharSequence> test = new Test<>();
 
         TypeInfo[] myRefs = test.getClassReferences();
 
-        System.out.println("Ref: "+ Arrays.toString(myRefs));
+        Assert.assertEquals("CharSequence", myRefs[0].toString());
 
-        TypeInfo<Dict<List<String>, Integer>> dictTypeInfo = new AbstractTypeInfo<Dict<List<String>, Integer>>() {};
+        TypeInfo<Dict<List<String>, Integer>> dictTypeInfo = new AbstractTypeInfo<Dict<List<String>, Integer>>() {
+        };
         String toFullString1 = dictTypeInfo.toFullString();
 
-        System.out.println("Dict: "+ dictTypeInfo);
+        Assert.assertEquals("Dict<List<String>, Integer>", dictTypeInfo.toString());
 
-        System.out.println("Dict: "+ toFullString1);
+        Assert.assertEquals("com.github.jonathanxd.iutils.reference.TypeInfoTest$Dict<java.util.List<java.lang.String>, java.lang.Integer>", toFullString1);
 
-        System.out.println("Dict: "+ TypeInfo.fromFullString(toFullString1));
+        Assert.assertEquals(dictTypeInfo, TypeInfoUtil.fromFullString(toFullString1).get(0));
 
-        TypeInfo<Map> typeInfo = TypeInfo.a(Map.class).of(String.class).and(TypeInfo.a(List.class).of(TypeInfo.a(Map.class).of(String.class).and(Integer[].class))).build();
+        TypeInfo<Map> typeInfo = TypeInfo.builderOf(Map.class).of(String.class).of(TypeInfo.builderOf(List.class).of(TypeInfo.builderOf(Map.class).of(String.class).of(Integer[].class))).build();
 
         String fullString = typeInfo.toFullString();
 
-        System.out.println(fullString);
+        Assert.assertEquals("java.util.Map<java.lang.String, java.util.List<java.util.Map<java.lang.String, [Ljava.lang.Integer;>>>", fullString);
 
-        System.out.println(TypeInfo.fromFullString(fullString));
-        System.out.println(TypeInfo.fromFullString("java.util.Map"));
+        Assert.assertEquals("[Map<String, List<Map<String, Integer[]>>>, Map<String, List<Map<String, Integer[]>>>]", TypeInfoUtil.fromFullString("java.util.Map<java.lang.String, java.util.List<java.util.Map<java.lang.String, [Ljava.lang.Integer;>>>, java.util.Map<java.lang.String, java.util.List<java.util.Map<java.lang.String, [Ljava.lang.Integer;>>>").toString());
 
-        Assert.assertEquals("[Map<String, List<Map<String, Integer[]>>>, Map<String, List<Map<String, Integer[]>>>]", TypeInfo.fromFullString("java.util.Map<java.lang.String, java.util.List<java.util.Map<java.lang.String, [Ljava.lang.Integer;>>>, java.util.Map<java.lang.String, java.util.List<java.util.Map<java.lang.String, [Ljava.lang.Integer;>>>").toString());
+        TypeInfo<String> typeInfo1 = new AbstractTypeInfo<String>() {
+        };
 
-        TypeInfo<String> typeInfo1 = new AbstractTypeInfo<String>(){};
+        Assert.assertEquals(TypeInfo.of(String.class), typeInfo1);
 
-        System.out.println(typeInfo1);
+        TypeInfo<List<String>> typeInfo2 = new AbstractTypeInfo<List<String>>() {
+        };
 
+        Assert.assertEquals(TypeInfo.builderOf(List.class).of(String.class).build(), typeInfo2);
 
-        TypeInfo<List<String>> typeInfo2 = new AbstractTypeInfo<List<String>>(){};
+        TypeInfo<List<?>> typeInfo3 = new AbstractTypeInfo<List<?>>() {
+        };
 
-        System.out.println(typeInfo2);
+        Assert.assertEquals(TypeInfo.builderOf(List.class).of(Object.class).build(), typeInfo3);
 
-        TypeInfo<List<?>> typeInfo3 = new AbstractTypeInfo<List<?>>(){};
+        TV<String> stringTV = new TV<String>() {
+        };
 
-        System.out.println(typeInfo3);
-
-        TV<String> stringTV = new TV<String>(){};
-
-        System.out.println("stringTV -> "+Arrays.toString(stringTV.getReferences()));
+        Assert.assertEquals(TypeInfo.builderOf(String.class).build(), stringTV.getReferences()[0]);
 
         TypeInfo<Class<List<String>>[][]>[] typeInfo4 = Data.A.getReferences();
 
-        System.out.println("Reference4 -> "+Arrays.toString(typeInfo4));
-
         String toFullString = typeInfo4[0].toFullString();
 
-        System.out.println(toFullString);
-
-        System.out.println(TypeInfo.fromFullString(toFullString));
+        Assert.assertEquals("[[Ljava.lang.Class;<java.util.List<java.lang.String>>", toFullString);
 
         TypeInfo<?> listTypeInfo = TypeUtil.resolve(MyList.class, List.class);
 
-        System.out.println("GenericRepresentation => "+ listTypeInfo);
-
-        Function<String, Integer> stringToInteger = Integer::valueOf;
-
-        TypeInfo<?> functionGenerics = TypeUtil.resolve(stringToInteger.getClass(), Function.class);
-
-        System.out.println("GenericRepresentations of Function<String, Integer> => "+ functionGenerics);
-
-        TypeInfo<?> typeInfo5 = TypeUtil.lambdaTypes(stringToInteger.getClass(), Function.class);
-
-        System.out.println("GenericRepresentations of Function<String, Integer> => "+ typeInfo5);
-
+        Assert.assertEquals(TypeInfo.builderOf(ArrayList.class).of(String.class).build(), listTypeInfo);
 
         TypeInfo<?> representationN =
-                TypeInfo.of(List.class)
-                .of(String.class)
-                .and(TypeInfo.of(List.class).of(Integer.class))
-                .and(TypeInfo.of(List.class).of(String.class))
-                .build();
+                TypeInfo.builderOf(List.class)
+                        .of(String.class)
+                        .of(TypeInfo.builderOf(List.class).of(Integer.class))
+                        .of(TypeInfo.builderOf(List.class).of(String.class))
+                        .build();
 
-        System.out.println("MultiRepresentation of List<String, List<Integer>, List<String>> => "+ representationN);
+        Assert.assertEquals("java.util.List<java.lang.String, java.util.List<java.lang.Integer>, java.util.List<java.lang.String>>", representationN.toFullString());
 
-        String toFullString2 = representationN.toFullString();
-
-        System.out.println("MultiRepresentation of List<String, List<Integer>, List<String>> Full: => "+ toFullString2);
-
-        System.out.println("MultiRepresentation of List<String, List<Integer>, List<String>> From Full: => "+ TypeInfo.fromFullString(toFullString2));
-
-        TypeInfo<List<Object>> typeInfo6 = new ConcreteTypeInfo<List<Object>>() {};
-        TypeInfo<List<String>> typeInfo7 = new ConcreteTypeInfo<List<String>>() {};
+        TypeInfo<List<Object>> typeInfo6 = new ConcreteTypeInfo<List<Object>>() {
+        };
+        TypeInfo<List<String>> typeInfo7 = new ConcreteTypeInfo<List<String>>() {
+        };
         //noinspection deprecation
-        System.out.println(typeInfo6.compareToAssignable(typeInfo7));
+        Assert.assertTrue(typeInfo6.isAssignableFrom(typeInfo7));
 
-
-        String resolveTest = "java.lang.Classx[][]<java.util.List<java.lang.String>>";
-
-        System.out.println(TypeInfo.fromFullString(resolveTest));
     }
-
-    final TypeInfo<A> aInfo = new ConcreteTypeInfo<A>() {};
-
-    final TypeInfo<B<List<?>>> bInfo = new ConcreteTypeInfo<B<List<?>>>() {};
 
     @org.junit.Test
     public void testSub() {
 
-
-
-
         bInfo.isAssignableFrom(aInfo);
 
-        //noinspection deprecation
-        System.out.println(bInfo.compareToAssignable(aInfo));
         System.out.println(bInfo.isAssignableFrom(aInfo));
 
 
@@ -173,10 +141,14 @@ public class TypeInfoTest {
 
     }
 
-    public static class A extends X<List<?>> {}
-    public static class X<E> extends B<E> { /*...*/ }
-    public static class B<E> { /*...*/ }
+    public static class A extends X<List<?>> {
+    }
 
+    public static class X<E> extends B<E> { /*...*/
+    }
+
+    public static class B<E> { /*...*/
+    }
 
 
     public static class MyList extends ArrayList<String> {
@@ -203,15 +175,8 @@ public class TypeInfoTest {
     }
 
     private abstract static class TV<T> implements TypeProvider {
-        private final TypeInfo<T> typeInfo;
-
         @SuppressWarnings("unchecked")
         public TV() {
-            typeInfo = getReferences()[0];
-
-            TypeInfo<?> reef = TypeUtil.toReference((ParameterizedType) getClass().getGenericSuperclass());
-
-            System.out.println(reef);
         }
 
     }

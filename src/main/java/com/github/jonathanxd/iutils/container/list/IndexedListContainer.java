@@ -27,18 +27,78 @@
  */
 package com.github.jonathanxd.iutils.container.list;
 
-import com.github.jonathanxd.iutils.container.Container;
+import com.github.jonathanxd.iutils.container.BaseContainer;
 
-public interface IndexedListContainer<T> extends ListContainer<T>{
+/**
+ * Standard specification of JwIUtils {@link com.github.jonathanxd.iutils.list.StaticList
+ * StaticLists}.
+ *
+ * @param <T> Type of elements.
+ */
+public interface IndexedListContainer<T> extends ListContainer<T> {
 
-	boolean add(int index, T element);	
-	Container<T> addAndHold(int index, T element);
-	
-	boolean remove(int index);
-	Container<T> removeAndHold(int index);
+    /**
+     * Adds a element at {@code index}.
+     *
+     * @param index   Index.
+     * @param element Element to add.
+     * @return True if successfully added element.
+     */
+    boolean add(int index, T element);
 
-	boolean hasEmptySlot();
-	int nextEmptySlot();
-	int emptySlots();
-	Container<T> get(int index);
+    /**
+     * Holds old value and add {@code element} at {@code index}.
+     *
+     * @param index   Index.
+     * @param element Element to add.
+     * @return {@link BaseContainer} of old value, or a empty {@link BaseContainer} if there is not
+     * old value.
+     */
+    BaseContainer<T> holdAndAdd(int index, T element);
+
+    /**
+     * Removes a element at index {@code index}.
+     *
+     * @param index Index.
+     * @return True if successfully removed element.
+     */
+    boolean remove(int index);
+
+    /**
+     * Holds old value and remove.
+     *
+     * @param index Index of value.
+     * @return {@link BaseContainer} of old value, or a empty {@link BaseContainer} if there is not
+     * old value.
+     */
+    BaseContainer<T> holdAndRemove(int index);
+
+    /**
+     * Returns true if the list has empty slot(s) (is not full).
+     *
+     * @return True if the list has empty slot(s).
+     */
+    boolean hasEmptySlot();
+
+    /**
+     * Gets the next empty slot.
+     *
+     * @return Empty lost.
+     */
+    int nextEmptySlot();
+
+    /**
+     * Returns amount of empty slots.
+     *
+     * @return Amount of empty slots.
+     */
+    int emptySlots();
+
+    /**
+     * Gets the element at {@code index}.
+     *
+     * @param index Index.
+     * @return Container with element at {@code index}.
+     */
+    BaseContainer<T> get(int index);
 }
