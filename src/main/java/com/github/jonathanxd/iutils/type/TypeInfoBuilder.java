@@ -42,6 +42,7 @@ import java.util.List;
 public final class TypeInfoBuilder<T> {
 
     private String classLiteral = null;
+    private Class<? extends T> type = null;
     private List<TypeInfoBuilder<?>> related = new ArrayList<>();
     private boolean isUnique = false;
 
@@ -57,7 +58,11 @@ public final class TypeInfoBuilder<T> {
      */
     public static <T> TypeInfoBuilder<T> from(TypeInfo<T> typeInfo) {
         TypeInfoBuilder<T> typeInfoBuilder = new TypeInfoBuilder<>();
-        typeInfoBuilder.a(typeInfo.getTypeClass());
+
+        typeInfoBuilder.classLiteral = typeInfo.getClassLiteral();
+
+        if(typeInfo.isResolved())
+            typeInfoBuilder.type = typeInfo.getTypeClass();
 
         for (TypeInfo<?> otherTypeInfo : typeInfo.getRelated()) {
             typeInfoBuilder.related.add(TypeInfoBuilder.from(otherTypeInfo));
@@ -75,7 +80,12 @@ public final class TypeInfoBuilder<T> {
      */
     public static <T> TypeInfo<T> build(TypeInfoBuilder<T> typeInfoBuilder) {
 
-        DynamicTypeInfo<T> dynamicReference = new DynamicTypeInfo<>(typeInfoBuilder.classLiteral, new TypeInfo[]{}, typeInfoBuilder.isUnique());
+        DynamicTypeInfo<T> dynamicReference;
+
+        if(typeInfoBuilder.type == null)
+            dynamicReference = new DynamicTypeInfo<>(typeInfoBuilder.classLiteral, new TypeInfo[]{}, typeInfoBuilder.isUnique());
+        else
+            dynamicReference = new DynamicTypeInfo<>(typeInfoBuilder.type, new TypeInfo[]{}, typeInfoBuilder.isUnique());
 
         if (typeInfoBuilder.related.size() > 0) {
 
@@ -97,6 +107,10 @@ public final class TypeInfoBuilder<T> {
      * @see TypeInfo#getTypeClass()
      */
     public Class<? extends T> getTypeClass() {
+
+        if(this.type != null)
+            return this.type;
+
         return TypeUtil.resolveClass(this.getClassLiteral());
     }
 
@@ -141,6 +155,7 @@ public final class TypeInfoBuilder<T> {
     @RequiredCall
     public TypeInfoBuilder<T> a(Class<? extends T> aClass) {
         this.classLiteral = aClass.getName();
+        this.type = aClass;
         return this;
     }
 
