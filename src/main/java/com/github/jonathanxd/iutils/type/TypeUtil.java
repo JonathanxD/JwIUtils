@@ -27,6 +27,7 @@
  */
 package com.github.jonathanxd.iutils.type;
 
+import com.github.jonathanxd.iutils.exception.TypeResolutionException;
 import com.github.jonathanxd.iutils.object.Pair;
 import com.github.jonathanxd.iutils.reflection.Reflection;
 
@@ -462,16 +463,16 @@ public class TypeUtil {
      * @param classLiteral Class literal.
      * @param <V>          Class type.
      * @return {@link Class} resolved from {@code classLiteral}.
-     * @throws RuntimeException if class cannot be found.
+     * @throws TypeResolutionException if class cannot be found.
      */
     @SuppressWarnings("unchecked")
-    public static <V> Class<? extends V> resolveClass(String classLiteral) {
+    public static <V> Class<? extends V> resolveClass(String classLiteral) throws TypeResolutionException {
 
         String fixed = fixName(classLiteral);
         try {
             return (Class<? extends V>) TypeUtil.classForName(fixed);
         } catch (ClassNotFoundException e) {
-            throw new RuntimeException("Failed to resolve class literal: '" + classLiteral + "' fixed: '" + fixed + "'!", e);
+            throw new TypeResolutionException("Failed to resolve class literal: '" + classLiteral + "' fixed: '" + fixed + "'!", e);
         }
     }
 
@@ -497,6 +498,5 @@ public class TypeUtil {
 
         return stringBuilder.toString();
     }
-
 
 }

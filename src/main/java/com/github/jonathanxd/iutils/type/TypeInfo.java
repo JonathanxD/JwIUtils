@@ -27,6 +27,8 @@
  */
 package com.github.jonathanxd.iutils.type;
 
+import com.github.jonathanxd.iutils.exception.TypeResolutionException;
+
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Objects;
@@ -35,7 +37,8 @@ import java.util.function.Function;
 /**
  * Holds information about generic types.
  *
- * {@link TypeInfo} does not hold information about wildcard types, and this behavior is intentional.
+ * {@link TypeInfo} does not hold information about wildcard types, and this behavior is
+ * intentional.
  *
  * @param <T> Type.
  */
@@ -243,6 +246,25 @@ public class TypeInfo<T> implements Comparable<TypeInfo> {
 
     }
 
+    /**
+     * Returns true if current type can be resolved.
+     *
+     * @return True if current type can be resolved.
+     */
+    public boolean canResolve() {
+        try {
+            TypeUtil.resolveClass(this.getClassLiteral());
+            return true;
+        } catch (TypeResolutionException e) {
+            return false;
+        }
+    }
+
+    /**
+     * Gets the raw class that this type is representing.
+     *
+     * @return Raw class that this type is representing.
+     */
     public Class<? extends T> getTypeClass() {
 
         if (this.cachedAClass != null)
