@@ -247,6 +247,15 @@ public class TypeInfo<T> implements Comparable<TypeInfo> {
     }
 
     /**
+     * Returns true if the type is already resolved.
+     *
+     * @return True if the type is already resolved.
+     */
+    public boolean isResolved() {
+        return this.cachedAClass != null;
+    }
+
+    /**
      * Returns true if current type can be resolved.
      *
      * @return True if current type can be resolved.
