@@ -83,6 +83,7 @@ public class TypeInfo<T> implements Comparable<TypeInfo> {
 
     TypeInfo(Class<? extends T> aClass, TypeInfo[] related, boolean isUnique) {
         this.classLiteral = TypeUtil.fixName(aClass.getName());
+        this.cachedAClass = aClass;
         this.related = related != null ? related : new TypeInfo[0];
         this.isUnique = isUnique;
     }
