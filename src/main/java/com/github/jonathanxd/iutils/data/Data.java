@@ -28,6 +28,7 @@
 package com.github.jonathanxd.iutils.data;
 
 import com.github.jonathanxd.iutils.condition.Conditions;
+import com.github.jonathanxd.iutils.object.Lazy;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -150,12 +151,43 @@ public final class Data {
      * @return {@link Optional} of value linked to {@code key}, or a {@link Optional#empty()} if no
      * one value is linked to {@code key}.
      */
-
     @SuppressWarnings("unchecked")
     public <T> Optional<T> getOptionalAs(Object key) {
         Conditions.checkNotNull(key, "Key cannot be null");
 
         return (Optional<T>) this.getOptional(key);
+    }
+
+    /**
+     * Gets value linked to {@code key} if present, otherwise sets to {@code value} and returns
+     * {@code value}.
+     *
+     * @param key   Key.
+     * @param value Value to set if none value is set to {@code key}.
+     * @param <T>   Type of value.
+     * @return Value linked to {@code key} or {@code value} if none is defined to {@code key}.
+     */
+    public <T> T getOrSet(Object key, T value) {
+        if (!this.contains(key))
+            this.set(key, value);
+
+        return this.getAs(key);
+    }
+
+    /**
+     * Gets value linked to {@code key} if present, otherwise sets to {@code value} and returns
+     * {@code value}.
+     *
+     * @param key   Key.
+     * @param value Lazy value to set if none value is set to {@code key}.
+     * @param <T>   Type of value.
+     * @return Value linked to {@code key} or {@code value} if none is defined to {@code key}.
+     */
+    public <T> T getOrSetLazily(Object key, Lazy<T> value) {
+        if (!this.contains(key))
+            this.set(key, value.get());
+
+        return this.getAs(key);
     }
 
     /**
