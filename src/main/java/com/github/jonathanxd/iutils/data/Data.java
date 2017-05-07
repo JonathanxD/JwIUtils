@@ -211,4 +211,13 @@ public final class Data {
     public Map<Object, Object> getDataMap() {
         return this.unmodifiable;
     }
+
+    /**
+     * Creates a copy of {@code this} data.
+     *
+     * @return Copy of {@code this} data.
+     */
+    public Data copy() {
+        return new Data(this.getDataMap());
+    }
 }
