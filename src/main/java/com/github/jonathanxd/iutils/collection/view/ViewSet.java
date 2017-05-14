@@ -25,23 +25,26 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils;
+package com.github.jonathanxd.iutils.collection.view;
 
-import com.github.jonathanxd.iutils.string.ToStringHelper;
+import java.util.Iterator;
+import java.util.Set;
+import java.util.function.BiFunction;
+import java.util.function.Predicate;
 
-import org.junit.Assert;
-import org.junit.Test;
+/**
+ * {@link ViewCollection} for sets, the behavior remains the same.
+ *
+ * The only difference is that this class implements {@link Set}.
+ */
+public class ViewSet<E, Y> extends ViewCollection<E, Y> implements Set<Y> {
 
-public class ToStringHelperTest {
-
-    @Test
-    public void test() {
-        ToStringHelper helper = ToStringHelper.defaultHelper("Alpine");
-        helper.add("A", 9);
-        helper.add("B", 55);
-        helper.add("C", "--");
-        helper.add("D", "Indie");
-        Assert.assertEquals("Alpine{A = 9, B = 55, C = \"--\", D = \"Indie\"}", helper.toString());
+    /**
+     * Constructs a set view.
+     * {@inheritDoc}
+     */
+    public ViewSet(Set<E> set, BiFunction<E, Iterator<E>, Iterator<Y>> mapper, Predicate<Y> add, Predicate<Object> remove) {
+        super(set, mapper, add, remove);
     }
 
 }

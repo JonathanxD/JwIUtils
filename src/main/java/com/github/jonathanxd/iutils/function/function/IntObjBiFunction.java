@@ -25,23 +25,15 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils;
+package com.github.jonathanxd.iutils.function.function;
 
-import com.github.jonathanxd.iutils.string.ToStringHelper;
+/**
+ * Takes an int and a value an returns another value.
+ * @param <V> Input value type.
+ * @param <R> Return value type.
+ */
+public interface IntObjBiFunction<V, R> {
 
-import org.junit.Assert;
-import org.junit.Test;
-
-public class ToStringHelperTest {
-
-    @Test
-    public void test() {
-        ToStringHelper helper = ToStringHelper.defaultHelper("Alpine");
-        helper.add("A", 9);
-        helper.add("B", 55);
-        helper.add("C", "--");
-        helper.add("D", "Indie");
-        Assert.assertEquals("Alpine{A = 9, B = 55, C = \"--\", D = \"Indie\"}", helper.toString());
-    }
+    R apply(int i, V value);
 
 }

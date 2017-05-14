@@ -3,7 +3,7 @@
  *
  *         The MIT License (MIT)
  *
- *      Copyright (c) 2016 TheRealBuggy/JonathanxD (https://github.com/JonathanxD/) <jonathan.scripter@programmer.net>
+ *      Copyright (c) 2017 TheRealBuggy/JonathanxD (https://github.com/JonathanxD/) <jonathan.scripter@programmer.net>
  *      Copyright (c) contributors
  *
  *
@@ -28,8 +28,10 @@
 package com.github.jonathanxd.iutils.collection.view;
 
 import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
 import java.util.NoSuchElementException;
-import java.util.function.Function;
+import java.util.function.BiFunction;
 
 public class ViewUtils {
 
@@ -45,116 +47,96 @@ public class ViewUtils {
      * @param <E>    Element type.
      * @return Mapping inner iterator.
      */
-    public static <E, Y> BackingIterator<E, Y> iterator(Iterable<E> i, Function<E, Iterable<Y>> mapper) {
-        return new BackingIterator<>(i, mapper);
+    public static <E, Y> Iterator<Y> iterator(Iterable<E> i, BiFunction<E, Iterator<E>, Iterator<Y>> mapper) {
+        return new IndexedIterator<>(i, mapper);
     }
 
     /**
-     * Creates a {@link Iterable} which holds a {@link #iterator(Iterable, Function)} instance.
+     * Creates a iterator which maps elements of {@code i} to an {@link Iterator} and provide these
+     * elements for iteration.
+     *
+     * If you did not understand this doc, see the class, it is not hard to understand what happens
+     * inside the iterator.
+     *
+     * @param i      Iterable to map.
+     * @param mapper Mapper function.
+     *               @param start Start index of list.
+     * @param <E>    Element type.
+     * @return Mapping inner iterator.
+     */
+    public static <E, Y> ListIterator<Y> listIterator(List<E> i, BiFunction<E, ListIterator<E>, ListIterator<Y>> mapper, int start) {
+        return new IndexedListIterator<>(i, mapper, start);
+    }
+
+    /**
+     * Creates a {@link Iterable} which holds a {@link #iterator(Iterable, BiFunction)} instance.
      *
      * @param i      Iterable to map.
      * @param mapper Mapper function.
      * @param <E>    Element type.
-     * @return {@link Iterable} which holds a {@link #iterator(Iterable, Function)} instance.
+     * @return {@link Iterable} which holds a {@link #iterator(Iterable, BiFunction)} instance.
      */
-    public static <E, Y> FakeCachedIterable<E, Y> iterable(Iterable<E> i, Function<E, Iterable<Y>> mapper) {
-        return new FakeCachedIterable<>(i, mapper);
+    public static <E, Y> Iterable<Y> iterable(Iterable<E> i, BiFunction<E, Iterator<E>, Iterator<Y>> mapper) {
+        return () -> iterator(i, mapper);
     }
 
     /**
-     * Better name? Which?
+     * Creates a {@link Iterable} which holds a {@link #iterator(Iterable, BiFunction)} instance.
+     *
+     * @param i      Iterable to map.
+     * @param mapper Mapper function.
+     * @param <E>    Element type.
+     * @return {@link Iterable} which holds a {@link #iterator(Iterable, BiFunction)} instance.
      */
-    public static class FakeCachedIterable<E, Y> implements Iterable<Y> {
-
-        /**
-         * Main iterable.
-         */
-        private final Iterable<E> mainIterable;
-
-        /**
-         * Mapper.
-         */
-        private final Function<E, Iterable<Y>> mapper;
-
-        /**
-         * Fake cached iterator, will not be reused.
-         */
-        private BackingIterator<E, Y> cached = null;
-
-        public FakeCachedIterable(Iterable<E> mainIterable, Function<E, Iterable<Y>> mapper) {
-            this.mainIterable = mainIterable;
-            this.mapper = mapper;
-        }
-
-        @Override
-        public Iterator<Y> iterator() {
-            return this.cached = new BackingIterator<>(this.mainIterable, this.mapper);
-        }
-
-        /**
-         * Gets cached backing iterator.
-         *
-         * @return Cached backing iterator.
-         */
-        public BackingIterator<E, Y> getBackingIterator() {
-
-            if(this.cached == null)
-                this.iterator();
-
-            return this.cached;
-        }
+    public static <E, Y> ListIterable<Y> listIterable(List<E> i, BiFunction<E, ListIterator<E>, ListIterator<Y>> mapper) {
+        return index -> listIterator(i, mapper, index-1);
     }
 
-    public static class BackingIterator<E, Y> implements Iterator<Y> {
-
-        /**
-         * Main iterable.
-         */
-        private final Iterable<E> mainIterable;
-
-        /**
-         * Mapper.
-         */
-        private final Function<E, Iterable<Y>> mapper;
-
-        /**
-         * Main iterator
-         */
-        private final Iterator<E> main;
-
-        /**
-         * Current iterable
-         */
-        private Iterable<Y> currentIterable = null;
-
-        /**
-         * Current iterator
-         */
-        private Iterator<Y> current = null;
-
-        public BackingIterator(Iterable<E> mainIterable, Function<E, Iterable<Y>> mapper) {
-            this.mainIterable = mainIterable;
-            this.main = mainIterable.iterator();
-            this.mapper = mapper;
-        }
+    public interface ListIterable<Y> extends Iterable<Y> {
 
         @Override
+        default ListIterator<Y> iterator() {
+            return this.iterator(-1);
+        }
+
+        ListIterator<Y> iterator(int index);
+    }
+
+    static abstract class AbstractIndexedIterator<E, Y> implements Iterator<Y> {
+
+        protected abstract void setCurrent(Iterator<Y> iter);
+        protected abstract Iterable<E> getIterable();
+        protected abstract Iterator<Y> getCurrent();
+        protected abstract Iterator<E> getMain();
+        protected abstract Iterator<Y> map(E element, Iterator<E> iter);
+
+        @SuppressWarnings("unchecked")
+        @Override
         public boolean hasNext() {
+            // Checks if current is null
+            boolean isNull = this.getCurrent() == null;
+
             // Check if current iterator is null or does not have next element
-            if (this.current == null || !this.current.hasNext()) {
+            if (isNull || !this.getCurrent().hasNext()) {
                 // Check if main iterator does not have more elements
-                if (!this.main.hasNext())
+                if (!this.getMain().hasNext())
                     return false;
 
-                // Sets current iterable to result of mapping the next element of main iterator to a new iterator using 'mapper'
-                this.currentIterable = this.mapper.apply(this.main.next());
+                // Sets current iterator to result of mapping the next element of main iterator to a new iterator using 'mapper'
+                this.setCurrent(map(this.getMain().next(), this.getMain()));
 
-                // Creates iterator from current iterable.
-                this.current = this.currentIterable.iterator();
+                // Hacky code to fix some problems...
+                if(this.getCurrent() == this.getMain() && isNull)
+
+                    while(this.getMain().hasNext())
+                        this.getMain().next();
+
+
+                    this.setCurrent((Iterator<Y>) this.getIterable().iterator());
             }
 
             // Check if current iterator is not null and has next element.
-            return this.current != null && this.current.hasNext();
+            return this.getCurrent() != null && this.getCurrent().hasNext();
         }
 
         @Override
@@ -162,17 +144,17 @@ public class ViewUtils {
             if (!this.hasNext())
                 throw new NoSuchElementException();
 
-            return this.current.next();
+            return this.getCurrent().next();
         }
 
         @Override
         public void remove() {
             this.defineCurrent();
 
-            if (this.current == null)
+            if (this.getCurrent() == null)
                 throw new NoSuchElementException();
 
-            this.current.remove();
+            this.getCurrent().remove();
         }
 
         /**
@@ -180,42 +162,199 @@ public class ViewUtils {
          */
         private void defineCurrent() {
             // Checks if current iterator is not defined and main iterator has elements.
-            if (this.currentIterable == null && this.main.hasNext()) {
-                // Sets current iterator to result of mapping the next element of main iterator to a new iterator using 'mapper'
-                this.currentIterable = this.mapper.apply(this.main.next());
+            if (this.getCurrent() == null && this.getMain().hasNext()) {
 
-                // Creates iterator from current iterable.
-                this.current = this.currentIterable.iterator();
+                // Sets current iterator to result of mapping the next element of main iterator to a new iterator using 'mapper'
+                this.setCurrent(map(this.getMain().next(), this.getMain()));
             }
         }
+    }
+
+    static class IndexedIterator<E, Y> extends AbstractIndexedIterator<E, Y> {
+        private final Iterable<E> i;
+        private final BiFunction<E, Iterator<E>, Iterator<Y>> mapper;
 
         /**
-         * Gets main iterable.
-         *
-         * @return Main iterable.
+         * Main iterator
          */
-        public Iterable<E> getMainIterable() {
-            return this.mainIterable;
+        private final Iterator<E> main;
+
+        /**
+         * Current iterator
+         */
+        private Iterator<Y> current = null;
+
+        public IndexedIterator(Iterable<E> i, BiFunction<E, Iterator<E>, Iterator<Y>> mapper) {
+            this.i = i;
+            this.mapper = mapper;
+            this.main = i.iterator();
         }
 
-        /**
-         * Gets current iterator.
-         *
-         * @return Current iterator.
-         */
-        public Iterator<Y> getCurrentIterator() {
-            this.defineCurrent();
+        @Override
+        public Iterator<E> getMain() {
+            return this.main;
+        }
+
+        @Override
+        protected Iterator<Y> map(E element, Iterator<E> iter) {
+            return this.mapper.apply(element, iter);
+        }
+
+        @Override
+        protected void setCurrent(Iterator<Y> iter) {
+            this.current = iter;
+        }
+
+        @Override
+        protected Iterator<Y> getCurrent() {
             return this.current;
         }
 
-        /**
-         * Gets current iterable.
-         *
-         * @return Current iterable.
-         */
-        public Iterable<Y> getCurrentIterable() {
-            this.defineCurrent();
-            return this.currentIterable;
+        @Override
+        protected Iterable<E> getIterable() {
+            return this.i;
         }
+    }
+
+    static class IndexedListIterator<E, Y> extends AbstractIndexedIterator<E, Y> implements ListIterator<Y> {
+
+        private final List<E> i;
+        private final BiFunction<E, ListIterator<E>, ListIterator<Y>> mapper;
+
+        /**
+         * Main iterator
+         */
+        private final ListIterator<E> main;
+
+        /**
+         * Current index.
+         */
+        private int elemIndex = -1;
+
+        /**
+         * Current iterator
+         */
+        private ListIterator<Y> current = null;
+
+        public IndexedListIterator(List<E> i, BiFunction<E, ListIterator<E>, ListIterator<Y>> mapper, int startIndex) {
+            this.i = i;
+            this.mapper = mapper;
+            this.main = i.listIterator();
+
+            if(startIndex != 0) {
+                while(this.hasNext() && this.elemIndex != startIndex) {
+                    this.next();
+                }
+            }
+        }
+
+        @Override
+        public boolean hasPrevious() {
+
+            boolean isNull = this.current == null;
+
+            // Check if current iterator is null or does not have previous element
+            if(isNull || !this.current.hasPrevious()) {
+                // Check if main iterator does not have previous elements
+                if(!this.main.hasPrevious())
+                    return false;
+
+                // Gets next element.
+                E previous = this.main.previous();
+
+                // Sets current iterator to result of mapping the previous element of main iterator to a new iterator using 'mapper'
+                this.current = mapper.apply(previous, this.main);
+
+                // Another try to fix some problems, this is better because list iterators allows previous and next navigation.
+                if(this.current == this.main && isNull) {
+                    this.main.next();
+                }
+            }
+
+            // Check if current iterator is not null and has previous element.
+            return this.current != null && this.current.hasPrevious();
+        }
+
+        @Override
+        public Y next() {
+            if (!this.hasNext())
+                throw new NoSuchElementException();
+
+            Y next = this.current.next();
+
+            ++elemIndex;
+
+            return next;
+        }
+
+        @Override
+        public Y previous() {
+            if (!this.hasPrevious())
+                throw new NoSuchElementException();
+
+            Y previous = this.current.previous();
+
+            --this.elemIndex;
+
+            return previous;
+        }
+
+        @Override
+        public int nextIndex() {
+            return this.elemIndex + 1;
+        }
+
+        @Override
+        public void set(Y y) {
+            super.defineCurrent();
+            this.current.set(y);
+        }
+
+        @Override
+        public void add(Y y) {
+            super.defineCurrent();
+            this.current.add(y);
+        }
+
+        @Override
+        public int previousIndex() {
+            return this.elemIndex - 1;
+        }
+
+        @Override
+        public void remove() {
+            super.defineCurrent();
+
+            if (this.current == null)
+                throw new NoSuchElementException();
+
+            this.current.remove();
+        }
+
+        @Override
+        protected void setCurrent(Iterator<Y> iter) {
+            this.current = (ListIterator<Y>) iter;
+        }
+
+        @Override
+        protected Iterator<Y> getCurrent() {
+            return this.current;
+        }
+
+        @Override
+        protected Iterator<E> getMain() {
+            return this.main;
+        }
+
+        @Override
+        protected Iterator<Y> map(E element, Iterator<E> iter) {
+            return this.mapper.apply(element, (ListIterator<E>) iter);
+        }
+
+        @Override
+        protected Iterable<E> getIterable() {
+            return this.i;
+        }
+
     }
 }

@@ -3,7 +3,7 @@
  *
  *         The MIT License (MIT)
  *
- *      Copyright (c) 2016 TheRealBuggy/JonathanxD (https://github.com/JonathanxD/) <jonathan.scripter@programmer.net>
+ *      Copyright (c) 2017 TheRealBuggy/JonathanxD (https://github.com/JonathanxD/) <jonathan.scripter@programmer.net>
  *      Copyright (c) contributors
  *
  *
@@ -27,153 +27,61 @@
  */
 package com.github.jonathanxd.iutils.collection.view;
 
-import com.github.jonathanxd.iutils.collection.view.ViewUtils.BackingIterator;
-import com.github.jonathanxd.iutils.collection.view.ViewUtils.FakeCachedIterable;
-
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
-import java.util.function.BiPredicate;
-import java.util.function.Function;
+import java.util.function.BiFunction;
+import java.util.function.Predicate;
 
-public class ViewCollection<E, Y> implements Collection<Y> {
 
-    private final Iterable<E> iterable;
-    private final Function<E, Iterable<Y>> mapper;
-    private final BiPredicate<Y, BackingIterator<E, Y>> add;
-    private final BiPredicate<Object, BackingIterator<E, Y>> remove;
+/**
+ * View of a collection.
+ *
+ * Add methods such as {@link #add(Object)}, {@link #addAll(Collection)}, etc... will always be
+ * delegated to {@link #add} function.
+ *
+ * Remove methods such as {@link #remove(Object)}, {@link #retainAll(Collection)}, etc... will
+ * always be delegated to {@link #remove} function.
+ *
+ * The behavior remains the same.
+ */
+public class ViewCollection<E, Y> extends AbstractViewCollection<E, Y> {
 
-    // Cached mapping iterable to avoid object creation.
-    private final FakeCachedIterable<E, Y> syntheticIterable;
+    private final Predicate<Y> add;
+    private final Predicate<Object> remove;
 
-    public ViewCollection(Iterable<E> iterable, Function<E, Iterable<Y>> mapper,
-                          BiPredicate<Y, BackingIterator<E, Y>> add,
-                          BiPredicate<Object, BackingIterator<E, Y>> remove) {
-        this.iterable = iterable;
-        this.mapper = mapper;
+    /**
+     * Synthetic iterable to emulate a iterable of element of type {@link Y}.
+     */
+    private final Iterable<Y> syntheticIterable;
+
+    /**
+     * Constructs a view of a collection.
+     *
+     * @param collection Collection.
+     * @param mapper     Mapper function. Maps elements to a new iterable to query.
+     * @param add        Handle add operation.
+     * @param remove     Handle remove operator.
+     */
+    public ViewCollection(Collection<E> collection, BiFunction<E, Iterator<E>, Iterator<Y>> mapper,
+                          Predicate<Y> add,
+                          Predicate<Object> remove) {
+        super(collection);
         this.add = add;
         this.remove = remove;
-        this.syntheticIterable = ViewUtils.iterable(iterable, mapper);
+        this.syntheticIterable = ViewUtils.iterable(collection, mapper);
     }
 
     @Override
-    public int size() {
-        int size = 0;
-
-        while (this.getSyntheticIterable().iterator().hasNext()) {
-            ++size;
-        }
-
-        return size;
-    }
-
-    @Override
-    public boolean isEmpty() {
-        return !this.getSyntheticIterable().iterator().hasNext();
-    }
-
-    @Override
-    public boolean contains(Object o) {
-
-        for (Y e : this.getSyntheticIterable()) {
-            if (Objects.equals(e, o))
-                return true;
-        }
-
-        return false;
-    }
-
-    @Override
-    public Iterator<Y> iterator() {
-        return this.getSyntheticIterable().iterator();
-    }
-
-    @Override
-    public Object[] toArray() {
-        List<Y> list = new ArrayList<>();
-
-        this.getSyntheticIterable().forEach(list::add);
-
-        return list.toArray();
-    }
-
-    @SuppressWarnings("SuspiciousToArrayCall")
-    @Override
-    public <T> T[] toArray(T[] a) {
-        List<Y> list = new ArrayList<>();
-
-        this.getSyntheticIterable().forEach(list::add);
-
-        return list.toArray(a);
-    }
-
-    @Override
-    public boolean add(Y e) {
-        return this.add.test(e, this.syntheticIterable.getBackingIterator());
+    public boolean add(Y y) {
+        return this.add.test(y);
     }
 
     @Override
     public boolean remove(Object o) {
-        return this.remove.test(o, this.syntheticIterable.getBackingIterator());
+        return this.remove.test(o);
     }
 
     @Override
-    public boolean containsAll(Collection<?> c) {
-        List<Y> all = new ArrayList<>();
-
-        this.getSyntheticIterable().forEach(all::add);
-
-        return all.containsAll(c);
-    }
-
-    @Override
-    public boolean addAll(Collection<? extends Y> c) {
-
-        boolean any = false;
-
-        for (Y e : c) {
-            any |= this.add(e);
-        }
-
-        return any;
-    }
-
-    @Override
-    public boolean removeAll(Collection<?> c) {
-        boolean any = false;
-
-        for (Object e : c) {
-            any |= this.remove(e);
-        }
-
-        return any;
-    }
-
-    @Override
-    public boolean retainAll(Collection<?> c) {
-
-        boolean any = false;
-        Iterator<Y> iterator = this.getSyntheticIterable().iterator();
-
-        while(iterator.hasNext()) {
-            Y next = iterator.next();
-
-            if(!c.contains(next)) {
-                iterator.remove();
-                any = true;
-            }
-        }
-
-        return any;
-    }
-
-    @Override
-    public void clear() {
-        ((Collection<Y>) iterable).clear();
-    }
-
     public Iterable<Y> getSyntheticIterable() {
         return this.syntheticIterable;
     }

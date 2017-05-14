@@ -3,7 +3,7 @@
  *
  *         The MIT License (MIT)
  *
- *      Copyright (c) 2016 TheRealBuggy/JonathanxD (https://github.com/JonathanxD/) <jonathan.scripter@programmer.net>
+ *      Copyright (c) 2017 TheRealBuggy/JonathanxD (https://github.com/JonathanxD/) <jonathan.scripter@programmer.net>
  *      Copyright (c) contributors
  *
  *
@@ -27,30 +27,279 @@
  */
 package com.github.jonathanxd.iutils.collection.view;
 
-import com.github.jonathanxd.iutils.iterator.IteratorUtil;
+import com.github.jonathanxd.iutils.type.TypeInfo;
 
 import java.util.Collection;
-import java.util.function.BiPredicate;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Objects;
+import java.util.Set;
+import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
+/**
+ * View collections factory.
+ */
 public class ViewCollections {
 
+    /**
+     * Creates a simple view collection backing to {@code collection}.
+     *
+     * @param collection Collection to back operations.
+     * @param <E>        Type of elements.
+     * @return Simple view collection backing to {@code collection}.
+     */
     public static <E> ViewCollection<E, E> collection(Collection<E> collection) {
         return new ViewCollection<>(collection,
-                e -> IteratorUtil.wrapIterator(IteratorUtil.single(e)),
-                (e, eBackingIterator) -> collection.add(e),
-                (o, eBackingIterator) -> collection.remove(o));
+                (e, original) -> original,
+                collection::add,
+                collection::remove);
     }
 
+    /**
+     * Creates a simple view set backing to {@code set}.
+     *
+     * @param set Set to back operations.
+     * @param <E> Type of elements.
+     * @return Simple view set backing to {@code set}.
+     */
+    public static <E> ViewSet<E, E> set(Set<E> set) {
+        return new ViewSet<>(set,
+                (e, original) -> original,
+                set::add,
+                set::remove);
+    }
+
+    /**
+     * Creates a simple view list backing to {@code list}.
+     *
+     * @param list List to back operations.
+     * @param <E>  Type of elements.
+     * @return Simple view list backing to {@code list}.
+     */
+    public static <E> ViewList<E, E> list(List<E> list) {
+        return new ViewList<>(list,
+                (e, original) -> original,
+                list::add,
+                list::remove);
+    }
+
+    /**
+     * Creates a mapped collection backing to {@code collection}.
+     *
+     * @param collection Original collection.
+     * @param mapper     Mapper function (should return iterator to delegate operations).
+     * @param add        Element add handler.
+     * @param remove     Element remove handler.
+     * @param <E>        Element type.
+     * @param <Y>        Mapped type.
+     * @return Mapped collection backing to {@code collection}.
+     */
     public static <E, Y> ViewCollection<E, Y> collectionMapped(Collection<E> collection,
-                                                   Function<E, Iterable<Y>> mapper,
-                                                   BiPredicate<Y, ViewUtils.BackingIterator<E, Y>> add,
-                                                   BiPredicate<Object, ViewUtils.BackingIterator<E, Y>> remove) {
+                                                               BiFunction<E, Iterator<E>, Iterator<Y>> mapper,
+                                                               Predicate<Y> add,
+                                                               Predicate<Object> remove) {
         return new ViewCollection<>(collection,
                 mapper,
                 add,
                 remove);
     }
 
+    /**
+     * Creates a mapped list backing to {@code list}.
+     *
+     * @param list   Original list.
+     * @param mapper Mapper function (should return list iterator to delegate operations).
+     * @param add    Element add handler.
+     * @param remove Element remove handler.
+     * @param <E>    Element type.
+     * @param <Y>    Mapped type.
+     * @return Mapped list backing to {@code list}.
+     */
+    public static <E, Y> ViewList<E, Y> listMapped(List<E> list,
+                                                   BiFunction<E, ListIterator<E>, ListIterator<Y>> mapper,
+                                                   Predicate<Y> add,
+                                                   Predicate<Object> remove) {
+        return new ViewList<>(list,
+                mapper,
+                add,
+                remove);
+    }
 
+    /**
+     * Creates a mapped set backing to {@code set}.
+     *
+     * @param set    Original collection.
+     * @param mapper Mapper function (should return iterable to delegate operations).
+     * @param add    Element add handler.
+     * @param remove Element remove handler.
+     * @param <E>    Element type.
+     * @param <Y>    Mapped type.
+     * @return Mapped collection backing to {@code set}.
+     */
+    public static <E, Y> ViewSet<E, Y> setMapped(Set<E> set,
+                                                 BiFunction<E, Iterator<E>, Iterator<Y>> mapper,
+                                                 Predicate<Y> add,
+                                                 Predicate<Object> remove) {
+        return new ViewSet<>(set,
+                mapper,
+                add,
+                remove);
+    }
+
+    /**
+     * Utility to create flat collections.
+     */
+    public static class Flat {
+
+        /**
+         * Creates a flat collection.
+         *
+         * @param collection     Collection to create a flat version.
+         * @param subCollFactory Collection factory. Used to create new collection to insert
+         *                       elements.
+         * @param <D>            Collection type.
+         * @param <E>            Element type.
+         * @param <Y>            Mapped type.
+         * @return Flat collection backing to {@code collection}.
+         */
+        @SuppressWarnings("unchecked")
+        public static <D extends Collection<E>, E extends Collection<Y>, Y> E flatCollection(D collection, Function<Y, E> subCollFactory) {
+            return ViewCollections.Flat.flatCollection(Type.COLLECTION, collection, subCollFactory);
+        }
+
+        /**
+         * Creates a flat set.
+         *
+         * @param set            Set to create a flat version.
+         * @param subCollFactory Set factory. Used to create new set to insert elements.
+         * @param <D>            Set type.
+         * @param <E>            Element type.
+         * @param <Y>            Mapped type.
+         * @return Flat set backing to {@code set}.
+         */
+        @SuppressWarnings("unchecked")
+        public static <D extends Set<E>, E extends Set<Y>, Y> E flatSet(D set, Function<Y, E> subCollFactory) {
+            return ViewCollections.Flat.flatCollection(Type.SET, set, subCollFactory);
+        }
+
+        /**
+         * Creates a flat list.
+         *
+         * @param list           List to create a flat version.
+         * @param subCollFactory List factory. Used to create new list to insert elements.
+         * @param <D>            List type.
+         * @param <E>            Element type.
+         * @param <Y>            Mapped type.
+         * @return Flat list backing to {@code list}.
+         */
+        @SuppressWarnings("unchecked")
+        public static <D extends List<E>, E extends List<Y>, Y> E flatList(D list, Function<Y, E> subCollFactory) {
+            return ViewCollections.Flat.flatCollection(Type.LIST, list, subCollFactory);
+        }
+
+        /**
+         * Creates a flat collection.
+         *
+         * @param type           Type of the collection. Supported types: {@link List}, {@link Set}
+         *                       and {@link Collection}.
+         * @param collection     Collection to create a flat version.
+         * @param subCollFactory Collection factory. Used to create new collection to insert
+         *                       elements.
+         * @param <D>            Collection type.
+         * @param <E>            Element type.
+         * @param <Y>            Mapped type.
+         * @return Flat collection backing to {@code collection}.
+         */
+        @SuppressWarnings("unchecked")
+        private static <D extends Collection<E>, E extends Collection<Y>, Y> E flatCollection(Type type, D collection,
+                                                                                              Function<Y, E> subCollFactory) {
+            E value = null;
+
+            Predicate<Y> add = y -> collection.isEmpty() ? collection.add(subCollFactory.apply(y)) : addToLast(collection, y);
+            Predicate<Object> remove = o -> removeFirst(collection, o);
+
+            if (type == Type.COLLECTION) {
+                value = (E) ViewCollections.collectionMapped(collection,
+                        (e, eIterator) -> e.iterator(),
+                        add,
+                        remove);
+            } else if (type == Type.SET) {
+                value = (E) ViewCollections.setMapped((Set<E>) collection,
+                        (e, eIterator) -> e.iterator(),
+                        add,
+                        remove);
+            } else if (type == Type.LIST) {
+                value = (E) ViewCollections.listMapped((List<List<Y>>) collection,
+                        (e, eIterator) -> e.listIterator(),
+                        add,
+                        remove);
+            }
+
+            return Objects.requireNonNull(value, "Cannot create flat collection of type: '" + type + "'!");
+        }
+
+        /**
+         * Handles addition to flat collection.
+         *
+         * @param collection Collection.
+         * @param y          Element to add.
+         * @param <D>        Collection type.
+         * @param <E>        Flat type.
+         * @param <Y>        Mapped type.
+         * @return True if collection changed as result of this operation.
+         */
+        private static <D extends Collection<E>, E extends Collection<Y>, Y> boolean addToLast(D collection, Y y) {
+            Iterator<E> iterator = collection.iterator();
+
+            boolean result = false;
+
+            while (iterator.hasNext()) {
+                E next = iterator.next();
+
+                if (!iterator.hasNext())
+                    result |= next.add(y);
+            }
+
+            return result;
+        }
+
+        /**
+         * Remove first element found in flat collection, this method also removes empty collections
+         * inside original collection.
+         *
+         * @param collection Collection.
+         * @param y          Element to remove.
+         * @param <D>        Collection type.
+         * @param <E>        Flat type.
+         * @param <Y>        Mapped type.
+         * @return True if collection changed as result of this operation.
+         */
+        private static <D extends Collection<E>, E extends Collection<Y>, Y> boolean removeFirst(D collection, Object y) {
+
+            Iterator<E> iterator = collection.iterator();
+
+            while (iterator.hasNext()) {
+                E next = iterator.next();
+
+                if (next.remove(y)) {
+                    if (next.isEmpty())
+                        iterator.remove();
+
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+
+        enum Type {
+            COLLECTION,
+            SET,
+            LIST
+        }
+    }
 }

@@ -3,7 +3,7 @@
  *
  *         The MIT License (MIT)
  *
- *      Copyright (c) 2016 TheRealBuggy/JonathanxD (https://github.com/JonathanxD/) <jonathan.scripter@programmer.net>
+ *      Copyright (c) 2017 TheRealBuggy/JonathanxD (https://github.com/JonathanxD/) <jonathan.scripter@programmer.net>
  *      Copyright (c) contributors
  *
  *
@@ -82,7 +82,35 @@ public class IteratorUtil {
     }
 
     /**
+     * Creates an {@link Iterator} of an array of type {@link E}.
+     *
+     * @param args Elements.
+     * @param <E>  Element type.
+     * @return {@link Iterator} of an array of type {@link E}.
+     */
+    @SafeVarargs
+    public static <E> Iterator<E> ofArray(final E... args) {
+        return new Iterator<E>() {
+            private int index = -1;
+
+            @Override
+            public boolean hasNext() {
+                return this.index < args.length;
+            }
+
+            @Override
+            public E next() {
+                if (!this.hasNext())
+                    throw new NoSuchElementException();
+
+                return args[++index];
+            }
+        };
+    }
+
+    /**
      * Wraps {@code iterator} into a synthetic {@link Iterable}.
+     *
      * @param iterator Iterator to wrap.
      * @param <E>      Type of elements.
      * @return Synthetic {@link Iterable} (lambda).

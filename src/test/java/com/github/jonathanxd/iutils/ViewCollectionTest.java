@@ -3,7 +3,7 @@
  *
  *         The MIT License (MIT)
  *
- *      Copyright (c) 2016 TheRealBuggy/JonathanxD (https://github.com/JonathanxD/) <jonathan.scripter@programmer.net>
+ *      Copyright (c) 2017 TheRealBuggy/JonathanxD (https://github.com/JonathanxD/) <jonathan.scripter@programmer.net>
  *      Copyright (c) contributors
  *
  *
@@ -30,13 +30,14 @@ package com.github.jonathanxd.iutils;
 import com.github.jonathanxd.iutils.collection.CollectionUtils;
 import com.github.jonathanxd.iutils.collection.view.ViewCollection;
 import com.github.jonathanxd.iutils.collection.view.ViewCollections;
+import com.github.jonathanxd.iutils.collection.view.ViewList;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.swing.plaf.ListUI;
+import java.util.ListIterator;
 
 public class ViewCollectionTest {
 
@@ -69,9 +70,9 @@ public class ViewCollectionTest {
 
         ViewCollection<List<String>, String> collection = ViewCollections.collectionMapped(
                 list,
-                e -> e,
-                (o, objectBackingIterator) -> ((List<String>) objectBackingIterator.getCurrentIterable()).add(o),
-                (o, objectBackingIterator) -> ((List<String>) objectBackingIterator.getCurrentIterable()).remove(o));
+                (e, origin) -> e.iterator(),
+                (o) -> list.size() > 0 ? list.get(list.size() - 1).add(o) : list.add(CollectionUtils.listOf(o)),
+                (o) -> firstRemove(list, o));
 
         collection.forEach(System.out::println);
 
@@ -84,5 +85,51 @@ public class ViewCollectionTest {
         collection.forEach(System.out::println);
     }
 
+    @Test
+    public void listTest() {
+
+        List<List<String>> list = new ArrayList<>();
+
+
+        list.add(CollectionUtils.listOf("A", "B", "C"));
+        list.add(CollectionUtils.listOf("D", "E", "F"));
+        list.add(CollectionUtils.listOf("G", "I", "J"));
+
+        ViewList<List<String>, String> view = ViewCollections.listMapped(list,
+                (strings, listListIterator) -> strings.listIterator(),
+                y -> list.size() > 0 ? list.get(list.size() - 1).add(y) : list.add(CollectionUtils.listOf(y)),
+                y -> firstRemove(list, y)
+        );
+
+        ListIterator<String> viewIter = view.listIterator(0);
+        viewIter.add("0");
+
+        System.out.println(list);
+    }
+
+    private boolean firstRemove(List<List<String>> list, Object o) {
+        for (List<String> strings : list) {
+            if(strings.remove(o))
+                return true;
+        }
+
+        return false;
+    }
+
+    private boolean addHelper(ViewList<List<String>, String> view, List<List<String>> list, int index, String value) {
+        if(index == -1) {
+            if(list.size() > 0) {
+                list.get(list.size() - 1).add(value);
+            } else {
+                list.add(CollectionUtils.listOf(value));
+            }
+
+            return true;
+        }
+
+        view.listIterator(index).add(value);
+
+        return true;
+    }
 
 }
