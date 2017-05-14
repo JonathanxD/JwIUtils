@@ -28,7 +28,14 @@
 package com.github.jonathanxd.iutils.data;
 
 import com.github.jonathanxd.iutils.condition.Conditions;
+import com.github.jonathanxd.iutils.function.collector.BiCollectors;
+import com.github.jonathanxd.iutils.function.stream.BiStreams;
+import com.github.jonathanxd.iutils.map.HashTypedMap;
+import com.github.jonathanxd.iutils.map.TypedMap;
 import com.github.jonathanxd.iutils.object.Lazy;
+import com.github.jonathanxd.iutils.object.Node;
+import com.github.jonathanxd.iutils.object.Pair;
+import com.github.jonathanxd.iutils.type.TypeInfo;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -38,7 +45,7 @@ import java.util.Optional;
 /**
  * Data storage
  */
-public final class Data {
+public final class Data implements DataBase {
 
     private final Map<Object, Object> map = new HashMap<>();
     private final Map<Object, Object> unmodifiable = Collections.unmodifiableMap(this.getMap());
@@ -219,5 +226,12 @@ public final class Data {
      */
     public Data copy() {
         return new Data(this.getDataMap());
+    }
+
+    @Override
+    public TypedMap<Object, Object> getTypedDataMap() {
+        return BiStreams.mapStream(this.getDataMap())
+                .map((o, o2) -> new Node<>(o, Pair.of(o2, TypeInfo.of(o2.getClass()).cast())))
+                .collect(BiCollectors.toMap(HashTypedMap::new));
     }
 }

@@ -40,6 +40,8 @@ import java.util.function.Function;
  * {@link TypeInfo} does not hold information about wildcard types, and this behavior is
  * intentional.
  *
+ * TypeInfo is invariant.
+ *
  * @param <T> Type.
  */
 @SuppressWarnings("Duplicates")
@@ -423,7 +425,7 @@ public class TypeInfo<T> implements Comparable<TypeInfo> {
 
         TypeInfo other = (TypeInfo) obj;
 
-        return compareTo(other) == 0;
+        return this.compareTo(other) == 0;
     }
 
 

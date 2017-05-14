@@ -29,15 +29,73 @@ package com.github.jonathanxd.iutils.object;
 
 import java.util.function.Supplier;
 
-public enum  Pairs {
+public enum Pairs {
     ;
 
+    /**
+     * Denotes a null pair constant.
+     */
+    private static final Pair<?, ?> NULL_PAIR = Pair.of(null, null);
+
+    /**
+     * Gets null pair constant.
+     *
+     * @param <A> Type of first value.
+     * @param <B> Type of second value.
+     * @return null pair constant.
+     */
+    @SuppressWarnings("unchecked")
+    public static <A, B> Pair<A, B> nullPair() {
+        return (Pair<A, B>) NULL_PAIR;
+    }
+
+    /**
+     * Creates a object pair of {@code a} and {@code b}.
+     *
+     * If both, {@code a} and {@code b} is null, returns a {@link #nullPair()}.
+     *
+     * @param a   First value.
+     * @param b   Second value.
+     * @param <A> First value type.
+     * @param <B> Second value type.
+     * @return Object pair of {@code a} and {@code b}.
+     */
     public static <A, B> Pair<A, B> of(A a, B b) {
+        if (a == null && b == null)
+            return Pair.nullPair();
+
         return new ObjectPair<>(a, b);
     }
 
+    /**
+     * Creates a supplier pair.
+     *
+     * Supplier pair always call {@link Supplier#get()} when a value is accessed.
+     *
+     * @param aSupplier First value supplier.
+     * @param bSupplier Second value supplier.
+     * @param <A>       First value type.
+     * @param <B>       Second value type.
+     * @return Supplier pair.
+     */
     public static <A, B> Pair<A, B> ofSupplier(Supplier<A> aSupplier, Supplier<B> bSupplier) {
         return new SupplierPair<>(aSupplier, bSupplier);
+    }
+
+    /**
+     * Creates a lazy pair.
+     *
+     * Lazy is the same as a object pair with two lazy instances, but provides methods with better
+     * signatures and encapsulation.
+     *
+     * @param aLazy First value lazy accessor.
+     * @param bLazy Second value lazy accessor.
+     * @param <A>   First value type.
+     * @param <B>   Second value type.
+     * @return Lazy pair.
+     */
+    public static <A, B> Pair<A, B> ofLazy(Lazy<A> aLazy, Lazy<B> bLazy) {
+        return new LazyPair<>(aLazy, bLazy);
     }
 
     private static final class ObjectPair<A, B> extends Pair<A, B> {
@@ -66,7 +124,7 @@ public enum  Pairs {
         private final Supplier<A> aSupplier;
         private final Supplier<B> bSupplier;
 
-        private SupplierPair(Supplier<A> aSupplier, Supplier<B> bSupplier) {
+        SupplierPair(Supplier<A> aSupplier, Supplier<B> bSupplier) {
             this.aSupplier = aSupplier;
             this.bSupplier = bSupplier;
         }
@@ -79,6 +137,27 @@ public enum  Pairs {
         @Override
         public B getSecond() {
             return this.bSupplier.get();
+        }
+    }
+
+    private static final class LazyPair<A, B> extends Pair<A, B> {
+
+        private final Lazy<A> firstLazy;
+        private final Lazy<B> secondLazy;
+
+        LazyPair(Lazy<A> firstLazy, Lazy<B> secondLazy) {
+            this.firstLazy = firstLazy;
+            this.secondLazy = secondLazy;
+        }
+
+        @Override
+        public A getFirst() {
+            return this.firstLazy.get();
+        }
+
+        @Override
+        public B getSecond() {
+            return this.secondLazy.get();
         }
     }
 }

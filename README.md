@@ -192,7 +192,6 @@ com.github.jonathanxd.iutils.JavaStreamvBiStream.jwBiStream(JavaStreamvBiStream.
 
 **WalkableNodeBiStream.filter** is called when you call the **filter** method.
 
-**BiStream doens't supports parallel operations.**
 
 #### Cons and Pros of BiStream
 
@@ -204,5 +203,53 @@ Pros:
 - Focused on Maps
 
 Cons:
-- No Parallel Operations
+- No Parallel Operations (supported via `Stream` wrapping)
 - And, there is not a really Stream (doesn't match Stream specifications).
+
+# View Collections (since 4.3.0)
+
+In 4.3 we introduced view collections, view collections are collection wrappers which wrap actions to original list.
+
+## Supported collection types
+
+- Collection
+- List
+- Set
+
+## Normal collection views
+
+```
+Collection<String> s = new ArrayList<String>();
+s.add("A"); s.add("B"); s.add("C");
+
+Collection<String> view = ViewCollections.collection(s);
+
+view.forEach(System.out::println); // Prints: A, B and C.
+
+s.add("Y");
+
+view.forEach(System.out::println); // Prints: A, B, C and Y.
+```
+
+## Mapped collection views
+
+```
+Collection<List<String>> s = new ArrayList<List<String>>();
+s.add(CollectionsUtils.listOf("A", "B", "C")); 
+s.add(CollectionsUtils.listOf("D", "E", "F")); 
+s.add(CollectionsUtils.listOf("G", "H", "I"));
+
+Collection<String> view = ViewCollections.collection(s, 
+        value -> value.listIterator(),
+        iter, value -> ((ListIterator<?>) iter).add(value));
+
+view.forEach(System.out::println); // Prints: A, B, C, D, E, F, G, H and I.
+
+s.add("Y");
+
+view.forEach(System.out::println); // Prints: A, B, C, D, E, F, G, H, I and Y.
+```
+
+The mapper function is called when a value is accessed, and it should return a `Iterator`.
+
+The write function receives the iterator used to access the value and the value to add.

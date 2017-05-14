@@ -30,17 +30,65 @@ package com.github.jonathanxd.iutils.object;
 import java.util.Objects;
 import java.util.function.Supplier;
 
+/**
+ * Pairs of values.
+ *
+ * @param <A> First value type.
+ * @param <B> Second value type.
+ */
 public abstract class Pair<A, B> {
+
+    /**
+     * Gets null pair constant.
+     *
+     * @param <A> Type of first value.
+     * @param <B> Type of second value.
+     * @return null pair constant.
+     */
+    public static <A, B> Pair<A, B> nullPair() {
+        return Pairs.nullPair();
+    }
+
+    /**
+     * Creates a object pair of {@code a} and {@code b}.
+     *
+     * If both, {@code a} and {@code b} is null, returns a {@link #nullPair()}.
+     *
+     * @param a   First value.
+     * @param b   Second value.
+     * @param <A> First value type.
+     * @param <B> Second value type.
+     * @return Object pair of {@code a} and {@code b}.
+     */
     public static <A, B> Pair<A, B> of(A a, B b) {
         return Pairs.of(a, b);
     }
 
+    /**
+     * Creates a supplier pair.
+     *
+     * @param aSupplier First value supplier.
+     * @param bSupplier Second value supplier.
+     * @param <A>       First value type.
+     * @param <B>       Second value type.
+     * @return Supplier pair, see {@link Pairs#ofSupplier(Supplier, Supplier)}.
+     */
     public static <A, B> Pair<A, B> ofSupplier(Supplier<A> aSupplier, Supplier<B> bSupplier) {
         return Pairs.ofSupplier(aSupplier, bSupplier);
     }
 
+    /**
+     * Gets first value.
+     *
+     * @return First value.
+     */
     public abstract A getFirst();
 
+    /**
+     * Gets second value.
+     *
+     * @return Second value.
+     */
     public abstract B getSecond();
 
     @Override
@@ -50,14 +98,12 @@ public abstract class Pair<A, B> {
 
     @Override
     public boolean equals(Object obj) {
+        if (!(obj instanceof Pair<?, ?>))
+            return super.equals(obj);
 
-        if (obj instanceof Pair<?, ?>) {
-            Pair<?, ?> pair = (Pair<?, ?>) obj;
+        Pair<?, ?> pair = (Pair<?, ?>) obj;
 
-            return this.getFirst().equals(pair.getFirst())
-                    && this.getSecond().equals(pair.getSecond());
-        }
-
-        return super.equals(obj);
+        return Objects.equals(this.getFirst(), pair.getFirst())
+                && Objects.equals(this.getSecond(), pair.getSecond());
     }
 }

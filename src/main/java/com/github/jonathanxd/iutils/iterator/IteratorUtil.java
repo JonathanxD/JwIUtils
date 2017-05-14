@@ -30,6 +30,7 @@ package com.github.jonathanxd.iutils.iterator;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 /**
  * Iterator utility.
@@ -51,5 +52,42 @@ public class IteratorUtil {
         return eList;
     }
 
+    /**
+     * Creates an {@link Iterator} which has only one element to iterate.
+     *
+     * @param e   Element.
+     * @param <E> Element type.
+     * @return {@link Iterator} which has only one element to iterate.
+     */
+    public static <E> Iterator<E> single(final E e) {
+        return new Iterator<E>() {
 
+            private boolean hasNext = true;
+
+            @Override
+            public boolean hasNext() {
+                return this.hasNext;
+            }
+
+            @Override
+            public E next() {
+                if (!this.hasNext())
+                    throw new NoSuchElementException();
+
+                this.hasNext = false;
+
+                return e;
+            }
+        };
+    }
+
+    /**
+     * Wraps {@code iterator} into a synthetic {@link Iterable}.
+     * @param iterator Iterator to wrap.
+     * @param <E>      Type of elements.
+     * @return Synthetic {@link Iterable} (lambda).
+     */
+    public static <E> Iterable<E> wrapIterator(final Iterator<E> iterator) {
+        return () -> iterator;
+    }
 }
