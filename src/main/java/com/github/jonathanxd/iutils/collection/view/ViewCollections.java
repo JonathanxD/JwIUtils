@@ -53,7 +53,7 @@ public class ViewCollections {
      */
     public static <E> ViewCollection<E, E> collection(Collection<E> collection) {
         return new ViewCollection<>(collection,
-                (e, original) -> original,
+                null,
                 collection::add,
                 collection::remove);
     }
@@ -67,7 +67,7 @@ public class ViewCollections {
      */
     public static <E> ViewSet<E, E> set(Set<E> set) {
         return new ViewSet<>(set,
-                (e, original) -> original,
+                null,
                 set::add,
                 set::remove);
     }
@@ -81,7 +81,7 @@ public class ViewCollections {
      */
     public static <E> ViewList<E, E> list(List<E> list) {
         return new ViewList<>(list,
-                (e, original) -> original,
+                null,
                 list::add,
                 list::remove);
     }

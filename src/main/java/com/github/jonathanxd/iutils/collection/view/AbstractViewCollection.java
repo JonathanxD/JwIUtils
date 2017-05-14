@@ -63,9 +63,9 @@ public abstract class AbstractViewCollection<E, Y> implements Collection<Y> {
      * Constructs a view of a collection.
      *
      * @param collection Collection.
-     * @param mapper     Mapper function. Maps elements to a new iterable to query.
      */
     public AbstractViewCollection(Collection<E> collection) {
+        Objects.requireNonNull(collection);
         this.collection = collection;
     }
 

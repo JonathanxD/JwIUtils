@@ -29,6 +29,7 @@ package com.github.jonathanxd.iutils.collection.view;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
 
@@ -66,6 +67,10 @@ public class ViewCollection<E, Y> extends AbstractViewCollection<E, Y> {
                           Predicate<Y> add,
                           Predicate<Object> remove) {
         super(collection);
+
+        Objects.requireNonNull(add);
+        Objects.requireNonNull(remove);
+
         this.add = add;
         this.remove = remove;
         this.syntheticIterable = ViewUtils.iterable(collection, mapper);

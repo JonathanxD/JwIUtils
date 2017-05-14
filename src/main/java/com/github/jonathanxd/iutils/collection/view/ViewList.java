@@ -34,6 +34,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -62,6 +63,10 @@ public class ViewList<E, Y> extends AbstractViewCollection<E, Y> implements List
                     Predicate<Y> add,
                     Predicate<Object> remove) {
         super(list);
+
+        Objects.requireNonNull(add);
+        Objects.requireNonNull(remove);
+
         this.add = add;
         this.remove = remove;
         this.syntheticIterable = ViewUtils.listIterable(list, mapper);

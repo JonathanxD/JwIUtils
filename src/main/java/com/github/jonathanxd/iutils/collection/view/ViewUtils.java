@@ -60,7 +60,7 @@ public class ViewUtils {
      *
      * @param i      Iterable to map.
      * @param mapper Mapper function.
-     *               @param start Start index of list.
+     * @param start  Start index of list.
      * @param <E>    Element type.
      * @return Mapping inner iterator.
      */
@@ -89,7 +89,7 @@ public class ViewUtils {
      * @return {@link Iterable} which holds a {@link #iterator(Iterable, BiFunction)} instance.
      */
     public static <E, Y> ListIterable<Y> listIterable(List<E> i, BiFunction<E, ListIterator<E>, ListIterator<Y>> mapper) {
-        return index -> listIterator(i, mapper, index-1);
+        return index -> listIterator(i, mapper, index - 1);
     }
 
     public interface ListIterable<Y> extends Iterable<Y> {
@@ -104,10 +104,16 @@ public class ViewUtils {
 
     static abstract class AbstractIndexedIterator<E, Y> implements Iterator<Y> {
 
-        protected abstract void setCurrent(Iterator<Y> iter);
         protected abstract Iterable<E> getIterable();
+
         protected abstract Iterator<Y> getCurrent();
+
+        protected abstract void setCurrent(Iterator<Y> iter);
+
         protected abstract Iterator<E> getMain();
+
+        protected abstract boolean isMapperPresent();
+
         protected abstract Iterator<Y> map(E element, Iterator<E> iter);
 
         @SuppressWarnings("unchecked")
@@ -122,17 +128,14 @@ public class ViewUtils {
                 if (!this.getMain().hasNext())
                     return false;
 
-                // Sets current iterator to result of mapping the next element of main iterator to a new iterator using 'mapper'
-                this.setCurrent(map(this.getMain().next(), this.getMain()));
-
-                // Hacky code to fix some problems...
-                if(this.getCurrent() == this.getMain() && isNull)
-
-                    while(this.getMain().hasNext())
-                        this.getMain().next();
-
-
-                    this.setCurrent((Iterator<Y>) this.getIterable().iterator());
+                // Checks if mapper is present.
+                if (!this.isMapperPresent()) {
+                    // If mapper is not present, uses main iterator.
+                    this.setCurrent((Iterator<Y>) this.getMain());
+                } else {
+                    // Sets current iterator to result of mapping the next element of main iterator to a new iterator using 'mapper'
+                    this.setCurrent(this.map(this.getMain().next(), this.getMain()));
+                }
             }
 
             // Check if current iterator is not null and has next element.
@@ -201,18 +204,23 @@ public class ViewUtils {
         }
 
         @Override
-        protected void setCurrent(Iterator<Y> iter) {
-            this.current = iter;
-        }
-
-        @Override
         protected Iterator<Y> getCurrent() {
             return this.current;
         }
 
         @Override
+        protected void setCurrent(Iterator<Y> iter) {
+            this.current = iter;
+        }
+
+        @Override
         protected Iterable<E> getIterable() {
             return this.i;
+        }
+
+        @Override
+        protected boolean isMapperPresent() {
+            return this.mapper != null;
         }
     }
 
@@ -241,33 +249,32 @@ public class ViewUtils {
             this.mapper = mapper;
             this.main = i.listIterator();
 
-            if(startIndex != 0) {
-                while(this.hasNext() && this.elemIndex != startIndex) {
+            if (startIndex != 0) {
+                while (this.hasNext() && this.elemIndex != startIndex) {
                     this.next();
                 }
             }
         }
 
+        @SuppressWarnings("unchecked")
         @Override
         public boolean hasPrevious() {
 
             boolean isNull = this.current == null;
 
             // Check if current iterator is null or does not have previous element
-            if(isNull || !this.current.hasPrevious()) {
+            if (isNull || !this.current.hasPrevious()) {
                 // Check if main iterator does not have previous elements
-                if(!this.main.hasPrevious())
+                if (!this.main.hasPrevious())
                     return false;
 
-                // Gets next element.
-                E previous = this.main.previous();
-
-                // Sets current iterator to result of mapping the previous element of main iterator to a new iterator using 'mapper'
-                this.current = mapper.apply(previous, this.main);
-
-                // Another try to fix some problems, this is better because list iterators allows previous and next navigation.
-                if(this.current == this.main && isNull) {
-                    this.main.next();
+                // Checks if mapper is present.
+                if (!this.isMapperPresent()) {
+                    // If mapper is not present, uses main iterator.
+                    this.setCurrent((Iterator<Y>) this.getMain());
+                } else {
+                    // Sets current iterator to result of mapping the previous element of main iterator to a new iterator using 'mapper'
+                    this.current = mapper.apply(this.main.previous(), this.main);
                 }
             }
 
@@ -332,13 +339,13 @@ public class ViewUtils {
         }
 
         @Override
-        protected void setCurrent(Iterator<Y> iter) {
-            this.current = (ListIterator<Y>) iter;
+        protected Iterator<Y> getCurrent() {
+            return this.current;
         }
 
         @Override
-        protected Iterator<Y> getCurrent() {
-            return this.current;
+        protected void setCurrent(Iterator<Y> iter) {
+            this.current = (ListIterator<Y>) iter;
         }
 
         @Override
@@ -355,6 +362,12 @@ public class ViewUtils {
         protected Iterable<E> getIterable() {
             return this.i;
         }
+
+        @Override
+        protected boolean isMapperPresent() {
+            return this.mapper != null;
+        }
+
 
     }
 }
