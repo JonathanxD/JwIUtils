@@ -32,7 +32,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.BiFunction;
+import java.util.stream.Collectors;
 
 /**
  * View of a collection.
@@ -73,7 +73,7 @@ public abstract class AbstractViewCollection<E, Y> implements Collection<Y> {
     public int size() {
         int size = 0;
 
-        while (this.getSyntheticIterable().iterator().hasNext()) {
+        for (Y ignored : this.getSyntheticIterable()) {
             ++size;
         }
 
@@ -172,8 +172,16 @@ public abstract class AbstractViewCollection<E, Y> implements Collection<Y> {
 
     @Override
     public void clear() {
-        collection.clear();
+        this.collection.clear();
     }
 
     public abstract Iterable<Y> getSyntheticIterable();
+
+    @Override
+    public String toString() {
+        return this.stream()
+                .map(Object::toString)
+                .collect(Collectors.joining(", ", "[", "]"));
+    }
+
 }

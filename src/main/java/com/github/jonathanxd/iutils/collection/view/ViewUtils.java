@@ -89,14 +89,14 @@ public class ViewUtils {
      * @return {@link Iterable} which holds a {@link #iterator(Iterable, BiFunction)} instance.
      */
     public static <E, Y> ListIterable<Y> listIterable(List<E> i, BiFunction<E, ListIterator<E>, ListIterator<Y>> mapper) {
-        return index -> listIterator(i, mapper, index - 1);
+        return index -> listIterator(i, mapper, index);
     }
 
     public interface ListIterable<Y> extends Iterable<Y> {
 
         @Override
         default ListIterator<Y> iterator() {
-            return this.iterator(-1);
+            return this.iterator(0);
         }
 
         ListIterator<Y> iterator(int index);
@@ -250,7 +250,7 @@ public class ViewUtils {
             this.main = i.listIterator();
 
             if (startIndex != 0) {
-                while (this.hasNext() && this.elemIndex != startIndex) {
+                while (this.hasNext() && this.elemIndex != startIndex - 1) {
                     this.next();
                 }
             }

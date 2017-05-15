@@ -51,13 +51,9 @@ public class ViewCollectionTest {
 
         ViewCollection<String, String> collection = ViewCollections.collection(list);
 
-        collection.forEach(System.out::println);
-
-        System.out.println("After D");
-
         list.add("D");
 
-        collection.forEach(System.out::println);
+        Assert.assertEquals(CollectionUtils.listOf("A", "B", "C", "D").toString(), collection.toString());
     }
 
     @Test
@@ -74,19 +70,39 @@ public class ViewCollectionTest {
                 (o) -> list.size() > 0 ? list.get(list.size() - 1).add(o) : list.add(CollectionUtils.listOf(o)),
                 (o) -> firstRemove(list, o));
 
-        collection.forEach(System.out::println);
-
-        System.out.println("After K, L, M");
-
         collection.add("K");
         collection.add("L");
         collection.add("M");
 
-        collection.forEach(System.out::println);
+        Assert.assertEquals(
+                CollectionUtils.listOf("A", "B", "C", "D", "E", "F", "G", "I", "J", "K", "L", "M").toString(),
+                collection.toString());
     }
 
     @Test
     public void listTest() {
+
+        List<List<String>> list = new ArrayList<>();
+
+        list.add(CollectionUtils.listOf("A", "B", "C"));
+        list.add(CollectionUtils.listOf("D", "E", "F"));
+        list.add(CollectionUtils.listOf("G", "I", "J"));
+
+        ViewList<List<String>, String> view = ViewCollections.listMapped(list,
+                (strings, listListIterator) -> strings.listIterator(),
+                y -> list.size() > 0 ? list.get(list.size() - 1).add(y) : list.add(CollectionUtils.listOf(y)),
+                y -> firstRemove(list, y)
+        );
+
+        ListIterator<String> viewIter = view.listIterator(0);
+
+        viewIter.add("0");
+        // Where is 'H'?
+        Assert.assertEquals(CollectionUtils.listOf("0", "A", "B", "C", "D", "E", "F", "G", "I", "J").toString(), view.toString());
+    }
+
+    @Test
+    public void listAddTest() {
 
         List<List<String>> list = new ArrayList<>();
 
@@ -101,10 +117,13 @@ public class ViewCollectionTest {
                 y -> firstRemove(list, y)
         );
 
-        ListIterator<String> viewIter = view.listIterator(0);
-        viewIter.add("0");
+        view.add(4, "N");
 
-        System.out.println(list);
+        List<String> lst = CollectionUtils.listOf("A", "B", "C", "D", "E", "F", "G", "I", "J");
+
+        lst.add(4, "N");
+
+        Assert.assertEquals(lst.toString(), view.toString());
     }
 
     private boolean firstRemove(List<List<String>> list, Object o) {
