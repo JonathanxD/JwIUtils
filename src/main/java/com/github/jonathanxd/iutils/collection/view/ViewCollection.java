@@ -48,7 +48,7 @@ import java.util.function.Predicate;
 public class ViewCollection<E, Y> extends AbstractViewCollection<E, Y> {
 
     private final Predicate<Y> add;
-    private final Predicate<Object> remove;
+    private final Predicate<Y> remove;
 
     /**
      * Synthetic iterable to emulate a iterable of element of type {@link Y}.
@@ -65,7 +65,7 @@ public class ViewCollection<E, Y> extends AbstractViewCollection<E, Y> {
      */
     public ViewCollection(Collection<E> collection, BiFunction<E, Iterator<E>, Iterator<Y>> mapper,
                           Predicate<Y> add,
-                          Predicate<Object> remove) {
+                          Predicate<Y> remove) {
         super(collection);
 
         Objects.requireNonNull(add);
@@ -81,9 +81,10 @@ public class ViewCollection<E, Y> extends AbstractViewCollection<E, Y> {
         return this.add.test(y);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public boolean remove(Object o) {
-        return this.remove.test(o);
+        return this.remove.test((Y) o);
     }
 
     @Override

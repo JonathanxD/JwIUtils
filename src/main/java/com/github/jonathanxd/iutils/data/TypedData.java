@@ -27,5 +27,11 @@
  */
 package com.github.jonathanxd.iutils.data;
 
-public class TypedData {
+import com.github.jonathanxd.iutils.map.TypedMap;
+
+public class TypedData implements DataBase {
+    @Override
+    public TypedMap<Object, Object> getTypedDataMap() {
+        return null;
+    }
 }

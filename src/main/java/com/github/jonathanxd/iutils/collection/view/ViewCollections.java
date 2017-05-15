@@ -100,7 +100,7 @@ public class ViewCollections {
     public static <E, Y> ViewCollection<E, Y> collectionMapped(Collection<E> collection,
                                                                BiFunction<E, Iterator<E>, Iterator<Y>> mapper,
                                                                Predicate<Y> add,
-                                                               Predicate<Object> remove) {
+                                                               Predicate<Y> remove) {
         return new ViewCollection<>(collection,
                 mapper,
                 add,
@@ -121,7 +121,7 @@ public class ViewCollections {
     public static <E, Y> ViewList<E, Y> listMapped(List<E> list,
                                                    BiFunction<E, ListIterator<E>, ListIterator<Y>> mapper,
                                                    Predicate<Y> add,
-                                                   Predicate<Object> remove) {
+                                                   Predicate<Y> remove) {
         return new ViewList<>(list,
                 mapper,
                 add,
@@ -142,7 +142,7 @@ public class ViewCollections {
     public static <E, Y> ViewSet<E, Y> setMapped(Set<E> set,
                                                  BiFunction<E, Iterator<E>, Iterator<Y>> mapper,
                                                  Predicate<Y> add,
-                                                 Predicate<Object> remove) {
+                                                 Predicate<Y> remove) {
         return new ViewSet<>(set,
                 mapper,
                 add,
@@ -219,7 +219,7 @@ public class ViewCollections {
             E value = null;
 
             Predicate<Y> add = y -> collection.isEmpty() ? collection.add(subCollFactory.apply(y)) : addToLast(collection, y);
-            Predicate<Object> remove = o -> removeFirst(collection, o);
+            Predicate<Y> remove = o -> removeFirst(collection, o);
 
             if (type == Type.COLLECTION) {
                 value = (E) ViewCollections.collectionMapped(collection,

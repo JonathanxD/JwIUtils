@@ -325,7 +325,7 @@ public class ViewUtils {
 
         @Override
         public int previousIndex() {
-            return this.elemIndex - 1;
+            return this.elemIndex;
         }
 
         @Override

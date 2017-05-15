@@ -43,7 +43,7 @@ public class ViewSet<E, Y> extends ViewCollection<E, Y> implements Set<Y> {
      * Constructs a set view.
      * {@inheritDoc}
      */
-    public ViewSet(Set<E> set, BiFunction<E, Iterator<E>, Iterator<Y>> mapper, Predicate<Y> add, Predicate<Object> remove) {
+    public ViewSet(Set<E> set, BiFunction<E, Iterator<E>, Iterator<Y>> mapper, Predicate<Y> add, Predicate<Y> remove) {
         super(set, mapper, add, remove);
     }
 

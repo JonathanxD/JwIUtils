@@ -31,11 +31,13 @@ import com.github.jonathanxd.iutils.collection.CollectionUtils;
 import com.github.jonathanxd.iutils.collection.view.ViewCollection;
 import com.github.jonathanxd.iutils.collection.view.ViewCollections;
 import com.github.jonathanxd.iutils.collection.view.ViewList;
+import com.github.jonathanxd.iutils.iterator.IteratorUtil;
 
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
@@ -126,9 +128,60 @@ public class ViewCollectionTest {
         Assert.assertEquals(lst.toString(), view.toString());
     }
 
+    @Test
+    public void listMapTest() {
+
+        List<String> list = new ArrayList<>();
+
+
+        list.addAll(CollectionUtils.listOf("1", "2", "3"));
+        list.addAll(CollectionUtils.listOf("4", "5", "6"));
+
+        ViewList<String, Integer> view = ViewCollections.listMapped(list,
+                (strings, listListIterator) ->
+                        IteratorUtil.mapped(strings, listListIterator, Integer::parseInt, Object::toString),
+                y -> list.add(y.toString()),
+                y -> list.remove(y.toString())
+        );
+
+        view.add(9);
+
+        Iterator<Integer> iterator = view.iterator();
+
+        while (iterator.hasNext()) {
+            Integer next = iterator.next();
+
+            if (next == 3)
+                iterator.remove();
+        }
+
+        int index = 0;
+
+        ListIterator<Integer> listIterator = view.listIterator();
+
+        while(listIterator.hasNext()) {
+            int i = listIterator.nextIndex();
+            int p = listIterator.previousIndex();
+
+            listIterator.next();
+
+            Assert.assertEquals(listIterator.nextIndex(), i + 1);
+            Assert.assertEquals(listIterator.previousIndex(), p + 1);
+
+            Assert.assertEquals(index, i);
+            Assert.assertEquals(index - 1, p);
+
+            ++index;
+        }
+
+        List<String> lst = CollectionUtils.listOf("1", "2", "3", "4", "5", "6");
+
+        Assert.assertEquals(lst.toString(), view.toString());
+    }
+
     private boolean firstRemove(List<List<String>> list, Object o) {
         for (List<String> strings : list) {
-            if(strings.remove(o))
+            if (strings.remove(o))
                 return true;
         }
 
@@ -136,8 +189,8 @@ public class ViewCollectionTest {
     }
 
     private boolean addHelper(ViewList<List<String>, String> view, List<List<String>> list, int index, String value) {
-        if(index == -1) {
-            if(list.size() > 0) {
+        if (index == -1) {
+            if (list.size() > 0) {
                 list.get(list.size() - 1).add(value);
             } else {
                 list.add(CollectionUtils.listOf(value));

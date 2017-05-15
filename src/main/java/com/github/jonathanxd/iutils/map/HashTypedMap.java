@@ -27,17 +27,20 @@
  */
 package com.github.jonathanxd.iutils.map;
 
+import com.github.jonathanxd.iutils.collection.view.ViewCollections;
 import com.github.jonathanxd.iutils.function.stream.BiStreams;
+import com.github.jonathanxd.iutils.iterator.IteratorUtil;
 import com.github.jonathanxd.iutils.object.Pair;
 import com.github.jonathanxd.iutils.type.TypeInfo;
 
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -45,6 +48,7 @@ import java.util.stream.Collectors;
  * together with values using a {@link Pair}.
  */
 public final class HashTypedMap<K, V> implements TypedMap<K, V> {
+
     private final HashMap<K, Pair<? extends V, TypeInfo<? extends V>>> hashMap;
 
     public HashTypedMap() {
@@ -102,7 +106,7 @@ public final class HashTypedMap<K, V> implements TypedMap<K, V> {
 
             V first = entryValue.getFirst();
 
-            if(first.equals(value)) {
+            if (first.equals(value)) {
                 list.add(Pair.of(key, entryValue.getSecond().cast()));
             }
         }
@@ -115,7 +119,7 @@ public final class HashTypedMap<K, V> implements TypedMap<K, V> {
     public <B extends V> B getTyped(K key, TypeInfo<B> type) {
         Pair<? extends V, TypeInfo<? extends V>> pair = this.getTyped(key);
 
-        if(pair.getSecond().equals(type))
+        if (pair.getSecond().equals(type))
             return (B) pair.getFirst();
 
         return null;
@@ -158,7 +162,7 @@ public final class HashTypedMap<K, V> implements TypedMap<K, V> {
     public V get(Object key) {
         Pair<? extends V, TypeInfo<? extends V>> get = this.hashMap.get(key);
 
-        if(get != null)
+        if (get != null)
             return get.getFirst();
 
         return null;
@@ -168,7 +172,7 @@ public final class HashTypedMap<K, V> implements TypedMap<K, V> {
     public V put(K key, V value) {
         Pair<? extends V, TypeInfo<? extends V>> put = this.hashMap.put(key, Pair.of(value, TypeInfo.of(value.getClass()).cast()));
 
-        if(put != null)
+        if (put != null)
             return put.getFirst();
 
         return null;
@@ -178,7 +182,7 @@ public final class HashTypedMap<K, V> implements TypedMap<K, V> {
     public V remove(Object key) {
         Pair<? extends V, TypeInfo<? extends V>> remove = this.hashMap.remove(key);
 
-        if(remove != null)
+        if (remove != null)
             return remove.getFirst();
 
         return null;
@@ -201,17 +205,61 @@ public final class HashTypedMap<K, V> implements TypedMap<K, V> {
 
     @Override
     public Collection<V> values() {
-        // TODO: View
-        return this.hashMap.values().stream()
-                .map(Pair::getFirst)
-                .collect(Collectors.toList());
+        Collection<Pair<? extends V, TypeInfo<? extends V>>> values = this.hashMap.values();
+
+        return ViewCollections.collectionMapped(values,
+                (typeInfoPair, pairIterator) -> IteratorUtil.mapped(typeInfoPair, pairIterator, Pair::getFirst),
+                y -> values.add(Pair.ofSupplier(() -> y, () -> {
+                    throw new UnsupportedOperationException();
+                })),
+                o -> values.removeIf(typeInfoPair -> Objects.equals(typeInfoPair.getFirst(), o))
+
+        );
     }
 
     @Override
     public Set<Entry<K, V>> entrySet() {
-        // TODO: View
-        return this.hashMap.entrySet().stream()
-                .map(kPairEntry -> new AbstractMap.SimpleImmutableEntry<K, V>(kPairEntry.getKey(), kPairEntry.getValue().getFirst()))
-                .collect(Collectors.toSet());
+        Set<Entry<K, Pair<? extends V, TypeInfo<? extends V>>>> entries = this.hashMap.entrySet();
+
+        return ViewCollections.setMapped(entries,
+                (e, eIterator) -> IteratorUtil.mapped(e, eIterator, kPairEntry ->
+                        new MappedEntryWrapper<>(kPairEntry, Pair::getFirst, o -> Pair.of(o, kPairEntry.getValue().getSecond()))
+                ),
+                y -> {
+                    throw new UnsupportedOperationException();
+                },
+                e -> entries.removeIf(kPairEntry ->
+                        Objects.equals(kPairEntry.getKey(), e.getKey())
+                                && Objects.equals(kPairEntry.getValue().getFirst(), e.getValue())
+                )
+        );
+    }
+
+    static final class MappedEntryWrapper<K, V, X> implements Map.Entry<K, X> {
+
+        private final Map.Entry<K, V> wrapper;
+        private final Function<V, X> mapper;
+        private final Function<X, V> unmapper;
+
+        MappedEntryWrapper(Entry<K, V> wrapper, Function<V, X> mapper, Function<X, V> unmapper) {
+            this.wrapper = wrapper;
+            this.mapper = mapper;
+            this.unmapper = unmapper;
+        }
+
+        @Override
+        public K getKey() {
+            return this.wrapper.getKey();
+        }
+
+        @Override
+        public X getValue() {
+            return this.mapper.apply(this.wrapper.getValue());
+        }
+
+        @Override
+        public X setValue(X value) {
+            return this.mapper.apply(this.wrapper.setValue(this.unmapper.apply(value)));
+        }
     }
 }

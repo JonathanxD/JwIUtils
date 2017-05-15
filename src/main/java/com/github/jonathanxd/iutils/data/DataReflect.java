@@ -29,11 +29,14 @@ package com.github.jonathanxd.iutils.data;
 
 import com.github.jonathanxd.iutils.map.TypedMap;
 import com.github.jonathanxd.iutils.type.Primitive;
+import com.github.jonathanxd.iutils.type.TypeInfo;
+import com.github.jonathanxd.iutils.type.TypeUtil;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -134,17 +137,27 @@ public class DataReflect {
 
             boolean fail = false;
 
-            for (Class<?> parameterType : element.getParameterTypes()) {
+            for (Type parameterTypeType : element.getGenericParameterTypes()) {
+
+                TypeInfo<?> parameterType = TypeUtil.toTypeInfo(parameterTypeType);
 
                 Optional<Object> objOpt = Optional.empty();
 
-                Class<?> type = parameterType.isPrimitive() ? Primitive.box(parameterType) : parameterType;
+                TypeInfo<?> type = parameterType.getTypeClass().isPrimitive()
+                        ? TypeInfo.of(Primitive.box(parameterType.getTypeClass()))
+                        : parameterType;
 
-                // TODO: Update to typed maps
+                for (TypedMap.TypedEntry<Object, ?> objectTypedEntry : dataMap.typedEntrySet()) {
+                    Object value = objectTypedEntry.getValue();
 
-                for (Object o : dataMap.values()) {
-                    if (type.isInstance(o)) {
-                        objOpt = Optional.of(o);
+                    TypeInfo<?> tmp = objectTypedEntry.getType();
+
+                    TypeInfo<?> valueType = tmp.getTypeClass().isPrimitive()
+                            ? TypeInfo.of(Primitive.box(tmp.getTypeClass()))
+                            : tmp;
+
+                    if(type.isAssignableFrom(valueType)) {
+                        objOpt = Optional.of(value);
                         break;
                     }
                 }

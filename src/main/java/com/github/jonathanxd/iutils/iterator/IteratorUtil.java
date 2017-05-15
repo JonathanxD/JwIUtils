@@ -30,7 +30,9 @@ package com.github.jonathanxd.iutils.iterator;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.NoSuchElementException;
+import java.util.function.Function;
 
 /**
  * Iterator utility.
@@ -117,5 +119,140 @@ public class IteratorUtil {
      */
     public static <E> Iterable<E> wrapIterator(final Iterator<E> iterator) {
         return () -> iterator;
+    }
+
+    /**
+     * Creates a iterator to map values.
+     *
+     * This iterator should only be used in view collections. The behavior is uncertain outside of a view collection.
+     *
+     * @param value    Original value.
+     * @param original Original iterator.
+     * @param mapper   Value mapper.
+     * @param <E>      Input type.
+     * @param <Y>      Output type.
+     * @return Iterator mapping {@code value} and delegating remove operations to original iterator.
+     */
+    public static <E, Y> Iterator<Y> mapped(E value, Iterator<E> original, Function<E, Y> mapper) {
+        return new Iterator<Y>() {
+
+            private boolean readed = false;
+
+            @Override
+            public boolean hasNext() {
+
+                return !this.readed;
+            }
+
+            @Override
+            public Y next() {
+
+                if(!this.hasNext())
+                    throw new NoSuchElementException();
+
+                this.readed = true;
+
+                return mapper.apply(value);
+            }
+
+            @Override
+            public void remove() {
+                if(!this.readed)
+                    throw new IllegalStateException();
+
+                original.remove();
+            }
+        };
+    }
+
+    /**
+     * Creates a iterator to map values.
+     *
+     * This iterator should only be used in view collections. The behavior is uncertain outside of a view collection.
+     *
+     * @param value    Original value.
+     * @param original Original iterator.
+     * @param mapper   Value mapper.
+     * @param unmapper Remap value to original type.
+     * @param <E>      Input type.
+     * @param <Y>      Output type.
+     * @return  Iterator mapping {@code value} and delegating operations to original iterator.
+     */
+    public static <E, Y> ListIterator<Y> mapped(E value, ListIterator<E> original, Function<E, Y> mapper, Function<Y, E> unmapper) {
+        return new ListIterator<Y>() {
+
+            private boolean readed = false;
+            private final int index = original.nextIndex();
+
+            @Override
+            public boolean hasNext() {
+                return !this.readed;
+            }
+
+            @Override
+            public Y next() {
+                if(!this.hasNext())
+                    throw new NoSuchElementException();
+
+                this.readed = true;
+                return mapper.apply(value);
+            }
+
+            @Override
+            public boolean hasPrevious() {
+                return this.readed;
+            }
+
+            @Override
+            public Y previous() {
+                if(!this.hasPrevious())
+                    throw new NoSuchElementException();
+
+                this.readed = false;
+
+                return mapper.apply(value);
+            }
+
+            @Override
+            public int nextIndex() {
+
+                if(!this.readed)
+                    return this.index;
+
+                return this.index + 1;
+            }
+
+            @Override
+            public int previousIndex() {
+
+                if(!this.readed)
+                    return this.index - 1;
+
+                return this.index;
+            }
+
+            @Override
+            public void remove() {
+                if(!this.readed)
+                    throw new IllegalStateException();
+
+                original.remove();
+            }
+
+            @Override
+            public void set(Y y) {
+                if(!this.readed)
+                    throw new IllegalStateException();
+
+                original.set(unmapper.apply(y));
+            }
+
+            @Override
+            public void add(Y y) {
+                if(!this.readed)
+                    throw new IllegalStateException();
+                original.add(unmapper.apply(y));
+            }
+        };
     }
 }

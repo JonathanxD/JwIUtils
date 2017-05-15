@@ -231,7 +231,6 @@ public final class Data implements DataBase {
     @Override
     public TypedMap<Object, Object> getTypedDataMap() {
         return BiStreams.mapStream(this.getDataMap())
-                .map((o, o2) -> new Node<>(o, Pair.of(o2, TypeInfo.of(o2.getClass()).cast())))
-                .collect(BiCollectors.toMap(HashTypedMap::new));
+                .collect(BiCollectors.toMap(HashTypedMap::new)); // Put of HashTypedMap handles types automatically
     }
 }

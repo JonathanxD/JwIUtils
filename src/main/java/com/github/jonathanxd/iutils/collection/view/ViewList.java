@@ -42,7 +42,7 @@ import java.util.function.Predicate;
 public class ViewList<E, Y> extends AbstractViewCollection<E, Y> implements List<Y> {
 
     private final Predicate<Y> add;
-    private final Predicate<Object> remove;
+    private final Predicate<Y> remove;
 
     /**
      * Synthetic list iterable to emulate a iterable of element of type {@link Y}.
@@ -61,7 +61,7 @@ public class ViewList<E, Y> extends AbstractViewCollection<E, Y> implements List
      */
     public ViewList(List<E> list, BiFunction<E, ListIterator<E>, ListIterator<Y>> mapper,
                     Predicate<Y> add,
-                    Predicate<Object> remove) {
+                    Predicate<Y> remove) {
         super(list);
 
         Objects.requireNonNull(add);
@@ -173,9 +173,10 @@ public class ViewList<E, Y> extends AbstractViewCollection<E, Y> implements List
         return this.add.test(y);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public boolean remove(Object o) {
-        return this.remove.test(o);
+        return this.remove.test((Y) o);
     }
 
     @Override
