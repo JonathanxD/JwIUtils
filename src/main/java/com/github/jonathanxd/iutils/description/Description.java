@@ -31,7 +31,6 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 /**
- *
  * Description format for classes: [CLASS_NAME]
  *
  * Description format for fields: [CLASS_NAME]:[FIELD_NAME]:[TYPE]
@@ -88,7 +87,7 @@ public class Description {
      * @param binaryClassName Binary name of method declaring class
      * @param elementName     Method name
      * @param parameterTypes  Method parameter types binary name
-     * @param type      Return type binary name
+     * @param type            Return type binary name
      * @param elementType     Element type.
      */
     public Description(String description, String binaryClassName, String elementName, String[] parameterTypes, String type, ElementType elementType) {
@@ -107,7 +106,7 @@ public class Description {
      * @param binaryClassName Binary name of method declaring class
      * @param elementName     Method name
      * @param parameterTypes  Method parameter types binary name
-     * @param type      Return type binary name
+     * @param type            Return type binary name
      */
     @Deprecated
     public Description(String description, String binaryClassName, String elementName, String[] parameterTypes, String type) {
@@ -120,7 +119,7 @@ public class Description {
      * @param binaryClassName Binary name of method declaring class
      * @param elementName     Method name
      * @param parameterTypes  Method parameter types binary name
-     * @param type      Return type binary name
+     * @param type            Return type binary name
      */
     public Description(String binaryClassName, String elementName, String[] parameterTypes, String type, ElementType elementType) {
         this(null, binaryClassName, elementName, parameterTypes, type, elementType);
@@ -132,7 +131,7 @@ public class Description {
      * @param binaryClassName Binary name of method declaring class
      * @param elementName     Method name
      * @param parameterTypes  Method parameter types binary name
-     * @param type      Return type binary name
+     * @param type            Return type binary name
      */
     @Deprecated
     public Description(String binaryClassName, String elementName, String[] parameterTypes, String type) {
@@ -154,7 +153,7 @@ public class Description {
 
         stringBuilder.append(binaryClassName);
 
-        if(elementType == ElementType.CLASS)
+        if (elementType == ElementType.CLASS)
             return stringBuilder.toString();
 
 
@@ -162,7 +161,7 @@ public class Description {
 
         stringBuilder.append(elementName);
 
-        if(elementType == ElementType.FIELD) {
+        if (elementType == ElementType.FIELD) {
             stringBuilder.append(':');
             stringBuilder.append(returnType);
             return stringBuilder.toString();

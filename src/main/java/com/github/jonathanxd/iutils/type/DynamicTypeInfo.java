@@ -60,7 +60,7 @@ public final class DynamicTypeInfo<T> extends TypeInfo<T> {
     }
 
     public TypeInfo<T> toReference() {
-        if(this.isResolved())
+        if (this.isResolved())
             return new TypeInfo<>(this.getTypeClass(), this.getRelated(), this.isUnique());
 
         return new TypeInfo<>(this.getClassLiteral(), this.getRelated(), this.isUnique());

@@ -29,7 +29,6 @@ package com.github.jonathanxd.iutils.option;
 
 import com.github.jonathanxd.iutils.function.stream.BiStream;
 import com.github.jonathanxd.iutils.function.stream.BiStreams;
-import com.github.jonathanxd.iutils.function.stream.MapStream;
 
 import java.util.Collections;
 import java.util.HashMap;

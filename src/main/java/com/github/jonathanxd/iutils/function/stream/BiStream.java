@@ -65,7 +65,8 @@ import java.util.stream.Stream;
 
 /**
  * A BiStream is an adaptation of Java {@link Stream} operations to a 'bi' version. All operations
- * do the same thing as the {@link Stream} do, but takes and returns the double of values (key and value).
+ * do the same thing as the {@link Stream} do, but takes and returns the double of values (key and
+ * value).
  *
  * {@link BiStream} is intended to be used for {@link java.util.Map} and other types of collections
  * that stores 2 values.

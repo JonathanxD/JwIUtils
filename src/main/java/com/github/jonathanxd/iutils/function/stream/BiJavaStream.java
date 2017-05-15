@@ -134,7 +134,7 @@ public final class BiJavaStream<T, U> implements BiStream<T, U> {
     @Override
     public <R, V> BiStream<R, V> flatMap(BiFunction<? super T, ? super U, ? extends BiStream<? extends R, ? extends V>> mapper) {
         return new BiJavaStream<>(this.wrapped.flatMap(o ->
-                mapper.apply(o.getKey(), o.getValue()).<Map.Entry<R, V>>streamMap(AbstractMap.SimpleEntry<R,V>::new)
+                mapper.apply(o.getKey(), o.getValue()).<Map.Entry<R, V>>streamMap(AbstractMap.SimpleEntry<R, V>::new)
         ));
     }
 

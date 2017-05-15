@@ -29,8 +29,6 @@ package com.github.jonathanxd.iutils.function.function;
 
 /**
  * Takes two parameters and returns a {@code int}.
- * @param <T>
- * @param <U>
  */
 @FunctionalInterface
 public interface BiToIntFunction<T, U> {

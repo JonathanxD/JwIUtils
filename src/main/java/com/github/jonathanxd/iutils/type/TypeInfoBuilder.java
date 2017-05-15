@@ -61,7 +61,7 @@ public final class TypeInfoBuilder<T> {
 
         typeInfoBuilder.classLiteral = typeInfo.getClassLiteral();
 
-        if(typeInfo.isResolved())
+        if (typeInfo.isResolved())
             typeInfoBuilder.type = typeInfo.getTypeClass();
 
         for (TypeInfo<?> otherTypeInfo : typeInfo.getRelated()) {
@@ -82,7 +82,7 @@ public final class TypeInfoBuilder<T> {
 
         DynamicTypeInfo<T> dynamicReference;
 
-        if(typeInfoBuilder.type == null)
+        if (typeInfoBuilder.type == null)
             dynamicReference = new DynamicTypeInfo<>(typeInfoBuilder.classLiteral, new TypeInfo[]{}, typeInfoBuilder.isUnique());
         else
             dynamicReference = new DynamicTypeInfo<>(typeInfoBuilder.type, new TypeInfo[]{}, typeInfoBuilder.isUnique());
@@ -108,7 +108,7 @@ public final class TypeInfoBuilder<T> {
      */
     public Class<? extends T> getTypeClass() {
 
-        if(this.type != null)
+        if (this.type != null)
             return this.type;
 
         return TypeUtil.resolveClass(this.getClassLiteral());

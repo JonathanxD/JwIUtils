@@ -31,7 +31,6 @@ import com.github.jonathanxd.iutils.condition.Conditions;
 import com.github.jonathanxd.iutils.function.collector.BiCollectors;
 import com.github.jonathanxd.iutils.function.comparators.BiComparator;
 import com.github.jonathanxd.iutils.function.stream.BiStreams;
-import com.github.jonathanxd.iutils.function.stream.MapStream;
 import com.github.jonathanxd.iutils.object.Pair;
 
 import java.util.HashMap;

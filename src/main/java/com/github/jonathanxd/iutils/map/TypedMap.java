@@ -30,7 +30,6 @@ package com.github.jonathanxd.iutils.map;
 import com.github.jonathanxd.iutils.object.Pair;
 import com.github.jonathanxd.iutils.type.TypeInfo;
 
-import java.util.AbstractMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -64,8 +63,8 @@ public interface TypedMap<K, V> extends Map<K, V> {
      * @param value Value to associate to key.
      * @param type  Reified type of value.
      * @param <B>   Type of value.
-     * @return Replaced value and reified type associated to {@code key}, or {@code null} if no one
-     * value was replaced.
+     * @return Replaced value and reified type associated to {@code key}, or {@link Pair#nullPair()}
+     * if no one value was replaced.
      */
     <B extends V> Pair<? extends V, TypeInfo<? extends V>> putTyped(K key, B value, TypeInfo<B> type);
 
@@ -75,7 +74,7 @@ public interface TypedMap<K, V> extends Map<K, V> {
      *
      * @param key Key to get associated value and type.
      * @return {@link Pair pair} of {@link V value} and {@link TypeInfo<V> reified type} associated
-     * to {@code key}.
+     * to {@code key}, or {@link Pair#nullPair()} if no one value is associated to {@code key}.
      */
     Pair<? extends V, TypeInfo<? extends V>> getTyped(K key);
 
@@ -102,6 +101,46 @@ public interface TypedMap<K, V> extends Map<K, V> {
     <B extends V> B getTyped(K key, TypeInfo<B> type);
 
     /**
+     * Removes value associated to {@code key} regardless the type.
+     *
+     * @param key Key to remove associated value.
+     * @return {@link Pair} of value and type associated to {@code key}, or {@link Pair#nullPair()}
+     * if no one value was removed.
+     */
+    Pair<? extends V, TypeInfo<? extends V>> removeTyped(K key);
+
+    /**
+     * Removes value associated to {@code key} and {@code type}.
+     *
+     * @param key  Key to remove associated value.
+     * @param type Value type to remove associated value.
+     * @param <B>  Value type.
+     * @return Removed value associated to {@code key} and {@code type}, or {@code null} if no one
+     * value was removed.
+     */
+    <B extends V> B removeTyped(K key, TypeInfo<B> type);
+
+    /**
+     * Removes {@code value} associated to {@code key} and {@code type}.
+     *
+     * @param key   Key to remove associated value.
+     * @param type  Value type to remove associated value.
+     * @param value Value to remove.
+     * @param <B>   Value type.
+     * @return True if {@code value} was removed, false otherwise.
+     */
+    <B extends V> boolean removeTyped(K key, B value, TypeInfo<B> type);
+
+    /**
+     * Returns true if this map contains any value associated to {@code key} and {@code type}.
+     *
+     * @param key  Key to get associated value.
+     * @param type Type of associated value.
+     * @return True if this map contains any value associated to {@code key} and {@code type}.
+     */
+    boolean containsTyped(K key, TypeInfo<?> type);
+
+    /**
      * Gets the set of typed entries.
      *
      * Changes in map is not reflected in this set and vice-versa.
@@ -109,6 +148,13 @@ public interface TypedMap<K, V> extends Map<K, V> {
      * @return Set of typed entries.
      */
     Set<TypedEntry<K, ? extends V>> typedEntrySet();
+
+    /**
+     * Returns a unmodifiable typed map (cached or created).
+     *
+     * @return Unmodifiable typed map (cached or created).
+     */
+    TypedMap<K, V> createUnmodifiable();
 
     /**
      * Typed entry class.
@@ -195,7 +241,7 @@ public interface TypedMap<K, V> extends Map<K, V> {
         @Override
         public boolean equals(Object obj) {
 
-            if(!(obj instanceof TypedEntry<?, ?>))
+            if (!(obj instanceof TypedEntry<?, ?>))
                 return super.equals(obj);
 
             TypedEntry objEntry = (TypedEntry) obj;

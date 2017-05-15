@@ -39,7 +39,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
@@ -156,7 +155,7 @@ public class DataReflect {
                             ? TypeInfo.of(Primitive.box(tmp.getTypeClass()))
                             : tmp;
 
-                    if(type.isAssignableFrom(valueType)) {
+                    if (type.isAssignableFrom(valueType)) {
                         objOpt = Optional.of(value);
                         break;
                     }

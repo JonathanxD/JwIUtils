@@ -29,6 +29,7 @@ package com.github.jonathanxd.iutils.function.function;
 
 /**
  * Takes an int and a value an returns another value.
+ *
  * @param <V> Input value type.
  * @param <R> Return value type.
  */

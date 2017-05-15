@@ -28,17 +28,10 @@
 package com.github.jonathanxd.iutils.data;
 
 import com.github.jonathanxd.iutils.condition.Conditions;
-import com.github.jonathanxd.iutils.function.collector.BiCollectors;
-import com.github.jonathanxd.iutils.function.stream.BiStreams;
-import com.github.jonathanxd.iutils.map.HashTypedMap;
+import com.github.jonathanxd.iutils.map.BackedTypedMap;
 import com.github.jonathanxd.iutils.map.TypedMap;
 import com.github.jonathanxd.iutils.object.Lazy;
-import com.github.jonathanxd.iutils.object.Node;
-import com.github.jonathanxd.iutils.object.Pair;
-import com.github.jonathanxd.iutils.type.TypeInfo;
 
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -47,8 +40,7 @@ import java.util.Optional;
  */
 public final class Data implements DataBase {
 
-    private final Map<Object, Object> map = new HashMap<>();
-    private final Map<Object, Object> unmodifiable = Collections.unmodifiableMap(this.getMap());
+    private final TypedMap<Object, Object> map = new BackedTypedMap<>();
 
     public Data() {
     }
@@ -216,7 +208,7 @@ public final class Data implements DataBase {
      * @return Immutable version of data map.
      */
     public Map<Object, Object> getDataMap() {
-        return this.unmodifiable;
+        return this.map.createUnmodifiable();
     }
 
     /**
@@ -230,7 +222,6 @@ public final class Data implements DataBase {
 
     @Override
     public TypedMap<Object, Object> getTypedDataMap() {
-        return BiStreams.mapStream(this.getDataMap())
-                .collect(BiCollectors.toMap(HashTypedMap::new)); // Put of HashTypedMap handles types automatically
+        return this.map.createUnmodifiable();
     }
 }

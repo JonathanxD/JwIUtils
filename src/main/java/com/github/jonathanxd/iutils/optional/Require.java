@@ -27,8 +27,6 @@
  */
 package com.github.jonathanxd.iutils.optional;
 
-import java.util.function.Function;
-
 /**
  * Optional require.
  */

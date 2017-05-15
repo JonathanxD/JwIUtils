@@ -91,6 +91,15 @@ public abstract class Pair<A, B> {
      */
     public abstract B getSecond();
 
+    /**
+     * Returns true if both {@link #getFirst()} and {@link #getSecond()} returns {@code null}.
+     *
+     * @return True if both {@link #getFirst()} and {@link #getSecond()} returns {@code null}.
+     */
+    public final boolean isNullPair() {
+        return this.getFirst() == null && this.getSecond() == null;
+    }
+
     @Override
     public int hashCode() {
         return Objects.hash(this.getFirst(), this.getSecond());

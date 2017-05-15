@@ -27,10 +27,10 @@
  */
 package com.github.jonathanxd.iutils.collection;
 
-import com.github.jonathanxd.iutils.sort.SortingResult;
 import com.github.jonathanxd.iutils.function.Predicates;
 import com.github.jonathanxd.iutils.iterator.IteratorUtil;
 import com.github.jonathanxd.iutils.object.Node;
+import com.github.jonathanxd.iutils.sort.SortingResult;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -356,6 +356,7 @@ public interface Walkable<T> {
 
     /**
      * A {@link Walkable} backed by a {@link List}.
+     *
      * @param <T> Type of element.
      */
     final class WalkableList<T> implements Walkable<T> {

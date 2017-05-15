@@ -29,9 +29,16 @@ package com.github.jonathanxd.iutils;
 
 import com.github.jonathanxd.iutils.data.Data;
 import com.github.jonathanxd.iutils.data.DataReflect;
+import com.github.jonathanxd.iutils.data.TypedData;
+import com.github.jonathanxd.iutils.object.Pair;
+import com.github.jonathanxd.iutils.object.TypedKey;
+import com.github.jonathanxd.iutils.type.TypeInfo;
 
 import org.junit.Assert;
 import org.junit.Test;
+
+import sun.misc.Unsafe;
+import sun.reflect.ReflectionFactory;
 
 public class DataTest {
 
@@ -49,6 +56,48 @@ public class DataTest {
         Assert.assertEquals(5.5D, construct.getAmount(), 0);
         Assert.assertEquals("DataTest", construct.getName());
 
+    }
+
+    @Test
+    public void typedDataTest() {
+        TypedData typedData = new TypedData();
+
+        typedData.set("number", 9, TypeInfo.of(Integer.class));
+
+        Mx construct = (Mx) DataReflect.construct(Mx.class, typedData);
+
+        Assert.assertEquals(9, construct.getNumber());
+        Assert.assertEquals(9, typedData.getOrNull("number", TypeInfo.of(Integer.class)).intValue());
+
+    }
+
+    @Test
+    public void typedDataKeyTest() {
+        TypedData data = new TypedData();
+
+        TypedKey<Integer> typedKey = new TypedKey<>("number", TypeInfo.of(Integer.class));
+
+        typedKey.set(data, 8);
+
+        Assert.assertTrue(typedKey.contains(data));
+        Assert.assertEquals(8, typedKey.getOrNull(data).intValue());
+
+        Pair<?, TypeInfo<?>> number = new TypedKey<>("number", TypeInfo.of(Long.class)).removeAny(data);
+
+        Assert.assertEquals(8, number.getFirst());
+        Assert.assertEquals(TypeInfo.of(Integer.class), number.getSecond());
+    }
+
+    public static class Mx {
+        private final int number;
+
+        public Mx(int number) {
+            this.number = number;
+        }
+
+        public int getNumber() {
+            return this.number;
+        }
     }
 
     public static class Mrs {

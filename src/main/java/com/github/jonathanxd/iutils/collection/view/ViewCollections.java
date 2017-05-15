@@ -27,8 +27,6 @@
  */
 package com.github.jonathanxd.iutils.collection.view;
 
-import com.github.jonathanxd.iutils.type.TypeInfo;
-
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;

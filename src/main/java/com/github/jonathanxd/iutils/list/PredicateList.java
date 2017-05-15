@@ -30,8 +30,8 @@ package com.github.jonathanxd.iutils.list;
 import java.util.List;
 
 /**
- * A predicate list, the {@link #isAcceptable(Object)} method is called before adding the element, if it
- * returns false, this list calls {@link #onReject(Object)} and does not add the element.
+ * A predicate list, the {@link #isAcceptable(Object)} method is called before adding the element,
+ * if it returns false, this list calls {@link #onReject(Object)} and does not add the element.
  *
  * @param <E> Type of element.
  */

@@ -47,9 +47,9 @@ public interface TypeProvider {
 
         Type genericClass = null;
 
-        if(superclass.equals(Object.class) || !(getClass().getGenericSuperclass() instanceof ParameterizedType)) {
-            for(Type interface_ : getClass().getGenericInterfaces()) {
-                if(interface_ instanceof ParameterizedType) {
+        if (superclass.equals(Object.class) || !(getClass().getGenericSuperclass() instanceof ParameterizedType)) {
+            for (Type interface_ : getClass().getGenericInterfaces()) {
+                if (interface_ instanceof ParameterizedType) {
                     genericClass = interface_;
                 }
             }
@@ -57,7 +57,7 @@ public interface TypeProvider {
             genericClass = getClass().getGenericSuperclass();
         }
 
-        if(genericClass == null) {
+        if (genericClass == null) {
             throw new IllegalStateException("Cannot find generic super type");
         }
 
@@ -81,14 +81,14 @@ public interface TypeProvider {
 
     default Type[] getTypes(Type type) {
 
-        if(type == null)
+        if (type == null)
             return null;
 
         if (!(type instanceof ParameterizedType)) {
 
             TypeVariable<? extends Class<? extends TypeProvider>>[] typeParameters = getClass().getTypeParameters();
 
-            if(typeParameters.length == 0) {
+            if (typeParameters.length == 0) {
                 throw new IllegalStateException("Not a generic class");
             }
 
@@ -97,13 +97,12 @@ public interface TypeProvider {
             for (int i = 0; i < typeParameters.length; i++) {
                 Type[] bounds = typeParameters[i].getBounds();
 
-                if(bounds.length > 0) {
+                if (bounds.length > 0) {
                     types[i] = bounds[0];
                 } else {
                     types[i] = Object.class;
                 }
             }
-
 
 
             return types;

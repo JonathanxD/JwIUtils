@@ -29,7 +29,6 @@ package com.github.jonathanxd.iutils.map;
 
 import com.github.jonathanxd.iutils.function.collector.BiCollectors;
 import com.github.jonathanxd.iutils.function.stream.BiStreams;
-import com.github.jonathanxd.iutils.function.stream.MapStream;
 import com.github.jonathanxd.iutils.object.Node;
 
 import java.lang.ref.ReferenceQueue;

@@ -335,9 +335,9 @@ public class DescriptionUtil {
     public static String getType(String desc) {
         Objects.requireNonNull(desc, "Description cannot be null");
 
-        int index = desc.indexOf(')') +1;
+        int index = desc.indexOf(')') + 1;
 
-        if(index == -1)
+        if (index == -1)
             index = desc.lastIndexOf(':') + 1;
 
         return DescriptionUtil.parseBinaryClassName(desc.substring(index));

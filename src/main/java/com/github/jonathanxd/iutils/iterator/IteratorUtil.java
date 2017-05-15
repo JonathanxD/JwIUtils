@@ -124,7 +124,8 @@ public class IteratorUtil {
     /**
      * Creates a iterator to map values.
      *
-     * This iterator should only be used in view collections. The behavior is uncertain outside of a view collection.
+     * This iterator should only be used in view collections. The behavior is uncertain outside of a
+     * view collection.
      *
      * @param value    Original value.
      * @param original Original iterator.
@@ -147,7 +148,7 @@ public class IteratorUtil {
             @Override
             public Y next() {
 
-                if(!this.hasNext())
+                if (!this.hasNext())
                     throw new NoSuchElementException();
 
                 this.readed = true;
@@ -157,7 +158,7 @@ public class IteratorUtil {
 
             @Override
             public void remove() {
-                if(!this.readed)
+                if (!this.readed)
                     throw new IllegalStateException();
 
                 original.remove();
@@ -168,7 +169,8 @@ public class IteratorUtil {
     /**
      * Creates a iterator to map values.
      *
-     * This iterator should only be used in view collections. The behavior is uncertain outside of a view collection.
+     * This iterator should only be used in view collections. The behavior is uncertain outside of a
+     * view collection.
      *
      * @param value    Original value.
      * @param original Original iterator.
@@ -176,13 +178,13 @@ public class IteratorUtil {
      * @param unmapper Remap value to original type.
      * @param <E>      Input type.
      * @param <Y>      Output type.
-     * @return  Iterator mapping {@code value} and delegating operations to original iterator.
+     * @return Iterator mapping {@code value} and delegating operations to original iterator.
      */
     public static <E, Y> ListIterator<Y> mapped(E value, ListIterator<E> original, Function<E, Y> mapper, Function<Y, E> unmapper) {
         return new ListIterator<Y>() {
 
-            private boolean readed = false;
             private final int index = original.nextIndex();
+            private boolean readed = false;
 
             @Override
             public boolean hasNext() {
@@ -191,7 +193,7 @@ public class IteratorUtil {
 
             @Override
             public Y next() {
-                if(!this.hasNext())
+                if (!this.hasNext())
                     throw new NoSuchElementException();
 
                 this.readed = true;
@@ -205,7 +207,7 @@ public class IteratorUtil {
 
             @Override
             public Y previous() {
-                if(!this.hasPrevious())
+                if (!this.hasPrevious())
                     throw new NoSuchElementException();
 
                 this.readed = false;
@@ -216,7 +218,7 @@ public class IteratorUtil {
             @Override
             public int nextIndex() {
 
-                if(!this.readed)
+                if (!this.readed)
                     return this.index;
 
                 return this.index + 1;
@@ -225,7 +227,7 @@ public class IteratorUtil {
             @Override
             public int previousIndex() {
 
-                if(!this.readed)
+                if (!this.readed)
                     return this.index - 1;
 
                 return this.index;
@@ -233,7 +235,7 @@ public class IteratorUtil {
 
             @Override
             public void remove() {
-                if(!this.readed)
+                if (!this.readed)
                     throw new IllegalStateException();
 
                 original.remove();
@@ -241,7 +243,7 @@ public class IteratorUtil {
 
             @Override
             public void set(Y y) {
-                if(!this.readed)
+                if (!this.readed)
                     throw new IllegalStateException();
 
                 original.set(unmapper.apply(y));
@@ -249,7 +251,7 @@ public class IteratorUtil {
 
             @Override
             public void add(Y y) {
-                if(!this.readed)
+                if (!this.readed)
                     throw new IllegalStateException();
                 original.add(unmapper.apply(y));
             }

@@ -29,7 +29,6 @@ package com.github.jonathanxd.iutils.list;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.ListIterator;
 import java.util.function.UnaryOperator;
 
