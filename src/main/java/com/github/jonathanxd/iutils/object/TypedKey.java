@@ -36,18 +36,41 @@ import com.github.jonathanxd.iutils.type.TypeInfo;
  */
 public final class TypedKey<T> {
 
+    /**
+     * Key value
+     */
     private final Object key;
+
+    /**
+     * Type of key
+     */
     private final TypeInfo<T> type;
 
+    /**
+     * Constructs a TypedKey holding a object {@code key} instance and value {@code type}.
+     *
+     * @param key  Key object instance.
+     * @param type Type of value.
+     */
     public TypedKey(Object key, TypeInfo<T> type) {
         this.key = key;
         this.type = type;
     }
 
+    /**
+     * Gets the key
+     *
+     * @return Key
+     */
     public Object getKey() {
         return this.key;
     }
 
+    /**
+     * Gets the type of key.
+     *
+     * @return Type of key.
+     */
     public TypeInfo<T> getType() {
         return this.type;
     }
@@ -69,6 +92,56 @@ public final class TypedKey<T> {
      * @return Associated value or null if not present.
      */
     public T getOrNull(TypedMap<Object, ? super T> map) {
+        return map.getTyped(this.getKey(), this.getType());
+    }
+
+    /**
+     * Gets the value associated to {@link #key} and {@link #type} in {@code data} or sets to {@code
+     * value} if no one value was set.
+     *
+     * @param data Data to find associated value.
+     * @return Associated value if present, {@code value} otherwise.
+     */
+    public T getOrSet(TypedData data, T value) {
+        return data.getOrSet(this.getKey(), value, this.getType());
+    }
+
+    /**
+     * Gets the value associated to {@link #key} and {@link #type} in {@code map} or sets to {@code
+     * value} if no one value was set.
+     *
+     * @param map Map to find associated value.
+     * @return Associated value if present, {@code value} otherwise.
+     */
+    public T getOrSet(TypedMap<Object, ? super T> map, T value) {
+        if (map.containsTyped(this.getKey(), this.getType()))
+            map.putTyped(this.getKey(), value, this.getType());
+
+        return map.getTyped(this.getKey(), this.getType());
+    }
+
+    /**
+     * Gets the value associated to {@link #key} and {@link #type} in {@code data} or evaluate
+     * {@code value} lazy and sets to value if no one was set.
+     *
+     * @param data Data to find associated value.
+     * @return Associated value if present, {@code value} otherwise.
+     */
+    public T getOrSetLazily(TypedData data, Lazy<T> value) {
+        return data.getOrSetLazily(this.getKey(), value, this.getType());
+    }
+
+    /**
+     * Gets the value associated to {@link #key} and {@link #type} in {@code map} or evaluate
+     * {@code value} lazy and sets to value if no one was set.
+     *
+     * @param map Map to find associated value.
+     * @return Associated value if present, {@code value} otherwise.
+     */
+    public T getOrSetLazily(TypedMap<Object, ? super T> map, Lazy<T> value) {
+        if (map.containsTyped(this.getKey(), this.getType()))
+            map.putTyped(this.getKey(), value.get(), this.getType());
+
         return map.getTyped(this.getKey(), this.getType());
     }
 
