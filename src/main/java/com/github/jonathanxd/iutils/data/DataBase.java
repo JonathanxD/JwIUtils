@@ -32,6 +32,33 @@ import com.github.jonathanxd.iutils.map.TypedMap;
 public interface DataBase {
 
     /**
+     * Gets parent data holder.
+     *
+     * @return Parent data holder, or {@code null} if not present.
+     */
+    DataBase getParent();
+
+    /**
+     * Gets main data holder.
+     *
+     * This method recursively call {@link #getParent()} to find main data holder.
+     *
+     * @return Main data holder, or {@code this} if {@link #getParent()} returns {@code null}.
+     */
+    default DataBase getMainData() {
+        DataBase parent = this;
+
+        while(true) {
+            DataBase tmp = parent.getParent();
+
+            if(tmp == null)
+                return parent;
+
+            parent = tmp;
+        }
+    }
+
+    /**
      * Gets a typed map of values in this data.
      *
      * @return Data typed map.

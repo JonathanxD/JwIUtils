@@ -42,8 +42,22 @@ import java.util.Optional;
 public final class TypedData implements DataBase {
 
     private final TypedMap<Object, Object> typedMap = new BackedTypedMap<>();
+    private final TypedData parent;
 
+    /**
+     * Constructs typed data with parent holder {@code parent}.
+     *
+     * @param parent Parent holder.
+     */
+    public TypedData(TypedData parent) {
+        this.parent = parent;
+    }
+
+    /**
+     * Creates a typed data.
+     */
     public TypedData() {
+        this((TypedData) null);
     }
 
     /**
@@ -52,11 +66,33 @@ public final class TypedData implements DataBase {
      * @param map Base map to get values.
      */
     public TypedData(TypedMap<Object, Object> map) {
+        this(null, map);
+    }
+
+    /**
+     * Constructs a {@link TypedMap} with all values of {@code map}  with parent holder {@code
+     * parent}.
+     *
+     * @param parent Parent data holder.
+     * @param map    Base map to get values.
+     */
+    public TypedData(TypedData parent, TypedMap<Object, Object> map) {
+        this(parent);
         Conditions.checkNotNull(map, "Map cannot be null");
 
         for (TypedMap.TypedEntry<Object, ?> objectTypedEntry : map.typedEntrySet()) {
             this.typedMap.putTyped(objectTypedEntry.getKey(), objectTypedEntry.getValue(), objectTypedEntry.getType().cast());
         }
+    }
+
+    @Override
+    public TypedData getMainData() {
+        return (TypedData) DataBase.super.getMainData();
+    }
+
+    @Override
+    public TypedData getParent() {
+        return this.parent;
     }
 
     /**
@@ -269,6 +305,16 @@ public final class TypedData implements DataBase {
      */
     public TypedData copy() {
         return new TypedData(this.getTypedDataMap());
+    }
+
+    /**
+     * Creates a copy of {@code this} data with parent {@code parent}.
+     *
+     * @param parent Parent data holder.
+     * @return Copy of {@code this} data with parent {@code parent}.
+     */
+    public TypedData copy(TypedData parent) {
+        return new TypedData(parent, this.getTypedDataMap());
     }
 
     @Override

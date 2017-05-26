@@ -42,16 +42,52 @@ public final class Data implements DataBase {
 
     private final TypedMap<Object, Object> map = new BackedTypedMap<>();
 
-    public Data() {
+    private final Data parent;
+
+    /**
+     * Constructs a Data with parent holder {@code parent}.
+     *
+     * @param parent Parent data holder.
+     */
+    public Data(Data parent) {
+        this.parent = parent;
     }
 
     /**
-     * Creates a Data from a map of default values.
+     * Constructs a data without parent holder.
+     */
+    public Data() {
+        this((Data) null);
+    }
+
+    /**
+     * Creates a Data from a map of default values without parent holder.
      *
      * @param defaults Map of default values.
      */
     public Data(Map<Object, Object> defaults) {
+        this(null, defaults);
+    }
+
+    /**
+     * Creates a Data from a map of default values with parent holder {@code parent}.
+     *
+     * @param parent   Parent data holder.
+     * @param defaults Map of default values.
+     */
+    public Data(Data parent, Map<Object, Object> defaults) {
+        this(parent);
         defaults.forEach(this::set);
+    }
+
+    @Override
+    public Data getMainData() {
+        return (Data) DataBase.super.getMainData();
+    }
+
+    @Override
+    public Data getParent() {
+        return this.parent;
     }
 
     /**
@@ -218,6 +254,16 @@ public final class Data implements DataBase {
      */
     public Data copy() {
         return new Data(this.getDataMap());
+    }
+
+    /**
+     * Creates a copy of {@code this} data with parent {@code parent}.
+     *
+     * @param parent Parent data holder.
+     * @return Copy of {@code this} data with parent {@code parent}.
+     */
+    public Data copy(Data parent) {
+        return new Data(parent, this.getDataMap());
     }
 
     @Override
