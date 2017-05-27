@@ -88,6 +88,18 @@ public class DataTest {
         Assert.assertEquals(TypeInfo.of(Integer.class), number.getSecond());
     }
 
+    @Test
+    public void tempDataTest() {
+        TypedData data = new TypedData();
+
+        TypedKey<Integer> temporary = new TypedKey<>("number", TypeInfo.of(Integer.class));
+
+        temporary.set(data, 9, true);
+
+        Assert.assertEquals(Integer.valueOf(9), temporary.getOrNull(data));
+        Assert.assertEquals(null, temporary.getOrNull(data));
+    }
+
     public static class Mx {
         private final int number;
 

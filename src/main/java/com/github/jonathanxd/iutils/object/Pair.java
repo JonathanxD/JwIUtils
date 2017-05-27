@@ -28,6 +28,7 @@
 package com.github.jonathanxd.iutils.object;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 /**
@@ -75,6 +76,20 @@ public abstract class Pair<A, B> {
      */
     public static <A, B> Pair<A, B> ofSupplier(Supplier<A> aSupplier, Supplier<B> bSupplier) {
         return Pairs.ofSupplier(aSupplier, bSupplier);
+    }
+
+    /**
+     * Creates a {@link Optional} of this pair. if pair {@link #isNullPair()}, returns a empty
+     * optional, if not, returns a optional of {@code this} pair.
+     *
+     * @return {@link Optional} of this pair. If pair {@link #isNullPair()}, returns a empty
+     * optional, if not, returns a optional of {@code this} pair.
+     */
+    public final Optional<Pair<A, B>> toOptional() {
+        if (this.isNullPair())
+            return Optional.empty();
+
+        return Optional.of(this);
     }
 
     /**

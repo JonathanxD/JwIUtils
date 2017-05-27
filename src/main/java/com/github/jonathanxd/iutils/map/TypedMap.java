@@ -30,6 +30,7 @@ package com.github.jonathanxd.iutils.map;
 import com.github.jonathanxd.iutils.object.Pair;
 import com.github.jonathanxd.iutils.type.TypeInfo;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -118,7 +119,23 @@ public interface TypedMap<K, V> extends Map<K, V> {
      * @return Removed value associated to {@code key} and {@code type}, or {@code null} if no one
      * value was removed.
      */
-    <B extends V> B removeTyped(K key, TypeInfo<B> type);
+    @SuppressWarnings("unchecked")
+    default <B extends V> B removeTyped(K key, TypeInfo<B> type) {
+        Iterator<TypedEntry<K, ? extends V>> iter = this.typedEntrySet().iterator();
+
+        while (iter.hasNext()) {
+            TypedEntry<K, ? extends V> kTypedEntry = iter.next();
+
+            if (Objects.equals(kTypedEntry.getKey(), key)
+                    && Objects.equals(kTypedEntry.getType(), type)) {
+                iter.remove();
+
+                return (B) kTypedEntry.getValue();
+            }
+        }
+
+        return null;
+    }
 
     /**
      * Removes {@code value} associated to {@code key} and {@code type}.

@@ -27,7 +27,8 @@
  */
 package com.github.jonathanxd.iutils.object;
 
-import com.github.jonathanxd.iutils.data.TypedData;
+import com.github.jonathanxd.iutils.data.DataBase;
+import com.github.jonathanxd.iutils.map.TempTypedMap;
 import com.github.jonathanxd.iutils.map.TypedMap;
 import com.github.jonathanxd.iutils.type.TypeInfo;
 
@@ -81,7 +82,7 @@ public final class TypedKey<T> {
      * @param data Data to find associated value.
      * @return Associated value or null if not present.
      */
-    public T getOrNull(TypedData data) {
+    public T getOrNull(DataBase<?> data) {
         return data.getOrNull(this.getKey(), this.getType());
     }
 
@@ -102,7 +103,7 @@ public final class TypedKey<T> {
      * @param data Data to find associated value.
      * @return Associated value if present, {@code value} otherwise.
      */
-    public T getOrSet(TypedData data, T value) {
+    public T getOrSet(DataBase<?> data, T value) {
         return data.getOrSet(this.getKey(), value, this.getType());
     }
 
@@ -127,7 +128,7 @@ public final class TypedKey<T> {
      * @param data Data to find associated value.
      * @return Associated value if present, {@code value} otherwise.
      */
-    public T getOrSetLazily(TypedData data, Lazy<T> value) {
+    public T getOrSetLazily(DataBase<?> data, Lazy<T> value) {
         return data.getOrSetLazily(this.getKey(), value, this.getType());
     }
 
@@ -153,7 +154,7 @@ public final class TypedKey<T> {
      * @return True if {@code data} does not contains a value associated to {@link #key} and {@link
      * #type}.
      */
-    public boolean contains(TypedData data) {
+    public boolean contains(DataBase<?> data) {
         return data.contains(this.getKey(), this.getType());
     }
 
@@ -175,7 +176,7 @@ public final class TypedKey<T> {
      * @param data Data to remove associated value.
      * @return Value associated to {@link #key} and {@link #type}.
      */
-    public T remove(TypedData data) {
+    public T remove(DataBase<?> data) {
         return data.remove(this.getKey(), this.getType());
     }
 
@@ -195,7 +196,7 @@ public final class TypedKey<T> {
      * @param data Data to remove associated value.
      * @return Value associated to {@link #key} regardless the {@link #type}.
      */
-    public Pair<?, TypeInfo<?>> removeAny(TypedData data) {
+    public Pair<?, TypeInfo<?>> removeAny(DataBase<?> data) {
         return data.remove(this.getKey());
     }
 
@@ -217,7 +218,7 @@ public final class TypedKey<T> {
      * @param value Value to associated to {@link #key} and {@link #type}.
      * @return {@link Pair} of replaced value and value type.
      */
-    public Pair<?, TypeInfo<?>> set(TypedData data, T value) {
+    public Pair<?, TypeInfo<?>> set(DataBase<?> data, T value) {
         return data.set(this.getKey(), value, this.getType());
     }
 
@@ -233,5 +234,26 @@ public final class TypedKey<T> {
         return (Pair<?, TypeInfo<?>>) map.putTyped(this.getKey(), value, this.getType());
     }
 
+    /**
+     * Sets value associated to {@link #key} and {@link #type} to {@code value}.
+     *
+     * @param data  Data to set associated value.
+     * @param value Value to associated to {@link #key} and {@link #type}.
+     * @return {@link Pair} of replaced value and value type.
+     */
+    public Pair<?, TypeInfo<?>> set(DataBase<?> data, T value, boolean isTemporary) {
+        return data.set(this.getKey(), value, this.getType(), isTemporary);
+    }
 
+    /**
+     * Sets value associated to {@link #key} and {@link #type} to {@code value}.
+     *
+     * @param map   Map to set associated value.
+     * @param value Value to associated to {@link #key} and {@link #type}.
+     * @return {@link Pair} of replaced value and value type.
+     */
+    @SuppressWarnings("unchecked")
+    public Pair<?, TypeInfo<?>> set(TempTypedMap<Object, ? super T> map, T value, boolean isTemporary) {
+        return (Pair<?, TypeInfo<?>>) map.putTyped(this.getKey(), value, this.getType(), isTemporary);
+    }
 }

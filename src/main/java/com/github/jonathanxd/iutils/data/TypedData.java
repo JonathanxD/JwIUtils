@@ -28,7 +28,9 @@
 package com.github.jonathanxd.iutils.data;
 
 import com.github.jonathanxd.iutils.condition.Conditions;
+import com.github.jonathanxd.iutils.map.BackedTempTypedMap;
 import com.github.jonathanxd.iutils.map.BackedTypedMap;
+import com.github.jonathanxd.iutils.map.TempTypedMap;
 import com.github.jonathanxd.iutils.map.TypedMap;
 import com.github.jonathanxd.iutils.object.Lazy;
 import com.github.jonathanxd.iutils.object.Pair;
@@ -39,9 +41,9 @@ import java.util.Optional;
 /**
  * A {@link DataBase} which hold type information.
  */
-public final class TypedData implements DataBase {
+public final class TypedData implements DataBase<TypedData> {
 
-    private final TypedMap<Object, Object> typedMap = new BackedTypedMap<>();
+    private final TempTypedMap<Object, Object> typedMap = new BackedTempTypedMap<>();
     private final TypedData parent;
 
     /**
@@ -87,7 +89,7 @@ public final class TypedData implements DataBase {
 
     @Override
     public TypedData getMainData() {
-        return (TypedData) DataBase.super.getMainData();
+        return DataBase.super.getMainData();
     }
 
     @Override
@@ -95,41 +97,23 @@ public final class TypedData implements DataBase {
         return this.parent;
     }
 
-    /**
-     * Associates {@code key} and {@code type} to {@code value}.
-     *
-     * @param key   Key to associate.
-     * @param value Value to associate.
-     * @param type  Type of value to associate.
-     * @param <T>   Type of value.
-     * @return {@link Pair} of replaced value and value type associated to {@code key} or a {@link
-     * Pair#nullPair()}if no one value was replaced.
-     */
-    public <T> Pair<?, TypeInfo<?>> set(Object key, T value, TypeInfo<T> type) {
+    @Override
+    public <T> Pair<?, TypeInfo<?>> set(Object key, T value, TypeInfo<T> type, boolean isTemporary) {
+
+        if(isTemporary)
+            return this.typedMap.putTypedTemporary(key, value, type);
+
         return this.typedMap.putTyped(key, value, type);
     }
 
-    /**
-     * Removes the value associated to {@code key} regardless the type.
-     *
-     * @param key Key to remove associated value.
-     * @return {@link Pair} of value and type associated to {@code key}, or {@link Pair#nullPair()}
-     * if no one was removed.
-     */
+    @Override
     public Pair<?, TypeInfo<?>> remove(Object key) {
         Conditions.checkNotNull(key, "Key cannot be null");
 
         return this.typedMap.removeTyped(key);
     }
 
-    /**
-     * Removes the value associated to {@code key} and {@code type}.
-     *
-     * @param key  Key to remove associated value.
-     * @param type Type of value.
-     * @return Removed value associated to {@code key} and {@code type}, or null if no one value was
-     * removed.
-     */
+    @Override
     public <T> T remove(Object key, TypeInfo<T> type) {
         Conditions.checkNotNull(key, "Key cannot be null");
         Conditions.checkNotNull(type, "Type cannot be null");
@@ -137,14 +121,7 @@ public final class TypedData implements DataBase {
         return this.typedMap.removeTyped(key, type);
     }
 
-    /**
-     * Removes the {@code value} associated to {@code key} and {@code type}.
-     *
-     * @param key   Key to remove associated value.
-     * @param type  Type of value.
-     * @param value Value to remove.
-     * @return True if element was removed.
-     */
+    @Override
     public <T> boolean remove(Object key, T value, TypeInfo<T> type) {
         Conditions.checkNotNull(key, "Key cannot be null");
         Conditions.checkNotNull(value, "Value cannot be null");
@@ -153,14 +130,7 @@ public final class TypedData implements DataBase {
         return this.typedMap.removeTyped(key, value, type);
     }
 
-    /**
-     * Gets the value associated to {@code key} and {@code type}.
-     *
-     * @param key  Key to get associated value.
-     * @param type Type of associated value.
-     * @param <T>  Type of associated value.
-     * @return Value associated to {@code key} and {@code type} or null if not found.
-     */
+    @Override
     public <T> T getOrNull(Object key, TypeInfo<T> type) {
         Conditions.checkNotNull(key, "Key cannot be null");
         Conditions.checkNotNull(key, "Type cannot be null");
@@ -168,15 +138,7 @@ public final class TypedData implements DataBase {
         return this.typedMap.getTyped(key, type);
     }
 
-    /**
-     * Gets the value associated to {@code key} and {@code type}.
-     *
-     * @param key  Key to get associated value.
-     * @param type Type of associated value.
-     * @param <T>  Type of associated value.
-     * @return {@link Optional} of value associated to {@code key} and {@code type} or {@link
-     * Optional#empty()} if not found.
-     */
+    @Override
     public <T> Optional<T> getOptional(Object key, TypeInfo<T> type) {
         Conditions.checkNotNull(key, "Key cannot be null");
         Conditions.checkNotNull(type, "Type cannot be null");
@@ -184,17 +146,8 @@ public final class TypedData implements DataBase {
         return Optional.ofNullable(this.getOrNull(key, type));
     }
 
-    /**
-     * Gets the value associated to {@code key} and {@code type} as a value of type {@link A}.
-     *
-     * @param key  Key to get associated value.
-     * @param type Type of associated value.
-     * @param <T>  Type of associated value.
-     * @param <A>  Type to cast.
-     * @return Value associated to {@code key} and {@code type} as a value of type {@link A} or null
-     * if not found.
-     */
     @SuppressWarnings("unchecked")
+    @Override
     public <T, A> A getOrNullAs(Object key, TypeInfo<T> type) {
         Conditions.checkNotNull(key, "Key cannot be null");
         Conditions.checkNotNull(type, "Type cannot be null");
@@ -202,17 +155,8 @@ public final class TypedData implements DataBase {
         return (A) this.typedMap.getTyped(key, type);
     }
 
-    /**
-     * Gets the value associated to {@code key} and {@code type} as a value of type {@link A}.
-     *
-     * @param key  Key to get associated value.
-     * @param type Type of associated value.
-     * @param <T>  Type of associated value.
-     * @param <A>  Type to cast.
-     * @return {@link Optional} of value associated to {@code key} and {@code type} as a value of
-     * type {@link A} or {@link Optional#empty()} if not found.
-     */
     @SuppressWarnings("unchecked")
+    @Override
     public <T, A> Optional<A> getOptionalAs(Object key, TypeInfo<T> type) {
         Conditions.checkNotNull(key, "Key cannot be null");
         Conditions.checkNotNull(type, "Type cannot be null");
@@ -220,25 +164,14 @@ public final class TypedData implements DataBase {
         return Optional.ofNullable((A) this.getOrNull(key, type));
     }
 
-    /**
-     * Returns true if this data has any value associated to {@code key}.
-     *
-     * @param key Key to check if any value is associated.
-     * @return True if this data has any value associated to {@code key}.
-     */
+    @Override
     public boolean contains(Object key) {
         Conditions.checkNotNull(key, "Key cannot be null");
 
         return !this.typedMap.containsKey(key);
     }
 
-    /**
-     * Returns true if this data has any value associated to both {@code key} and {@code type}.
-     *
-     * @param key  Key to check if any value is associated.
-     * @param type Type to check if any value is associated.
-     * @return True if this data has any value associated to both {@code key} and {@code type}.
-     */
+    @Override
     public boolean contains(Object key, TypeInfo<?> type) {
         Conditions.checkNotNull(key, "Key cannot be null");
         Conditions.checkNotNull(type, "Type cannot be null");
@@ -246,17 +179,7 @@ public final class TypedData implements DataBase {
         return this.typedMap.containsTyped(key, type);
     }
 
-    /**
-     * Gets value associated to {@code key} and {@code type} if present, otherwise sets to {@code
-     * value} and returns {@code value}.
-     *
-     * @param key   Key.
-     * @param value Value to set if none value is set to {@code key}.
-     * @param type  Type of value.
-     * @param <T>   Type of value.
-     * @return Value associated to {@code key} and {@code type} or {@code value} if no one is
-     * defined to {@code key} and {@code type}.
-     */
+    @Override
     public <T> T getOrSet(Object key, T value, TypeInfo<T> type) {
         Conditions.checkNotNull(key, "Key cannot be null");
         Conditions.checkNotNull(type, "Type cannot be null");
@@ -267,17 +190,7 @@ public final class TypedData implements DataBase {
         return this.getOrNull(key, type);
     }
 
-    /**
-     * Gets value associated to {@code key} nad {@code type} if present, otherwise sets to {@code
-     * value} and returns {@code value}.
-     *
-     * @param key   Key.
-     * @param value Lazy value to set if none value is associated to {@code key} and {@code type}.
-     * @param type  Type of value.
-     * @param <T>   Type of value.
-     * @return Value associated to {@code key} and {@code type} or {@code value} if no one is
-     * associated to {@code key} and {@code type}.
-     */
+    @Override
     public <T> T getOrSetLazily(Object key, Lazy<T> value, TypeInfo<T> type) {
         Conditions.checkNotNull(key, "Key cannot be null");
         Conditions.checkNotNull(value, "Lazy value evaluator cannot be null");
@@ -289,30 +202,17 @@ public final class TypedData implements DataBase {
         return this.getOrNull(key, type);
     }
 
-    /**
-     * Returns true if this data holder is empty.
-     *
-     * @return True if this data holder is empty.
-     */
+    @Override
     public boolean isEmpty() {
         return this.typedMap.isEmpty();
     }
 
-    /**
-     * Creates a copy of {@code this} data.
-     *
-     * @return Copy of {@code this} data.
-     */
+    @Override
     public TypedData copy() {
         return new TypedData(this.getTypedDataMap());
     }
 
-    /**
-     * Creates a copy of {@code this} data with parent {@code parent}.
-     *
-     * @param parent Parent data holder.
-     * @return Copy of {@code this} data with parent {@code parent}.
-     */
+    @Override
     public TypedData copy(TypedData parent) {
         return new TypedData(parent, this.getTypedDataMap());
     }

@@ -177,6 +177,10 @@ public abstract class AbstractViewCollection<E, Y> implements Collection<Y> {
 
     public abstract Iterable<Y> getSyntheticIterable();
 
+    protected Collection<E> getCollection() {
+        return this.collection;
+    }
+
     @Override
     public String toString() {
         return this.stream()

@@ -56,7 +56,7 @@ public class DataReflect {
      * @param data Data.
      * @return Constructed object or null if object cannot be constructed from {@code data}.
      */
-    public static Object construct(Class<?> type, DataBase data) {
+    public static Object construct(Class<?> type, DataBase<?> data) {
         return DataReflect.construct(type, data, e -> true);
     }
 
@@ -67,7 +67,7 @@ public class DataReflect {
      * @param data   Data.
      * @return Result of invocation (or null if cannot invoke or the invoked method return null).
      */
-    public static Object invoke(Object object, DataBase data) {
+    public static Object invoke(Object object, DataBase<?> data) {
         return DataReflect.invoke(object, data, e -> true);
     }
 
@@ -80,7 +80,7 @@ public class DataReflect {
      *             object of type {@code type}).
      * @return Constructed object or null if object cannot be constructed from {@code data}.
      */
-    public static Object construct(Class<?> type, DataBase data, Predicate<Constructor<?>> test) {
+    public static Object construct(Class<?> type, DataBase<?> data, Predicate<Constructor<?>> test) {
 
         return create(data, type, type::getDeclaredConstructors, (e, args) -> {
             try {
@@ -100,7 +100,7 @@ public class DataReflect {
      * @param methodPredicate Method selector (selects which method will be invoked).
      * @return Result of invocation (or null if cannot invoke or the invoked method return null).
      */
-    public static Object invoke(Object object, DataBase data, Predicate<Method> methodPredicate) {
+    public static Object invoke(Object object, DataBase<?> data, Predicate<Method> methodPredicate) {
 
         return create(data, object.getClass(), object.getClass()::getDeclaredMethods, (e, args) -> {
             try {
@@ -116,7 +116,7 @@ public class DataReflect {
         throw new RuntimeException("Cannot invoke target. Error: '" + error + "'");
     }
 
-    private static <E extends Executable> Object create(DataBase baseData, Class<?> dataClass, Supplier<E[]> supplyElements, BiFunction<E, Object[], Object> function, Predicate<E> accept) {
+    private static <E extends Executable> Object create(DataBase<?> baseData, Class<?> dataClass, Supplier<E[]> supplyElements, BiFunction<E, Object[], Object> function, Predicate<E> accept) {
 
         List<String> errorMessages = new ArrayList<>();
 

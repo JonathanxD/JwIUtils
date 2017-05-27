@@ -35,7 +35,7 @@ public enum Pairs {
     /**
      * Denotes a null pair constant.
      */
-    private static final Pair<?, ?> NULL_PAIR = Pair.of(null, null);
+    private static final Pair<?, ?> NULL_PAIR = new ObjectPair<>(null, null);
 
     /**
      * Gets null pair constant.
@@ -62,7 +62,7 @@ public enum Pairs {
      */
     public static <A, B> Pair<A, B> of(A a, B b) {
         if (a == null && b == null)
-            return Pair.nullPair();
+            return Pairs.nullPair();
 
         return new ObjectPair<>(a, b);
     }

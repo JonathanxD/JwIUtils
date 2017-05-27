@@ -28,9 +28,14 @@
 package com.github.jonathanxd.iutils.data;
 
 import com.github.jonathanxd.iutils.condition.Conditions;
+import com.github.jonathanxd.iutils.map.BackedTempTypedMap;
 import com.github.jonathanxd.iutils.map.BackedTypedMap;
+import com.github.jonathanxd.iutils.map.TempTypedMap;
 import com.github.jonathanxd.iutils.map.TypedMap;
 import com.github.jonathanxd.iutils.object.Lazy;
+import com.github.jonathanxd.iutils.object.Pair;
+import com.github.jonathanxd.iutils.object.Pairs;
+import com.github.jonathanxd.iutils.type.TypeInfo;
 
 import java.util.Map;
 import java.util.Optional;
@@ -38,9 +43,9 @@ import java.util.Optional;
 /**
  * Data storage
  */
-public final class Data implements DataBase {
+public final class Data implements DataBase<Data> {
 
-    private final TypedMap<Object, Object> map = new BackedTypedMap<>();
+    private final TempTypedMap<Object, Object> map = new BackedTempTypedMap<>();
 
     private final Data parent;
 
@@ -95,12 +100,25 @@ public final class Data implements DataBase {
      *
      * @param key   Key.
      * @param value Value.
+     * @return Old value associated to key.
      */
-    public void set(Object key, Object value) {
+    public Object set(Object key, Object value) {
         Conditions.checkNotNull(key, "Key cannot be null");
         Conditions.checkNotNull(value, "Value cannot be null");
 
-        this.getMap().put(key, value);
+        return this.getMap().put(key, value);
+    }
+
+    @Override
+    public <T> Pair<?, TypeInfo<?>> set(Object key, T value, TypeInfo<T> type, boolean isTemporary) {
+        Conditions.checkNotNull(key, "Key cannot be null");
+        Conditions.checkNotNull(value, "Value cannot be null");
+        Conditions.checkNotNull(type, "Type cannot be null");
+
+        if(isTemporary)
+            return this.getMap().putTypedTemporary(key, value, type);
+
+        return this.getMap().putTyped(key, value, type);
     }
 
     /**
@@ -109,10 +127,15 @@ public final class Data implements DataBase {
      * @param key Key.
      * @return Old value linked to {@code key}.
      */
-    public Object remove(Object key) {
+    public Pair<?, TypeInfo<?>> remove(Object key) {
         Conditions.checkNotNull(key, "Key cannot be null");
 
-        return this.getMap().remove(key);
+        Object removed = this.getMap().remove(key);
+
+        if(removed == null)
+            return Pairs.nullPair();
+
+        return Pair.of(removed, TypeInfo.of(removed.getClass()));
     }
 
     /**
@@ -129,12 +152,7 @@ public final class Data implements DataBase {
         return this.getMap().remove(key, value);
     }
 
-    /**
-     * Returns true if any value is linked to {@code key}.
-     *
-     * @param key Key.
-     * @return True if any value is linked to {@code key}.
-     */
+    @Override
     public boolean contains(Object key) {
         Conditions.checkNotNull(key, "Key cannot be null");
         return this.getMap().containsKey(key);
@@ -225,16 +243,12 @@ public final class Data implements DataBase {
         return this.getAs(key);
     }
 
-    /**
-     * Returns true if the data map is empty.
-     *
-     * @return True if the data map is empty.
-     */
+    @Override
     public boolean isEmpty() {
         return this.getMap().isEmpty();
     }
 
-    private Map<Object, Object> getMap() {
+    private TempTypedMap<Object, Object> getMap() {
         return this.map;
     }
 
@@ -247,21 +261,12 @@ public final class Data implements DataBase {
         return this.map.createUnmodifiable();
     }
 
-    /**
-     * Creates a copy of {@code this} data.
-     *
-     * @return Copy of {@code this} data.
-     */
+    @Override
     public Data copy() {
         return new Data(this.getDataMap());
     }
 
-    /**
-     * Creates a copy of {@code this} data with parent {@code parent}.
-     *
-     * @param parent Parent data holder.
-     * @return Copy of {@code this} data with parent {@code parent}.
-     */
+    @Override
     public Data copy(Data parent) {
         return new Data(parent, this.getDataMap());
     }
@@ -269,5 +274,66 @@ public final class Data implements DataBase {
     @Override
     public TypedMap<Object, Object> getTypedDataMap() {
         return this.map.createUnmodifiable();
+    }
+
+    // Backings
+
+    @Override
+    public <T> Pair<?, TypeInfo<?>> set(Object key, T value, TypeInfo<T> type) {
+        Object set = this.set(key, value);
+
+        if(set == null)
+            return Pairs.nullPair();
+
+        return Pair.of(set, TypeInfo.of(set.getClass()));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> T remove(Object key, TypeInfo<T> type) {
+        return (T) this.remove(key).toOptional().map(Pair::getFirst).orElse(null);
+    }
+
+    @Override
+    public <T> boolean remove(Object key, T value, TypeInfo<T> type) {
+        return this.remove(key, value);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> T getOrNull(Object key, TypeInfo<T> type) {
+        return (T) this.get(key);
+    }
+
+    @Override
+    public <T> Optional<T> getOptional(Object key, TypeInfo<T> type) {
+        return Optional.ofNullable(this.getOrNull(key, type));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T, A> A getOrNullAs(Object key, TypeInfo<T> type) {
+        return (A) this.getOrNull(key, type);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T, A> Optional<A> getOptionalAs(Object key, TypeInfo<T> type) {
+        return this.getOptional(key, type).map(t -> (A) t);
+    }
+
+    @Override
+    public boolean contains(Object key, TypeInfo<?> type) {
+        return this.contains(key);
+    }
+
+    @Override
+    public <T> T getOrSet(Object key, T value, TypeInfo<T> type) {
+        return this.getOrSet(key, value);
+    }
+
+    @Override
+    public <T> T getOrSetLazily(Object key, Lazy<T> value, TypeInfo<T> type) {
+        return this.getOrSetLazily(key, value);
     }
 }

@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
 import java.util.function.BiFunction;
+import java.util.function.Supplier;
 
 public class ViewUtils {
 
@@ -48,6 +49,22 @@ public class ViewUtils {
      * @return Mapping inner iterator.
      */
     public static <E, Y> Iterator<Y> iterator(Iterable<E> i, BiFunction<E, Iterator<E>, Iterator<Y>> mapper) {
+        return new IndexedIterator<>(i::iterator, mapper);
+    }
+
+    /**
+     * Creates a iterator which maps elements of iterator supplied by {@code i} to an {@link
+     * Iterator} and provide these elements for iteration.
+     *
+     * If you did not understand this doc, see the class, it is not hard to understand what happens
+     * inside the iterator.
+     *
+     * @param i      Iterator supplier
+     * @param mapper Mapper function.
+     * @param <E>    Element type.
+     * @return Mapping inner iterator.
+     */
+    public static <E, Y> Iterator<Y> iterator(Supplier<Iterator<E>> i, BiFunction<E, Iterator<E>, Iterator<Y>> mapper) {
         return new IndexedIterator<>(i, mapper);
     }
 
@@ -65,7 +82,7 @@ public class ViewUtils {
      * @return Mapping inner iterator.
      */
     public static <E, Y> ListIterator<Y> listIterator(List<E> i, BiFunction<E, ListIterator<E>, ListIterator<Y>> mapper, int start) {
-        return new IndexedListIterator<>(i, mapper, start);
+        return new IndexedListIterator<>(i::listIterator, mapper, start);
     }
 
     /**
@@ -103,8 +120,6 @@ public class ViewUtils {
     }
 
     static abstract class AbstractIndexedIterator<E, Y> implements Iterator<Y> {
-
-        protected abstract Iterable<E> getIterable();
 
         protected abstract Iterator<Y> getCurrent();
 
@@ -174,7 +189,6 @@ public class ViewUtils {
     }
 
     static class IndexedIterator<E, Y> extends AbstractIndexedIterator<E, Y> {
-        private final Iterable<E> i;
         private final BiFunction<E, Iterator<E>, Iterator<Y>> mapper;
 
         /**
@@ -187,10 +201,9 @@ public class ViewUtils {
          */
         private Iterator<Y> current = null;
 
-        public IndexedIterator(Iterable<E> i, BiFunction<E, Iterator<E>, Iterator<Y>> mapper) {
-            this.i = i;
+        public IndexedIterator(Supplier<Iterator<E>> i, BiFunction<E, Iterator<E>, Iterator<Y>> mapper) {
             this.mapper = mapper;
-            this.main = i.iterator();
+            this.main = i.get();
         }
 
         @Override
@@ -214,11 +227,6 @@ public class ViewUtils {
         }
 
         @Override
-        protected Iterable<E> getIterable() {
-            return this.i;
-        }
-
-        @Override
         protected boolean isMapperPresent() {
             return this.mapper != null;
         }
@@ -226,7 +234,6 @@ public class ViewUtils {
 
     static class IndexedListIterator<E, Y> extends AbstractIndexedIterator<E, Y> implements ListIterator<Y> {
 
-        private final List<E> i;
         private final BiFunction<E, ListIterator<E>, ListIterator<Y>> mapper;
 
         /**
@@ -244,10 +251,9 @@ public class ViewUtils {
          */
         private ListIterator<Y> current = null;
 
-        public IndexedListIterator(List<E> i, BiFunction<E, ListIterator<E>, ListIterator<Y>> mapper, int startIndex) {
-            this.i = i;
+        public IndexedListIterator(Supplier<ListIterator<E>> i, BiFunction<E, ListIterator<E>, ListIterator<Y>> mapper, int startIndex) {
             this.mapper = mapper;
-            this.main = i.listIterator();
+            this.main = i.get();
 
             if (startIndex != 0) {
                 while (this.hasNext() && this.elemIndex != startIndex - 1) {
@@ -356,11 +362,6 @@ public class ViewUtils {
         @Override
         protected Iterator<Y> map(E element, Iterator<E> iter) {
             return this.mapper.apply(element, (ListIterator<E>) iter);
-        }
-
-        @Override
-        protected Iterable<E> getIterable() {
-            return this.i;
         }
 
         @Override
