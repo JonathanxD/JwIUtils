@@ -27,6 +27,8 @@
  */
 package com.github.jonathanxd.iutils.processing;
 
+import com.github.jonathanxd.iutils.collection.view.ViewCollections;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
@@ -36,11 +38,15 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
  * Context tracker.
+ *
+ * Context can be used to keep track of contexts which caused a element to be processed and enable
+ * behaviors depending on context.
  *
  * The context tracker keeps track of where context was created and the current context object and
  * stack trace. This may be used to find bugs in processing context.
@@ -113,10 +119,13 @@ public abstract class Context {
             ContextHolder o = contexts.get(i);
             printer.accept("  [" + o.getContext() + ", enter={");
 
+            printer.accept("    context="+Arrays.toString(o.getEnterContext())+"");
+
             Context.printStackTraces(s -> printer.accept("    ".concat(s)), o.getEnterTrace(), simplify);
 
             if (o.isExited()) {
                 printer.accept("  }, exit={");
+                printer.accept("    context="+Arrays.toString(o.getExitContext())+"");
                 Context.printStackTraces(s -> printer.accept("      ".concat(s)), o.getExitTrace(), simplify);
             }
             printer.accept("  }]");
@@ -138,6 +147,36 @@ public abstract class Context {
      * @param context Context to exit.
      */
     public abstract void exitContext(Object context);
+
+    /**
+     * Gets current context.
+     *
+     * @return Current context.
+     */
+    public abstract Optional<ContextHolder> getCurrentContext();
+
+    /**
+     * Gets context based on reverse index, example, backIndex 0 means the last entered context,
+     * backIndex 1 means the entered context before the last.
+     *
+     * @param backIndex Reversed index position.
+     * @return Current context.
+     */
+    public abstract Optional<ContextHolder> getContext(int backIndex);
+
+    /**
+     * Gets a view list of current contexts in a LIFO (last in first out) order.
+     *
+     * @return View list of current contexts in a LIFO (last in first out) order.
+     */
+    public abstract List<ContextHolder> getLifoContexts();
+
+    /**
+     * Gets a view list of all contexts in a LIFO (last in first out) order.
+     *
+     * @return View list of all contexts in a LIFO (last in first out) order.
+     */
+    public abstract List<ContextHolder> getLifoAllContexts();
 
     /**
      * Gets the view list of current contexts.
@@ -303,6 +342,12 @@ public abstract class Context {
         private final List<ContextHolder> allContexts = new LinkedList<>();
         private final List<ContextHolder> unmodifiableAllContexts = Collections.unmodifiableList(this.allContexts);
 
+        private final List<ContextHolder> reversedContexts =
+                ViewCollections.readOnlyList(ViewCollections.reversedList(this.contexts));
+
+        private final List<ContextHolder> reversedAllContexts =
+                ViewCollections.readOnlyList(ViewCollections.reversedList(this.allContexts));
+
         Impl(StackTraceElement[] creationContext) {
             super(creationContext);
         }
@@ -311,7 +356,7 @@ public abstract class Context {
         public void enterContext(Object context) {
             ContextHolder contextHolder = new ContextHolder(context,
                     sub(new RuntimeException().getStackTrace()),
-                    null);
+                    null, this.track(), null);
 
             this.contexts.add(contextHolder);
             this.allContexts.add(contextHolder);
@@ -330,7 +375,39 @@ public abstract class Context {
                 throw new MismatchContextException("Mismatch top context value. Expected: '" + context + "' but found '" + o + "'!");
 
             this.contexts.remove(index);
-            o.exit(sub(new RuntimeException().getStackTrace()));
+            o.exit(sub(new RuntimeException().getStackTrace()), this.track());
+        }
+
+        private Object[] track() {
+            return this.getLifoContexts().stream().map(ContextHolder::getContext).toArray();
+        }
+
+        @Override
+        public Optional<ContextHolder> getCurrentContext() {
+            return this.getContext(0);
+        }
+
+        @Override
+        public Optional<ContextHolder> getContext(int backIndex) {
+            if (this.contexts.isEmpty())
+                return Optional.empty();
+
+            int index = (this.contexts.size() - 1) - backIndex;
+
+            if (index < 0)
+                throw new IndexOutOfBoundsException("Back index '" + backIndex + "' exceeds max value '" + (this.contexts.size() - 1));
+
+            return Optional.of(this.contexts.get(index));
+        }
+
+        @Override
+        public List<ContextHolder> getLifoContexts() {
+            return this.reversedContexts;
+        }
+
+        @Override
+        public List<ContextHolder> getLifoAllContexts() {
+            return this.reversedAllContexts;
         }
 
         @Override
@@ -357,11 +434,16 @@ public abstract class Context {
 
         private final List<ContextHolder> contexts;
         private final List<ContextHolder> allContexts;
+        private final List<ContextHolder> reversedContexts;
+        private final List<ContextHolder> reversedAllContexts;
+
 
         CurrentContext(StackTraceElement[] creationContext, List<ContextHolder> contexts, List<ContextHolder> allContexts) {
             super(creationContext);
             this.contexts = Collections.unmodifiableList(new ArrayList<>(contexts));
             this.allContexts = Collections.unmodifiableList(new ArrayList<>(allContexts));
+            this.reversedContexts = ViewCollections.readOnlyList(ViewCollections.reversedList(this.contexts));
+            this.reversedAllContexts = ViewCollections.readOnlyList(ViewCollections.reversedList(this.allContexts));
         }
 
         @Override
@@ -372,6 +454,34 @@ public abstract class Context {
         @Override
         public void exitContext(Object context) {
             throw new UnsupportedOperationException("Cannot mutate current context");
+        }
+
+        @Override
+        public Optional<ContextHolder> getCurrentContext() {
+            return this.getContext(0);
+        }
+
+        @Override
+        public Optional<ContextHolder> getContext(int backIndex) {
+            if (this.contexts.isEmpty())
+                return Optional.empty();
+
+            int index = (this.contexts.size() - 1) - backIndex;
+
+            if (index < 0)
+                throw new IndexOutOfBoundsException("Back index '" + backIndex + "' exceeds max value '" + (this.contexts.size() - 1)+"'!");
+
+            return Optional.of(this.contexts.get(index));
+        }
+
+        @Override
+        public List<ContextHolder> getLifoContexts() {
+            return this.reversedContexts;
+        }
+
+        @Override
+        public List<ContextHolder> getLifoAllContexts() {
+            return this.reversedAllContexts;
         }
 
         @Override

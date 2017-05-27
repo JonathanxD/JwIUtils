@@ -84,6 +84,77 @@ public class ViewCollections {
                 list::remove);
     }
 
+
+    /**
+     * Creates a simple read only collection backing to {@code collection}.
+     *
+     * @param collection Collection to back operations.
+     * @param <E>        Type of elements.
+     * @return Simple read only collection backing to {@code collection}.
+     */
+    public static <E> ViewCollection<E, E> readOnlyCollection(Collection<E> collection) {
+        return new ViewCollection<>(collection,
+                null,
+                o -> {
+                    throw new UnsupportedOperationException("Read only!");
+                },
+                o -> {
+                    throw new UnsupportedOperationException("Read only!");
+                });
+    }
+
+    /**
+     * Creates a simple read only view set backing to {@code set}.
+     *
+     * @param set Set to back operations.
+     * @param <E> Type of elements.
+     * @return Simple read only view set backing to {@code set}.
+     */
+    public static <E> ViewSet<E, E> readOnlySet(Set<E> set) {
+        return new ViewSet<>(set,
+                null,
+                o -> {
+                    throw new UnsupportedOperationException("Read only!");
+                },
+                o -> {
+                    throw new UnsupportedOperationException("Read only!");
+                });
+    }
+
+    /**
+     * Creates a simple read only view list backing to {@code list}.
+     *
+     * @param list List to back operations.
+     * @param <E>  Type of elements.
+     * @return Simple read only view list backing to {@code list}.
+     */
+    public static <E> ViewList<E, E> readOnlyList(List<E> list) {
+        return new ViewList<>(list,
+                null,
+                o -> {
+                    throw new UnsupportedOperationException("Read only!");
+                },
+                o -> {
+                    throw new UnsupportedOperationException("Read only!");
+                }, false, true);
+    }
+
+    /**
+     * Creates a simple reversed view list backing to {@code list}.
+     *
+     * @param list List to back operations.
+     * @param <E>  Type of elements.
+     * @return Simple reversed view list backing to {@code list}.
+     */
+    public static <E> ViewList<E, E> reversedList(List<E> list) {
+        return new ViewList<>(list,
+                null,
+                list::add,
+                list::remove,
+                true,
+                false);
+    }
+
     /**
      * Creates a mapped collection backing to {@code collection}.
      *

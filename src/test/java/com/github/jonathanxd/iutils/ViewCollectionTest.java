@@ -31,6 +31,7 @@ import com.github.jonathanxd.iutils.collection.CollectionUtils;
 import com.github.jonathanxd.iutils.collection.view.ViewCollection;
 import com.github.jonathanxd.iutils.collection.view.ViewCollections;
 import com.github.jonathanxd.iutils.collection.view.ViewList;
+import com.github.jonathanxd.iutils.collection.view.ViewUtils;
 import com.github.jonathanxd.iutils.iterator.IteratorUtil;
 
 import org.junit.Assert;
@@ -126,6 +127,34 @@ public class ViewCollectionTest {
         lst.add(4, "N");
 
         Assert.assertEquals(lst.toString(), view.toString());
+    }
+
+    @Test
+    public void reverseList() {
+        List<String> list = new ArrayList<>();
+
+        list.addAll(CollectionUtils.listOf("1", "2", "3"));
+        list.addAll(CollectionUtils.listOf("4", "5", "6"));
+
+        ViewList<String, String> reversed = ViewCollections.reversedList(list);
+
+        Assert.assertEquals("[6, 5, 4, 3, 2, 1]", reversed.toString());
+
+        Assert.assertEquals("4", reversed.remove(2));
+
+        reversed.add(2, "4");
+
+        Assert.assertEquals("[6, 5, 4, 3, 2, 1]", reversed.toString());
+
+        ViewList<String, String> readOnlyList = ViewCollections.readOnlyList(reversed);
+
+        Assert.assertEquals("[6, 5, 4, 3, 2, 1]", readOnlyList.toString());
+
+        try {
+            readOnlyList.add(0, "7");
+            throw new AssertionError();
+        }catch (UnsupportedOperationException ignored) {
+        }
     }
 
     @Test

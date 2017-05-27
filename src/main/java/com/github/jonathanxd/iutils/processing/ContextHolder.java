@@ -27,6 +27,8 @@
  */
 package com.github.jonathanxd.iutils.processing;
 
+import java.util.Arrays;
+
 /**
  * Context holder. Holds context instance, enter stack elements exit stack elements.
  */
@@ -38,6 +40,16 @@ public class ContextHolder {
     private final Object context;
 
     /**
+     * Contexts on enter
+     */
+    private final Object[] enterContext;
+
+    /**
+     * Contexts on exit.
+     */
+    private Object[] exitContext;
+
+    /**
      * Enter stack trace.
      */
     private final StackTraceElement[] enterTrace;
@@ -47,10 +59,13 @@ public class ContextHolder {
      */
     private StackTraceElement[] exitTrace;
 
-    public ContextHolder(Object context, StackTraceElement[] enterTrace, StackTraceElement[] exitTrace) {
+    public ContextHolder(Object context, StackTraceElement[] enterTrace, StackTraceElement[] exitTrace,
+                         Object[] enterContext, Object[] exitContext) {
         this.context = context;
-        this.enterTrace = enterTrace;
-        this.exitTrace = exitTrace;
+        this.enterTrace = enterTrace.clone();
+        this.exitTrace = exitTrace == null ? null : exitTrace.clone();
+        this.enterContext = enterContext.clone();
+        this.exitContext = exitContext == null ? null : exitContext.clone();
     }
 
     /**
@@ -86,17 +101,53 @@ public class ContextHolder {
     }
 
     /**
+     * Gets enter context.
+     * @return Enter context.
+     */
+    public Object[] getEnterContext() {
+        return this.enterContext.clone();
+    }
+
+    /**
+     * Gets exit context.
+     * @return Exit context.
+     */
+    public Object[] getExitContext() {
+        return this.exitContext == null ? null : this.exitContext.clone();
+    }
+
+    /**
      * Exits the context.
      * @param exitTrace Exit call stack trace.
      * @return Same context with exit state.
      */
-    ContextHolder exit(StackTraceElement[] exitTrace) {
+    ContextHolder exit(StackTraceElement[] exitTrace, Object[] exitContext) {
 
         if (this.isExited())
             return this;
 
-        this.exitTrace = exitTrace;
+        this.exitTrace = exitTrace.clone();
+        this.exitContext = exitContext.clone();
 
         return this;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder stringBuilder = new StringBuilder();
+
+        stringBuilder.append("ContextHolder[context=").append(this.getContext());
+
+        stringBuilder.append(", ").append("enterContext=").append(Arrays.toString(this.getEnterContext()));
+        stringBuilder.append(", ").append("enterTrace=").append(Arrays.toString(this.getEnterTrace()));
+
+        if(this.isExited()) {
+            stringBuilder.append(", ").append("exitContext=").append(Arrays.toString(this.getExitContext()));
+            stringBuilder.append(", ").append("exitTrace=").append(Arrays.toString(this.getExitTrace()));
+        }
+
+        stringBuilder.append(']');
+
+        return stringBuilder.toString();
     }
 }

@@ -28,9 +28,12 @@
 package com.github.jonathanxd.iutils;
 
 import com.github.jonathanxd.iutils.processing.Context;
+import com.github.jonathanxd.iutils.processing.ContextHolder;
 
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.util.List;
 
 public class ContextTest {
 
@@ -42,6 +45,12 @@ public class ContextTest {
 
         Assert.assertTrue(context.getContexts().isEmpty());
         Assert.assertTrue(context.getAllContexts().size() == 3);
+
+        List<ContextHolder> lifoAllContexts = context.getLifoAllContexts();
+
+        Assert.assertEquals("c()", lifoAllContexts.get(0).getContext());
+        Assert.assertEquals("b()", lifoAllContexts.get(1).getContext());
+        Assert.assertEquals("a()", lifoAllContexts.get(2).getContext());
     }
 
     public void a(Context context) {

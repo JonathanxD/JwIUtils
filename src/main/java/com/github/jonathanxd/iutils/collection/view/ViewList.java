@@ -62,6 +62,27 @@ public class ViewList<E, Y> extends AbstractViewCollection<E, Y> implements List
     public ViewList(List<E> list, BiFunction<E, ListIterator<E>, ListIterator<Y>> mapper,
                     Predicate<Y> add,
                     Predicate<Y> remove) {
+        this(list, mapper, add, remove, false, false);
+    }
+
+    /**
+     * Constructs a list view.
+     *
+     * @param list     List to wrap.
+     * @param mapper   Mapper.
+     * @param add      Add operation handler. First argument is index (negative is undefined), the
+     *                 second is the value.
+     * @param remove   Add operation handler. First argument is index (negative is undefined), the
+     *                 second is the value (null for undefined).
+     * @param reverse  True to create a reversed iterable of list.
+     * @param readOnly True to create a read only iterator.
+     */
+    public ViewList(List<E> list,
+                    BiFunction<E, ListIterator<E>, ListIterator<Y>> mapper,
+                    Predicate<Y> add,
+                    Predicate<Y> remove,
+                    boolean reverse,
+                    boolean readOnly) {
         super(list);
 
         Objects.requireNonNull(add);
@@ -69,7 +90,20 @@ public class ViewList<E, Y> extends AbstractViewCollection<E, Y> implements List
 
         this.add = add;
         this.remove = remove;
-        this.syntheticIterable = ViewUtils.listIterable(list, mapper);
+
+        ViewUtils.ListIterable<Y> iterable;
+
+        if (reverse)
+            iterable = ViewUtils.reverseListIterable(list, mapper);
+        else
+            iterable = ViewUtils.listIterable(list, mapper);
+
+        if (readOnly) {
+            ViewUtils.ListIterable<Y> finalIterable = iterable;
+            iterable = i -> new ViewUtils.ReadOnlyListIterator<>(finalIterable.iterator(i));
+        }
+
+        this.syntheticIterable = iterable;
     }
 
 
