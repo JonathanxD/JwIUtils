@@ -27,13 +27,19 @@
  */
 package com.github.jonathanxd.iutils;
 
+import com.github.jonathanxd.iutils.collection.CollectionUtils;
 import com.github.jonathanxd.iutils.reflection.ClassUtil;
 
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.Serializable;
+import java.util.AbstractCollection;
+import java.util.AbstractList;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.RandomAccess;
 
 public class ClassUtilTest {
 
@@ -41,7 +47,11 @@ public class ClassUtilTest {
     public void testHierarchy() {
         List<Class<?>> types = ClassUtil.getSortedSuperTypes(ArrayList.class);
 
-        Assert.assertEquals("[class java.util.AbstractList, interface java.lang.Cloneable, interface java.util.RandomAccess, interface java.io.Serializable, class java.util.AbstractCollection, interface java.util.List, interface java.util.Collection, interface java.lang.Iterable]", types.toString());
+        Assert.assertTrue(types.containsAll(CollectionUtils.listOf(AbstractList.class, Cloneable.class,
+                RandomAccess.class, Serializable.class, AbstractCollection.class, List.class,
+                Collection.class, Iterable.class)));
+
+
     }
 
     interface C {

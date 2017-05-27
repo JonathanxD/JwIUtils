@@ -245,7 +245,7 @@ public class TypeUtil {
         if (param instanceof GenericArrayType) {
 
             GenericArrayType genericArrayType = (GenericArrayType) param;
-            TypeInfo<?> typeInfo = TypeUtil.toTypeInfo(genericArrayType.getGenericComponentType(), names);
+            TypeInfo<?> typeInfo = TypeUtil.toTypeInfo(TypeUtil.getBaseComponent(genericArrayType), names);
 
             String pr = param.toString();
 
@@ -260,6 +260,14 @@ public class TypeUtil {
 
             try {
                 Reflection.changeFinalField(TypeInfo.class, typeInfo, "classLiteral", fullName);
+
+                if(typeInfo.isResolved()) {
+                    ClassLoader loader = typeInfo.getTypeClass().getClassLoader();
+
+                    Class<?> arrayCached = loader == null ? Class.forName(fullName) : loader.loadClass(fullName);
+                    Reflection.changeFinalField(TypeInfo.class, typeInfo, "cachedAClass", arrayCached);
+                }
+
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -326,6 +334,21 @@ public class TypeUtil {
             }
         }
         return typeInfoBuilder.build();
+    }
+
+    /**
+     * Gets base component of {@code genericArrayType}.
+     * @param genericArrayType Generic array type.
+     * @return Base component.
+     */
+    public static Type getBaseComponent(GenericArrayType genericArrayType) {
+        Type component = genericArrayType.getGenericComponentType();
+
+        while(component instanceof GenericArrayType) {
+            component = ((GenericArrayType) component).getGenericComponentType();
+        }
+
+        return component;
     }
 
     /**

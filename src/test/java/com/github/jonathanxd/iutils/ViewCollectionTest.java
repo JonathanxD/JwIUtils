@@ -203,7 +203,7 @@ public class ViewCollectionTest {
             ++index;
         }
 
-        List<String> lst = CollectionUtils.listOf("1", "2", "3", "4", "5", "6");
+        List<String> lst = CollectionUtils.listOf("1", "2", "4", "5", "6", "9");
 
         Assert.assertEquals(lst.toString(), view.toString());
     }
