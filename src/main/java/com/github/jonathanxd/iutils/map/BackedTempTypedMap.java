@@ -308,6 +308,11 @@ public final class BackedTempTypedMap<K, V> implements TempTypedMap<K, V> {
     }
 
     @Override
+    public String toString() {
+        return this.backingMap.toString();
+    }
+
+    @Override
     public Set<Entry<K, V>> entrySet() {
         Set<Entry<K, Value<? extends V>>> entries = this.backingMap.entrySet();
 

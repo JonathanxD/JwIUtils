@@ -306,6 +306,11 @@ public final class BackedTypedMap<K, V> implements TypedMap<K, V> {
         );
     }
 
+    @Override
+    public String toString() {
+        return this.backingMap.toString();
+    }
+
     static final class MappedEntryWrapper<K, V, X> implements Map.Entry<K, X> {
 
         private final Map.Entry<K, V> wrapper;
@@ -331,6 +336,11 @@ public final class BackedTypedMap<K, V> implements TypedMap<K, V> {
         @Override
         public X setValue(X value) {
             return this.mapper.apply(this.wrapper.setValue(this.unmapper.apply(value)));
+        }
+
+        @Override
+        public String toString() {
+            return "{k="+this.getKey()+", v="+this.getValue()+"}";
         }
     }
 }

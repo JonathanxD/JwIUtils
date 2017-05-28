@@ -34,6 +34,7 @@ import com.github.jonathanxd.iutils.type.TypeInfo;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -152,6 +153,11 @@ public class UnmodTypedMap<K, V> implements TypedMap<K, V> {
     }
 
     @Override
+    public String toString() {
+        return this.original.toString();
+    }
+
+    @Override
     public Set<Entry<K, V>> entrySet() {
         Set<Entry<K, V>> set = this.original.entrySet();
 
@@ -182,6 +188,21 @@ public class UnmodTypedMap<K, V> implements TypedMap<K, V> {
         @Override
         public V setValue(V value) {
             throw new UnsupportedOperationException("Immutable!");
+        }
+
+        @Override
+        public String toString() {
+            return this.original.toString();
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            return super.equals(obj) || this.original.equals(obj);
+        }
+
+        @Override
+        public int hashCode() {
+            return this.original.hashCode();
         }
     }
 }

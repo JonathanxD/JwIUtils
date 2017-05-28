@@ -29,6 +29,8 @@ package com.github.jonathanxd.iutils.map;
 
 import com.github.jonathanxd.iutils.type.TypeInfo;
 
+import java.util.Objects;
+
 /**
  * Value holder.
  *
@@ -114,4 +116,22 @@ public class Value<T> {
         return this.isTemporary;
     }
 
+    @Override
+    public String toString() {
+        return "{value="+this.getValue()+", type="+this.getType()+"}";
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.getValue(), this.getType());
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(!(obj instanceof Value<?>))
+            return super.equals(obj);
+
+        return ((Value) obj).getValue() == this.getValue()
+                && ((Value) obj).getType() == this.getType();
+    }
 }
