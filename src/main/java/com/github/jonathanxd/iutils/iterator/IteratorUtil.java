@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * Iterator utility.
@@ -79,6 +80,35 @@ public class IteratorUtil {
                 this.hasNext = false;
 
                 return e;
+            }
+        };
+    }
+
+    /**
+     * Creates an {@link Iterator} which has only one element to iterate.
+     *
+     * @param e   Supplier of elements.
+     * @param <E> Element type.
+     * @return {@link Iterator} which has only one element to iterate.
+     */
+    public static <E> Iterator<E> singleSupplied(final Supplier<E> e) {
+        return new Iterator<E>() {
+
+            private boolean hasNext = true;
+
+            @Override
+            public boolean hasNext() {
+                return this.hasNext;
+            }
+
+            @Override
+            public E next() {
+                if (!this.hasNext())
+                    throw new NoSuchElementException();
+
+                this.hasNext = false;
+
+                return e.get();
             }
         };
     }

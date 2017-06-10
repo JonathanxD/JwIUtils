@@ -135,14 +135,28 @@ public class Lazy<T> {
      * Note that returned {@link Lazy} instance uses the same {@link #supplier} as {@code this}
      * {@link Lazy} instance.
      *
-     * @param evaluated If true, creates a copy of evaluated lazy, if not, creates non-evaluated
-     *                  copy.
+     * @param evaluated If true, creates a copy of evaluated lazy, if not, creates a non evaluated
+     *                  lazy.
      * @return A copy of {@code this} {@link Lazy}.
      */
     public Lazy<T> copy(boolean evaluated) {
         Lazy<T> lazy = new Lazy<>(this.supplier);
 
-        lazy.isEvaluated = this.isEvaluated;
+        lazy.isEvaluated = evaluated;
+        lazy.value = this.value;
+
+        return lazy;
+    }
+
+    /**
+     * Creates a copy of this {@link Lazy} with same state.
+     *
+     * @return Copy of this {@link Lazy} with same state.
+     */
+    public Lazy<T> copy() {
+        Lazy<T> lazy = new Lazy<>(this.supplier);
+
+        lazy.isEvaluated = this.isEvaluated();
         lazy.value = this.value;
 
         return lazy;
