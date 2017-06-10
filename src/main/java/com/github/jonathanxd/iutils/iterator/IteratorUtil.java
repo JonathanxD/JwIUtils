@@ -84,6 +84,97 @@ public class IteratorUtil {
     }
 
     /**
+     * Creates a {@link ListIterator} which has only one element to iterate (does not support add).
+     *
+     * @param e   Element.
+     * @param <E> Element type.
+     * @return {@link Iterator} which has only one element to iterate.
+     */
+    public static <E> ListIterator<E> singleListIterator(final E e) {
+        return new ListIterator<E>() {
+
+            private E value = e;
+
+            private boolean removed = false;
+            private boolean hasNext = true;
+
+            private void checkRemoved() {
+                if(this.removed)
+                    throw new NoSuchElementException();
+            }
+
+            @Override
+            public boolean hasNext() {
+                return this.hasNext;
+            }
+
+            @Override
+            public boolean hasPrevious() {
+                return !this.hasNext;
+            }
+
+            @Override
+            public E previous() {
+                if (!this.hasPrevious())
+                    throw new NoSuchElementException();
+
+                this.hasNext = true;
+
+                return value;
+            }
+
+            @Override
+            public int nextIndex() {
+                this.checkRemoved();
+
+                if(!this.hasNext())
+                    throw new NoSuchElementException();
+
+                return 0;
+            }
+
+            @Override
+            public int previousIndex() {
+                this.checkRemoved();
+
+                if(!this.hasPrevious())
+                    throw new NoSuchElementException();
+
+                return 0;
+            }
+
+            @Override
+            public void remove() {
+                this.checkRemoved();
+                this.removed = true;
+            }
+
+            @Override
+            public void set(E e) {
+                this.removed = false;
+                this.value = e;
+            }
+
+            @Override
+            public void add(E e) {
+                throw new UnsupportedOperationException("Cannot add values to single iterator.");
+            }
+
+            @Override
+            public E next() {
+                this.checkRemoved();
+
+                if (!this.hasNext())
+                    throw new NoSuchElementException();
+
+                this.hasNext = false;
+
+                return this.value;
+            }
+        };
+    }
+
+    /**
      * Creates an {@link Iterator} of an array of type {@link E}.
      *
      * @param args Elements.
