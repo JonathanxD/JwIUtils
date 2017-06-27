@@ -27,7 +27,17 @@
  */
 package com.github.jonathanxd.iutils.opt;
 
+import com.github.jonathanxd.iutils.object.Lazy;
+import com.github.jonathanxd.iutils.opt.specialized.OptBoolean;
+import com.github.jonathanxd.iutils.opt.specialized.OptByte;
+import com.github.jonathanxd.iutils.opt.specialized.OptChar;
+import com.github.jonathanxd.iutils.opt.specialized.OptDouble;
+import com.github.jonathanxd.iutils.opt.specialized.OptFloat;
+import com.github.jonathanxd.iutils.opt.specialized.OptInt;
+import com.github.jonathanxd.iutils.opt.specialized.OptLazy;
+import com.github.jonathanxd.iutils.opt.specialized.OptLong;
 import com.github.jonathanxd.iutils.opt.specialized.OptObject;
+import com.github.jonathanxd.iutils.opt.specialized.OptShort;
 
 import java.util.Objects;
 import java.util.function.Supplier;
@@ -45,12 +55,13 @@ import java.util.function.Supplier;
  * a {@link ValueHolder} is a value-based class which have specialized versions, one for each
  * primitive, one for objects and one for {@link None}, the {@code None} value holder may be present
  * in any {@link Opt} even if it is a primitive specialized {@link Opt} (remember {@link Some} and
- * {@link None}?), all specialized versions extends {@link Some}, and {@link None} version is
+ * {@link None}?), all specialized versions extends {@link Some}; and {@link None} version is
  * singleton. {@link ValueHolder ValueHolders} are only like boxed values and does not provide any
  * operation.
  *
- * Specialized value holder exists to provide zero-boxing-overhead operations, but it is not more
- * faster than plain primitive types.
+ * Specialized versions does not provide zero-overhead access to primitive values because them need
+ * to {@code checkcast} to primitive value holder and unbox the value, and performance is not the
+ * focus of {@code Opt}.
  *
  * This class is named {@code Opt} to avoid confusion with {@link com.github.jonathanxd.iutils.option
  * Option utility}.
@@ -63,25 +74,217 @@ import java.util.function.Supplier;
 public interface Opt<O extends Opt<O>> {
 
     /**
-     * Creates an Opt from a nullable {@code value}.
+     * Creates an Object Opt from a nullable {@code value}.
      *
      * @param value Nullable value.
      * @param <T>   Type of value.
      * @return Opt of {@link Some} if value is not null, or opt of {@link None} if value is null.
      */
-    static <T> OptObject<T> optNullable(T value) {
+    static <T> OptObject<T> someNullable(T value) {
         return OptObject.optObjectNotNull(value);
     }
 
     /**
-     * Creates an Opt from a non-nullable {@code value}.
+     * Creates an Object Opt from a non-nullable {@code value}.
      *
      * @param value Value.
      * @param <T>   Type of value.
      * @return {@link Opt} of {@link Some}.
      */
-    static <T> OptObject<T> optNotNull(T value) {
+    static <T> OptObject<T> someNotNull(T value) {
         return OptObject.optObjectNotNull(value);
+    }
+
+    /**
+     * Creates an Object Opt from a nullable {@code value}.
+     *
+     * @param value Value.
+     * @param <T>   Type of value.
+     * @return {@link Opt} of {@link Some} {@code value}.
+     */
+    static <T> OptObject<T> some(T value) {
+        return OptObject.optObject(value);
+    }
+
+    /**
+     * Creates an Opt Object holding {@link None} value.
+     *
+     * @param <T> Type of value.
+     * @return {@link Opt} of {@link None} value.
+     */
+    static <T> OptObject<T> none() {
+        return OptObject.none();
+    }
+
+    /**
+     * Creates a boolean opt of {@code value}.
+     *
+     * @param value Boolean value.
+     * @return {@link Opt} of {@link Some} {@code value}
+     */
+    static OptBoolean someBoolean(boolean value) {
+        return OptBoolean.optBoolean(value);
+    }
+
+    /**
+     * Creates a {@link None} {@link OptBoolean}.
+     *
+     * @return {@link None} {@link OptBoolean}.
+     */
+    static OptBoolean noneBoolean() {
+        return OptBoolean.none();
+    }
+
+    /**
+     * Creates a byte opt of {@code value}.
+     *
+     * @param value Value.
+     * @return {@link Opt} of {@link Some} {@code value}
+     */
+    static OptByte someByte(byte value) {
+        return OptByte.optByte(value);
+    }
+
+    /**
+     * Creates a {@link None} {@link OptByte}.
+     *
+     * @return {@link None} {@link OptByte}.
+     */
+    static OptByte noneByte() {
+        return OptByte.none();
+    }
+
+    /**
+     * Creates a char opt of {@code value}.
+     *
+     * @param value Value.
+     * @return {@link Opt} of {@link Some} {@code value}
+     */
+    static OptChar someChar(char value) {
+        return OptChar.optChar(value);
+    }
+
+    /**
+     * Creates a {@link None} {@link OptChar}.
+     *
+     * @return {@link None} {@link OptChar}.
+     */
+    static OptChar noneChar() {
+        return OptChar.none();
+    }
+
+    /**
+     * Creates a double opt of {@code value}.
+     *
+     * @param value Value.
+     * @return {@link Opt} of {@link Some} {@code value}
+     */
+    static OptDouble someDouble(char value) {
+        return OptDouble.optDouble(value);
+    }
+
+    /**
+     * Creates a {@link None} {@link OptDouble}.
+     *
+     * @return {@link None} {@link OptDouble}.
+     */
+    static OptDouble noneDouble() {
+        return OptDouble.none();
+    }
+
+    /**
+     * Creates a float opt of {@code value}.
+     *
+     * @param value Value.
+     * @return {@link Opt} of {@link Some} {@code value}
+     */
+    static OptFloat someFloat(char value) {
+        return OptFloat.optFloat(value);
+    }
+
+    /**
+     * Creates a {@link None} {@link OptFloat}.
+     *
+     * @return {@link None} {@link OptFloat}.
+     */
+    static OptFloat noneFloat() {
+        return OptFloat.none();
+    }
+
+    /**
+     * Creates a int opt of {@code value}.
+     *
+     * @param value Value.
+     * @return {@link Opt} of {@link Some} {@code value}
+     */
+    static OptInt someInt(int value) {
+        return OptInt.optInt(value);
+    }
+
+    /**
+     * Creates a {@link None} {@link OptInt}.
+     *
+     * @return {@link None} {@link OptInt}.
+     */
+    static OptInt noneInt() {
+        return OptInt.none();
+    }
+
+    /**
+     * Creates a Lazy.
+     *
+     * @param lazy Lazy initializer.
+     * @return {@link Opt} of {@link Some} {@code lazy} initializer.
+     */
+    static <T> OptLazy<T> someLazy(Lazy<T> lazy) {
+        return OptLazy.optLazy(lazy);
+    }
+
+    /**
+     * Creates a {@link None} {@link OptLazy}.
+     *
+     * @return {@link None} {@link OptLazy}.
+     */
+    static OptLazy noneLazy() {
+        return OptLazy.none();
+    }
+
+    /**
+     * Creates a long opt of {@code value}.
+     *
+     * @param value Value.
+     * @return {@link Opt} of {@link Some} {@code value}
+     */
+    static OptLong someLong(long value) {
+        return OptLong.optLong(value);
+    }
+
+    /**
+     * Creates a {@link None} {@link OptLong}.
+     *
+     * @return {@link None} {@link OptLong}.
+     */
+    static OptLong noneLong() {
+        return OptLong.none();
+    }
+
+    /**
+     * Creates a short opt of {@code value}.
+     *
+     * @param value Value.
+     * @return {@link Opt} of {@link Some} {@code value}
+     */
+    static OptShort someShort(short value) {
+        return OptShort.optShort(value);
+    }
+
+    /**
+     * Creates a {@link None} {@link OptShort}.
+     *
+     * @return {@link None} {@link OptShort}.
+     */
+    static OptShort noneShort() {
+        return OptShort.none();
     }
 
     /**
@@ -141,7 +344,7 @@ public interface Opt<O extends Opt<O>> {
 
     /**
      * Casts this {@link Opt} to {@link O}. As the documentation says, all implementation of {@link
-     * Opt} must only provide a {@link O} of the same type.
+     * Opt} must only provide a {@link O} of the same implementing type.
      *
      * @return {@link O} instance.
      */
