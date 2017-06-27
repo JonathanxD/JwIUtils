@@ -34,6 +34,7 @@ import java.lang.reflect.ParameterizedType;
  *
  * @param <T> Type.
  */
+@Deprecated
 public abstract class ConcreteTypeInfo<T> extends TypeInfo<T> {
 
     private final TypeInfo<T> wrapped;

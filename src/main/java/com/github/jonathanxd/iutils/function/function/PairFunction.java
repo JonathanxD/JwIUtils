@@ -25,37 +25,29 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.list;
+package com.github.jonathanxd.iutils.function.function;
 
-import java.util.Collection;
+import com.github.jonathanxd.iutils.object.Pair;
 
 /**
- * A {@link java.util.Set Set-like} {@link java.util.List}.
+ * A function which receives {@link I1 input 1} and {@link I2 input 2} and maps to a {@link Pair} of
+ * {@link O1} and {@link O2}.
  *
- * @param <E> Element type.
+ * @param <I1> Input 1.
+ * @param <I2> Input 2.
+ * @param <O1> Output 1.
+ * @param <O2> Output 2.
  */
-@Deprecated
-public class ListSet<E> extends AbstractPredicateList<E> {
+@FunctionalInterface
+public interface PairFunction<I1, I2, O1, O2> {
 
-    public ListSet(int initialCapacity) {
-        super(initialCapacity);
-    }
-
-    public ListSet() {
-        super();
-    }
-
-    public ListSet(Collection<? extends E> c) {
-        super(c);
-    }
-
-    @Override
-    public boolean isAcceptable(E e) {
-        return !this.contains(e);
-    }
-
-    @Override
-    public void onReject(E e) {
-    }
+    /**
+     * Apply function to {@code i1} and {@code i2} and return a pair with mapped values.
+     *
+     * @param i1 Input 1.
+     * @param i2 Input 2.
+     * @return Pair of mapped input 1 and input 2.
+     */
+    Pair<O1, O2> apply(I1 i1, I2 i2);
 
 }

@@ -25,37 +25,21 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.list;
+package com.github.jonathanxd.iutils.checked;
 
-import java.util.Collection;
+import com.github.jonathanxd.iutils.function.checked.supplier.CSupplier;
 
-/**
- * A {@link java.util.Set Set-like} {@link java.util.List}.
- *
- * @param <E> Element type.
- */
-@Deprecated
-public class ListSet<E> extends AbstractPredicateList<E> {
+import org.junit.Test;
 
-    public ListSet(int initialCapacity) {
-        super(initialCapacity);
-    }
+import java.util.function.Function;
 
-    public ListSet() {
-        super();
-    }
+public class CheckedTest {
 
-    public ListSet(Collection<? extends E> c) {
-        super(c);
-    }
+    @Test
+    public void t() {
+        Function<String, Integer> func = s -> ((CSupplier<Integer>) () -> Integer.parseInt(s)).get();
 
-    @Override
-    public boolean isAcceptable(E e) {
-        return !this.contains(e);
-    }
-
-    @Override
-    public void onReject(E e) {
+        func.apply("hs");
     }
 
 }

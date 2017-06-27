@@ -25,37 +25,39 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.list;
+package com.github.jonathanxd.iutils.function.checked.supplier;
 
-import java.util.Collection;
+import com.github.jonathanxd.iutils.function.supplier.PairSupplier;
+import com.github.jonathanxd.iutils.object.Pair;
 
 /**
- * A {@link java.util.Set Set-like} {@link java.util.List}.
+ * {@link PairSupplier}
  *
- * @param <E> Element type.
+ * @see com.github.jonathanxd.iutils.function.checked
  */
-@Deprecated
-public class ListSet<E> extends AbstractPredicateList<E> {
-
-    public ListSet(int initialCapacity) {
-        super(initialCapacity);
-    }
-
-    public ListSet() {
-        super();
-    }
-
-    public ListSet(Collection<? extends E> c) {
-        super(c);
-    }
+@FunctionalInterface
+public interface CPairSupplier<T, U> extends PairSupplier<T, U> {
 
     @Override
-    public boolean isAcceptable(E e) {
-        return !this.contains(e);
+    default Pair<T, U> get() {
+        try {
+            return this.getChecked();
+        } catch (Throwable t) {
+            throw new RuntimeException(t);
+        }
     }
 
-    @Override
-    public void onReject(E e) {
-    }
+    /**
+     * {@link PairSupplier#get} equivalent which declares a {@code throws} clauses, allowing
+     * exceptions to be caught outside of lambda context.
+     *
+     * Like other interfaces of this package, this interface implements a java corresponding
+     * interface. All exceptions which occurs inside the lambda is rethrown in the implemented
+     * method using {@link RuntimeException}.
+     *
+     * @return See {@link PairSupplier#get}.
+     * @throws Throwable Exception occurred inside of function.
+     */
+    Pair<T, U> getChecked() throws Throwable;
 
 }

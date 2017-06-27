@@ -81,6 +81,7 @@ import java.util.stream.Stream;
  *
  * @param <T> First value type.
  * @param <U> Second value type.
+ * @see com.github.jonathanxd.iutils.function.stream.walkable.WalkableNodeBiStream
  */
 public interface BiStream<T, U> extends BaseStream<Node<T, U>, BiStream<T, U>> {
 

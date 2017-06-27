@@ -177,7 +177,7 @@ public abstract class AbstractOptObject<T, O extends AbstractOptObject<T, O>> ex
      *                 (cannot be null).
      * @return Value of this {@link Opt} if present, or value supplied by {@code supplier} if not.
      */
-    public final T orElse(Supplier<? extends T> supplier) {
+    public final T orElseGet(Supplier<? extends T> supplier) {
         Objects.requireNonNull(supplier);
 
         if (this.isPresent())
@@ -192,7 +192,7 @@ public abstract class AbstractOptObject<T, O extends AbstractOptObject<T, O>> ex
      * @param lazy Lazy provider of value to return if value is not present.
      * @return Value of this {@link Opt} if present, or value returned by {@code lazy}.
      */
-    public final T orElse(Lazy<? extends T> lazy) {
+    public final T orElseLazy(Lazy<? extends T> lazy) {
         Objects.requireNonNull(lazy);
 
         if (this.isPresent())

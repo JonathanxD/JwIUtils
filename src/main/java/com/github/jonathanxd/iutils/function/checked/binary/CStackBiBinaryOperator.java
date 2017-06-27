@@ -25,37 +25,38 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.list;
+package com.github.jonathanxd.iutils.function.checked.binary;
 
-import java.util.Collection;
+import com.github.jonathanxd.iutils.function.binary.StackBiBinaryOperator;
 
 /**
- * A {@link java.util.Set Set-like} {@link java.util.List}.
+ * {@link StackBiBinaryOperator}
  *
- * @param <E> Element type.
+ * @see com.github.jonathanxd.iutils.function.checked
  */
-@Deprecated
-public class ListSet<E> extends AbstractPredicateList<E> {
-
-    public ListSet(int initialCapacity) {
-        super(initialCapacity);
-    }
-
-    public ListSet() {
-        super();
-    }
-
-    public ListSet(Collection<? extends E> c) {
-        super(c);
-    }
+@FunctionalInterface
+public interface CStackBiBinaryOperator<T, PLAIN_T, U> extends StackBiBinaryOperator<T, PLAIN_T, U> {
 
     @Override
-    public boolean isAcceptable(E e) {
-        return !this.contains(e);
+    default U apply(T value, U value2, PLAIN_T value3, U value4) {
+        try {
+            return this.applyChecked(value, value2, value3, value4);
+        } catch (Throwable th) {
+            throw new RuntimeException(th);
+        }
     }
 
-    @Override
-    public void onReject(E e) {
-    }
+    /**
+     * {@link StackBiBinaryOperator#apply} equivalent which declares a {@code throws} clauses,
+     * allowing exceptions to be caught outside of lambda context.
+     *
+     * Like other interfaces of this package, this interface implements a java corresponding
+     * interface. All exceptions which occurs inside the lambda is rethrown in the implemented
+     * method using {@link RuntimeException}.
+     *
+     * @return See {@link StackBiBinaryOperator#apply}.
+     * @throws Throwable Exception occurred inside of function.
+     */
+    U applyChecked(T value, U value2, PLAIN_T value3, U value4) throws Throwable;
 
 }

@@ -129,7 +129,7 @@ public class IteratorUtil {
             private boolean hasNext = true;
 
             private void checkRemoved() {
-                if(this.removed)
+                if (this.removed)
                     throw new NoSuchElementException();
             }
 
@@ -157,7 +157,7 @@ public class IteratorUtil {
             public int nextIndex() {
                 this.checkRemoved();
 
-                if(!this.hasNext())
+                if (!this.hasNext())
                     throw new NoSuchElementException();
 
                 return 0;
@@ -167,7 +167,7 @@ public class IteratorUtil {
             public int previousIndex() {
                 this.checkRemoved();
 
-                if(!this.hasPrevious())
+                if (!this.hasPrevious())
                     throw new NoSuchElementException();
 
                 return 0;

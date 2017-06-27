@@ -27,7 +27,7 @@
  */
 package com.github.jonathanxd.iutils.opt.specialized;
 
-import com.github.jonathanxd.iutils.function.throwing.ThrowingSupplier;
+import com.github.jonathanxd.iutils.function.checked.supplier.CSupplier;
 import com.github.jonathanxd.iutils.opt.None;
 import com.github.jonathanxd.iutils.opt.Opt;
 import com.github.jonathanxd.iutils.opt.Some;
@@ -43,7 +43,7 @@ import java.util.function.Function;
  */
 public final class OptObject<T> extends AbstractOptObject<T, OptObject<T>> {
 
-    private static final OptObject<?> NONE = new OptObject<>(null);
+    private static final OptObject<?> NONE = new OptObject<>(None.INSTANCE);
 
     private OptObject(ValueHolder valueHolder) {
         super(valueHolder);
@@ -51,6 +51,19 @@ public final class OptObject<T> extends AbstractOptObject<T, OptObject<T>> {
 
     private OptObject(T value) {
         super(value == null ? None.INSTANCE : new SomeObject<>(value));
+    }
+
+    /**
+     * Creates an {@link Opt} from {@code value}.
+     *
+     * @param value Value to create {@link Opt}.
+     * @param <T>   Type of value.
+     * @return An {@link Opt} of {@link Some} if value is not null, or an {@link Opt} of {@link
+     * None} if value is null.
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> OptObject<T> optObject(T value) {
+        return new OptObject<>(value);
     }
 
     /**
@@ -75,9 +88,9 @@ public final class OptObject<T> extends AbstractOptObject<T, OptObject<T>> {
      * @return {@link Opt} of {@link T} if {@code supplier} returns a value, returns a {@link Opt}
      * with {@link None} value if {@code supplier} throws an exception.
      */
-    public static <T> OptObject<T> $try(ThrowingSupplier<T, ?> supplier) {
+    public static <T> OptObject<T> $try(CSupplier<T> supplier) {
         try {
-            return OptObject.optObject(supplier.get());
+            return OptObject.optObjectNullable(supplier.getChecked());
         } catch (Throwable t) {
             return OptObject.none();
         }
@@ -92,7 +105,7 @@ public final class OptObject<T> extends AbstractOptObject<T, OptObject<T>> {
      * None} if value is null.
      */
     @SuppressWarnings("unchecked")
-    public static <T> OptObject<T> optObject(T value) {
+    public static <T> OptObject<T> optObjectNotNull(T value) {
         return new OptObject<>(Objects.requireNonNull(value));
     }
 
@@ -127,7 +140,7 @@ public final class OptObject<T> extends AbstractOptObject<T, OptObject<T>> {
         if (!this.isPresent())
             return OptObject.none();
 
-        return OptObject.optObject(Objects.requireNonNull(mapper.apply(this.getValue())));
+        return OptObject.optObjectNotNull(Objects.requireNonNull(mapper.apply(this.getValue())));
     }
 
     /**

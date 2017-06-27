@@ -25,37 +25,40 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.list;
+package com.github.jonathanxd.iutils.function.checked.binary;
 
-import java.util.Collection;
+import com.github.jonathanxd.iutils.function.binary.NodeBiBinaryOperator;
+import com.github.jonathanxd.iutils.object.Node;
 
 /**
- * A {@link java.util.Set Set-like} {@link java.util.List}.
+ * {@link NodeBiBinaryOperator}
  *
- * @param <E> Element type.
+ * @see com.github.jonathanxd.iutils.function.checked
  */
-@Deprecated
-public class ListSet<E> extends AbstractPredicateList<E> {
+@FunctionalInterface
+public interface CNodeBiBinaryOperator<T, U> extends NodeBiBinaryOperator<T, U> {
 
-    public ListSet(int initialCapacity) {
-        super(initialCapacity);
-    }
-
-    public ListSet() {
-        super();
-    }
-
-    public ListSet(Collection<? extends E> c) {
-        super(c);
-    }
 
     @Override
-    public boolean isAcceptable(E e) {
-        return !this.contains(e);
+    default Node<T, U> apply(T t, U u, T t2, U u2) {
+        try {
+            return this.applyChecked(t, u, t2, u2);
+        } catch (Throwable th) {
+            throw new RuntimeException(th);
+        }
     }
 
-    @Override
-    public void onReject(E e) {
-    }
+    /**
+     * {@link NodeBiBinaryOperator#apply} equivalent which declares a {@code throws} clauses,
+     * allowing exceptions to be caught outside of lambda context.
+     *
+     * Like other interfaces of this package, this interface implements a java corresponding
+     * interface. All exceptions which occurs inside the lambda is rethrown in the implemented
+     * method using {@link RuntimeException}.
+     *
+     * @return See {@link NodeBiBinaryOperator#apply}.
+     * @throws Throwable Exception occurred inside of function.
+     */
+    Node<T, U> applyChecked(T t, U u, T t2, U u2) throws Throwable;
 
 }

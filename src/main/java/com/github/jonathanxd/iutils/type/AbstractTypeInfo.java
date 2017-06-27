@@ -30,7 +30,7 @@ package com.github.jonathanxd.iutils.type;
 import java.lang.reflect.ParameterizedType;
 
 /**
- * Abstract type info (uses reflection to inject fields instance).
+ * Abstract type info.
  *
  * @param <T> Type.
  */

@@ -41,6 +41,7 @@ import java.util.Objects;
  *
  * @param <T> Type of elements.
  */
+@Deprecated
 public class StaticList<T> implements IndexedListContainer<T>, Iterable<T> {
 
     /**

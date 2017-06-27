@@ -40,6 +40,7 @@ import java.util.Objects;
  *
  * @param <T> Element type.
  */
+@Deprecated
 public class StaticListSet<T> extends StaticList<T> {
 
     private StaticListSet(Class<? extends T> clazz, int size) {

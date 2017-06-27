@@ -25,37 +25,11 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.list;
+package com.github.jonathanxd.iutils.function.consumer;
 
-import java.util.Collection;
+@FunctionalInterface
+public interface IntObjConsumer<T> {
 
-/**
- * A {@link java.util.Set Set-like} {@link java.util.List}.
- *
- * @param <E> Element type.
- */
-@Deprecated
-public class ListSet<E> extends AbstractPredicateList<E> {
-
-    public ListSet(int initialCapacity) {
-        super(initialCapacity);
-    }
-
-    public ListSet() {
-        super();
-    }
-
-    public ListSet(Collection<? extends E> c) {
-        super(c);
-    }
-
-    @Override
-    public boolean isAcceptable(E e) {
-        return !this.contains(e);
-    }
-
-    @Override
-    public void onReject(E e) {
-    }
+    void accept(int i, T t);
 
 }

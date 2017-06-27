@@ -25,37 +25,35 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.list;
-
-import java.util.Collection;
+package com.github.jonathanxd.iutils.function.checked;
 
 /**
- * A {@link java.util.Set Set-like} {@link java.util.List}.
+ * {@link Runnable}
  *
- * @param <E> Element type.
+ * @see com.github.jonathanxd.iutils.function.checked
  */
-@Deprecated
-public class ListSet<E> extends AbstractPredicateList<E> {
-
-    public ListSet(int initialCapacity) {
-        super(initialCapacity);
-    }
-
-    public ListSet() {
-        super();
-    }
-
-    public ListSet(Collection<? extends E> c) {
-        super(c);
-    }
+@FunctionalInterface
+public interface CRunnable extends Runnable {
 
     @Override
-    public boolean isAcceptable(E e) {
-        return !this.contains(e);
+    default void run() {
+        try {
+            this.runChecked();
+        } catch (Throwable t) {
+            throw new RuntimeException(t);
+        }
     }
 
-    @Override
-    public void onReject(E e) {
-    }
+    /**
+     * {@link Runnable#run} equivalent which declares a {@code throws} clauses, allowing exceptions
+     * to be caught outside of lambda context.
+     *
+     * Like other interfaces of this package, this interface implements a java corresponding
+     * interface. All exceptions which occurs inside the lambda is rethrown in the implemented
+     * method using {@link RuntimeException}.
+     *
+     * @throws Throwable Exception occurred inside of function.
+     */
+    void runChecked() throws Throwable;
 
 }

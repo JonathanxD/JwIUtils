@@ -25,37 +25,38 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.list;
+package com.github.jonathanxd.iutils.function.checked.function;
 
-import java.util.Collection;
+import java.util.function.Function;
 
 /**
- * A {@link java.util.Set Set-like} {@link java.util.List}.
+ * {@link Function}
  *
- * @param <E> Element type.
+ * @see com.github.jonathanxd.iutils.function.checked
  */
-@Deprecated
-public class ListSet<E> extends AbstractPredicateList<E> {
-
-    public ListSet(int initialCapacity) {
-        super(initialCapacity);
-    }
-
-    public ListSet() {
-        super();
-    }
-
-    public ListSet(Collection<? extends E> c) {
-        super(c);
-    }
+@FunctionalInterface
+public interface CFunction<T, R> extends Function<T, R> {
 
     @Override
-    public boolean isAcceptable(E e) {
-        return !this.contains(e);
+    default R apply(T t) {
+        try {
+            return this.applyChecked(t);
+        } catch (Throwable th) {
+            throw new RuntimeException(th);
+        }
     }
 
-    @Override
-    public void onReject(E e) {
-    }
+    /**
+     * {@link Function#apply} equivalent which declares a {@code throws} clauses, allowing
+     * exceptions to be caught outside of lambda context.
+     *
+     * Like other interfaces of this package, this interface implements a java corresponding
+     * interface. All exceptions which occurs inside the lambda is rethrown in the implemented
+     * method using {@link RuntimeException}.
+     *
+     * @return See {@link Function#apply}.
+     * @throws Throwable Exception occurred inside of function.
+     */
+    R applyChecked(T t) throws Throwable;
 
 }

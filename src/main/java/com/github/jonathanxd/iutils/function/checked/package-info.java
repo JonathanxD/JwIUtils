@@ -25,37 +25,13 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.list;
-
-import java.util.Collection;
-
 /**
- * A {@link java.util.Set Set-like} {@link java.util.List}.
+ * Contains a set of functional interfaces which extends Java standard interfaces and other
+ * interfaces and rethrow exception caught inside checked functions.
  *
- * @param <E> Element type.
+ * All exceptions are rethrown using {@link java.lang.RuntimeException}.
+ *
+ * Not all interface are implemented ATM. If you want to implement a new interface, feel free to
+ * send a PR.
  */
-@Deprecated
-public class ListSet<E> extends AbstractPredicateList<E> {
-
-    public ListSet(int initialCapacity) {
-        super(initialCapacity);
-    }
-
-    public ListSet() {
-        super();
-    }
-
-    public ListSet(Collection<? extends E> c) {
-        super(c);
-    }
-
-    @Override
-    public boolean isAcceptable(E e) {
-        return !this.contains(e);
-    }
-
-    @Override
-    public void onReject(E e) {
-    }
-
-}
+package com.github.jonathanxd.iutils.function.checked;

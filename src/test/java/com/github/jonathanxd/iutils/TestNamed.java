@@ -28,7 +28,7 @@
 package com.github.jonathanxd.iutils;
 
 import com.github.jonathanxd.iutils.object.Named;
-import com.github.jonathanxd.iutils.type.ConcreteTypeInfo;
+import com.github.jonathanxd.iutils.type.AbstractTypeInfo;
 import com.github.jonathanxd.iutils.type.TypeInfo;
 
 import org.junit.Assert;
@@ -48,12 +48,12 @@ public class TestNamed {
     @Test
     public void testData() {
 
-        namedList.add(new Named<>("Player", new ConcreteTypeInfo<Player>() {
+        namedList.add(new Named<>("Player", new AbstractTypeInfo<Player>() {
         }));
-        namedList.add(new Named<>("boot", new ConcreteTypeInfo<String>() {
+        namedList.add(new Named<>("boot", new AbstractTypeInfo<String>() {
         }));
 
-        Named<TypeInfo<Player>> named = new Named<>(null, new ConcreteTypeInfo<Player>() {
+        Named<TypeInfo<Player>> named = new Named<>(null, new AbstractTypeInfo<Player>() {
         });
 
         Assert.assertTrue(named.get(namedList).isPresent());

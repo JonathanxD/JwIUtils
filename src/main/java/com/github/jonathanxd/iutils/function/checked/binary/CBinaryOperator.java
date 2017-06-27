@@ -25,37 +25,40 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.list;
+package com.github.jonathanxd.iutils.function.checked.binary;
 
-import java.util.Collection;
+import java.util.function.BinaryOperator;
 
 /**
- * A {@link java.util.Set Set-like} {@link java.util.List}.
+ * {@link BinaryOperator}
  *
- * @param <E> Element type.
+ * @param <T> Supplied object type.
+ * @see com.github.jonathanxd.iutils.function.checked
  */
-@Deprecated
-public class ListSet<E> extends AbstractPredicateList<E> {
+@FunctionalInterface
+public interface CBinaryOperator<T> extends BinaryOperator<T> {
 
-    public ListSet(int initialCapacity) {
-        super(initialCapacity);
-    }
-
-    public ListSet() {
-        super();
-    }
-
-    public ListSet(Collection<? extends E> c) {
-        super(c);
-    }
 
     @Override
-    public boolean isAcceptable(E e) {
-        return !this.contains(e);
+    default T apply(T t, T u) {
+        try {
+            return this.applyChecked(t, u);
+        } catch (Throwable th) {
+            throw new RuntimeException(th);
+        }
     }
 
-    @Override
-    public void onReject(E e) {
-    }
+    /**
+     * {@link BinaryOperator#apply} equivalent which declares a {@code throws} clauses, allowing
+     * exceptions to be caught outside of lambda context.
+     *
+     * Like other interfaces of this package, this interface implements a java corresponding
+     * interface. All exceptions which occurs inside the lambda is rethrown in the implemented
+     * method using {@link RuntimeException}.
+     *
+     * @return See {@link BinaryOperator#apply}.
+     * @throws Throwable Exception occurred inside of function.
+     */
+    T applyChecked(T t, T u) throws Throwable;
 
 }

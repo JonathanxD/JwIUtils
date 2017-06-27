@@ -25,4 +25,7 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
+/**
+ * Specialized {@link com.github.jonathanxd.iutils.opt.Opt} implementations.
+ */
 package com.github.jonathanxd.iutils.opt.specialized;

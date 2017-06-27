@@ -28,7 +28,6 @@
 package com.github.jonathanxd.iutils.reference;
 
 import com.github.jonathanxd.iutils.type.AbstractTypeInfo;
-import com.github.jonathanxd.iutils.type.ConcreteTypeInfo;
 import com.github.jonathanxd.iutils.type.TypeInfo;
 import com.github.jonathanxd.iutils.type.TypeInfoUtil;
 import com.github.jonathanxd.iutils.type.TypeProvider;
@@ -44,9 +43,9 @@ import java.util.Map;
 public class TypeInfoTest {
 
 
-    private final TypeInfo<A> aInfo = new ConcreteTypeInfo<A>() {
+    private final TypeInfo<A> aInfo = new AbstractTypeInfo<A>() {
     };
-    private final TypeInfo<B<List<?>>> bInfo = new ConcreteTypeInfo<B<List<?>>>() {
+    private final TypeInfo<B<List<?>>> bInfo = new AbstractTypeInfo<B<List<?>>>() {
     };
 
     @org.junit.Test
@@ -120,9 +119,9 @@ public class TypeInfoTest {
 
         Assert.assertEquals("java.util.List<java.lang.String, java.util.List<java.lang.Integer>, java.util.List<java.lang.String>>", representationN.toFullString());
 
-        TypeInfo<List<Object>> typeInfo6 = new ConcreteTypeInfo<List<Object>>() {
+        TypeInfo<List<Object>> typeInfo6 = new AbstractTypeInfo<List<Object>>() {
         };
-        TypeInfo<List<String>> typeInfo7 = new ConcreteTypeInfo<List<String>>() {
+        TypeInfo<List<String>> typeInfo7 = new AbstractTypeInfo<List<String>>() {
         };
         //noinspection deprecation
         Assert.assertTrue(typeInfo6.isAssignableFrom(typeInfo7));

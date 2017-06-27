@@ -140,6 +140,6 @@ public final class OptLazy<T> extends AbstractOptObject<T, OptLazy<T>> {
         if(!this.isPresent())
             return OptObject.none();
 
-        return OptObject.optObject(((SomeLazy<T>) this.getValueHolder()).getLazy().copy());
+        return OptObject.optObjectNotNull(((SomeLazy<T>) this.getValueHolder()).getLazy().copy());
     }
 }

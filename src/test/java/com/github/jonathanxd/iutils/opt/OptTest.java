@@ -51,7 +51,7 @@ public class OptTest {
                 .$or(() -> op("ccddaa"));
 
         OptObject<String> s = abcd.cast()
-                .flatMapTo(value -> value ? OptObject.optObject("TRUE") : OptObject.optObject("FALSE"), OptObject::none);
+                .flatMapTo(value -> value ? OptObject.optObjectNotNull("TRUE") : OptObject.optObjectNotNull("FALSE"), OptObject::none);
 
 
         Assert.assertTrue(abcd.isPresent());
@@ -60,7 +60,7 @@ public class OptTest {
 
     @Test
     public void optTest2() {
-        OptObject.optObject("Here")
+        OptObject.optObjectNotNull("Here")
                 .ifPresent(s -> Assert.assertEquals("Here", s), () -> {
                     throw new AssertionError();
                 });
@@ -68,14 +68,14 @@ public class OptTest {
 
     @Test
     public void optTest3() {
-        OptObject.optObject("Here")
+        OptObject.optObjectNotNull("Here")
                 .filter(s -> s.length() > 5)
                 .ifPresent(s -> {
                     throw new AssertionError();
                 }, () -> {
                 });
 
-        OptObject.optObject("Here2")
+        OptObject.optObjectNotNull("Here2")
                 .filter(s -> s.length() > 5)
                 .ifPresent(s -> Assert.assertEquals("Here", s), () -> {
                     throw new AssertionError();
@@ -114,7 +114,7 @@ public class OptTest {
     }
 
     public OptObject<String> test(int i) {
-        return i > 100 ? OptObject.optObject(String.valueOf(i)) : OptObject.none();
+        return i > 100 ? OptObject.optObjectNotNull(String.valueOf(i)) : OptObject.none();
     }
 
     private <T> T measure(String name, Supplier<T> supplier) {

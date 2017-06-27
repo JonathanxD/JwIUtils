@@ -70,7 +70,7 @@ public interface Opt<O extends Opt<O>> {
      * @return Opt of {@link Some} if value is not null, or opt of {@link None} if value is null.
      */
     static <T> OptObject<T> optNullable(T value) {
-        return OptObject.optObject(value);
+        return OptObject.optObjectNotNull(value);
     }
 
     /**
@@ -80,8 +80,8 @@ public interface Opt<O extends Opt<O>> {
      * @param <T>   Type of value.
      * @return {@link Opt} of {@link Some}.
      */
-    static <T> OptObject<T> opt(T value) {
-        return OptObject.optObject(value);
+    static <T> OptObject<T> optNotNull(T value) {
+        return OptObject.optObjectNotNull(value);
     }
 
     /**

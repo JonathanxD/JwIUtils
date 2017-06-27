@@ -25,37 +25,38 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.list;
+package com.github.jonathanxd.iutils.function.checked.comparator;
 
-import java.util.Collection;
+import com.github.jonathanxd.iutils.function.comparators.BiComparator;
 
 /**
- * A {@link java.util.Set Set-like} {@link java.util.List}.
+ * {@link BiComparator}
  *
- * @param <E> Element type.
+ * @see com.github.jonathanxd.iutils.function.checked
  */
-@Deprecated
-public class ListSet<E> extends AbstractPredicateList<E> {
-
-    public ListSet(int initialCapacity) {
-        super(initialCapacity);
-    }
-
-    public ListSet() {
-        super();
-    }
-
-    public ListSet(Collection<? extends E> c) {
-        super(c);
-    }
+@FunctionalInterface
+public interface CBiComparator<T, U> extends BiComparator<T, U> {
 
     @Override
-    public boolean isAcceptable(E e) {
-        return !this.contains(e);
+    default int compare(T t, U u, T t2, U u2) {
+        try {
+            return this.compareChecked(t, u, t2, u2);
+        } catch (Throwable th) {
+            throw new RuntimeException(th);
+        }
     }
 
-    @Override
-    public void onReject(E e) {
-    }
+    /**
+     * {@link BiComparator#compare} equivalent which declares a {@code throws} clauses, allowing
+     * exceptions to be caught outside of lambda context.
+     *
+     * Like other interfaces of this package, this interface implements a java corresponding
+     * interface. All exceptions which occurs inside the lambda is rethrown in the implemented
+     * method using {@link RuntimeException}.
+     *
+     * @return See {@link BiComparator#compare}.
+     * @throws Throwable Exception occurred inside of function.
+     */
+    int compareChecked(T t, U u, T t2, U u2) throws Throwable;
 
 }

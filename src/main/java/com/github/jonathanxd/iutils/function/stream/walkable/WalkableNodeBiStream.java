@@ -67,8 +67,13 @@ import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
 /**
- * A {@link BiStream} backed by a {@link Walkable}.
+ * A {@link BiStream} backed by a {@link Walkable} of {@link Node}.
  *
+ * Obs: This implementation is not a real implementation of a Stream, the name is only for
+ * convention, this implementation is nether lazy nor parallel-capable. This implementation is eager,
+ * sequential and backed by a {@link Walkable}.
+ *
+ * @see Walkable
  * @param <T> First value type.
  * @param <U> Second value type.
  */

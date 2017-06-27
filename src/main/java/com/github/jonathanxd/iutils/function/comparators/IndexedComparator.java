@@ -25,37 +25,46 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.list;
-
-import java.util.Collection;
+package com.github.jonathanxd.iutils.function.comparators;
 
 /**
- * A {@link java.util.Set Set-like} {@link java.util.List}.
+ * A comparator which receives two objects to compare and the index of the objects.
  *
- * @param <E> Element type.
+ * @param <T> Type of objects.
  */
-@Deprecated
-public class ListSet<E> extends AbstractPredicateList<E> {
+@FunctionalInterface
+public interface IndexedComparator<T> {
 
-    public ListSet(int initialCapacity) {
-        super(initialCapacity);
+    /**
+     * Compares {@code o1} and {@code o2} and return a negative int, zero or positive int if {@code
+     * o1} is less than {@code o2}, {@code o1} is equal to {@code o2} or {@code o1} is greater than
+     * {@code o2} respectively.
+     *
+     * @param o1Index Index of {@code o1}
+     * @param o1      First object to compare.
+     * @param o2Index Index of {@code o2}.
+     * @param o2      Second object to compare.
+     * @return Negative int, zero or positive int if {@code o1} is less than {@code o2}, {@code o1}
+     * is equal to {@code o2} or {@code o1} is greater than {@code o2} respectively.
+     */
+    int compare(int o1Index, T o1, int o2Index, T o2);
+
+    /**
+     * Returns reversed comparator.
+     *
+     * @return Reversed comparator.
+     */
+    default IndexedComparator<T> reversed() {
+        return new IndexedComparator<T>() {
+            @Override
+            public int compare(int o1Index, T o1, int o2Index, T o2) {
+                return IndexedComparator.this.compare(o2Index, o2, o1Index, o1);
+            }
+
+            @Override
+            public IndexedComparator<T> reversed() {
+                return IndexedComparator.this;
+            }
+        };
     }
-
-    public ListSet() {
-        super();
-    }
-
-    public ListSet(Collection<? extends E> c) {
-        super(c);
-    }
-
-    @Override
-    public boolean isAcceptable(E e) {
-        return !this.contains(e);
-    }
-
-    @Override
-    public void onReject(E e) {
-    }
-
 }

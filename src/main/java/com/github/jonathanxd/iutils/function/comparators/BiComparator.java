@@ -39,6 +39,8 @@ import java.util.function.BiFunction;
 /**
  * Comparator of two values.
  *
+ * Same as {@link Comparator} but receives two values instead of one.
+ *
  * @param <T> First value.
  * @param <U> Second value.
  */
@@ -110,5 +112,8 @@ public interface BiComparator<T, U> {
         return thenComparing(comparingDouble(keyExtractor));
     }
 
+    default BiComparator<T, U> reversed() {
+        return (t, u, t2, u2) -> this.compare(t2, u2, t, u);
+    }
 
 }
