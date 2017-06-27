@@ -83,16 +83,4 @@ public class BiStreams {
         }));
     }
 
-    /**
-     * Creates a {@link BiStream} from {@link MapW}. This uses a special implementation to work with
-     * {@link MapW}.
-     *
-     * @param kvMapW MapW to wrap in stream.
-     * @param <K>    Key type.
-     * @param <V>    Value type.
-     * @return BiStream which supports {@code kvMapW}
-     */
-    public static <K, V> BiStream<K, V> mapWStream(MapW<K, V> kvMapW) {
-        return null; // TODO:
-    }
 }
