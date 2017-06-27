@@ -28,7 +28,6 @@
 package com.github.jonathanxd.iutils.function.stream;
 
 import com.github.jonathanxd.iutils.collection.Walkable;
-import com.github.jonathanxd.iutils.collections.MapW;
 import com.github.jonathanxd.iutils.function.function.ToPairFunction;
 import com.github.jonathanxd.iutils.function.stream.walkable.WalkableNodeBiStream;
 import com.github.jonathanxd.iutils.object.Node;
