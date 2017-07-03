@@ -40,6 +40,7 @@ import com.github.jonathanxd.iutils.collections.impl.java.WBackedJavaIterator;
 import com.github.jonathanxd.iutils.collections.impl.java.WBackedJavaList;
 import com.github.jonathanxd.iutils.collections.impl.java.WBackedJavaListIterator;
 import com.github.jonathanxd.iutils.collections.impl.predef.IteratorW1;
+import com.github.jonathanxd.iutils.collections.mutable.BiDiIndexedMutIteratorW;
 import com.github.jonathanxd.iutils.collections.mutable.MutableListW;
 import com.github.jonathanxd.iutils.function.function.IntObjBiFunction;
 import com.github.jonathanxd.iutils.function.predicate.IntObjBiPredicate;
@@ -212,12 +213,12 @@ public class LinkedMutableListW<E> implements MutableListW<E> {
     }
 
     @Override
-    public ListW<E> tail() {
+    public MutableListW<E> tail() {
 
         if (this.isEmpty() || this.size() == 1)
             return LinkedMutableListW.empty();
 
-        return new LinkedMutableListW<>(this.size() - 1, this.first.getNext(), this.last);
+        return subList(1, this.size());
     }
 
     @Override
@@ -337,38 +338,38 @@ public class LinkedMutableListW<E> implements MutableListW<E> {
     }
 
     @Override
-    public ListW<E> addAll(CollectionW<? extends E> c) {
+    public MutableListW<E> addAll(CollectionW<? extends E> c) {
         return LinkedMutableListW.append(this, c);
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public ListW<E> removeAll(CollectionW<? extends E> c) {
+    public MutableListW<E> removeAll(CollectionW<? extends E> c) {
         return this.filter(e -> !((CollectionW<E>) c).contains(e));
     }
 
     @Override
-    public <R> ListW<R> map(Function<? super E, ? extends R> mapper) {
+    public <R> MutableListW<R> map(Function<? super E, ? extends R> mapper) {
         return this.mapIndexed((i, value) -> mapper.apply(value));
     }
 
     @Override
-    public <R> ListW<R> flatMap(Function<? super E, ? extends CollectionW<? extends R>> mapper) {
+    public <R> MutableListW<R> flatMap(Function<? super E, ? extends CollectionW<? extends R>> mapper) {
         return this.flatMapIndexed((i, value) -> mapper.apply(value));
     }
 
     @Override
-    public ListW<E> filter(Predicate<? super E> filter) {
+    public MutableListW<E> filter(Predicate<? super E> filter) {
         return this.filterIndexed((i, value) -> filter.test(value));
     }
 
     @Override
-    public BiDiIndexedIteratorW<E> iterator() {
+    public BiDiIndexedMutIteratorW<E> iterator() {
         return new LinkedIterator<>(this.first);
     }
 
     @Override
-    public BiDiIndexedIteratorW<E> iterator(int index) {
+    public BiDiIndexedMutIteratorW<E> iterator(int index) {
         if (index > this.size() || index < 0)
             throw new IndexOutOfBoundsException("Index: " + index + ". Size: " + this.size() + ".");
 
@@ -376,7 +377,7 @@ public class LinkedMutableListW<E> implements MutableListW<E> {
     }
 
     @Override
-    public ListW<E> addAll(int index, CollectionW<? extends E> c) {
+    public MutableListW<E> addAll(int index, CollectionW<? extends E> c) {
         if (index == this.size())
             return this.append(c);
 
@@ -481,7 +482,7 @@ public class LinkedMutableListW<E> implements MutableListW<E> {
     }
 
     @Override
-    public ListW<E> subList(int fromIndex, int toIndex) {
+    public MutableListW<E> subList(int fromIndex, int toIndex) {
         if (fromIndex < 0 || fromIndex > this.size())
             throw new IndexOutOfBoundsException("From Index: " + fromIndex + ". Size: " + this.size() + ".");
 
@@ -490,49 +491,43 @@ public class LinkedMutableListW<E> implements MutableListW<E> {
 
         int pos = 0;
         Node<E> first = null;
-        Node<E> current = null;
+        Node<E> current = this.first;
         Node<E> last = null;
 
-        IteratorW<E> iterator = this.iterator();
-
-        while (iterator.hasNext()) {
-            E next = iterator.next();
+        while (current != null) {
 
             if (pos < fromIndex) {
                 ++pos;
                 continue;
             }
 
-            Node<E> node = new Node<>(next, null);
-
             if (first == null) {
-                first = node;
-                current = first;
-            } else {
-                current.setNext(node);
-                current = node;
+                first = current;
             }
 
-            if (!iterator.hasNext())
+            if (pos + 1 == toIndex) {
                 last = current;
-
-            if (pos + 1 == toIndex)
                 break;
+            }
 
+            current = current.next;
             ++pos;
         }
+
+        if (last == null)
+            last = this.last;
 
         return new LinkedMutableListW<>(toIndex - fromIndex, first, last);
     }
 
     @Override
-    public ListW<E> replaceAll(UnaryOperator<E> operator) {
+    public MutableListW<E> replaceAll(UnaryOperator<E> operator) {
         return this.map(operator);
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public ListW<E> sorted(Comparator<? super E> c) {
+    public MutableListW<E> sorted(Comparator<? super E> c) {
         Object[] array = new Object[this.size()];
 
         this.forEachIndexed((i, e) -> array[i] = e);
@@ -587,7 +582,7 @@ public class LinkedMutableListW<E> implements MutableListW<E> {
     }
 
     @Override
-    public ListW<E> filterIndexed(IntObjBiPredicate<? super E> filter) {
+    public MutableListW<E> filterIndexed(IntObjBiPredicate<? super E> filter) {
         int removed = 0;
         Node<E> first = null;
         Node<E> current = null;
@@ -621,7 +616,7 @@ public class LinkedMutableListW<E> implements MutableListW<E> {
     }
 
     @Override
-    public ListW<E> copy() {
+    public MutableListW<E> copy() {
         return append(this, (CollectionW<? extends E>) null);
     }
 
@@ -702,7 +697,7 @@ public class LinkedMutableListW<E> implements MutableListW<E> {
 
     }
 
-    static class LinkedIterator<E> implements BiDiIndexedIteratorW<E> {
+    static class LinkedIterator<E> implements BiDiIndexedMutIteratorW<E> {
 
         private int index = -1;
         private Holder<E> holder;
@@ -773,8 +768,13 @@ public class LinkedMutableListW<E> implements MutableListW<E> {
         }
 
         @Override
-        public BiDiIndexedIteratorW<E> copy() {
+        public BiDiIndexedMutIteratorW<E> copy() {
             return new LinkedIterator<>(this.holder, this.index);
+        }
+
+        @Override
+        public void remove() {
+            holder.prev.next.next = holder.next;
         }
 
         @Override
