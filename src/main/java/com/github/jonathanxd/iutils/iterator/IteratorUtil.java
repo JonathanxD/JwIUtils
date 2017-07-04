@@ -378,4 +378,97 @@ public class IteratorUtil {
             }
         };
     }
+
+    /**
+     * Creates an iterator which maps values provided by {@code source} using {@code mapper}.
+     *
+     * @param source Source iterator.
+     * @param mapper Mapper of values.
+     * @param <E>    Element type.
+     * @param <R>    Target type.
+     * @return Iterator which maps values of {@code source}.
+     */
+    public static <E, R> Iterator<R> mappedIterator(Iterator<E> source, Function<E, R> mapper) {
+        return new Iterator<R>() {
+            @Override
+            public boolean hasNext() {
+                return source.hasNext();
+            }
+
+            @Override
+            public R next() {
+                return mapper.apply(source.next());
+            }
+
+            @Override
+            public void remove() {
+                source.remove();
+            }
+        };
+    }
+
+    /**
+     * Creates an list iterator which maps values provided by {@code source} using {@code mapper}
+     * and unmaps values for {@link ListIterator#set(Object)} and {@link ListIterator#add(Object)}
+     * operations using {@code unmapper}.
+     *
+     * @param source   Source iterator.
+     * @param mapper   Mapper of values.
+     * @param unmapper Unmapper of values.
+     * @param <E>      Element type.
+     * @param <R>      Target type.
+     * @return List iterator which maps values of {@code source}.
+     */
+    public static <E, R> ListIterator<R> mappedIterator(ListIterator<E> source,
+                                                        Function<E, R> mapper,
+                                                        Function<R, E> unmapper) {
+        return new ListIterator<R>() {
+            @Override
+            public boolean hasNext() {
+                return source.hasNext();
+            }
+
+            @Override
+            public R next() {
+                return mapper.apply(source.next());
+            }
+
+            @Override
+            public boolean hasPrevious() {
+                return source.hasNext();
+            }
+
+            @Override
+            public R previous() {
+                return mapper.apply(source.previous());
+            }
+
+            @Override
+            public int nextIndex() {
+                return source.nextIndex();
+            }
+
+            @Override
+            public int previousIndex() {
+                return source.previousIndex();
+            }
+
+            @Override
+            public void remove() {
+                source.remove();
+            }
+
+            @Override
+            public void set(R r) {
+                source.set(unmapper.apply(r));
+            }
+
+            @Override
+            public void add(R r) {
+                source.add(unmapper.apply(r));
+            }
+
+
+        };
+    }
 }
