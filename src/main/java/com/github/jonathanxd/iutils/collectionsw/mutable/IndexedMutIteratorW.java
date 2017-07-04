@@ -25,12 +25,18 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.testing;
+package com.github.jonathanxd.iutils.collectionsw.mutable;
+
+import com.github.jonathanxd.iutils.collectionsw.IndexedIteratorW;
 
 /**
- * Not available in 4.x
+ * Mutable indexed iterator.
+ *
+ * @param <E> Type of elements.
  */
-public class WrappedIO {
+public interface IndexedMutIteratorW<E> extends MutableIteratorW<E>, IndexedIteratorW<E> {
 
+    @Override
+    IndexedMutIteratorW<E> copy();
 
 }

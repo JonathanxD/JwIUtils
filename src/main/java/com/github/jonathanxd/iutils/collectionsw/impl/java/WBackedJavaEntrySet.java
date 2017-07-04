@@ -25,12 +25,34 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.testing;
+package com.github.jonathanxd.iutils.collectionsw.impl.java;
 
-/**
- * Not available in 4.x
- */
-public class WrappedIO {
+import com.github.jonathanxd.iutils.collection.view.ViewCollections;
+import com.github.jonathanxd.iutils.collectionsw.EntryW;
+import com.github.jonathanxd.iutils.collectionsw.SetW;
+import com.github.jonathanxd.iutils.iterator.IteratorUtil;
 
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
+public final class WBackedJavaEntrySet<K, V> extends WBackedAbstractJavaCollection<Map.Entry<K, V>> implements Set<Map.Entry<K, V>> {
+
+    private final SetW<Map.Entry<K, V>> wrapped;
+
+    public WBackedJavaEntrySet(SetW<EntryW<K, V>> wrapped) {
+        this.wrapped = new JavaWrappedSetW<>(ViewCollections.setMapped(wrapped.asJavaSet(), (e, eIterator) ->
+                        IteratorUtil.mapped(e, eIterator, WBackedJavaMapEntry::new),
+                y -> {
+                    throw new RuntimeException();
+                },
+                l -> {
+                    throw new RuntimeException();
+                }), HashSet::new);
+    }
+
+    @Override
+    public SetW<Map.Entry<K, V>> getWrapped() {
+        return this.wrapped;
+    }
 }

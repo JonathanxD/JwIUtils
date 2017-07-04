@@ -25,12 +25,23 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.testing;
+package com.github.jonathanxd.iutils.collectionsw.impl.java;
 
-/**
- * Not available in 4.x
- */
-public class WrappedIO {
+import com.github.jonathanxd.iutils.collectionsw.IterableW;
 
+import java.util.Iterator;
+
+public final class WBackedJavaIterable<E> implements Iterable<E> {
+
+    private final IterableW<E> iterableW;
+
+    public WBackedJavaIterable(IterableW<E> iterableW) {
+        this.iterableW = iterableW;
+    }
+
+    @Override
+    public Iterator<E> iterator() {
+        return this.iterableW.iterator().asJavaIterator();
+    }
 
 }

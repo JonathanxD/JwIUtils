@@ -25,12 +25,22 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.testing;
+package com.github.jonathanxd.iutils.collectionsw.impl.java;
 
-/**
- * Not available in 4.x
- */
-public class WrappedIO {
+import com.github.jonathanxd.iutils.collectionsw.SetW;
 
+import java.util.Set;
 
+public final class WBackedJavaSet<E> extends WBackedAbstractJavaCollection<E> implements Set<E> {
+
+    private final SetW<E> wrapped;
+
+    public WBackedJavaSet(SetW<E> wrapped) {
+        this.wrapped = wrapped;
+    }
+
+    @Override
+    public SetW<E> getWrapped() {
+        return this.wrapped;
+    }
 }

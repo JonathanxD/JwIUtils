@@ -25,12 +25,48 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.testing;
+package com.github.jonathanxd.iutils.collectionsw.impl.predef;
 
-/**
- * Not available in 4.x
- */
-public class WrappedIO {
+import com.github.jonathanxd.iutils.collectionsw.BiDiIndexedIteratorW;
+import com.github.jonathanxd.iutils.collectionsw.impl.java.WBackedJavaListIterator;
 
+import java.util.ListIterator;
+import java.util.NoSuchElementException;
 
+public class BiDiIteratorW0<E> extends IteratorW0<E> implements BiDiIndexedIteratorW<E> {
+
+    private static final BiDiIteratorW0<?> EMPTY = new BiDiIteratorW0<>();
+
+    protected BiDiIteratorW0() {
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <E> BiDiIteratorW0<E> empty() {
+        return (BiDiIteratorW0<E>) EMPTY;
+    }
+
+    @Override
+    public ListIterator<E> asJavaListIterator() {
+        return new WBackedJavaListIterator<>(this);
+    }
+
+    @Override
+    public int index() {
+        return -1;
+    }
+
+    @Override
+    public boolean hasPrevious() {
+        return false;
+    }
+
+    @Override
+    public E previous() {
+        throw new NoSuchElementException();
+    }
+
+    @Override
+    public BiDiIndexedIteratorW<E> copy() {
+        return this;
+    }
 }

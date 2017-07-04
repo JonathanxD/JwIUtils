@@ -25,12 +25,25 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.testing;
+package com.github.jonathanxd.iutils.collectionsw;
 
 /**
- * Not available in 4.x
+ * An indexed iterator bounded to an {@code end} index.
+ *
+ * End index is constant and never change.
+ *
+ * {@link BoundedIteratorW BoundedIterators} are used for constant sized collections.
  */
-public class WrappedIO {
+public interface BoundedIteratorW<E> extends IndexedIteratorW<E> {
 
+    /**
+     * Returns the max index that this iterator can reach (this is the {@code size - 1} of
+     * collection).
+     *
+     * @return Max index that this iterator can reach (this is the {@code size - 1} of collection).
+     */
+    int end();
 
+    @Override
+    BoundedIteratorW<E> copy();
 }

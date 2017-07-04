@@ -25,12 +25,57 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.testing;
+package com.github.jonathanxd.iutils.collectionsw.impl.predef;
 
-/**
- * Not available in 4.x
- */
-public class WrappedIO {
+import com.github.jonathanxd.iutils.collectionsw.IteratorW;
+import com.github.jonathanxd.iutils.collectionsw.impl.java.WBackedJavaIterator;
 
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 
+public class IteratorW2<E> implements IteratorW<E> {
+
+    protected final E element1;
+    protected final E element2;
+    protected int next = 0;
+
+    public IteratorW2(E element1, E element2) {
+        this.element1 = element1;
+        this.element2 = element2;
+    }
+
+    @Override
+    public Iterator<E> asJavaIterator() {
+        return new WBackedJavaIterator<>(this);
+    }
+
+    @Override
+    public boolean hasNext() {
+        return this.next < 2;
+    }
+
+    @Override
+    public E next() {
+        if (!this.hasNext())
+            throw new NoSuchElementException();
+
+        if(this.next == 0) {
+            this.next = 1;
+            return this.element1;
+        } else if(this.next == 1) {
+            this.next = 2;
+            return this.element2;
+        }
+
+        throw new NoSuchElementException();
+    }
+
+    @Override
+    public IteratorW<E> copy() {
+        IteratorW2<E> eIteratorW2 = new IteratorW2<>(this.element1, this.element2);
+
+        eIteratorW2.next = this.next;
+
+        return eIteratorW2;
+    }
 }

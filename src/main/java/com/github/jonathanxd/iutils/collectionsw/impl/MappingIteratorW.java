@@ -25,12 +25,41 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.testing;
+package com.github.jonathanxd.iutils.collectionsw.impl;
 
-/**
- * Not available in 4.x
- */
-public class WrappedIO {
+import com.github.jonathanxd.iutils.collectionsw.IteratorW;
+import com.github.jonathanxd.iutils.collectionsw.impl.java.WBackedJavaIterator;
 
+import java.util.Iterator;
+import java.util.function.Function;
 
+public final class MappingIteratorW<S, R> implements IteratorW<R> {
+
+    private final IteratorW<S> origin;
+    private final Function<S, R> mapper;
+
+    public MappingIteratorW(IteratorW<S> origin, Function<S, R> mapper) {
+        this.origin = origin;
+        this.mapper = mapper;
+    }
+
+    @Override
+    public Iterator<R> asJavaIterator() {
+        return new WBackedJavaIterator<>(this);
+    }
+
+    @Override
+    public boolean hasNext() {
+        return this.origin.hasNext();
+    }
+
+    @Override
+    public R next() {
+        return this.mapper.apply(this.origin.next());
+    }
+
+    @Override
+    public IteratorW<R> copy() {
+        return new MappingIteratorW<>(this.origin, this.mapper);
+    }
 }

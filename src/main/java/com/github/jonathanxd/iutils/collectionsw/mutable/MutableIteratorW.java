@@ -25,12 +25,17 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.testing;
+package com.github.jonathanxd.iutils.collectionsw.mutable;
 
-/**
- * Not available in 4.x
- */
-public class WrappedIO {
+import com.github.jonathanxd.iutils.collectionsw.IteratorW;
 
+public interface MutableIteratorW<E> extends IteratorW<E> {
 
+    /**
+     * Removes current element from iterating mutable collection.
+     */
+    void remove();
+
+    @Override
+    MutableIteratorW<E> copy();
 }

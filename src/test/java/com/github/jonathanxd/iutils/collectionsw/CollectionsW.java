@@ -28,20 +28,24 @@
 package com.github.jonathanxd.iutils.collectionsw;
 
 import com.github.jonathanxd.iutils.collection.CollectionUtils;
-import com.github.jonathanxd.iutils.collections.BiDiIndexedIteratorW;
-import com.github.jonathanxd.iutils.collections.CollectionW;
-import com.github.jonathanxd.iutils.collections.IteratorW;
-import com.github.jonathanxd.iutils.collections.ListW;
-import com.github.jonathanxd.iutils.collections.impl.ArrayListW;
-import com.github.jonathanxd.iutils.collections.impl.BiSwitchingIteratorW;
-import com.github.jonathanxd.iutils.collections.impl.LinkedListW;
-import com.github.jonathanxd.iutils.collections.impl.java.JavaBackedIteratorW;
-import com.github.jonathanxd.iutils.collections.impl.java.JavaWrappedCollectionW;
+import com.github.jonathanxd.iutils.collectionsw.impl.ArrayListW;
+import com.github.jonathanxd.iutils.collectionsw.impl.BiSwitchingIteratorW;
+import com.github.jonathanxd.iutils.collectionsw.impl.LinkedListW;
+import com.github.jonathanxd.iutils.collectionsw.impl.java.JavaBackedIteratorW;
+import com.github.jonathanxd.iutils.collectionsw.impl.java.JavaWrappedCollectionW;
+import com.github.jonathanxd.iutils.collectionsw.impl.mutable.JavaBackedMutListW;
+import com.github.jonathanxd.iutils.collectionsw.impl.mutable.JavaBackedMutSetW;
+import com.github.jonathanxd.iutils.collectionsw.mutable.BiDiIndexedMutIteratorW;
+import com.github.jonathanxd.iutils.collectionsw.mutable.MutableIteratorW;
+import com.github.jonathanxd.iutils.collectionsw.mutable.MutableListW;
+import com.github.jonathanxd.iutils.collectionsw.mutable.MutableSetW;
 
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 
 public class CollectionsW {
@@ -214,6 +218,104 @@ public class CollectionsW {
         l.append(l2);
 
         Assert.assertEquals("[A, X, Y, Z, V, V]", l.append(l2).toString());
+    }
+
+    @Test
+    public void mutableListTest() {
+        MutableListW<String> listW = new JavaBackedMutListW<>(new LinkedList<>());
+
+        listW.add("B");
+        listW.add("D");
+        listW.add("E");
+        listW.add("F");
+        listW.add("G");
+        listW.add("HHH");
+        listW.add("I");
+        listW.add("J");
+
+        listW.add(0, "A");
+        listW.add(2, "C");
+
+        Assert.assertEquals("[A, B, C, D, E, F, G, HHH, I, J]", listW.toString());
+
+        BiDiIndexedMutIteratorW<String> iterator = listW.iterator();
+
+        while(iterator.hasNext()) {
+            String next = iterator.next();
+
+            if(next.equals("E"))
+                iterator.remove();
+
+        }
+
+        Assert.assertEquals("[A, B, C, D, F, G, HHH, I, J]", listW.toString());
+
+        listW.remove("D");
+
+        Assert.assertEquals("[A, B, C, F, G, HHH, I, J]", listW.toString());
+
+        listW.filter(s -> s.length() > 2);
+
+        Assert.assertEquals("[HHH]", listW.toString());
+
+        listW.addAll(LinkedListW.fromArray(new String[]{"K", "L", "M"}));
+
+        Assert.assertEquals("[HHH, K, L, M]", listW.toString());
+
+        listW.getEntry(1).add("X");
+
+        Assert.assertEquals("[HHH, X, K, L, M]", listW.toString());
+
+        listW.prepend("A");
+
+        Assert.assertEquals("[A, HHH, X, K, L, M]", listW.toString());
+    }
+
+    @Test
+    public void mutableSetTest() {
+        MutableSetW<String> setW = new JavaBackedMutSetW<>(new LinkedHashSet<>());
+
+        setW.add("A");
+        setW.add("B");
+        setW.add("C");
+        setW.add("D");
+        setW.add("E");
+        setW.add("F");
+        setW.add("G");
+        setW.add("HHH");
+        setW.add("I");
+        setW.add("J");
+
+
+        Assert.assertEquals("[A, B, C, D, E, F, G, HHH, I, J]", setW.toString());
+
+        MutableIteratorW<String> iterator = setW.iterator();
+
+        while(iterator.hasNext()) {
+            String next = iterator.next();
+
+            if(next.equals("E"))
+                iterator.remove();
+
+        }
+
+        Assert.assertEquals("[A, B, C, D, F, G, HHH, I, J]", setW.toString());
+
+        setW.remove("D");
+
+        Assert.assertEquals("[A, B, C, F, G, HHH, I, J]", setW.toString());
+
+        setW.filter(s -> s.length() > 2);
+
+        Assert.assertEquals("[HHH]", setW.toString());
+
+        setW.addAll(LinkedListW.fromArray(new String[]{"K", "L", "M"}));
+
+        Assert.assertEquals("[HHH, K, L, M]", setW.toString());
+
+        setW.prepend("A");
+
+        Assert.assertEquals("[A, HHH, K, L, M]", setW.toString());
     }
 
 }

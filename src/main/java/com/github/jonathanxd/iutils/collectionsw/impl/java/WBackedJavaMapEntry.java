@@ -25,12 +25,37 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.testing;
+package com.github.jonathanxd.iutils.collectionsw.impl.java;
 
-/**
- * Not available in 4.x
- */
-public class WrappedIO {
+import com.github.jonathanxd.iutils.collectionsw.EntryW;
+import com.github.jonathanxd.iutils.collectionsw.impl.MutationOperationOnImmutableData;
 
+import java.util.Map;
 
+public final class WBackedJavaMapEntry<K, V> implements Map.Entry<K, V> {
+
+    private final EntryW<K, V> wrapped;
+
+    public WBackedJavaMapEntry(EntryW<K, V> wrapped) {
+        this.wrapped = wrapped;
+    }
+
+    @Override
+    public K getKey() {
+        return this.wrapped.getKey();
+    }
+
+    @Override
+    public V getValue() {
+        return this.wrapped.getValue();
+    }
+
+    @Override
+    public V setValue(V value) {
+        if (this.wrapped instanceof EntryW.Mutable<?, ?>) {
+            return ((EntryW.Mutable<K, V>) this.wrapped).setValue(value);
+        }
+
+        throw new MutationOperationOnImmutableData();
+    }
 }

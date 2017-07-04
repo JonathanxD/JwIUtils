@@ -42,10 +42,24 @@ import java.util.concurrent.CompletableFuture;
 
 public class WebUtils {
 
+    /**
+     * Creates a lazy instance which lazily connects to a web-page and return response body.
+     *
+     * @param urlString Url of web-page
+     * @return lazy instance which lazily connects to a web-page and return response body.
+     * @throws MalformedURLException See {@link URL#URL(String)}
+     */
     public static Lazy<List<String>> getWebLazy(String urlString) throws MalformedURLException {
         return Lazy.lazy(WebUtils.getWeb(urlString));
     }
 
+    /**
+     * Creates a completable future which connects to a web-page and return response body.
+     *
+     * @param urlString Url of web-page
+     * @return completable future which connects to a web-page and return response body.
+     * @throws MalformedURLException See {@link URL#URL(String)}
+     */
     public static CompletableFuture<List<String>> getWeb(String urlString) throws MalformedURLException {
 
         URL url = new URL(urlString);

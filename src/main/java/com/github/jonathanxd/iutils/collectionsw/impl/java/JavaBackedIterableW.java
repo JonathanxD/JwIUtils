@@ -25,12 +25,47 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.testing;
+package com.github.jonathanxd.iutils.collectionsw.impl.java;
 
-/**
- * Not available in 4.x
- */
-public class WrappedIO {
+import com.github.jonathanxd.iutils.collectionsw.IterableW;
+import com.github.jonathanxd.iutils.collectionsw.IteratorW;
 
+import java.util.Iterator;
 
+public class JavaBackedIterableW<E> implements IterableW<E> {
+
+    private final Iterable<E> wrapped;
+
+    public JavaBackedIterableW(Iterable<E> wrapped) {
+        this.wrapped = new UnmodIterableWrapper<>(wrapped);
+    }
+
+    @Override
+    public Iterable<E> asJavaIterable() {
+        return this.wrapped;
+    }
+
+    @Override
+    public IteratorW<E> iterator() {
+        return new JavaBackedIteratorW<>(this.wrapped.iterator());
+    }
+
+    @Override
+    public IterableW<E> copy() {
+        return new JavaBackedIterableW<>(this.wrapped);
+    }
+
+    static class UnmodIterableWrapper<E> implements Iterable<E> {
+
+        private final Iterable<E> wrapped;
+
+        UnmodIterableWrapper(Iterable<E> wrapped) {
+            this.wrapped = wrapped;
+        }
+
+        @Override
+        public Iterator<E> iterator() {
+            return new JavaBackedIteratorW<>(this.wrapped.iterator()).asJavaIterator();
+        }
+    }
 }

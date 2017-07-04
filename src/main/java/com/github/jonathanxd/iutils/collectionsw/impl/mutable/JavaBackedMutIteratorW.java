@@ -25,12 +25,41 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.testing;
+package com.github.jonathanxd.iutils.collectionsw.impl.mutable;
 
-/**
- * Not available in 4.x
- */
-public class WrappedIO {
+import com.github.jonathanxd.iutils.collectionsw.mutable.MutableIteratorW;
 
+import java.util.Iterator;
 
+public final class JavaBackedMutIteratorW<E> implements MutableIteratorW<E> {
+    private final Iterator<E> iterator;
+
+    public JavaBackedMutIteratorW(Iterator<E> iterator) {
+        this.iterator = iterator;
+    }
+
+    @Override
+    public void remove() {
+        this.iterator.remove();
+    }
+
+    @Override
+    public Iterator<E> asJavaIterator() {
+        return this.iterator;
+    }
+
+    @Override
+    public boolean hasNext() {
+        return this.iterator.hasNext();
+    }
+
+    @Override
+    public E next() {
+        return this.iterator.next();
+    }
+
+    @Override
+    public MutableIteratorW<E> copy() {
+        return new JavaBackedMutIteratorW<>(this.iterator);
+    }
 }

@@ -25,12 +25,43 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.testing;
+package com.github.jonathanxd.iutils.collectionsw.impl.predef;
 
-/**
- * Not available in 4.x
- */
-public class WrappedIO {
+import com.github.jonathanxd.iutils.collectionsw.IteratorW;
+import com.github.jonathanxd.iutils.collectionsw.impl.java.WBackedJavaIterator;
 
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 
+public class IteratorW0<E> implements IteratorW<E> {
+
+    private static final IteratorW0<?> EMPTY = new IteratorW0<>();
+
+    @SuppressWarnings("unchecked")
+    public static <E> IteratorW0<E> empty() {
+        return (IteratorW0<E>) EMPTY;
+    }
+
+    protected IteratorW0() {
+    }
+
+    @Override
+    public Iterator<E> asJavaIterator() {
+        return new WBackedJavaIterator<>(this);
+    }
+
+    @Override
+    public boolean hasNext() {
+        return false;
+    }
+
+    @Override
+    public E next() {
+        throw new NoSuchElementException();
+    }
+
+    @Override
+    public IteratorW<E> copy() {
+        return this;
+    }
 }

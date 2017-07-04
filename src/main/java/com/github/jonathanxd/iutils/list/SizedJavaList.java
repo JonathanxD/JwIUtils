@@ -25,12 +25,23 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.testing;
+package com.github.jonathanxd.iutils.list;
+
+import java.util.List;
 
 /**
- * Not available in 4.x
+ * A size limited implementation of {@link List}.
+ *
+ * Obs: Changing input list will break the size limit constraint, make sure to not modify the input
+ * list.
+ *
+ * This is an extension of {@link DynamicSizedJavaList}, which have a constant size.
+ *
+ * @param <E> Element type.
  */
-public class WrappedIO {
+public class SizedJavaList<E> extends DynamicSizedJavaList<E> implements List<E> {
 
-
+    public SizedJavaList(List<E> wrapped, int maxSize) {
+        super(wrapped, () -> maxSize);
+    }
 }

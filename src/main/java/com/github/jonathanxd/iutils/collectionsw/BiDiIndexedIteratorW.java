@@ -25,12 +25,24 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.testing;
+package com.github.jonathanxd.iutils.collectionsw;
+
+import java.util.ListIterator;
 
 /**
- * Not available in 4.x
+ * An iterator which extends either {@link BiDirectionalIteratorW} and {@link IndexedIteratorW}.
+ *
+ * @param <E> Type of elements.
  */
-public class WrappedIO {
+public interface BiDiIndexedIteratorW<E> extends BiDirectionalIteratorW<E>, IndexedIteratorW<E> {
 
+    /**
+     * Returns java list iterator version of this iterator.
+     *
+     * @return Java list iterator version of this iterator.
+     */
+    ListIterator<E> asJavaListIterator();
 
+    @Override
+    BiDiIndexedIteratorW<E> copy();
 }

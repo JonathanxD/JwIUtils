@@ -25,12 +25,63 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.testing;
+package com.github.jonathanxd.iutils.collectionsw.impl.mutable;
 
-/**
- * Not available in 4.x
- */
-public class WrappedIO {
+import com.github.jonathanxd.iutils.collectionsw.mutable.BiDiIndexedMutIteratorW;
 
+import java.util.Iterator;
+import java.util.ListIterator;
 
+public class JavaBackedBiDiIndMutIterator<E> implements BiDiIndexedMutIteratorW<E> {
+
+    private final ListIterator<E> listIterator;
+
+    public JavaBackedBiDiIndMutIterator(ListIterator<E> listIterator) {
+        this.listIterator = listIterator;
+    }
+
+    @Override
+    public ListIterator<E> asJavaListIterator() {
+        return this.listIterator;
+    }
+
+    @Override
+    public int index() {
+        return this.listIterator.previousIndex();
+    }
+
+    @Override
+    public boolean hasPrevious() {
+        return this.listIterator.hasPrevious();
+    }
+
+    @Override
+    public E previous() {
+        return this.listIterator.previous();
+    }
+
+    @Override
+    public void remove() {
+        this.listIterator.remove();
+    }
+
+    @Override
+    public Iterator<E> asJavaIterator() {
+        return this.listIterator;
+    }
+
+    @Override
+    public boolean hasNext() {
+        return this.listIterator.hasNext();
+    }
+
+    @Override
+    public E next() {
+        return this.listIterator.next();
+    }
+
+    @Override
+    public BiDiIndexedMutIteratorW<E> copy() {
+        return new JavaBackedBiDiIndMutIterator<>(this.listIterator);
+    }
 }

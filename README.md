@@ -2,6 +2,8 @@
 
 Java Utilities Library.
 
+Provides a collection of common utilities for Java. (I add features when I need them, but you can send requests `:D`)
+
 # Functional Improvements
 
 ###### Binary Operators

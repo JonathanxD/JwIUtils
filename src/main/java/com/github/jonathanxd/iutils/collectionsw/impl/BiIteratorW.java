@@ -25,12 +25,57 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.testing;
+package com.github.jonathanxd.iutils.collectionsw.impl;
+
+import com.github.jonathanxd.iutils.collectionsw.IteratorW;
+import com.github.jonathanxd.iutils.collectionsw.impl.java.WBackedJavaIterator;
+
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 /**
- * Not available in 4.x
+ * An BiIterator which allows iterating over two {@link IteratorW Iterators}.
+ *
+ * @param <E> Element type.
  */
-public class WrappedIO {
+public class BiIteratorW<E> implements IteratorW<E> {
 
+    private final IteratorW<E> first;
+    private final IteratorW<E> second;
+    private IteratorW<E> current;
 
+    public BiIteratorW(IteratorW<E> first, IteratorW<E> second) {
+        this.first = first;
+        this.second = second;
+        this.current = first;
+    }
+
+    @Override
+    public Iterator<E> asJavaIterator() {
+        return new WBackedJavaIterator<>(this);
+    }
+
+    @Override
+    public boolean hasNext() {
+        if (this.current == first && !this.current.hasNext())
+            this.current = second;
+
+        return this.current.hasNext();
+    }
+
+    @Override
+    public E next() {
+        if (!this.hasNext())
+            throw new NoSuchElementException();
+
+        if (this.current == first && !this.current.hasNext())
+            this.current = second;
+
+        return this.current.next();
+    }
+
+    @Override
+    public IteratorW<E> copy() {
+        return new BiIteratorW<>(this.first, this.second);
+    }
 }

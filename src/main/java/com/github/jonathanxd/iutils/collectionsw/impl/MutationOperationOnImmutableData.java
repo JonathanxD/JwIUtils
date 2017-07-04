@@ -25,12 +25,26 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.testing;
+package com.github.jonathanxd.iutils.collectionsw.impl;
 
-/**
- * Not available in 4.x
- */
-public class WrappedIO {
+public final class MutationOperationOnImmutableData extends RuntimeException {
 
+    private static final String TAIL_MESSAGE = "Mutation operation on immutable data.";
+
+    public MutationOperationOnImmutableData() {
+        super(TAIL_MESSAGE);
+    }
+
+    public MutationOperationOnImmutableData(String message) {
+        super(message + ": " + TAIL_MESSAGE);
+    }
+
+    public MutationOperationOnImmutableData(String message, Throwable cause) {
+        super(message + ": " + TAIL_MESSAGE, cause);
+    }
+
+    public MutationOperationOnImmutableData(Throwable cause) {
+        super(TAIL_MESSAGE, cause);
+    }
 
 }

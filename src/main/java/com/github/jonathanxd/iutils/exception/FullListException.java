@@ -25,12 +25,29 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.testing;
+package com.github.jonathanxd.iutils.exception;
 
 /**
- * Not available in 4.x
+ * Occurs when you try to add an element to a full {@code size list}.
  */
-public class WrappedIO {
+public class FullListException extends RuntimeException {
+    public FullListException() {
+        super();
+    }
 
+    public FullListException(String message) {
+        super(message);
+    }
 
+    public FullListException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public FullListException(Throwable cause) {
+        super(cause);
+    }
+
+    protected FullListException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+        super(message, cause, enableSuppression, writableStackTrace);
+    }
 }

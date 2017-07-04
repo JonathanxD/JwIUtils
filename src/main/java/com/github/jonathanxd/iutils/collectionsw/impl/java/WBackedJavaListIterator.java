@@ -25,12 +25,54 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.testing;
+package com.github.jonathanxd.iutils.collectionsw.impl.java;
 
-/**
- * Not available in 4.x
- */
-public class WrappedIO {
+import com.github.jonathanxd.iutils.collectionsw.BiDiIndexedIteratorW;
+import com.github.jonathanxd.iutils.collectionsw.impl.MutationOperationOnImmutableData;
 
+import java.util.ListIterator;
 
+public final class WBackedJavaListIterator<E> extends WBackedJavaIterator<E> implements ListIterator<E> {
+
+    private final BiDiIndexedIteratorW<E> biDiIndexedIteratorW;
+
+    public WBackedJavaListIterator(BiDiIndexedIteratorW<E> biDiIndexedIteratorW) {
+        super(biDiIndexedIteratorW);
+        this.biDiIndexedIteratorW = biDiIndexedIteratorW;
+    }
+
+    @Override
+    public boolean hasPrevious() {
+        return this.biDiIndexedIteratorW.hasPrevious();
+    }
+
+    @Override
+    public E previous() {
+        return this.biDiIndexedIteratorW.previous();
+    }
+
+    @Override
+    public int nextIndex() {
+        return this.biDiIndexedIteratorW.index() + 1;
+    }
+
+    @Override
+    public int previousIndex() {
+        return this.biDiIndexedIteratorW.index() - 1;
+    }
+
+    @Override
+    public void remove() {
+        throw new MutationOperationOnImmutableData();
+    }
+
+    @Override
+    public void set(E e) {
+        throw new MutationOperationOnImmutableData();
+    }
+
+    @Override
+    public void add(E e) {
+        throw new MutationOperationOnImmutableData();
+    }
 }

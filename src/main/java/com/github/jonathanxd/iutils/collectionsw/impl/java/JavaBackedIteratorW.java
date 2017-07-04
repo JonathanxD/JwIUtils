@@ -25,12 +25,62 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.testing;
+package com.github.jonathanxd.iutils.collectionsw.impl.java;
 
-/**
- * Not available in 4.x
- */
-public class WrappedIO {
+import com.github.jonathanxd.iutils.collectionsw.IteratorW;
+import com.github.jonathanxd.iutils.collectionsw.impl.MutationOperationOnImmutableData;
 
+import java.util.Iterator;
 
+public class JavaBackedIteratorW<E> implements IteratorW<E> {
+
+    private final Iterator<E> iterator;
+
+    public JavaBackedIteratorW(Iterator<E> iterator) {
+        this.iterator = new UnmodIteratorWrapper<>(iterator);
+    }
+
+    @Override
+    public Iterator<E> asJavaIterator() {
+        return this.iterator;
+    }
+
+    @Override
+    public boolean hasNext() {
+        return this.iterator.hasNext();
+    }
+
+    @Override
+    public E next() {
+        return this.iterator.next();
+    }
+
+    @Override
+    public IteratorW<E> copy() {
+        return new JavaBackedIteratorW<>(this.iterator);
+    }
+
+    static final class UnmodIteratorWrapper<E> implements Iterator<E> {
+
+        private final Iterator<E> wrapped;
+
+        UnmodIteratorWrapper(Iterator<E> wrapped) {
+            this.wrapped = wrapped;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return this.wrapped.hasNext();
+        }
+
+        @Override
+        public E next() {
+            return this.wrapped.next();
+        }
+
+        @Override
+        public void remove() {
+            throw new MutationOperationOnImmutableData();
+        }
+    }
 }

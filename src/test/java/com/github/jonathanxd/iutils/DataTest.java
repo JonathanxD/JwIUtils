@@ -37,9 +37,6 @@ import com.github.jonathanxd.iutils.type.TypeInfo;
 import org.junit.Assert;
 import org.junit.Test;
 
-import sun.misc.Unsafe;
-import sun.reflect.ReflectionFactory;
-
 public class DataTest {
 
     @Test

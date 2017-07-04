@@ -25,12 +25,29 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.testing;
+package com.github.jonathanxd.iutils.exception;
 
 /**
- * Not available in 4.x
+ * Occurs when you try to add more elements than a sized list can carry.
  */
-public class WrappedIO {
+public class LimitExceededException extends RuntimeException {
+    public LimitExceededException() {
+        super();
+    }
 
+    public LimitExceededException(String message) {
+        super(message);
+    }
 
+    public LimitExceededException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public LimitExceededException(Throwable cause) {
+        super(cause);
+    }
+
+    protected LimitExceededException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+        super(message, cause, enableSuppression, writableStackTrace);
+    }
 }

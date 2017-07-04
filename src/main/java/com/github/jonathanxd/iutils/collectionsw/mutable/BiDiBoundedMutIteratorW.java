@@ -25,12 +25,16 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.testing;
+package com.github.jonathanxd.iutils.collectionsw.mutable;
+
+import com.github.jonathanxd.iutils.collectionsw.BiDiBoundedIteratorW;
 
 /**
- * Not available in 4.x
+ * An iterator which extends {@link BiDiIndexedMutIteratorW} and {@link BiDiBoundedIteratorW}.
+ *
+ * @param <E> Type of elements.
  */
-public class WrappedIO {
-
-
+public interface BiDiBoundedMutIteratorW<E> extends BiDiIndexedMutIteratorW<E>, BiDiBoundedIteratorW<E> {
+    @Override
+    BiDiBoundedMutIteratorW<E> copy();
 }

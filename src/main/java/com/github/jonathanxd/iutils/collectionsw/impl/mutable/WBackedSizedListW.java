@@ -25,12 +25,35 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.testing;
+package com.github.jonathanxd.iutils.collectionsw.impl.mutable;
+
+import com.github.jonathanxd.iutils.collectionsw.mutable.MutableSizedListW;
+import com.github.jonathanxd.iutils.collectionsw.mutable.MutableListW;
+
+import java.util.function.IntSupplier;
+import java.util.function.Supplier;
 
 /**
- * Not available in 4.x
+ * Extension of {@link WBackedDynamicSizedListW} with constant size.
+ *
+ * @param <E> Element size.
  */
-public class WrappedIO {
+public class WBackedSizedListW<E> extends WBackedDynamicSizedListW<E> implements MutableSizedListW<E> {
 
+    private WBackedSizedListW(MutableListW<E> listW, IntSupplier maxSizeSupplier) {
+        super(listW, maxSizeSupplier);
+    }
 
+    public WBackedSizedListW(MutableListW<E> listW, int maxSize) {
+        super(listW, () -> maxSize);
+    }
+
+    public WBackedSizedListW(MutableListW<E> listW, int maxSize, Supplier<MutableListW<?>> factory) {
+        super(listW, () -> maxSize, factory);
+    }
+
+    @Override
+    public <R> WBackedDynamicSizedListW<R> createNew(MutableListW<R> listW, IntSupplier maxSizeSupplier) {
+        return new WBackedSizedListW<>(listW, maxSizeSupplier);
+    }
 }

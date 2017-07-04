@@ -25,12 +25,24 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.testing;
+package com.github.jonathanxd.iutils.collectionsw;
 
 /**
- * Not available in 4.x
+ * Indexed iterator, an iterator which exposes the index of current element.
+ *
+ * @param <E> Type of elements.
  */
-public class WrappedIO {
+public interface IndexedIteratorW<E> extends IteratorW<E> {
 
+    /**
+     * Returns current index of iterator pointer in the indexed collection or -1 if no one value was
+     * traversed.
+     *
+     * @return Current index of iterator pointer in the indexed collection or -1 if no one value was
+     * traversed.
+     */
+    int index();
 
+    @Override
+    IndexedIteratorW<E> copy();
 }

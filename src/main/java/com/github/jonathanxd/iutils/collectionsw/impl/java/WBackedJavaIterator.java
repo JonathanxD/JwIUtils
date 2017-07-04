@@ -25,12 +25,33 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.testing;
+package com.github.jonathanxd.iutils.collectionsw.impl.java;
 
-/**
- * Not available in 4.x
- */
-public class WrappedIO {
+import com.github.jonathanxd.iutils.collectionsw.IteratorW;
+import com.github.jonathanxd.iutils.collectionsw.impl.MutationOperationOnImmutableData;
 
+import java.util.Iterator;
 
+public class WBackedJavaIterator<E> implements Iterator<E> {
+
+    private final IteratorW<E> iteratorW;
+
+    public WBackedJavaIterator(IteratorW<E> iteratorW) {
+        this.iteratorW = iteratorW;
+    }
+
+    @Override
+    public boolean hasNext() {
+        return this.iteratorW.hasNext();
+    }
+
+    @Override
+    public E next() {
+        return this.iteratorW.next();
+    }
+
+    @Override
+    public void remove() {
+        throw new MutationOperationOnImmutableData();
+    }
 }

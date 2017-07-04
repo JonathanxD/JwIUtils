@@ -25,12 +25,28 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.testing;
+package com.github.jonathanxd.iutils.collectionsw;
 
-/**
- * Not available in 4.x
- */
-public class WrappedIO {
+public interface IterableW<E> {
 
+    /**
+     * Returns a java iterable version of this iterable.
+     *
+     * @return A java iterable version of this iterable.
+     */
+    Iterable<E> asJavaIterable();
 
+    /**
+     * Creates an {@link IteratorW} which can be used to traverse elements.
+     *
+     * @return {@link IteratorW} which can be used to traverse elements.
+     */
+    IteratorW<E> iterator();
+
+    /**
+     * Returns a copy of this iterable.
+     *
+     * @return Copy of this iterable.
+     */
+    IterableW<E> copy();
 }

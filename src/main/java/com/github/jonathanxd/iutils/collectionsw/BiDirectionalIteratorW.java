@@ -25,12 +25,29 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.testing;
+package com.github.jonathanxd.iutils.collectionsw;
 
 /**
- * Not available in 4.x
+ * BiDirectionalIterator, an iterator which can traverse previous elements.
+ *
+ * @param <E> Type of elements.
  */
-public class WrappedIO {
+public interface BiDirectionalIteratorW<E> extends IteratorW<E> {
 
+    /**
+     * Returns true if this iterator has elements to back-traverse.
+     *
+     * @return True if this iterator has elements to back-traverse.
+     */
+    boolean hasPrevious();
 
+    /**
+     * Returns previous element available in the iterator.
+     *
+     * @return Previous element available in the iterator.
+     */
+    E previous();
+
+    @Override
+    BiDirectionalIteratorW<E> copy();
 }

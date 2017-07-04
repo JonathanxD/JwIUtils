@@ -27,6 +27,8 @@
  */
 package com.github.jonathanxd.iutils.iterator;
 
+import com.github.jonathanxd.iutils.function.checked.CRunnable;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -218,7 +220,7 @@ public class IteratorUtil {
 
             @Override
             public boolean hasNext() {
-                return this.index < args.length;
+                return this.index + 1 < args.length;
             }
 
             @Override
@@ -469,6 +471,65 @@ public class IteratorUtil {
             }
 
 
+        };
+    }
+
+    /**
+     * Wraps a {@code listIterator} into another and call {@code addCheck} every time {@link
+     * ListIterator#add(Object)} is called.
+     *
+     * @param listIterator List iterator to wrap.
+     * @param addCheck     Checker runnable. (Should throw exception if cannot add element).
+     * @param <E>          Element type.
+     * @return Wrapped list iterator.
+     */
+    public static <E> ListIterator<E> addCheckListIterator(ListIterator<E> listIterator, CRunnable addCheck) {
+        return new ListIterator<E>() {
+            @Override
+            public boolean hasNext() {
+                return listIterator.hasNext();
+            }
+
+            @Override
+            public E next() {
+                return listIterator.next();
+            }
+
+            @Override
+            public boolean hasPrevious() {
+                return listIterator.hasPrevious();
+            }
+
+            @Override
+            public E previous() {
+                return listIterator.previous();
+            }
+
+            @Override
+            public int nextIndex() {
+                return listIterator.nextIndex();
+            }
+
+            @Override
+            public int previousIndex() {
+                return listIterator.previousIndex();
+            }
+
+            @Override
+            public void remove() {
+                listIterator.remove();
+            }
+
+            @Override
+            public void set(E e) {
+                listIterator.set(e);
+            }
+
+            @Override
+            public void add(E e) {
+                addCheck.run();
+                listIterator.add(e);
+            }
         };
     }
 }

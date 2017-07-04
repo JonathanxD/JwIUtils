@@ -25,12 +25,20 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.testing;
+package com.github.jonathanxd.iutils.collectionsw.mutable;
+
+import com.github.jonathanxd.iutils.collectionsw.BoundedIteratorW;
 
 /**
- * Not available in 4.x
+ * An indexed iterator bounded to an {@code end} index.
+ *
+ * End index is constant and never change.
+ *
+ * {@link BoundedMutIteratorW BoundedMutIterators} are used for constant sized collections.
  */
-public class WrappedIO {
+public interface BoundedMutIteratorW<E> extends IndexedMutIteratorW<E>, BoundedIteratorW<E> {
 
+    @Override
+    BoundedMutIteratorW<E> copy();
 
 }

@@ -25,12 +25,13 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.testing;
-
 /**
- * Not available in 4.x
+ * JwIUtils collection library.
+ *
+ * This library provides immutable collections, lists, iterators, lists, sets, maps, etc...
+ *
+ * All JwIUtils collections can be converted to Java equivalent. Some implementations are wrappers
+ * to Java collections and will either provide a unmodifiable version of collection as Java
+ * equivalent, or the list itself.
  */
-public class WrappedIO {
-
-
-}
+package com.github.jonathanxd.iutils.collectionsw;
