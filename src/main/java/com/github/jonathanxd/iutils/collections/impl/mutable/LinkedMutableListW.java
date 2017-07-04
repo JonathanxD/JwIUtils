@@ -53,6 +53,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
@@ -64,10 +65,10 @@ import java.util.function.UnaryOperator;
 public class LinkedMutableListW<E> implements MutableListW<E> {
 
     private int size;
-    Node<E> first;
-    Node<E> last;
+    private Node<E> first;
+    private Node<E> last;
 
-    LinkedMutableListW() {
+    private LinkedMutableListW() {
         this.size = 0;
     }
 
@@ -77,7 +78,7 @@ public class LinkedMutableListW<E> implements MutableListW<E> {
         this.last = last;
     }
 
-    LinkedMutableListW(E element) {
+    private LinkedMutableListW(E element) {
         this.size = 1;
         this.first = new Node<>(element, null);
         this.last = this.first;
@@ -98,56 +99,63 @@ public class LinkedMutableListW<E> implements MutableListW<E> {
     }
 
     private static <E> LinkedMutableListW<E> append(LinkedMutableListW<E> head, CollectionW<? extends E> tail) {
-        return prependCollection(head, tail);
+
+        IteratorW<? extends E> iterator = tail.iterator();
+
+        while (iterator.hasNext()) {
+            E next = iterator.next();
+
+            Node<E> node = new Node<>(next, null);
+
+            if (head.last == null) {
+                head.first = node;
+                head.last = node;
+            } else {
+                head.last.next = node;
+                head.last = node;
+            }
+
+            head.size++;
+        }
+
+        return head;
     }
 
     private static <E> LinkedMutableListW<E> append(LinkedMutableListW<E> head, E last) {
-        return LinkedMutableListW.prependCollection(head, new LinkedMutableListW<>(last));
+
+        Node<E> node = new Node<>(last, null);
+
+        if (head.last == null) {
+            head.first = node;
+            head.last = node;
+        } else {
+            head.last.next = node;
+            head.last = node;
+        }
+
+        head.size++;
+
+        return head;
     }
 
     public static <E> LinkedMutableListW<E> fromCollection(CollectionW<? extends E> elements) {
-        return LinkedMutableListW.prependCollection(elements, null);
+
+        int size = elements.size();
+
+        IteratorW<? extends E> iterator = elements.iterator();
+
+        return LinkedMutableListW.copy(size, iterator);
     }
 
     private static <E> LinkedMutableListW<E> prepend(E firstElement, LinkedMutableListW<E> tail) {
-        int size = tail.size() + 1;
-        Node<E> first = new Node<>(firstElement, tail.first);
-        Node<E> last = tail.last;
+        tail.size++;
 
-        return new LinkedMutableListW<>(size, first, last);
+        tail.first = new Node<>(firstElement, tail.first);
+
+        return tail;
     }
 
-    @SuppressWarnings("unchecked")
-    private static <E> LinkedMutableListW<E> prependCollection(CollectionW<? extends E> elements, CollectionW<? extends E> tailList) {
-        boolean tailIsLinked = tailList != null && tailList instanceof LinkedMutableListW<?>;
-
-        int size = elements.size() + (tailList != null ? tailList.size() : 0);
-
-        IteratorW<E> iterator = (IteratorW<E>) elements.iterator();
-
-        if (!tailIsLinked && tailList != null) {
-            iterator = new BiIteratorW<>(iterator, (IteratorW<E>) tailList.iterator());
-        }
-
-        LinkedMutableListW<E> copy = LinkedMutableListW.copy(size, iterator);
-
-        if (tailIsLinked) {
-
-            LinkedMutableListW<E> tailLinked = (LinkedMutableListW<E>) tailList;
-
-            if (copy.last == null) {
-                copy.first = tailLinked.first;
-                copy.last = tailLinked.last;
-            } else {
-                copy.last.setNext(tailLinked.first);
-                copy.last = tailLinked.first;
-            }
-        }
-
-        return copy;
-    }
-
-    private static <E> LinkedMutableListW<E> copy(int size, IteratorW<E> iterator) {
+    private static <E> LinkedMutableListW<E> copy(int size, IteratorW<? extends E> iterator) {
         Node<E> first = null;
         Node<E> current = null;
         Node<E> last = null;
@@ -197,11 +205,9 @@ public class LinkedMutableListW<E> implements MutableListW<E> {
 
     @Override
     public MutableListW<E> head() {
-        Node<E> copy = this.first.copy();
+        Node<E> copy = this.first;
 
-        copy.setNext(null);
-
-        return new LinkedMutableListW<>(0, copy, null);
+        return new LinkedMutableListW<>(1, copy, null);
     }
 
     @Override
@@ -237,23 +243,25 @@ public class LinkedMutableListW<E> implements MutableListW<E> {
     }
 
     @Override
-    public ListW<E> prepend(E e) {
+    public MutableListW<E> prepend(E e) {
         return LinkedMutableListW.prepend(e, this);
     }
 
     @Override
-    public ListW<E> prepend(CollectionW<? extends E> es) {
-        return LinkedMutableListW.prependCollection(es, this);
+    public MutableListW<E> prepend(CollectionW<? extends E> es) {
+        es.forEach(this::prepend);
+
+        return this;
     }
 
     @Override
-    public ListW<E> append(E e) {
+    public MutableListW<E> append(E e) {
         return LinkedMutableListW.append(this, e);
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public ListW<E> append(CollectionW<? extends E> es) {
+    public MutableListW<E> append(CollectionW<? extends E> es) {
 
         if (es instanceof LinkedMutableListW) {
             return ((LinkedMutableListW) es).prepend(this);
@@ -263,73 +271,66 @@ public class LinkedMutableListW<E> implements MutableListW<E> {
     }
 
     @Override
-    public ListW<E> add(E e) {
+    public MutableListW<E> add(E e) {
         return LinkedMutableListW.append(this, e);
     }
 
     @Override
-    public ListW<E> remove(E e) {
+    public MutableListW<E> remove(E e) {
 
         if (this.first == null)
             return this;
 
-        if (this.first.getValue().equals(e)) {
+        if (Objects.equals(this.first.getValue(), e)) {
 
-            if (this.size == 1)
-                return LinkedMutableListW.empty();
+            if (this.size == 1) {
+                this.first = null;
+                this.last = null;
+                return this;
+            }
 
-            return new LinkedMutableListW<>(this.size() - 1, this.first.getNext(), this.last);
+            this.first = this.first.getNext();
+
+            return this;
         }
 
-        if (this.last.getValue().equals(e)) {
+        if (Objects.equals(this.last.getValue(), e)) {
 
-            if (this.size == 1)
-                return LinkedMutableListW.empty();
+            if (this.size == 1) {
+                this.first = null;
+                this.last = null;
 
-            LinkedMutableListW<E> w = new LinkedMutableListW<>(this.size() - 1, this.first, null);
+                return this;
+            }
 
             Node<E> n = this.first;
 
-            while (n.getNext() != this.last) {
-                n = n.getNext();
+            while (n.next != this.last) {
+                n = n.next;
             }
 
-            w.last = n;
+            this.last = n;
 
-            return w;
+            return this;
         }
 
-        Node<E> first = null;
-        Node<E> current = null;
-        Node<E> last = null;
-        boolean found = false;
+        Node<E> prev = null;
+        Node<E> current = this.first;
 
-        IteratorW<E> iterator = this.iterator();
+        while (current != null) {
 
-        while (iterator.hasNext()) {
-            E next = iterator.next();
-            boolean eq = next.equals(e);
-
-            if (!eq || found) {
-                Node<E> node = new Node<>(next, null);
-
-                if (first == null) {
-                    first = node;
-                    current = first;
-                } else {
-                    current.setNext(node);
-                    current = node;
+            if (prev != null) {
+                if (Objects.equals(current.value, e)) {
+                    prev.next = current.next;
+                    return this;
                 }
-
-                if (!iterator.hasNext())
-                    last = current;
-
-            } else {
-                found = true;
             }
+
+            prev = current;
+            current = current.next;
         }
 
-        return new LinkedMutableListW<>(found ? this.size - 1 : this.size, first, last);
+        return this;
     }
 
     @Override
@@ -364,6 +365,12 @@ public class LinkedMutableListW<E> implements MutableListW<E> {
     }
 
     @Override
+    public void clear() {
+        this.first = null;
+        this.last = null;
+    }
+
+    @Override
     public BiDiIndexedMutIteratorW<E> iterator() {
         return new LinkedIterator<>(this.first);
     }
@@ -384,9 +391,18 @@ public class LinkedMutableListW<E> implements MutableListW<E> {
         if (index > this.size() || index < 0)
             throw new IndexOutOfBoundsException("Index: " + index + ". Size: " + this.size() + ".");
 
-        IteratorW<E> iterator = new BiSwitchingIteratorW<>(this.iterator(), c.iterator(), index);
+        int cIndex = index;
 
-        return LinkedMutableListW.copy(this.size() + c.size(), iterator);
+        IteratorW<? extends E> iterator = c.iterator();
+
+        while (iterator.hasNext()) {
+            E next = iterator.next();
+
+            this.add(cIndex, next);
+            ++cIndex;
+        }
+
+        return this;
     }
 
     @Override
@@ -407,27 +423,15 @@ public class LinkedMutableListW<E> implements MutableListW<E> {
     }
 
     @Override
-    public ListW<E> getEntry(int index) {
+    public MutableListW<E> getEntry(int index) {
         if (index >= this.size() || index < 0)
             throw new IndexOutOfBoundsException("Index: " + index + ". Size: " + this.size() + ".");
 
-        if (this.first == null)
-            return LinkedMutableListW.empty();
-
-        int pos = 0;
-        Node<E> node = this.first;
-
-        do {
-            if (pos == index) {
-                return new LinkedMutableListW<>(node.getValue());
-            }
-        } while ((node = node.getNext()) != null);
-
-        throw new IndexOutOfBoundsException("Size: " + this.size() + ". Index: " + index + ".");
+        return this.subList(index, index);
     }
 
     @Override
-    public ListW<E> set(int index, E element) {
+    public MutableListW<E> set(int index, E element) {
         if (index >= this.size() || index < 0)
             throw new IndexOutOfBoundsException("Index: " + index + ". Size: " + this.size() + ".");
 
@@ -435,20 +439,42 @@ public class LinkedMutableListW<E> implements MutableListW<E> {
     }
 
     @Override
-    public ListW<E> add(int index, E element) {
+    public MutableListW<E> add(int index, E element) {
         if (index == this.size())
             return this.append(element);
 
         if (index > this.size() || index < 0)
             throw new IndexOutOfBoundsException("Index: " + index + ". Size: " + this.size() + ".");
 
-        IteratorW<E> iterator = new BiSwitchingIteratorW<>(this.iterator(), new IteratorW1<>(element), index);
+        int pos = 0;
+        Node<E> prev = null;
+        Node<E> current = this.first;
 
-        return LinkedMutableListW.copy(this.size() + 1, iterator);
+        while (current != null) {
+
+            if (pos == index) {
+                Node<E> next = current.next;
+
+                if (prev != null) {
+                    prev.next = new Node<>(element, next);
+                } else {
+                    this.first = new Node<>(element, next);
+                }
+
+                return this;
+
+            }
+
+            ++pos;
+            prev = current;
+            current = current.next;
+        }
+
+        return this;
     }
 
     @Override
-    public ListW<E> remove(int index) {
+    public MutableListW<E> remove(int index) {
         return this.filterIndexed((i, e) -> i != index);
     }
 
@@ -534,11 +560,16 @@ public class LinkedMutableListW<E> implements MutableListW<E> {
 
         Arrays.sort(array);
 
-        return (LinkedMutableListW<E>) LinkedMutableListW.fromArray(array);
+        this.clear();
+
+        LinkedMutableListW<E> w = (LinkedMutableListW<E>) LinkedMutableListW.fromArray(array);
+
+        return this.addAll(w);
     }
 
     @Override
-    public <R> ListW<R> mapIndexed(IntObjBiFunction<? super E, ? extends R> mapper) {
+    public <R> MutableListW<R> mapIndexed(IntObjBiFunction<? super E, ? extends R> mapper) {
+
         Node<R> first = null;
         Node<R> current = null;
         Node<R> last = null;
@@ -567,8 +598,8 @@ public class LinkedMutableListW<E> implements MutableListW<E> {
     }
 
     @Override
-    public <R> ListW<R> flatMapIndexed(IntObjBiFunction<? super E, ? extends CollectionW<? extends R>> mapper) {
-        ListW<R> left = LinkedMutableListW.empty();
+    public <R> MutableListW<R> flatMapIndexed(IntObjBiFunction<? super E, ? extends CollectionW<? extends R>> mapper) {
+        MutableListW<R> left = LinkedMutableListW.empty();
 
         BiDiIndexedIteratorW<E> iterator = this.iterator();
 
@@ -583,41 +614,33 @@ public class LinkedMutableListW<E> implements MutableListW<E> {
 
     @Override
     public MutableListW<E> filterIndexed(IntObjBiPredicate<? super E> filter) {
-        int removed = 0;
-        Node<E> first = null;
-        Node<E> current = null;
-        Node<E> last = null;
+        int index = 0;
 
-        BiDiIndexedIteratorW<E> iterator = this.iterator();
+        Node<E> prev = null;
+        Node<E> current = this.first;
 
-        while (iterator.hasNext()) {
-            E next = iterator.next();
+        while (current != null) {
 
-            if (filter.test(iterator.index(), next)) {
-                Node<E> node = new Node<>(next, null);
-
-                if (first == null) {
-                    first = node;
-                    current = first;
-                } else {
-                    current.setNext(node);
-                    current = node;
+                if (!filter.test(index, current.getValue())) {
+                    if (prev != null) {
+                        prev.next = current.next;
+                    } else {
+                        first = current.next;
+                    }
                 }
 
-                if (!iterator.hasNext())
-                    last = current;
-
-            } else {
-                ++removed;
-            }
+            prev = current;
+            current = current.next;
+            ++index;
         }
 
-        return new LinkedMutableListW<>(this.size - removed, first, last);
+
+        return this;
     }
 
     @Override
     public MutableListW<E> copy() {
-        return append(this, (CollectionW<? extends E>) null);
+        return copy(this.size(), this.iterator());
     }
 
     @Override
@@ -645,8 +668,8 @@ public class LinkedMutableListW<E> implements MutableListW<E> {
     }
 
     static class Node<E> {
-        private final E value;
-        private Node<E> next;
+        E value;
+        Node<E> next;
 
         Node(E value, Node<E> next) {
             this.value = value;
