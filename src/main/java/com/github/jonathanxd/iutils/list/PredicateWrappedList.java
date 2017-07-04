@@ -156,7 +156,7 @@ public class PredicateWrappedList<E> implements PredicateList<E> {
 
     @Override
     public List<E> subList(int fromIndex, int toIndex) {
-        return new PredicateArrayList<>(this.getWrappedList().subList(fromIndex, toIndex), this.predicate);
+        return new PredicateWrappedList<>(this.getWrappedList().subList(fromIndex, toIndex), this.predicate);
     }
 
     @Override

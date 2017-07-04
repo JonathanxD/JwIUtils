@@ -28,7 +28,7 @@
 package com.github.jonathanxd.iutils;
 
 import com.github.jonathanxd.iutils.array.PrimitiveArrayConverter;
-import com.github.jonathanxd.iutils.collection.CollectionUtils;
+import com.github.jonathanxd.iutils.collection.Collections3;
 import com.github.jonathanxd.iutils.grabber.Grabber;
 import com.github.jonathanxd.iutils.grabber.ListGrabber;
 
@@ -64,7 +64,7 @@ public class TestGrabber {
 
         List<Integer> integers = grabber.collectRemainingToList();
 
-        Assert.assertEquals(CollectionUtils.listOf(6, 7, 8, 9, 10), integers);
+        Assert.assertEquals(Collections3.listOf(6, 7, 8, 9, 10), integers);
 
         int[] array = PrimitiveArrayConverter.toPrimitive(cloned.collectRemainingToArray(Integer[]::new));
 

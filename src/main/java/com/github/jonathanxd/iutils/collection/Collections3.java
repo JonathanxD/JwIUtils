@@ -27,6 +27,8 @@
  */
 package com.github.jonathanxd.iutils.collection;
 
+import com.github.jonathanxd.iutils.exception.LimitExceededException;
+import com.github.jonathanxd.iutils.list.SizedJavaList;
 import com.github.jonathanxd.iutils.list.StaticList;
 
 import java.util.ArrayList;
@@ -42,10 +44,10 @@ import java.util.function.Supplier;
 /**
  * Collection utilities.
  */
-public class CollectionUtils {
+public class Collections3 {
 
     /**
-     * Create a {@link T Sequence} of {@link E}.
+     * Creates a {@link T Sequence} of {@link E}.
      *
      * @param factory  Factory method to create sequence.
      * @param adder    Sequence adding method.
@@ -66,7 +68,8 @@ public class CollectionUtils {
     }
 
     /**
-     * Create a {@link Collection} of {@link E} and add {@code elements} to the {@link Collection}.
+     * Creates a {@link Collection} of {@link E} and add {@code elements} to the {@link
+     * Collection}.
      *
      * @param factory  Collection factory method.
      * @param elements Elements to add to collection.
@@ -84,7 +87,7 @@ public class CollectionUtils {
     }
 
     /**
-     * Create a {@link List} of {@link E} and add {@code elements} to the {@link List}.
+     * Creates a {@link List} of {@link E} and add {@code elements} to the {@link List}.
      *
      * @param elements Elements to add to list.
      * @param <E>      Element type.
@@ -100,7 +103,8 @@ public class CollectionUtils {
     }
 
     /**
-     * Create a {@link StaticList} of {@link E} and add {@code elements} to the {@link StaticList}.
+     * Creates a {@link StaticList} of {@link E} and add {@code elements} to the {@link
+     * StaticList}.
      *
      * @param type     Type of elements.
      * @param elements Elements to add to list.
@@ -117,6 +121,26 @@ public class CollectionUtils {
         }
 
         return list;
+    }
+
+    /**
+     * Creates a {@link SizedJavaList} of {@link E} and add {@code elements} to the {@link
+     * SizedJavaList}.
+     *
+     * @param maxSize  Max size of list.
+     * @param elements Elements to add to list.
+     * @param <E>      Element type.
+     * @return {@link SizedJavaList} of {@link E} with {@code elements}.
+     * @throws LimitExceededException If the input {@code elements} has more elements than this
+     *                                sized list can carry.
+     */
+    @SafeVarargs
+    public static <E> SizedJavaList<E> sizedListOf(int maxSize, E... elements) throws LimitExceededException {
+        List<E> list = new ArrayList<>(elements.length > maxSize ? elements.length : maxSize);
+
+        Collections.addAll(list, elements);
+
+        return new SizedJavaList<>(list, maxSize);
     }
 
     /**

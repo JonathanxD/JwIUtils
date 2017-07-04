@@ -27,7 +27,7 @@
  */
 package com.github.jonathanxd.iutils.collectionsw;
 
-import com.github.jonathanxd.iutils.collection.CollectionUtils;
+import com.github.jonathanxd.iutils.collection.Collections3;
 import com.github.jonathanxd.iutils.collectionsw.impl.ArrayListW;
 import com.github.jonathanxd.iutils.collectionsw.impl.BiSwitchingIteratorW;
 import com.github.jonathanxd.iutils.collectionsw.impl.LinkedListW;
@@ -147,14 +147,14 @@ public class CollectionsW {
 
     @Test
     public void test8() {
-        IteratorW<String> ite = new JavaBackedIteratorW<>(CollectionUtils.listOf(
+        IteratorW<String> ite = new JavaBackedIteratorW<>(Collections3.listOf(
                 "A",
                 "B",
                 "E",
                 "F"
         ).iterator());
 
-        IteratorW<String> ite2 = new JavaBackedIteratorW<>(CollectionUtils.listOf(
+        IteratorW<String> ite2 = new JavaBackedIteratorW<>(Collections3.listOf(
                 "C",
                 "D"
         ).iterator());
@@ -191,8 +191,8 @@ public class CollectionsW {
         ArrayList<String> s = new ArrayList<>();
 
         s.add("A");
-        s.addAll(1, CollectionUtils.listOf("N", "T"));
-        s.addAll(2, CollectionUtils.listOf("V", "D"));
+        s.addAll(1, Collections3.listOf("N", "T"));
+        s.addAll(2, Collections3.listOf("V", "D"));
 
         ListW<String> all = l.addAll(1, new ArrayListW<String>().add("N").add("T"))
                 .addAll(2, new ArrayListW<String>().add("V").add("D"));

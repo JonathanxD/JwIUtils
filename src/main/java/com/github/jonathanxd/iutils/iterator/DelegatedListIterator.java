@@ -25,10 +25,61 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.collections;
+package com.github.jonathanxd.iutils.iterator;
+
+import java.util.ListIterator;
 
 /**
- * Helper list factory
+ * Abstract delegated list iterator.
+ *
+ * @param <E> Element type.
  */
-public class Lists {
+public abstract class DelegatedListIterator<E> implements ListIterator<E> {
+
+    protected abstract ListIterator<E> getDelegate();
+
+    @Override
+    public boolean hasNext() {
+        return this.getDelegate().hasNext();
+    }
+
+    @Override
+    public E next() {
+        return this.getDelegate().next();
+    }
+
+    @Override
+    public boolean hasPrevious() {
+        return this.getDelegate().hasPrevious();
+    }
+
+    @Override
+    public E previous() {
+        return this.getDelegate().previous();
+    }
+
+    @Override
+    public int nextIndex() {
+        return this.getDelegate().nextIndex();
+    }
+
+    @Override
+    public int previousIndex() {
+        return this.getDelegate().previousIndex();
+    }
+
+    @Override
+    public void remove() {
+        this.getDelegate().remove();
+    }
+
+    @Override
+    public void set(E e) {
+        this.getDelegate().set(e);
+    }
+
+    @Override
+    public void add(E e) {
+        this.getDelegate().add(e);
+    }
 }

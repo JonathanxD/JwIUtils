@@ -27,5 +27,14 @@
  */
 package com.github.jonathanxd.iutils.annotation;
 
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
+/**
+ * Mark generated classes.
+ */
+@Documented
+@Retention(RetentionPolicy.RUNTIME)
 public @interface Generated {
 }

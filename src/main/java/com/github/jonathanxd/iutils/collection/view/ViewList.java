@@ -54,10 +54,8 @@ public class ViewList<E, Y> extends AbstractViewCollection<E, Y> implements List
      *
      * @param list   List to wrap.
      * @param mapper Mapper.
-     * @param add    Add operation handler. First argument is index (negative is undefined), the
-     *               second is the value.
-     * @param remove Add operation handler. First argument is index (negative is undefined), the
-     *               second is the value (null for undefined).
+     * @param add    Add operation handler.
+     * @param remove Remove operation handler.
      */
     public ViewList(List<E> list, BiFunction<E, ListIterator<E>, ListIterator<Y>> mapper,
                     Predicate<Y> add,
@@ -70,10 +68,8 @@ public class ViewList<E, Y> extends AbstractViewCollection<E, Y> implements List
      *
      * @param list     List to wrap.
      * @param mapper   Mapper.
-     * @param add      Add operation handler. First argument is index (negative is undefined), the
-     *                 second is the value.
-     * @param remove   Add operation handler. First argument is index (negative is undefined), the
-     *                 second is the value (null for undefined).
+     * @param add      Add operation handler.
+     * @param remove   Remove operation handler.
      * @param reverse  True to create a reversed iterable of list.
      * @param readOnly True to create a read only iterator.
      */

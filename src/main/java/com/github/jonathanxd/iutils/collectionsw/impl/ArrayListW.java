@@ -27,7 +27,7 @@
  */
 package com.github.jonathanxd.iutils.collectionsw.impl;
 
-import com.github.jonathanxd.iutils.collection.CollectionUtils;
+import com.github.jonathanxd.iutils.collection.Collections3;
 import com.github.jonathanxd.iutils.collectionsw.BiDiIndexedIteratorW;
 import com.github.jonathanxd.iutils.collectionsw.CollectionW;
 import com.github.jonathanxd.iutils.collectionsw.ListW;
@@ -101,7 +101,7 @@ public class ArrayListW<E> implements ListW<E> {
 
     @Override
     public ListW<E> head() {
-        return this.isEmpty() ? new ArrayListW<>() : new ArrayListW<>(CollectionUtils.listOf(this.first()));
+        return this.isEmpty() ? new ArrayListW<>() : new ArrayListW<>(Collections3.listOf(this.first()));
     }
 
     @Override
@@ -269,7 +269,7 @@ public class ArrayListW<E> implements ListW<E> {
 
     @Override
     public ListW<E> getEntry(int index) {
-        return new ArrayListW<>(CollectionUtils.listOf(this.get(index)));
+        return new ArrayListW<>(Collections3.listOf(this.get(index)));
     }
 
     @Override

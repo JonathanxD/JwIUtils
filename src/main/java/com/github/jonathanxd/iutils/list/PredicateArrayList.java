@@ -35,7 +35,9 @@ import java.util.function.Predicate;
  * A predicate {@link java.util.ArrayList}.
  *
  * @param <E> Element type.
+ * @deprecated Use {@link PredicateWrappedList}.
  */
+@Deprecated
 public class PredicateArrayList<E> extends AbstractPredicateList<E> implements PredicateList<E> {
 
     /**

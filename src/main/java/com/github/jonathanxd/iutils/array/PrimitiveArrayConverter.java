@@ -30,6 +30,7 @@ package com.github.jonathanxd.iutils.array;
 /**
  * Converts primitive array values to boxed version and vice-versa.
  */
+@SuppressWarnings("UnnecessaryBoxing")
 public class PrimitiveArrayConverter {
 
     public static Byte[] fromPrimitive(byte[] primitive) {

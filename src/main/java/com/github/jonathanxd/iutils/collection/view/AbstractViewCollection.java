@@ -73,7 +73,7 @@ public abstract class AbstractViewCollection<E, Y> implements Collection<Y> {
     public int size() {
         int size = 0;
 
-        for (Y ignored : this.getSyntheticIterable()) {
+        for (Y ignored : this) {
             ++size;
         }
 

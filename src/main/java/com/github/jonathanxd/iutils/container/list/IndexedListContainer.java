@@ -35,6 +35,7 @@ import com.github.jonathanxd.iutils.container.BaseContainer;
  *
  * @param <T> Type of elements.
  */
+@Deprecated
 public interface IndexedListContainer<T> extends ListContainer<T> {
 
     /**

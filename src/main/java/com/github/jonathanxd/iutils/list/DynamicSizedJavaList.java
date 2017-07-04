@@ -69,6 +69,11 @@ public class DynamicSizedJavaList<E> implements List<E> {
     private final IntSupplier maxSizeSupplier;
 
     protected DynamicSizedJavaList(List<E> wrapped, IntSupplier maxSizeSupplier) {
+        int limit = maxSizeSupplier.getAsInt();
+
+        if (wrapped.size() > limit)
+            throw new LimitExceededException("This list only accepts " + limit + " elements and " + wrapped.size() + " elements was provided as initial elements and backing list.");
+
         this.wrapped = wrapped;
         this.maxSizeSupplier = maxSizeSupplier;
     }

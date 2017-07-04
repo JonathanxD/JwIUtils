@@ -27,20 +27,28 @@
  */
 package com.github.jonathanxd.iutils;
 
-import com.github.jonathanxd.iutils.collection.CollectionUtils;
+import com.github.jonathanxd.iutils.collection.Collections3;
 import com.github.jonathanxd.iutils.collection.view.ViewCollection;
 import com.github.jonathanxd.iutils.collection.view.ViewCollections;
 import com.github.jonathanxd.iutils.collection.view.ViewList;
-import com.github.jonathanxd.iutils.collection.view.ViewUtils;
+import com.github.jonathanxd.iutils.collection.view.ViewSet;
+import com.github.jonathanxd.iutils.function.consumer.IntObjConsumer;
+import com.github.jonathanxd.iutils.function.function.IntObjBiFunction;
+import com.github.jonathanxd.iutils.iterator.DelegatedListIterator;
 import com.github.jonathanxd.iutils.iterator.IteratorUtil;
 
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.function.IntPredicate;
+import java.util.function.Predicate;
 
 public class ViewCollectionTest {
 
@@ -56,21 +64,98 @@ public class ViewCollectionTest {
 
         list.add("D");
 
-        Assert.assertEquals(CollectionUtils.listOf("A", "B", "C", "D").toString(), collection.toString());
+        Assert.assertEquals(Collections3.listOf("A", "B", "C", "D").toString(), collection.toString());
+    }
+
+    @Test
+    public void viewSetTest() {
+        Set<String> set = new HashSet<>();
+
+        ViewSet<String, String> view = ViewCollections.setMapped(set, (s, stringIterator) -> IteratorUtil.single(s),
+                s -> s.length() > 2 && set.add(s),
+                set::remove);
+
+        view.add("ViewSet");
+        view.add("V");
+
+        Assert.assertTrue(set.size() == 1);
+
+    }
+
+    @Test
+    public void mappedViewSetTest() {
+        Set<String> set = new HashSet<>();
+
+        ViewSet<String, Integer> view = ViewCollections.setMapped(set,
+                (s, stringIterator) -> IteratorUtil.mapped(s, stringIterator, Integer::parseInt),
+                i -> i % 2 == 0 && set.add(i.toString()),
+                i -> set.remove(i.toString()));
+
+        view.add(5);
+        view.add(10);
+        view.add(90);
+
+        Assert.assertTrue(set.size() == 2);
+    }
+
+    @Test
+    public void mappedListTest() {
+        List<String> list = new ArrayList<>();
+
+        Predicate<Integer> addPred = i -> list.add(i.toString());
+        Predicate<Integer> removePred = i -> list.remove(i.toString());
+        IntObjConsumer<Integer> set = (i, element) -> list.set(i, element.toString());
+
+        ViewList<String, Integer> view = ViewCollections.listMapped(list,
+                (s, stringIterator) -> new DelegatedListIterator<Integer>() {
+                    ListIterator<Integer> delegate = IteratorUtil.mapped(s, stringIterator, Integer::parseInt, Object::toString);
+
+                    @Override
+                    public void add(Integer integer) {
+                        addPred.test(integer);
+                    }
+
+                    @Override
+                    public void set(Integer integer) {
+                        int index = this.getDelegate().nextIndex() - 1;
+                        set.accept(index, integer);
+                    }
+
+                    @Override
+                    protected ListIterator<Integer> getDelegate() {
+                        return delegate;
+                    }
+                },
+                addPred,
+                removePred);
+
+        for (int i = 0; i < 20; ++i)
+            view.add(i);
+
+        ListIterator<Integer> iterator = view.listIterator();
+
+        while (iterator.hasNext()) {
+            int next = iterator.next();
+
+            if(next % 2 != 0)
+                iterator.set(next - 1);
+        }
+
+        Assert.assertEquals("[0, 0, 2, 2, 4, 4, 6, 6, 8, 8, 10, 10, 12, 12, 14, 14, 16, 16, 18, 18]", list.toString());
     }
 
     @Test
     public void mappingTest() {
         List<List<String>> list = new ArrayList<>();
 
-        list.add(CollectionUtils.listOf("A", "B", "C"));
-        list.add(CollectionUtils.listOf("D", "E", "F"));
-        list.add(CollectionUtils.listOf("G", "I", "J"));
+        list.add(Collections3.listOf("A", "B", "C"));
+        list.add(Collections3.listOf("D", "E", "F"));
+        list.add(Collections3.listOf("G", "I", "J"));
 
         ViewCollection<List<String>, String> collection = ViewCollections.collectionMapped(
                 list,
                 (e, origin) -> e.iterator(),
-                (o) -> list.size() > 0 ? list.get(list.size() - 1).add(o) : list.add(CollectionUtils.listOf(o)),
+                (o) -> list.size() > 0 ? list.get(list.size() - 1).add(o) : list.add(Collections3.listOf(o)),
                 (o) -> firstRemove(list, o));
 
         collection.add("K");
@@ -78,7 +163,7 @@ public class ViewCollectionTest {
         collection.add("M");
 
         Assert.assertEquals(
-                CollectionUtils.listOf("A", "B", "C", "D", "E", "F", "G", "I", "J", "K", "L", "M").toString(),
+                Collections3.listOf("A", "B", "C", "D", "E", "F", "G", "I", "J", "K", "L", "M").toString(),
                 collection.toString());
     }
 
@@ -87,13 +172,13 @@ public class ViewCollectionTest {
 
         List<List<String>> list = new ArrayList<>();
 
-        list.add(CollectionUtils.listOf("A", "B", "C"));
-        list.add(CollectionUtils.listOf("D", "E", "F"));
-        list.add(CollectionUtils.listOf("G", "I", "J"));
+        list.add(Collections3.listOf("A", "B", "C"));
+        list.add(Collections3.listOf("D", "E", "F"));
+        list.add(Collections3.listOf("G", "I", "J"));
 
         ViewList<List<String>, String> view = ViewCollections.listMapped(list,
                 (strings, listListIterator) -> strings.listIterator(),
-                y -> list.size() > 0 ? list.get(list.size() - 1).add(y) : list.add(CollectionUtils.listOf(y)),
+                y -> list.size() > 0 ? list.get(list.size() - 1).add(y) : list.add(Collections3.listOf(y)),
                 y -> firstRemove(list, y)
         );
 
@@ -101,7 +186,7 @@ public class ViewCollectionTest {
 
         viewIter.add("0");
         // Where is 'H'?
-        Assert.assertEquals(CollectionUtils.listOf("0", "A", "B", "C", "D", "E", "F", "G", "I", "J").toString(), view.toString());
+        Assert.assertEquals(Collections3.listOf("0", "A", "B", "C", "D", "E", "F", "G", "I", "J").toString(), view.toString());
     }
 
     @Test
@@ -110,19 +195,19 @@ public class ViewCollectionTest {
         List<List<String>> list = new ArrayList<>();
 
 
-        list.add(CollectionUtils.listOf("A", "B", "C"));
-        list.add(CollectionUtils.listOf("D", "E", "F"));
-        list.add(CollectionUtils.listOf("G", "I", "J"));
+        list.add(Collections3.listOf("A", "B", "C"));
+        list.add(Collections3.listOf("D", "E", "F"));
+        list.add(Collections3.listOf("G", "I", "J"));
 
         ViewList<List<String>, String> view = ViewCollections.listMapped(list,
                 (strings, listListIterator) -> strings.listIterator(),
-                y -> list.size() > 0 ? list.get(list.size() - 1).add(y) : list.add(CollectionUtils.listOf(y)),
+                y -> list.size() > 0 ? list.get(list.size() - 1).add(y) : list.add(Collections3.listOf(y)),
                 y -> firstRemove(list, y)
         );
 
         view.add(4, "N");
 
-        List<String> lst = CollectionUtils.listOf("A", "B", "C", "D", "E", "F", "G", "I", "J");
+        List<String> lst = Collections3.listOf("A", "B", "C", "D", "E", "F", "G", "I", "J");
 
         lst.add(4, "N");
 
@@ -133,8 +218,8 @@ public class ViewCollectionTest {
     public void reverseList() {
         List<String> list = new ArrayList<>();
 
-        list.addAll(CollectionUtils.listOf("1", "2", "3"));
-        list.addAll(CollectionUtils.listOf("4", "5", "6"));
+        list.addAll(Collections3.listOf("1", "2", "3"));
+        list.addAll(Collections3.listOf("4", "5", "6"));
 
         ViewList<String, String> reversed = ViewCollections.reversedList(list);
 
@@ -163,8 +248,8 @@ public class ViewCollectionTest {
         List<String> list = new ArrayList<>();
 
 
-        list.addAll(CollectionUtils.listOf("1", "2", "3"));
-        list.addAll(CollectionUtils.listOf("4", "5", "6"));
+        list.addAll(Collections3.listOf("1", "2", "3"));
+        list.addAll(Collections3.listOf("4", "5", "6"));
 
         ViewList<String, Integer> view = ViewCollections.listMapped(list,
                 (strings, listListIterator) ->
@@ -203,7 +288,7 @@ public class ViewCollectionTest {
             ++index;
         }
 
-        List<String> lst = CollectionUtils.listOf("1", "2", "4", "5", "6", "9");
+        List<String> lst = Collections3.listOf("1", "2", "4", "5", "6", "9");
 
         Assert.assertEquals(lst.toString(), view.toString());
     }
@@ -222,7 +307,7 @@ public class ViewCollectionTest {
             if (list.size() > 0) {
                 list.get(list.size() - 1).add(value);
             } else {
-                list.add(CollectionUtils.listOf(value));
+                list.add(Collections3.listOf(value));
             }
 
             return true;

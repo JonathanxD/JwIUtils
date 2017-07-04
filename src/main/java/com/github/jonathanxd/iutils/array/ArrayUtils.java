@@ -335,7 +335,7 @@ public class ArrayUtils {
         @Generated
         public static int count(byte[] array, byte element) {
             Objects.requireNonNull(array);
-            Objects.requireNonNull(element);
+
             int found = 0;
             for (byte e : array) {
                 if (e == element) {
@@ -353,7 +353,7 @@ public class ArrayUtils {
         @Generated
         public static int count(short[] array, short element) {
             Objects.requireNonNull(array);
-            Objects.requireNonNull(element);
+
             int found = 0;
             for (short e : array) {
                 if (e == element) {
@@ -371,7 +371,7 @@ public class ArrayUtils {
         @Generated
         public static int count(int[] array, int element) {
             Objects.requireNonNull(array);
-            Objects.requireNonNull(element);
+
             int found = 0;
             for (int e : array) {
                 if (e == element) {
@@ -389,7 +389,7 @@ public class ArrayUtils {
         @Generated
         public static int count(long[] array, long element) {
             Objects.requireNonNull(array);
-            Objects.requireNonNull(element);
+
             int found = 0;
             for (long e : array) {
                 if (e == element) {
@@ -407,7 +407,7 @@ public class ArrayUtils {
         @Generated
         public static int count(float[] array, float element) {
             Objects.requireNonNull(array);
-            Objects.requireNonNull(element);
+
             int found = 0;
             for (float e : array) {
                 if (e == element) {
@@ -425,7 +425,7 @@ public class ArrayUtils {
         @Generated
         public static int count(double[] array, double element) {
             Objects.requireNonNull(array);
-            Objects.requireNonNull(element);
+
             int found = 0;
             for (double e : array) {
                 if (e == element) {
@@ -443,7 +443,7 @@ public class ArrayUtils {
         @Generated
         public static int count(boolean[] array, boolean element) {
             Objects.requireNonNull(array);
-            Objects.requireNonNull(element);
+
             int found = 0;
             for (boolean e : array) {
                 if (e == element) {
@@ -461,7 +461,7 @@ public class ArrayUtils {
         @Generated
         public static int count(char[] array, char element) {
             Objects.requireNonNull(array);
-            Objects.requireNonNull(element);
+
             int found = 0;
             for (char e : array) {
                 if (e == element) {

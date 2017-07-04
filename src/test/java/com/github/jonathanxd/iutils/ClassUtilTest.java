@@ -27,7 +27,7 @@
  */
 package com.github.jonathanxd.iutils;
 
-import com.github.jonathanxd.iutils.collection.CollectionUtils;
+import com.github.jonathanxd.iutils.collection.Collections3;
 import com.github.jonathanxd.iutils.reflection.ClassUtil;
 
 import org.junit.Assert;
@@ -47,7 +47,7 @@ public class ClassUtilTest {
     public void testHierarchy() {
         List<Class<?>> types = ClassUtil.getSortedSuperTypes(ArrayList.class);
 
-        Assert.assertTrue(types.containsAll(CollectionUtils.listOf(AbstractList.class, Cloneable.class,
+        Assert.assertTrue(types.containsAll(Collections3.listOf(AbstractList.class, Cloneable.class,
                 RandomAccess.class, Serializable.class, AbstractCollection.class, List.class,
                 Collection.class, Iterable.class)));
 
