@@ -36,6 +36,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * Invokables factory.
@@ -134,6 +135,30 @@ public final class Invokables {
      */
     public static <T> Invokable<T> modifyArgs(Invokable<T> invokable, Function<Object[], Object[]> function) {
         return new ArgsModifierInvokable<>(invokable, function);
+    }
+
+    /**
+     * Creates a invokable of a supplier, arguments are ignored.
+     *
+     * @param supplier Invokable supplier.
+     * @param <T>      Return type.
+     * @return Invokable of a supplier.
+     */
+    public static <T> Invokable<T> supplier(Supplier<T> supplier) {
+        return ignored -> supplier.get();
+    }
+
+    /**
+     * Creates a invokable of a function, only first argument is used.
+     *
+     * @param function Invokable Function.
+     *                 @param <T> Input type.
+     * @param <R>      Return type.
+     * @return Invokable of a function.
+     */
+    @SuppressWarnings("unchecked")
+    public static <T, R> Invokable<R> function(Function<T, R> function) {
+        return args -> function.apply((T) args[0]);
     }
 
     private static final class MethodInvokable<T> implements Invokable<T> {

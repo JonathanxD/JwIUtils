@@ -62,6 +62,19 @@ public class MatchingTest {
     }
 
     @Test
+    public void matching() {
+        int input = 10;
+
+        OptObject<String> opt = When(When.STANDARD,
+                input,
+                Matches(k -> k % 2 == 0, k -> "Even"),
+                Else(k -> "Odd")
+        );
+
+        Assert.assertEquals("Even", opt.getValue());
+    }
+
+    @Test
     public void standard() {
 
         String[] str = new String[3];

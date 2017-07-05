@@ -40,6 +40,50 @@ import org.junit.Test;
 public class DataTest {
 
     @Test
+    public void dataTest1() {
+        Data data = new Data();
+
+        data.set("name", "Cup");
+        data.set("amount", 10);
+
+        int get = data.getOrSet("amount", 5);
+
+        Assert.assertEquals(5, get);
+    }
+
+    static class Product {
+        private final String name;
+
+        Product(String name) {
+            this.name = name;
+        }
+    }
+
+    public static class Stock {
+        private final Product product;
+        private final int amount;
+
+        public Stock(Product product, int amount) {
+            this.product = product;
+            this.amount = amount;
+        }
+    }
+
+    @Test
+    public void dataTest2() {
+        Data data = new Data();
+
+        data.set("product", new Product("Cup"));
+        data.set("amount", 10);
+
+        Stock construct = (Stock) DataReflect.construct(Stock.class, data);
+
+
+        Assert.assertEquals("Cup", construct.product.name);
+        Assert.assertEquals(10, construct.amount);
+    }
+
+    @Test
     public void dataTest() {
         Data data = new Data();
 

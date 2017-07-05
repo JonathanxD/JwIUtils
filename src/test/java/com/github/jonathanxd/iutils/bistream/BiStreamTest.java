@@ -36,13 +36,13 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class BiStreamTest {
 
     @Test
     public void biStream() {
-
 
         Map<String, Integer> myMap = MapUtils.mapOf("A:1", 1, "B:2", 2, "C:1", 1, "D:3", 3);
 
@@ -57,5 +57,22 @@ public class BiStreamTest {
         Map<String, Integer> collect1 = BiStreams.mapStream(myMap).filter((s, integer) -> integer < 0).collect(BiCollectors.toMap());
 
         Assert.assertTrue(collect1.isEmpty());
+    }
+
+    @Test
+    public void biStream2() {
+
+        Map<String, Integer> myMap = MapUtils.mapOf(
+                "A", 100, "B", 150, "C", 90, "D", 500, "E", 750, "F", 65
+        );
+
+        Map<String, Integer> collect = BiStreams.mapStream(myMap)
+                .limit(4)
+                .sorted((s, integer, t2, u2) -> u2.compareTo(integer))
+                .collect(BiCollectors.toMap(LinkedHashMap::new));
+
+        Assert.assertEquals(4, collect.size());
+        Assert.assertEquals("{D=500, B=150, A=100, C=90}", collect.toString());
+
     }
 }

@@ -44,4 +44,13 @@ public class ToStringHelperTest {
         Assert.assertEquals("Alpine{A = 9, B = 55, C = \"--\", D = \"Indie\"}", helper.toString());
     }
 
+    @Test
+    public void test2() {
+        String s = ToStringHelper
+                .defaultHelper("Map")
+                .add("amount", 10)
+                .add("name", "Cup")
+                .toString();
+    }
+
 }

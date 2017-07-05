@@ -40,16 +40,9 @@ import java.util.function.Function;
  * @param <L> Left value.
  * @param <R> Right value.
  */
-public final class Either<L, R> {
+public abstract class Either<L, R> {
 
-    private final int r;
-    private final L left;
-    private final R right;
-
-    Either(int r, L left, R right) {
-        this.r = r;
-        this.left = left;
-        this.right = right;
+    Either() {
     }
 
     /**
@@ -61,7 +54,7 @@ public final class Either<L, R> {
      * @return {@link Either} which present value is the left value.
      */
     public static <L, R> Either<L, R> left(L left) {
-        return new Either<>(0, left, null);
+        return new Left<>(left);
     }
 
     /**
@@ -73,7 +66,7 @@ public final class Either<L, R> {
      * @return {@link Either} which present value is the right value.
      */
     public static <L, R> Either<L, R> right(R right) {
-        return new Either<>(1, null, right);
+        return new Right<>(right);
     }
 
     /**
@@ -81,18 +74,14 @@ public final class Either<L, R> {
      *
      * @return True if left value is the present value.
      */
-    public boolean isLeft() {
-        return this.r == 0;
-    }
+    public abstract boolean isLeft();
 
     /**
      * Returns true if right value is the present value.
      *
      * @return True if right value is the present value.
      */
-    public boolean isRight() {
-        return this.r == 1;
-    }
+    public abstract boolean isRight();
 
     /**
      * Gets left value.
@@ -100,12 +89,7 @@ public final class Either<L, R> {
      * @return Left value.
      * @throws NoSuchElementException If the left value is not present.
      */
-    public L getLeft() {
-        if (!this.isLeft())
-            throw new NoSuchElementException();
-
-        return this.left;
-    }
+    public abstract L getLeft();
 
     /**
      * Gets right value.
@@ -113,12 +97,7 @@ public final class Either<L, R> {
      * @return Right value.
      * @throws NoSuchElementException If the right value is not present.
      */
-    public R getRight() {
-        if (!this.isRight())
-            throw new NoSuchElementException();
-
-        return this.right;
-    }
+    public abstract R getRight();
 
     /**
      * Consumes the left value with {@code leftConsumer} if the value is present, or consumes the
@@ -127,32 +106,21 @@ public final class Either<L, R> {
      * @param leftConsumer  Left value consumer.
      * @param rightConsumer Right value consumer.
      */
-    public void ifEither(Consumer<? super L> leftConsumer, Consumer<? super R> rightConsumer) {
-        if (this.isLeft())
-            leftConsumer.accept(this.getLeft());
-        else
-            rightConsumer.accept(this.getRight());
-    }
+    public abstract void ifEither(Consumer<? super L> leftConsumer, Consumer<? super R> rightConsumer);
 
     /**
      * Consume left value if the value is present.
      *
      * @param consumer Consumer to consume value.
      */
-    public void ifLeft(Consumer<? super L> consumer) {
-        if (this.isLeft())
-            consumer.accept(this.getLeft());
-    }
+    public abstract void ifLeft(Consumer<? super L> consumer);
 
     /**
      * Consume right value if the value is present.
      *
      * @param consumer Consumer to consume value.
      */
-    public void ifRight(Consumer<? super R> consumer) {
-        if (this.isRight())
-            consumer.accept(this.getRight());
-    }
+    public abstract void ifRight(Consumer<? super R> consumer);
 
     /**
      * Maps left value if present and right value if present and return a new {@link Either}
@@ -164,12 +132,8 @@ public final class Either<L, R> {
      * @param <MR>        Right type.
      * @return {@link Either} instance with mapped values.
      */
-    public <ML, MR> Either<ML, MR> map(Function<? super L, ? extends ML> leftMapper, Function<? super R, ? extends MR> rightMapper) {
-        if (this.isLeft())
-            return Either.left(leftMapper.apply(this.getLeft()));
-
-        return Either.right(rightMapper.apply(this.getRight()));
-    }
+    public abstract <ML, MR> Either<ML, MR> map(Function<? super L, ? extends ML> leftMapper,
+                                                Function<? super R, ? extends MR> rightMapper);
 
 
     /**
@@ -182,12 +146,7 @@ public final class Either<L, R> {
      * @return {@link Either} instance with mapped left value.
      */
     @SuppressWarnings("unchecked")
-    public <ML> Either<ML, R> mapLeft(Function<? super L, ? extends ML> leftMapper) {
-        if (this.isLeft())
-            return Either.left(leftMapper.apply(this.getLeft()));
-
-        return Either.right(this.getRight());
-    }
+    public abstract <ML> Either<ML, R> mapLeft(Function<? super L, ? extends ML> leftMapper);
 
     /**
      * Maps right value if present and return a new {@link Either} with mapped value.
@@ -199,11 +158,119 @@ public final class Either<L, R> {
      * @return {@link Either} instance with mapped right value.
      */
     @SuppressWarnings("unchecked")
-    public <MR> Either<L, MR> mapRight(Function<? super R, ? extends MR> rightMapper) {
-        if (this.isRight())
-            return Either.right(rightMapper.apply(this.getRight()));
+    public abstract <MR> Either<L, MR> mapRight(Function<? super R, ? extends MR> rightMapper);
 
-        return Either.left(this.getLeft());
+    static class Left<L, R> extends Either<L, R> {
+        private final L value;
+
+        Left(L value) {
+            this.value = value;
+        }
+
+        @Override
+        public boolean isLeft() {
+            return true;
+        }
+
+        @Override
+        public boolean isRight() {
+            return false;
+        }
+
+        @Override
+        public L getLeft() {
+            return this.value;
+        }
+
+        @Override
+        public R getRight() {
+            throw new NoSuchElementException();
+        }
+
+        @Override
+        public void ifEither(Consumer<? super L> leftConsumer, Consumer<? super R> rightConsumer) {
+            leftConsumer.accept(this.getLeft());
+        }
+
+        @Override
+        public void ifLeft(Consumer<? super L> consumer) {
+            consumer.accept(this.getLeft());
+        }
+
+        @Override
+        public void ifRight(Consumer<? super R> consumer) {
+        }
+
+        @Override
+        public <ML, MR> Either<ML, MR> map(Function<? super L, ? extends ML> leftMapper, Function<? super R, ? extends MR> rightMapper) {
+            return Either.left(leftMapper.apply(this.getLeft()));
+        }
+
+        @Override
+        public <ML> Either<ML, R> mapLeft(Function<? super L, ? extends ML> leftMapper) {
+            return Either.left(leftMapper.apply(this.getLeft()));
+        }
+
+        @Override
+        public <MR> Either<L, MR> mapRight(Function<? super R, ? extends MR> rightMapper) {
+            return Either.left(this.getLeft());
+        }
     }
 
+    static class Right<L, R> extends Either<L, R> {
+        private final R value;
+
+        Right(R value) {
+            this.value = value;
+        }
+
+        @Override
+        public boolean isLeft() {
+            return false;
+        }
+
+        @Override
+        public boolean isRight() {
+            return true;
+        }
+
+        @Override
+        public L getLeft() {
+            throw new NoSuchElementException();
+        }
+
+        @Override
+        public R getRight() {
+            return this.value;
+        }
+
+        @Override
+        public void ifEither(Consumer<? super L> leftConsumer, Consumer<? super R> rightConsumer) {
+            rightConsumer.accept(this.getRight());
+        }
+
+        @Override
+        public void ifLeft(Consumer<? super L> consumer) {
+        }
+
+        @Override
+        public void ifRight(Consumer<? super R> consumer) {
+            consumer.accept(this.getRight());
+        }
+
+        @Override
+        public <ML, MR> Either<ML, MR> map(Function<? super L, ? extends ML> leftMapper, Function<? super R, ? extends MR> rightMapper) {
+            return Either.right(rightMapper.apply(this.getRight()));
+        }
+
+        @Override
+        public <ML> Either<ML, R> mapLeft(Function<? super L, ? extends ML> leftMapper) {
+            return Either.right(this.getRight());
+        }
+
+        @Override
+        public <MR> Either<L, MR> mapRight(Function<? super R, ? extends MR> rightMapper) {
+            return Either.right(rightMapper.apply(this.getRight()));
+        }
+    }
 }

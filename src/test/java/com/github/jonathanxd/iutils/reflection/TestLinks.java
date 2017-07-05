@@ -27,6 +27,8 @@
  */
 package com.github.jonathanxd.iutils.reflection;
 
+import com.github.jonathanxd.iutils.type.TypeInfo;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -43,10 +45,27 @@ import java.lang.reflect.Method;
 public class TestLinks {
 
     private Person person;
+    private Link<String> getPersonName;
 
     @Before
-    public void init() {
+    public void init() throws NoSuchMethodException {
         person = new Person("Mary");
+
+        Person person = new Person("Bob");
+        Invokable<String> invokable = Invokables.fromMethod(Person.class.getDeclaredMethod("getName"));
+
+        this.getPersonName = Links.named(
+                Links.ofInvokable(invokable).bind(person),
+                "getName",
+                TypeInfo.of(String.class)
+        );
+    }
+
+    @Test
+    public void testMethod() {
+
+        String name = getPersonName.invoke();
+        Assert.assertEquals("Bob", name);
     }
 
     @Test

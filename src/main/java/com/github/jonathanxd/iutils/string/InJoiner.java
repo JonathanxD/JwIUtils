@@ -52,14 +52,17 @@ public final class InJoiner {
      * Provider of second joiner.
      */
     private final Supplier<StringJoiner> secondSupplier;
+
     /**
      * Count of appends to second joiner.
      */
-    int secondAppends = 0;
+    private int secondAppends = 0;
+
     /**
      * Current joiner.
      */
     private StringJoiner current = null;
+
     /**
      * Current second joiner.
      */

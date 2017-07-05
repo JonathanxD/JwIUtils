@@ -40,6 +40,7 @@ import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.IntFunction;
+import java.util.function.Predicate;
 
 /**
  * Abstract implementation of {@link Grabber}. This implementation stores blacklisted elements by
@@ -108,6 +109,23 @@ public abstract class AbstractGrabber<T> implements Grabber<T> {
         this.setWhitelistIndex(this.calculateNonExcludedIndex());
 
         return this.get(index);
+    }
+
+    @Override
+    public List<T> grab(Predicate<T> predicate) {
+        List<T> grab = new ArrayList<>();
+
+        for (int x = 0; x < this.size(); ++x) {
+            if (!this.getBlacklistedIndexes()[x]) {
+                T atX = this.get(x);
+
+                if(predicate.test(atX)) {
+                    grab.add(this.grab(x));
+                }
+            }
+        }
+
+        return grab;
     }
 
     @Override

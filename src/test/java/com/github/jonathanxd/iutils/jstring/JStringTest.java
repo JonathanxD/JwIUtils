@@ -41,6 +41,16 @@ import java.util.Objects;
 public class JStringTest {
 
     @Test
+    public void jstringTest1() {
+        List<Person> personList = new ArrayList<>();
+
+        personList.add(new Person("JonathanxD", Integer.MAX_VALUE));
+
+        Assert.assertEquals("First: JonathanxD", JString.of("First: ${personList.get(0).getName()}", "personList", personList).toString());
+
+    }
+
+    @Test
     public void jstringTest() {
         List<Person> personList = new ArrayList<>();
 

@@ -47,6 +47,21 @@ public class TestGrabber {
     static List<Integer> integers = new ArrayList<>(Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10));
 
     @Test
+    public void testGrabber2() {
+        List<Integer> of = Collections3.listOf(1, 2, 3, 4, 5, 6, 7, 8, 9);
+
+        Grabber<Integer> grabber = new ListGrabber<>(of);
+
+        grabber.grab(i -> i % 2 == 0);
+
+        List<Integer> integers = grabber.collectRemainingToList(3);
+
+        System.out.println(integers);
+
+        System.out.println(grabber.collectRemainingToList());
+    }
+
+    @Test
     public void testGrabber() {
         Grabber<Integer> grabber = new ListGrabber<>(integers);
 

@@ -38,6 +38,7 @@ import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.IntFunction;
+import java.util.function.Predicate;
 
 
 /**
@@ -78,6 +79,14 @@ public interface Grabber<T> {
      * @throws ExcludedElementIndexException if the element is in the blacklist.
      */
     T grab(int index) throws ExcludedElementIndexException;
+
+    /**
+     * Grabs all elements that matches predicate.
+     *
+     * @param predicate Predicate to test elements.
+     * @return Grabbed elements.
+     */
+    List<T> grab(Predicate<T> predicate);
 
     /**
      * Grab multiple elements.
@@ -322,8 +331,8 @@ public interface Grabber<T> {
     /**
      * Returns a string representation of this grabber.
      *
-     * Recommended representation: Included elements between {@code [} and {@code ]} and
-     * excluded elements between {@code -(} and {@code )}.
+     * Recommended representation: Included elements between {@code [} and {@code ]} and excluded
+     * elements between {@code -(} and {@code )}.
      *
      * Obs: String representation may or may not follow recommended format.
      *

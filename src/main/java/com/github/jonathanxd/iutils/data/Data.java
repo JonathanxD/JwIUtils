@@ -87,7 +87,7 @@ public final class Data implements DataBase<Data> {
 
     @Override
     public Data getMainData() {
-        return (Data) DataBase.super.getMainData();
+        return DataBase.super.getMainData();
     }
 
     @Override
