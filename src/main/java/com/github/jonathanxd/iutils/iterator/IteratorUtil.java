@@ -43,6 +43,9 @@ import java.util.function.Supplier;
  */
 public class IteratorUtil {
 
+    private static final Iterator<?> EMPTY_ITER = new EmptyIterator();
+    private static final Iterator<?> EMPTY_LIST_ITER = new EmptyListIterator();
+
     /**
      * Adds iterator remaining elements to a list.
      *
@@ -193,6 +196,20 @@ public class IteratorUtil {
     }
 
     /**
+     * Creates an {@link ListIterator} of an array of type {@link E}.
+     *
+     * {@link ListIterator#remove()} and {@link ListIterator#add(Object)} are not supported.
+     *
+     * @param args Elements.
+     * @param <E>  Element type.
+     * @return {@link ListIterator} of an array of type {@link E}.
+     */
+    @SafeVarargs
+    public static <E> ListIterator<E> listIteratorOfArray(final E... args) {
+        return new ArrayListIterator<>(args);
+    }
+
+    /**
      * Wraps {@code iterator} into a synthetic {@link Iterable}.
      *
      * @param iterator Iterator to wrap.
@@ -280,6 +297,26 @@ public class IteratorUtil {
      */
     public static <E> ListIterator<E> addCheckListIterator(ListIterator<E> listIterator, CRunnable addCheck) {
         return new AddCheckListIterator<>(listIterator, addCheck);
+    }
+
+    /**
+     * Returns an {@link Iterator} which does not iterate over any element.
+     *
+     * @return {@link Iterator} which does not iterate over any element.
+     */
+    @SuppressWarnings("unchecked")
+    public static <E> Iterator<E> emptyIterator() {
+        return (Iterator<E>) EMPTY_ITER;
+    }
+
+    /**
+     * Returns an {@link ListIterator} which does not iterate over any element.
+     *
+     * @return {@link ListIterator} which does not iterate over any element.
+     */
+    @SuppressWarnings("unchecked")
+    public static <E> ListIterator<E> emptyListIterator() {
+        return (ListIterator<E>) EMPTY_LIST_ITER;
     }
 
     private static class BackedListIterator<E> implements ListIterator<E> {
@@ -777,6 +814,67 @@ public class IteratorUtil {
         }
     }
 
+    private static class ArrayListIterator<E> implements ListIterator<E> {
+        private final E[] args;
+        private int index;
+
+        public ArrayListIterator(E[] args) {
+            this.args = args;
+            index = -1;
+        }
+
+        @Override
+        public int nextIndex() {
+            return this.index + 1;
+        }
+
+        @Override
+        public int previousIndex() {
+            return this.index - 1;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return this.index + 1 < args.length;
+        }
+
+        @Override
+        public boolean hasPrevious() {
+            return this.index - 1 > -1;
+        }
+
+        @Override
+        public E next() {
+            if (!this.hasNext())
+                throw new NoSuchElementException();
+
+            return args[++index];
+        }
+
+        @Override
+        public E previous() {
+            if (!this.hasPrevious())
+                throw new NoSuchElementException();
+
+            return this.args[--index];
+        }
+
+        @Override
+        public void set(E e) {
+            this.args[index] = e;
+        }
+
+        @Override
+        public void add(E e) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void remove() {
+            throw new UnsupportedOperationException();
+        }
+    }
+
     private static class ViewMappedIterator<E, Y> implements Iterator<Y> {
 
         private final Function<E, Y> mapper;
@@ -1043,6 +1141,65 @@ public class IteratorUtil {
         public void add(E e) {
             addCheck.run();
             listIterator.add(e);
+        }
+    }
+
+    private static class EmptyIterator<E> implements Iterator<E> {
+        @Override
+        public boolean hasNext() {
+            return false;
+        }
+
+        @Override
+        public E next() {
+            throw new NoSuchElementException();
+        }
+    }
+
+    private static class EmptyListIterator<E> implements ListIterator<E> {
+        @Override
+        public int nextIndex() {
+            return -1;
+        }
+
+        @Override
+        public int previousIndex() {
+            return -1;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return false;
+        }
+
+        @Override
+        public boolean hasPrevious() {
+            return false;
+        }
+
+        @Override
+        public E next() {
+            throw new NoSuchElementException();
+        }
+
+        @Override
+        public E previous() {
+            throw new NoSuchElementException();
+        }
+
+        @Override
+        public void set(E e) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void add(E e) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void remove() {
+            throw new UnsupportedOperationException();
         }
     }
 }
