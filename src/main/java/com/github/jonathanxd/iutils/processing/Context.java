@@ -119,13 +119,13 @@ public abstract class Context {
             ContextHolder o = contexts.get(i);
             printer.accept("  [" + o.getContext() + ", enter={");
 
-            printer.accept("    context="+Arrays.toString(o.getEnterContext())+"");
+            printer.accept("    context=" + Arrays.toString(o.getEnterContext()) + "");
 
             Context.printStackTraces(s -> printer.accept("    ".concat(s)), o.getEnterTrace(), simplify);
 
             if (o.isExited()) {
                 printer.accept("  }, exit={");
-                printer.accept("    context="+Arrays.toString(o.getExitContext())+"");
+                printer.accept("    context=" + Arrays.toString(o.getExitContext()) + "");
                 Context.printStackTraces(s -> printer.accept("      ".concat(s)), o.getExitTrace(), simplify);
             }
             printer.accept("  }]");
@@ -219,6 +219,13 @@ public abstract class Context {
         return this.getCreationLocation().clone();
     }
 
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        this.printContext(sb::append, false, true);
+        return sb.toString();
+    }
+
     /**
      * Prints context to {@link System#err}
      */
@@ -259,7 +266,7 @@ public abstract class Context {
     }
 
     /**
-     * Prints context with {@code printer} and locks object provided by {@code lock}.
+     * Prints context to {@code printer} and locks object provided by {@code lock}.
      *
      * @param printer  Printer.
      * @param lock     Lock provider.
@@ -267,67 +274,76 @@ public abstract class Context {
      * @param all      Print all contexts.
      */
     public final void printContext(Consumer<String> printer, Supplier<Object> lock, boolean simplify, boolean all) {
-
         synchronized (lock.get()) {
-            printer.accept("[Print");
+            this.printContext(printer, simplify, all);
+        }
+    }
 
-            printer.accept("  Call[");
+    /**
+     * Prints context to {@code printer}.
+     *
+     * @param printer  Printer.
+     * @param simplify Simplify stack trace array (print first element only).
+     * @param all      Print all contexts.
+     */
+    public final void printContext(Consumer<String> printer, boolean simplify, boolean all) {
+        printer.accept("[Print");
 
-            new RuntimeException().printStackTrace(new PrintStream(new OutputStream() {
-                StringBuilder stringBuilder = new StringBuilder();
+        printer.accept("  Call[");
 
-                @Override
-                public void write(int b) throws IOException {
-                    if (b == '\n') {
-                        printer.accept("    ".concat(stringBuilder.toString()));
-                        stringBuilder.setLength(0);
-                    } else {
-                        stringBuilder.append((char) b);
-                    }
+        new RuntimeException().printStackTrace(new PrintStream(new OutputStream() {
+            StringBuilder stringBuilder = new StringBuilder();
+
+            @Override
+            public void write(int b) throws IOException {
+                if (b == '\n') {
+                    printer.accept("    ".concat(stringBuilder.toString()));
+                    stringBuilder.setLength(0);
+                } else {
+                    stringBuilder.append((char) b);
                 }
-
-                @Override
-                public void flush() throws IOException {
-                    if (stringBuilder.length() > 0) {
-                        printer.accept("    ".concat(stringBuilder.toString()));
-                        stringBuilder.setLength(0);
-                    }
-                }
-
-                @Override
-                public void close() throws IOException {
-                    if (stringBuilder.length() > 0) {
-                        printer.accept("    ".concat(stringBuilder.toString()));
-                        stringBuilder.setLength(0);
-                    }
-                }
-            }));
-
-            printer.accept("  ],");
-
-            printer.accept("  Context[");
-            printer.accept("    current={");
-            printer.accept("      creation={");
-
-            StackTraceElement[] creationLocation = this.getCreationLocation();
-
-            Context.printStackTraces(s -> printer.accept("        ".concat(s)), creationLocation, simplify);
-
-            printer.accept("      },");
-
-            printContexts(this.getContexts(), s -> printer.accept("      ".concat(s)), simplify);
-
-            if (all) {
-                printer.accept("      }, all={");
-
-                printContexts(this.getAllContexts(), s -> printer.accept("      ".concat(s)), simplify);
             }
 
-            printer.accept("    }");
-            printer.accept("  ]");
-            printer.accept("]");
+            @Override
+            public void flush() throws IOException {
+                if (stringBuilder.length() > 0) {
+                    printer.accept("    ".concat(stringBuilder.toString()));
+                    stringBuilder.setLength(0);
+                }
+            }
+
+            @Override
+            public void close() throws IOException {
+                if (stringBuilder.length() > 0) {
+                    printer.accept("    ".concat(stringBuilder.toString()));
+                    stringBuilder.setLength(0);
+                }
+            }
+        }));
+
+        printer.accept("  ],");
+
+        printer.accept("  Context[");
+        printer.accept("    current={");
+        printer.accept("      creation={");
+
+        StackTraceElement[] creationLocation = this.getCreationLocation();
+
+        Context.printStackTraces(s -> printer.accept("        ".concat(s)), creationLocation, simplify);
+
+        printer.accept("      },");
+
+        printContexts(this.getContexts(), s -> printer.accept("      ".concat(s)), simplify);
+
+        if (all) {
+            printer.accept("      }, all={");
+
+            printContexts(this.getAllContexts(), s -> printer.accept("      ".concat(s)), simplify);
         }
 
+        printer.accept("    }");
+        printer.accept("  ]");
+        printer.accept("]");
 
     }
 
@@ -469,7 +485,7 @@ public abstract class Context {
             int index = (this.contexts.size() - 1) - backIndex;
 
             if (index < 0)
-                throw new IndexOutOfBoundsException("Back index '" + backIndex + "' exceeds max value '" + (this.contexts.size() - 1)+"'!");
+                throw new IndexOutOfBoundsException("Back index '" + backIndex + "' exceeds max value '" + (this.contexts.size() - 1) + "'!");
 
             return Optional.of(this.contexts.get(index));
         }
