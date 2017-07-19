@@ -43,17 +43,14 @@ public class ContextHolder {
      * Contexts on enter
      */
     private final Object[] enterContext;
-
-    /**
-     * Contexts on exit.
-     */
-    private Object[] exitContext;
-
     /**
      * Enter stack trace.
      */
     private final StackTraceElement[] enterTrace;
-
+    /**
+     * Contexts on exit.
+     */
+    private Object[] exitContext;
     /**
      * Exit stack trace. (May be null)
      */
@@ -70,6 +67,7 @@ public class ContextHolder {
 
     /**
      * Gets context instance.
+     *
      * @return Context instance.
      */
     public Object getContext() {
@@ -78,6 +76,7 @@ public class ContextHolder {
 
     /**
      * Returns true if exited.
+     *
      * @return True if exited.
      */
     public boolean isExited() {
@@ -86,6 +85,7 @@ public class ContextHolder {
 
     /**
      * Gets the copy of enter call stack elements.
+     *
      * @return Copy of enter call stack elements.
      */
     public StackTraceElement[] getEnterTrace() {
@@ -94,6 +94,7 @@ public class ContextHolder {
 
     /**
      * Gets the copy of exit call stack elements (may be null).
+     *
      * @return Copy of exit call stack elements (may be null).
      */
     public StackTraceElement[] getExitTrace() {
@@ -102,6 +103,7 @@ public class ContextHolder {
 
     /**
      * Gets enter context.
+     *
      * @return Enter context.
      */
     public Object[] getEnterContext() {
@@ -110,6 +112,7 @@ public class ContextHolder {
 
     /**
      * Gets exit context.
+     *
      * @return Exit context.
      */
     public Object[] getExitContext() {
@@ -118,6 +121,7 @@ public class ContextHolder {
 
     /**
      * Exits the context.
+     *
      * @param exitTrace Exit call stack trace.
      * @return Same context with exit state.
      */
@@ -141,9 +145,30 @@ public class ContextHolder {
         stringBuilder.append(", ").append("enterContext=").append(Arrays.toString(this.getEnterContext()));
         stringBuilder.append(", ").append("enterTrace=").append(Arrays.toString(this.getEnterTrace()));
 
-        if(this.isExited()) {
+        if (this.isExited()) {
             stringBuilder.append(", ").append("exitContext=").append(Arrays.toString(this.getExitContext()));
             stringBuilder.append(", ").append("exitTrace=").append(Arrays.toString(this.getExitTrace()));
+        }
+
+        stringBuilder.append(']');
+
+        return stringBuilder.toString();
+    }
+
+    /**
+     * Returns a string representation without stacks.
+     *
+     * @return String representation without stacks.
+     */
+    public String toSimpleString() {
+        StringBuilder stringBuilder = new StringBuilder();
+
+        stringBuilder.append("ContextHolder[context=").append(this.getContext());
+
+        stringBuilder.append(", ").append("enterContext=").append(Arrays.toString(this.getEnterContext()));
+
+        if (this.isExited()) {
+            stringBuilder.append(", ").append("exitContext=").append(Arrays.toString(this.getExitContext()));
         }
 
         stringBuilder.append(']');
