@@ -53,4 +53,26 @@ public class RethrowException extends RuntimeException {
 
     }
 
+
+    /**
+     * Rethrow exception {@code t} as unchecked.
+     */
+    @SuppressWarnings("unchecked")
+    public static <X extends Throwable> RuntimeException rethrow(Throwable t) throws X {
+        throw (X) t;
+    }
+
+    /**
+     * Rethrow cause exception {@code t} as unchecked. If the cause exception is {@code null}, rethrow the exception.
+     */
+    @SuppressWarnings("unchecked")
+    public static <X extends Throwable> RuntimeException rethrowCause(Throwable t) throws X {
+        Throwable cause = t.getCause();
+
+        if (cause != null)
+            throw (X) cause;
+
+        throw (X) t;
+    }
+
 }

@@ -186,8 +186,10 @@ public final class Invokables {
 
             try {
                 return (T) this.method.invoke(instance, arguments);
-            } catch (IllegalAccessException | InvocationTargetException ignored) {
-                throw new RethrowException(ignored);
+            } catch (IllegalAccessException e) {
+                throw RethrowException.rethrow(e);
+            } catch (InvocationTargetException e) {
+                throw RethrowException.rethrowCause(e);
             }
         }
     }
@@ -218,7 +220,7 @@ public final class Invokables {
             try {
                 return (T) this.methodHandle.bindTo(instance).invokeWithArguments(arguments);
             } catch (Throwable throwable) {
-                throw new RethrowException(throwable);
+                throw RethrowException.rethrow(throwable);
             }
         }
     }
@@ -236,8 +238,10 @@ public final class Invokables {
         public T invoke(Object... args) {
             try {
                 return this.constructor.newInstance(args);
-            } catch (IllegalAccessException | InvocationTargetException | InstantiationException e) {
-                throw new RethrowException(e);
+            } catch (IllegalAccessException | InstantiationException e) {
+                throw RethrowException.rethrow(e);
+            } catch (InvocationTargetException e) {
+                throw RethrowException.rethrowCause(e);
             }
         }
     }
@@ -261,8 +265,10 @@ public final class Invokables {
 
             try {
                 return this.constructor.newInstance(arguments);
-            } catch (IllegalAccessException | InvocationTargetException | InstantiationException e) {
-                throw new RethrowException(e);
+            } catch (IllegalAccessException | InstantiationException e) {
+                throw RethrowException.rethrow(e);
+            } catch (InvocationTargetException e) {
+                throw RethrowException.rethrowCause(e);
             }
         }
     }
@@ -287,8 +293,8 @@ public final class Invokables {
 
             try {
                 return (T) this.field.get(instance);
-            } catch (IllegalAccessException ignored) {
-                throw new RethrowException(ignored);
+            } catch (IllegalAccessException e) {
+                throw RethrowException.rethrow(e);
             }
         }
     }
@@ -313,8 +319,8 @@ public final class Invokables {
 
             try {
                 this.field.set(instance, args[1]);
-            } catch (IllegalAccessException ignored) {
-                throw new RethrowException(ignored);
+            } catch (IllegalAccessException e) {
+                throw RethrowException.rethrow(e);
             }
 
             return null;

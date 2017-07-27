@@ -25,47 +25,49 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.object;
+package com.github.jonathanxd.iutils.object.specialized;
+
+import com.github.jonathanxd.iutils.annotation.Generated;
+import com.github.jonathanxd.iutils.function.consumer.ShortConsumer;
+import com.github.jonathanxd.iutils.function.unary.ShortUnaryOperator;
+import com.github.jonathanxd.iutils.object.BaseEither;
 
 import java.util.NoSuchElementException;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
- * A class which can hold either {@link L} or {@link R} (in this documentation we call the hold
+ * A class which can hold either {@link L} or {@link short} (in this documentation we call the hold
  * value as present value).
  *
- * Left value ({@link L}) and right value ({@link R}) may be null even if it is the present value.
+ * Left value ({@link L}) may be null even if the value is present.
  *
  * @param <L> Left value.
- * @param <R> Right value.
  */
-public abstract class Either<L, R> extends BaseEither {
+@Generated
+public abstract class EitherObjShort<L> extends BaseEither {
 
-    Either() {
+    EitherObjShort() {
     }
 
     /**
-     * Creates a {@link Either} which present value is the left value.
+     * Creates a {@link EitherObjShort} which present value is the left value.
      *
      * @param left Left value.
      * @param <L>  Left type.
-     * @param <R>  Right type.
-     * @return {@link Either} which present value is the left value.
+     * @return {@link EitherObjShort} which present value is the left value.
      */
-    public static <L, R> Either<L, R> left(L left) {
+    public static <L> EitherObjShort<L> left(L left) {
         return new Left<>(left);
     }
 
     /**
-     * Creates a {@link Either} which present value is the right value.
+     * Creates a {@link EitherObjShort} which present value is the right value.
      *
      * @param right Right value.
-     * @param <L>   Left type.
-     * @param <R>   Right type.
-     * @return {@link Either} which present value is the right value.
+     * @return {@link EitherObjShort} which present value is the right value.
      */
-    public static <L, R> Either<L, R> right(R right) {
+    public static <L> EitherObjShort<L> right(short right) {
         return new Right<>(right);
     }
 
@@ -74,6 +76,7 @@ public abstract class Either<L, R> extends BaseEither {
      *
      * @return True if left value is the present value.
      */
+    @Override
     public abstract boolean isLeft();
 
     /**
@@ -81,6 +84,7 @@ public abstract class Either<L, R> extends BaseEither {
      *
      * @return True if right value is the present value.
      */
+    @Override
     public abstract boolean isRight();
 
     /**
@@ -97,7 +101,7 @@ public abstract class Either<L, R> extends BaseEither {
      * @return Right value.
      * @throws NoSuchElementException If the right value is not present.
      */
-    public abstract R getRight();
+    public abstract short getRight();
 
     /**
      * Consumes the left value with {@code leftConsumer} if the value is present, or consumes the
@@ -106,7 +110,7 @@ public abstract class Either<L, R> extends BaseEither {
      * @param leftConsumer  Left value consumer.
      * @param rightConsumer Right value consumer.
      */
-    public abstract void ifEither(Consumer<? super L> leftConsumer, Consumer<? super R> rightConsumer);
+    public abstract void ifEither(Consumer<? super L> leftConsumer, ShortConsumer rightConsumer);
 
     /**
      * Consume left value if the value is present.
@@ -120,47 +124,45 @@ public abstract class Either<L, R> extends BaseEither {
      *
      * @param consumer Consumer to consume value.
      */
-    public abstract void ifRight(Consumer<? super R> consumer);
+    public abstract void ifRight(ShortConsumer consumer);
 
     /**
-     * Maps left value if present and right value if present and return a new {@link Either}
+     * Maps left value if present and right value if present and return a new {@link EitherObjShort}
      * instance with mapped values.
      *
      * @param leftMapper  Left value mapper.
      * @param rightMapper Right value mapper.
      * @param <ML>        Left type.
-     * @param <MR>        Right type.
-     * @return {@link Either} instance with mapped values.
+     * @return {@link EitherObjShort} instance with mapped values.
      */
-    public abstract <ML, MR> Either<ML, MR> map(Function<? super L, ? extends ML> leftMapper,
-                                                Function<? super R, ? extends MR> rightMapper);
+    public abstract <ML> EitherObjShort<ML> map(Function<? super L, ? extends ML> leftMapper,
+                                                          ShortUnaryOperator rightMapper);
 
 
     /**
-     * Maps left value if present and return a new {@link Either} with mapped value.
+     * Maps left value if present and return a new {@link EitherObjShort} with mapped value.
      *
-     * If left value is not present, a new identical {@link Either} will be returned.
+     * If left value is not present, a new identical {@link EitherObjShort} will be returned.
      *
      * @param leftMapper Left value mapper.
      * @param <ML>       Left type.
-     * @return {@link Either} instance with mapped left value.
+     * @return {@link EitherObjShort} instance with mapped left value.
      */
     @SuppressWarnings("unchecked")
-    public abstract <ML> Either<ML, R> mapLeft(Function<? super L, ? extends ML> leftMapper);
+    public abstract <ML> EitherObjShort<ML> mapLeft(Function<? super L, ? extends ML> leftMapper);
 
     /**
-     * Maps right value if present and return a new {@link Either} with mapped value.
+     * Maps right value if present and return a new {@link EitherObjShort} with mapped value.
      *
-     * If right value is not present, a new identical {@link Either} will be returned.
+     * If right value is not present, a new identical {@link EitherObjShort} will be returned.
      *
      * @param rightMapper Right value mapper.
-     * @param <MR>        Right type.
-     * @return {@link Either} instance with mapped right value.
+     * @return {@link EitherObjShort} instance with mapped right value.
      */
     @SuppressWarnings("unchecked")
-    public abstract <MR> Either<L, MR> mapRight(Function<? super R, ? extends MR> rightMapper);
+    public abstract EitherObjShort<L> mapRight(ShortUnaryOperator rightMapper);
 
-    static class Left<L, R> extends Either<L, R> {
+    static class Left<L> extends EitherObjShort<L> {
         private final L value;
 
         Left(L value) {
@@ -183,12 +185,12 @@ public abstract class Either<L, R> extends BaseEither {
         }
 
         @Override
-        public R getRight() {
+        public short getRight() {
             throw new NoSuchElementException();
         }
 
         @Override
-        public void ifEither(Consumer<? super L> leftConsumer, Consumer<? super R> rightConsumer) {
+        public void ifEither(Consumer<? super L> leftConsumer, ShortConsumer rightConsumer) {
             leftConsumer.accept(this.getLeft());
         }
 
@@ -198,29 +200,29 @@ public abstract class Either<L, R> extends BaseEither {
         }
 
         @Override
-        public void ifRight(Consumer<? super R> consumer) {
+        public void ifRight(ShortConsumer consumer) {
         }
 
         @Override
-        public <ML, MR> Either<ML, MR> map(Function<? super L, ? extends ML> leftMapper, Function<? super R, ? extends MR> rightMapper) {
-            return Either.left(leftMapper.apply(this.getLeft()));
+        public <ML> EitherObjShort<ML> map(Function<? super L, ? extends ML> leftMapper, ShortUnaryOperator rightMapper) {
+            return EitherObjShort.left(leftMapper.apply(this.getLeft()));
         }
 
         @Override
-        public <ML> Either<ML, R> mapLeft(Function<? super L, ? extends ML> leftMapper) {
-            return Either.left(leftMapper.apply(this.getLeft()));
+        public <ML> EitherObjShort<ML> mapLeft(Function<? super L, ? extends ML> leftMapper) {
+            return EitherObjShort.left(leftMapper.apply(this.getLeft()));
         }
 
         @Override
-        public <MR> Either<L, MR> mapRight(Function<? super R, ? extends MR> rightMapper) {
-            return Either.left(this.getLeft());
+        public EitherObjShort<L> mapRight(ShortUnaryOperator rightMapper) {
+            return EitherObjShort.left(this.getLeft());
         }
     }
 
-    static class Right<L, R> extends Either<L, R> {
-        private final R value;
+    static class Right<L> extends EitherObjShort<L> {
+        private final short value;
 
-        Right(R value) {
+        Right(short value) {
             this.value = value;
         }
 
@@ -240,12 +242,12 @@ public abstract class Either<L, R> extends BaseEither {
         }
 
         @Override
-        public R getRight() {
+        public short getRight() {
             return this.value;
         }
 
         @Override
-        public void ifEither(Consumer<? super L> leftConsumer, Consumer<? super R> rightConsumer) {
+        public void ifEither(Consumer<? super L> leftConsumer, ShortConsumer rightConsumer) {
             rightConsumer.accept(this.getRight());
         }
 
@@ -254,23 +256,23 @@ public abstract class Either<L, R> extends BaseEither {
         }
 
         @Override
-        public void ifRight(Consumer<? super R> consumer) {
+        public void ifRight(ShortConsumer consumer) {
             consumer.accept(this.getRight());
         }
 
         @Override
-        public <ML, MR> Either<ML, MR> map(Function<? super L, ? extends ML> leftMapper, Function<? super R, ? extends MR> rightMapper) {
-            return Either.right(rightMapper.apply(this.getRight()));
+        public <ML> EitherObjShort<ML> map(Function<? super L, ? extends ML> leftMapper, ShortUnaryOperator rightMapper) {
+            return EitherObjShort.right(rightMapper.apply(this.getRight()));
         }
 
         @Override
-        public <ML> Either<ML, R> mapLeft(Function<? super L, ? extends ML> leftMapper) {
-            return Either.right(this.getRight());
+        public <ML> EitherObjShort<ML> mapLeft(Function<? super L, ? extends ML> leftMapper) {
+            return EitherObjShort.right(this.getRight());
         }
 
         @Override
-        public <MR> Either<L, MR> mapRight(Function<? super R, ? extends MR> rightMapper) {
-            return Either.right(rightMapper.apply(this.getRight()));
+        public EitherObjShort<L> mapRight(ShortUnaryOperator rightMapper) {
+            return EitherObjShort.right(rightMapper.apply(this.getRight()));
         }
     }
 }

@@ -25,15 +25,38 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
+package com.github.jonathanxd.iutils.function.checked.supplier;
+
+import java.util.function.Supplier;
+
 /**
- * Contains a set of functional interfaces which extends Java standard interfaces and other
- * interfaces and rethrow exception caught inside checked functions.
+ * {@link Supplier}
  *
- * All exceptions are rethrown using {@link java.lang.RuntimeException}.
- *
- * There are variants for {@link java.lang.Exception} and {@link java.lang.Throwable}.
- *
- * Not all interface are implemented ATM. If you want to implement a new interface, feel free to
- * send a PR.
+ * @see com.github.jonathanxd.iutils.function.checked
  */
-package com.github.jonathanxd.iutils.function.checked;
+@FunctionalInterface
+public interface ESupplier<T> extends Supplier<T> {
+
+    @Override
+    default T get() {
+        try {
+            return this.getChecked();
+        } catch (Exception t) {
+            throw new RuntimeException(t);
+        }
+    }
+
+    /**
+     * {@link Supplier#get} equivalent which declares a {@code throws} clauses, allowing exceptions
+     * to be caught outside of lambda context.
+     *
+     * Like other interfaces of this package, this interface implements a java corresponding
+     * interface. All exceptions which occurs inside the lambda is rethrown in the implemented
+     * method using {@link RuntimeException}.
+     *
+     * @return See {@link Supplier#get}.
+     * @throws Exception Exception occurred inside of function.
+     */
+    T getChecked() throws Exception;
+
+}

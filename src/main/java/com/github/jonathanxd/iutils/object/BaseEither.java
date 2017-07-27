@@ -25,15 +25,25 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
+package com.github.jonathanxd.iutils.object;
+
 /**
- * Contains a set of functional interfaces which extends Java standard interfaces and other
- * interfaces and rethrow exception caught inside checked functions.
- *
- * All exceptions are rethrown using {@link java.lang.RuntimeException}.
- *
- * There are variants for {@link java.lang.Exception} and {@link java.lang.Throwable}.
- *
- * Not all interface are implemented ATM. If you want to implement a new interface, feel free to
- * send a PR.
+ * Base class of either classes, it includes specialized either.
  */
-package com.github.jonathanxd.iutils.function.checked;
+public abstract class BaseEither {
+
+    /**
+     * Returns true if left value is the present value.
+     *
+     * @return True if left value is the present value.
+     */
+    public abstract boolean isLeft();
+
+    /**
+     * Returns true if right value is the present value.
+     *
+     * @return True if right value is the present value.
+     */
+    public abstract boolean isRight();
+
+}

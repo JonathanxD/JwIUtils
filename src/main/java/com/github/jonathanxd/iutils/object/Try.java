@@ -28,8 +28,11 @@
 package com.github.jonathanxd.iutils.object;
 
 import com.github.jonathanxd.iutils.function.checked.CRunnable;
+import com.github.jonathanxd.iutils.function.checked.ERunnable;
 import com.github.jonathanxd.iutils.function.checked.function.CFunction;
+import com.github.jonathanxd.iutils.function.checked.function.EFunction;
 import com.github.jonathanxd.iutils.function.checked.supplier.CSupplier;
+import com.github.jonathanxd.iutils.function.checked.supplier.ESupplier;
 
 /**
  * Try utility.
@@ -83,6 +86,54 @@ public final class Try {
             f.runChecked();
             return Either.right(null);
         } catch (Throwable t) {
+            return Either.left(t);
+        }
+    }
+
+    /**
+     * Try to run function {@code f}.
+     *
+     * @param f   Function.
+     * @param <R> Return type.
+     * @return {@link Either} of thrown {@link Exception} or {@link Either} of result if {@code f}
+     * succeed without exceptions.
+     */
+    public static <R> Either<Exception, R> TryEx(ESupplier<R> f) {
+        try {
+            return Either.right(f.getChecked());
+        } catch (Exception t) {
+            return Either.left(t);
+        }
+    }
+
+    /**
+     * Try to run function {@code f} on {@code value}.
+     *
+     * @param value Value to apply.
+     * @param f     Function.
+     * @param <R>   Return type.
+     * @return {@link Either} of thrown {@link Exception} or {@link Either} of result if {@code f}
+     * succeed without exceptions.
+     */
+    public static <T, R> Either<Throwable, R> TryOn(T value, EFunction<T, R> f) {
+        try {
+            return Either.right(f.applyChecked(value));
+        } catch (Exception t) {
+            return Either.left(t);
+        }
+    }
+
+    /**
+     * Try to run function {@code f}.
+     *
+     * @param f Function.
+     * @return {@link Either} of thrown {@link Exception} or {@link Either} of {@code null}.
+     */
+    public static Either<Exception, Void> TryEx(ERunnable f) {
+        try {
+            f.runChecked();
+            return Either.right(null);
+        } catch (Exception t) {
             return Either.left(t);
         }
     }

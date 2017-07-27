@@ -25,15 +25,38 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
+package com.github.jonathanxd.iutils.function.checked.function;
+
+import java.util.function.Function;
+
 /**
- * Contains a set of functional interfaces which extends Java standard interfaces and other
- * interfaces and rethrow exception caught inside checked functions.
+ * {@link Function}
  *
- * All exceptions are rethrown using {@link java.lang.RuntimeException}.
- *
- * There are variants for {@link java.lang.Exception} and {@link java.lang.Throwable}.
- *
- * Not all interface are implemented ATM. If you want to implement a new interface, feel free to
- * send a PR.
+ * @see com.github.jonathanxd.iutils.function.checked
  */
-package com.github.jonathanxd.iutils.function.checked;
+@FunctionalInterface
+public interface EFunction<T, R> extends Function<T, R> {
+
+    @Override
+    default R apply(T t) {
+        try {
+            return this.applyChecked(t);
+        } catch (Exception th) {
+            throw new RuntimeException(th);
+        }
+    }
+
+    /**
+     * {@link Function#apply} equivalent which declares a {@code throws} clauses, allowing
+     * exceptions to be caught outside of lambda context.
+     *
+     * Like other interfaces of this package, this interface implements a java corresponding
+     * interface. All exceptions which occurs inside the lambda is rethrown in the implemented
+     * method using {@link RuntimeException}.
+     *
+     * @return See {@link Function#apply}.
+     * @throws Exception Exception occurred inside of function.
+     */
+    R applyChecked(T t) throws Exception;
+
+}

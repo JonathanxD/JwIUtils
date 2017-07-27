@@ -25,48 +25,45 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.object;
+package com.github.jonathanxd.iutils.object.specialized.all;
+
+import com.github.jonathanxd.iutils.annotation.Generated;
+import com.github.jonathanxd.iutils.function.consumer.BooleanConsumer;
+import com.github.jonathanxd.iutils.function.unary.BooleanUnaryOperator;
+import com.github.jonathanxd.iutils.function.unary.IntUnaryOperator;
+import com.github.jonathanxd.iutils.object.BaseEither;
 
 import java.util.NoSuchElementException;
-import java.util.function.Consumer;
-import java.util.function.Function;
+import java.util.function.IntConsumer;
 
 /**
- * A class which can hold either {@link L} or {@link R} (in this documentation we call the hold
- * value as present value).
- *
- * Left value ({@link L}) and right value ({@link R}) may be null even if it is the present value.
- *
- * @param <L> Left value.
- * @param <R> Right value.
+ * A class which can hold either {@link boolean} or {@link int} (in this documentation we call the
+ * hold value as present value).
  */
-public abstract class Either<L, R> extends BaseEither {
+@Generated
+public abstract class EitherBooleanInt extends BaseEither {
 
-    Either() {
+    EitherBooleanInt() {
     }
 
     /**
-     * Creates a {@link Either} which present value is the left value.
+     * Creates a {@link EitherBooleanInt} which present value is the left value.
      *
      * @param left Left value.
-     * @param <L>  Left type.
-     * @param <R>  Right type.
-     * @return {@link Either} which present value is the left value.
+     * @return {@link EitherBooleanInt} which present value is the left value.
      */
-    public static <L, R> Either<L, R> left(L left) {
-        return new Left<>(left);
+    public static EitherBooleanInt left(boolean left) {
+        return new Left(left);
     }
 
     /**
-     * Creates a {@link Either} which present value is the right value.
+     * Creates a {@link EitherBooleanInt} which present value is the right value.
      *
      * @param right Right value.
-     * @param <L>   Left type.
-     * @param <R>   Right type.
-     * @return {@link Either} which present value is the right value.
+     * @return {@link EitherBooleanInt} which present value is the right value.
      */
-    public static <L, R> Either<L, R> right(R right) {
-        return new Right<>(right);
+    public static EitherBooleanInt right(int right) {
+        return new Right(right);
     }
 
     /**
@@ -74,6 +71,7 @@ public abstract class Either<L, R> extends BaseEither {
      *
      * @return True if left value is the present value.
      */
+    @Override
     public abstract boolean isLeft();
 
     /**
@@ -81,6 +79,7 @@ public abstract class Either<L, R> extends BaseEither {
      *
      * @return True if right value is the present value.
      */
+    @Override
     public abstract boolean isRight();
 
     /**
@@ -89,7 +88,7 @@ public abstract class Either<L, R> extends BaseEither {
      * @return Left value.
      * @throws NoSuchElementException If the left value is not present.
      */
-    public abstract L getLeft();
+    public abstract boolean getLeft();
 
     /**
      * Gets right value.
@@ -97,7 +96,7 @@ public abstract class Either<L, R> extends BaseEither {
      * @return Right value.
      * @throws NoSuchElementException If the right value is not present.
      */
-    public abstract R getRight();
+    public abstract int getRight();
 
     /**
      * Consumes the left value with {@code leftConsumer} if the value is present, or consumes the
@@ -106,64 +105,60 @@ public abstract class Either<L, R> extends BaseEither {
      * @param leftConsumer  Left value consumer.
      * @param rightConsumer Right value consumer.
      */
-    public abstract void ifEither(Consumer<? super L> leftConsumer, Consumer<? super R> rightConsumer);
+    public abstract void ifEither(BooleanConsumer leftConsumer, IntConsumer rightConsumer);
 
     /**
      * Consume left value if the value is present.
      *
      * @param consumer Consumer to consume value.
      */
-    public abstract void ifLeft(Consumer<? super L> consumer);
+    public abstract void ifLeft(BooleanConsumer consumer);
 
     /**
      * Consume right value if the value is present.
      *
      * @param consumer Consumer to consume value.
      */
-    public abstract void ifRight(Consumer<? super R> consumer);
+    public abstract void ifRight(IntConsumer consumer);
 
     /**
-     * Maps left value if present and right value if present and return a new {@link Either}
-     * instance with mapped values.
+     * Maps left value if present and right value if present and return a new {@link
+     * EitherBooleanInt} instance with mapped values.
      *
      * @param leftMapper  Left value mapper.
      * @param rightMapper Right value mapper.
-     * @param <ML>        Left type.
-     * @param <MR>        Right type.
-     * @return {@link Either} instance with mapped values.
+     * @return {@link EitherBooleanInt} instance with mapped values.
      */
-    public abstract <ML, MR> Either<ML, MR> map(Function<? super L, ? extends ML> leftMapper,
-                                                Function<? super R, ? extends MR> rightMapper);
+    public abstract EitherBooleanInt map(BooleanUnaryOperator leftMapper,
+                                        IntUnaryOperator rightMapper);
 
 
     /**
-     * Maps left value if present and return a new {@link Either} with mapped value.
+     * Maps left value if present and return a new {@link EitherBooleanInt} with mapped value.
      *
-     * If left value is not present, a new identical {@link Either} will be returned.
+     * If left value is not present, a new identical {@link EitherBooleanInt} will be returned.
      *
      * @param leftMapper Left value mapper.
-     * @param <ML>       Left type.
-     * @return {@link Either} instance with mapped left value.
+     * @return {@link EitherBooleanInt} instance with mapped left value.
      */
     @SuppressWarnings("unchecked")
-    public abstract <ML> Either<ML, R> mapLeft(Function<? super L, ? extends ML> leftMapper);
+    public abstract EitherBooleanInt mapLeft(BooleanUnaryOperator leftMapper);
 
     /**
-     * Maps right value if present and return a new {@link Either} with mapped value.
+     * Maps right value if present and return a new {@link EitherBooleanInt} with mapped value.
      *
-     * If right value is not present, a new identical {@link Either} will be returned.
+     * If right value is not present, a new identical {@link EitherBooleanInt} will be returned.
      *
      * @param rightMapper Right value mapper.
-     * @param <MR>        Right type.
-     * @return {@link Either} instance with mapped right value.
+     * @return {@link EitherBooleanInt} instance with mapped right value.
      */
     @SuppressWarnings("unchecked")
-    public abstract <MR> Either<L, MR> mapRight(Function<? super R, ? extends MR> rightMapper);
+    public abstract EitherBooleanInt mapRight(IntUnaryOperator rightMapper);
 
-    static class Left<L, R> extends Either<L, R> {
-        private final L value;
+    static class Left extends EitherBooleanInt {
+        private final boolean value;
 
-        Left(L value) {
+        Left(boolean value) {
             this.value = value;
         }
 
@@ -178,49 +173,49 @@ public abstract class Either<L, R> extends BaseEither {
         }
 
         @Override
-        public L getLeft() {
+        public boolean getLeft() {
             return this.value;
         }
 
         @Override
-        public R getRight() {
+        public int getRight() {
             throw new NoSuchElementException();
         }
 
         @Override
-        public void ifEither(Consumer<? super L> leftConsumer, Consumer<? super R> rightConsumer) {
+        public void ifEither(BooleanConsumer leftConsumer, IntConsumer rightConsumer) {
             leftConsumer.accept(this.getLeft());
         }
 
         @Override
-        public void ifLeft(Consumer<? super L> consumer) {
+        public void ifLeft(BooleanConsumer consumer) {
             consumer.accept(this.getLeft());
         }
 
         @Override
-        public void ifRight(Consumer<? super R> consumer) {
+        public void ifRight(IntConsumer consumer) {
         }
 
         @Override
-        public <ML, MR> Either<ML, MR> map(Function<? super L, ? extends ML> leftMapper, Function<? super R, ? extends MR> rightMapper) {
-            return Either.left(leftMapper.apply(this.getLeft()));
+        public EitherBooleanInt map(BooleanUnaryOperator leftMapper, IntUnaryOperator rightMapper) {
+            return EitherBooleanInt.left(leftMapper.apply(this.getLeft()));
         }
 
         @Override
-        public <ML> Either<ML, R> mapLeft(Function<? super L, ? extends ML> leftMapper) {
-            return Either.left(leftMapper.apply(this.getLeft()));
+        public EitherBooleanInt mapLeft(BooleanUnaryOperator leftMapper) {
+            return EitherBooleanInt.left(leftMapper.apply(this.getLeft()));
         }
 
         @Override
-        public <MR> Either<L, MR> mapRight(Function<? super R, ? extends MR> rightMapper) {
-            return Either.left(this.getLeft());
+        public EitherBooleanInt mapRight(IntUnaryOperator rightMapper) {
+            return EitherBooleanInt.left(this.getLeft());
         }
     }
 
-    static class Right<L, R> extends Either<L, R> {
-        private final R value;
+    static class Right extends EitherBooleanInt {
+        private final int value;
 
-        Right(R value) {
+        Right(int value) {
             this.value = value;
         }
 
@@ -235,42 +230,42 @@ public abstract class Either<L, R> extends BaseEither {
         }
 
         @Override
-        public L getLeft() {
+        public boolean getLeft() {
             throw new NoSuchElementException();
         }
 
         @Override
-        public R getRight() {
+        public int getRight() {
             return this.value;
         }
 
         @Override
-        public void ifEither(Consumer<? super L> leftConsumer, Consumer<? super R> rightConsumer) {
+        public void ifEither(BooleanConsumer leftConsumer, IntConsumer rightConsumer) {
             rightConsumer.accept(this.getRight());
         }
 
         @Override
-        public void ifLeft(Consumer<? super L> consumer) {
+        public void ifLeft(BooleanConsumer consumer) {
         }
 
         @Override
-        public void ifRight(Consumer<? super R> consumer) {
+        public void ifRight(IntConsumer consumer) {
             consumer.accept(this.getRight());
         }
 
         @Override
-        public <ML, MR> Either<ML, MR> map(Function<? super L, ? extends ML> leftMapper, Function<? super R, ? extends MR> rightMapper) {
-            return Either.right(rightMapper.apply(this.getRight()));
+        public EitherBooleanInt map(BooleanUnaryOperator leftMapper, IntUnaryOperator rightMapper) {
+            return EitherBooleanInt.right(rightMapper.apply(this.getRight()));
         }
 
         @Override
-        public <ML> Either<ML, R> mapLeft(Function<? super L, ? extends ML> leftMapper) {
-            return Either.right(this.getRight());
+        public EitherBooleanInt mapLeft(BooleanUnaryOperator leftMapper) {
+            return EitherBooleanInt.right(this.getRight());
         }
 
         @Override
-        public <MR> Either<L, MR> mapRight(Function<? super R, ? extends MR> rightMapper) {
-            return Either.right(rightMapper.apply(this.getRight()));
+        public EitherBooleanInt mapRight(IntUnaryOperator rightMapper) {
+            return EitherBooleanInt.right(rightMapper.apply(this.getRight()));
         }
     }
 }

@@ -25,15 +25,38 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
+package com.github.jonathanxd.iutils.function.checked.comparator;
+
+import com.github.jonathanxd.iutils.function.comparators.BiComparator;
+
 /**
- * Contains a set of functional interfaces which extends Java standard interfaces and other
- * interfaces and rethrow exception caught inside checked functions.
+ * {@link BiComparator}
  *
- * All exceptions are rethrown using {@link java.lang.RuntimeException}.
- *
- * There are variants for {@link java.lang.Exception} and {@link java.lang.Throwable}.
- *
- * Not all interface are implemented ATM. If you want to implement a new interface, feel free to
- * send a PR.
+ * @see com.github.jonathanxd.iutils.function.checked
  */
-package com.github.jonathanxd.iutils.function.checked;
+@FunctionalInterface
+public interface EBiComparator<T, U> extends BiComparator<T, U> {
+
+    @Override
+    default int compare(T t, U u, T t2, U u2) {
+        try {
+            return this.compareChecked(t, u, t2, u2);
+        } catch (Exception th) {
+            throw new RuntimeException(th);
+        }
+    }
+
+    /**
+     * {@link BiComparator#compare} equivalent which declares a {@code throws} clauses, allowing
+     * exceptions to be caught outside of lambda context.
+     *
+     * Like other interfaces of this package, this interface implements a java corresponding
+     * interface. All exceptions which occurs inside the lambda is rethrown in the implemented
+     * method using {@link RuntimeException}.
+     *
+     * @return See {@link BiComparator#compare}.
+     * @throws Exception Exception occurred inside of function.
+     */
+    int compareChecked(T t, U u, T t2, U u2) throws Exception;
+
+}

@@ -25,15 +25,39 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
+package com.github.jonathanxd.iutils.function.checked.binary;
+
+import com.github.jonathanxd.iutils.function.binary.ValueBiBinaryOperator;
+
 /**
- * Contains a set of functional interfaces which extends Java standard interfaces and other
- * interfaces and rethrow exception caught inside checked functions.
+ * {@link ValueBiBinaryOperator}
  *
- * All exceptions are rethrown using {@link java.lang.RuntimeException}.
- *
- * There are variants for {@link java.lang.Exception} and {@link java.lang.Throwable}.
- *
- * Not all interface are implemented ATM. If you want to implement a new interface, feel free to
- * send a PR.
+ * @see com.github.jonathanxd.iutils.function.checked
  */
-package com.github.jonathanxd.iutils.function.checked;
+@FunctionalInterface
+public interface EValueBiBinaryOperator<T, U> extends ValueBiBinaryOperator<T, U> {
+
+    @Override
+    default U apply(T value, U value2, T value3, U value4) {
+        try {
+            return this.applyChecked(value, value2, value3, value4);
+        } catch (Exception th) {
+            throw new RuntimeException(th);
+        }
+    }
+
+
+    /**
+     * {@link ValueBiBinaryOperator#apply} equivalent which declares a {@code throws} clauses,
+     * allowing exceptions to be caught outside of lambda context.
+     *
+     * Like other interfaces of this package, this interface implements a java corresponding
+     * interface. All exceptions which occurs inside the lambda is rethrown in the implemented
+     * method using {@link RuntimeException}.
+     *
+     * @return See {@link ValueBiBinaryOperator#apply}.
+     * @throws Exception Exception occurred inside of function.
+     */
+    U applyChecked(T value, U value2, T value3, U value4) throws Exception;
+
+}

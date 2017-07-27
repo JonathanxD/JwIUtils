@@ -26,14 +26,8 @@
  *      THE SOFTWARE.
  */
 /**
- * Contains a set of functional interfaces which extends Java standard interfaces and other
- * interfaces and rethrow exception caught inside checked functions.
+ * Either specialized for each primitive pair.
  *
- * All exceptions are rethrown using {@link java.lang.RuntimeException}.
- *
- * There are variants for {@link java.lang.Exception} and {@link java.lang.Throwable}.
- *
- * Not all interface are implemented ATM. If you want to implement a new interface, feel free to
- * send a PR.
+ * Because of the amount of classes, they are grouped in this package.
  */
-package com.github.jonathanxd.iutils.function.checked;
+package com.github.jonathanxd.iutils.object.specialized.all;

@@ -25,15 +25,39 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
+package com.github.jonathanxd.iutils.function.checked.binary;
+
+import com.github.jonathanxd.iutils.function.binary.NodeBinaryOperator;
+import com.github.jonathanxd.iutils.object.Node;
+
 /**
- * Contains a set of functional interfaces which extends Java standard interfaces and other
- * interfaces and rethrow exception caught inside checked functions.
+ * {@link NodeBinaryOperator}
  *
- * All exceptions are rethrown using {@link java.lang.RuntimeException}.
- *
- * There are variants for {@link java.lang.Exception} and {@link java.lang.Throwable}.
- *
- * Not all interface are implemented ATM. If you want to implement a new interface, feel free to
- * send a PR.
+ * @see com.github.jonathanxd.iutils.function.checked
  */
-package com.github.jonathanxd.iutils.function.checked;
+@FunctionalInterface
+public interface ENodeBinaryOperator<T, U> extends NodeBinaryOperator<T, U> {
+
+    @Override
+    default Node<T, U> apply(T t, U u) {
+        try {
+            return this.applyChecked(t, u);
+        } catch (Exception th) {
+            throw new RuntimeException(th);
+        }
+    }
+
+    /**
+     * {@link NodeBinaryOperator#apply} equivalent which declares a {@code throws} clauses, allowing
+     * exceptions to be caught outside of lambda context.
+     *
+     * Like other interfaces of this package, this interface implements a java corresponding
+     * interface. All exceptions which occurs inside the lambda is rethrown in the implemented
+     * method using {@link RuntimeException}.
+     *
+     * @return See {@link NodeBinaryOperator#apply}.
+     * @throws Exception Exception occurred inside of function.
+     */
+    Node<T, U> applyChecked(T t, U u) throws Exception;
+
+}

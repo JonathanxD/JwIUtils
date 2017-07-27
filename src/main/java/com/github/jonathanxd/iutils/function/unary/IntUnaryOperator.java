@@ -25,15 +25,20 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
+package com.github.jonathanxd.iutils.function.unary;
+
 /**
- * Contains a set of functional interfaces which extends Java standard interfaces and other
- * interfaces and rethrow exception caught inside checked functions.
+ * An unary operator specialized for {@code int}.
  *
- * All exceptions are rethrown using {@link java.lang.RuntimeException}.
- *
- * There are variants for {@link java.lang.Exception} and {@link java.lang.Throwable}.
- *
- * Not all interface are implemented ATM. If you want to implement a new interface, feel free to
- * send a PR.
+ * Same as {@link java.util.function.IntUnaryOperator}, but with a different name (more easy
+ * to write a template).
  */
-package com.github.jonathanxd.iutils.function.checked;
+@FunctionalInterface
+public interface IntUnaryOperator {
+
+    /**
+     * Apply function.
+     */
+    int apply(int v);
+
+}

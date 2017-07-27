@@ -25,15 +25,39 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
+package com.github.jonathanxd.iutils.function.checked.supplier;
+
+import com.github.jonathanxd.iutils.function.supplier.PairSupplier;
+import com.github.jonathanxd.iutils.object.Pair;
+
 /**
- * Contains a set of functional interfaces which extends Java standard interfaces and other
- * interfaces and rethrow exception caught inside checked functions.
+ * {@link PairSupplier}
  *
- * All exceptions are rethrown using {@link java.lang.RuntimeException}.
- *
- * There are variants for {@link java.lang.Exception} and {@link java.lang.Throwable}.
- *
- * Not all interface are implemented ATM. If you want to implement a new interface, feel free to
- * send a PR.
+ * @see com.github.jonathanxd.iutils.function.checked
  */
-package com.github.jonathanxd.iutils.function.checked;
+@FunctionalInterface
+public interface EPairSupplier<T, U> extends PairSupplier<T, U> {
+
+    @Override
+    default Pair<T, U> get() {
+        try {
+            return this.getChecked();
+        } catch (Exception t) {
+            throw new RuntimeException(t);
+        }
+    }
+
+    /**
+     * {@link PairSupplier#get} equivalent which declares a {@code throws} clauses, allowing
+     * exceptions to be caught outside of lambda context.
+     *
+     * Like other interfaces of this package, this interface implements a java corresponding
+     * interface. All exceptions which occurs inside the lambda is rethrown in the implemented
+     * method using {@link RuntimeException}.
+     *
+     * @return See {@link PairSupplier#get}.
+     * @throws Exception Exception occurred inside of function.
+     */
+    Pair<T, U> getChecked() throws Exception;
+
+}
