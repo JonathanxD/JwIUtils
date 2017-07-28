@@ -29,6 +29,7 @@ package com.github.jonathanxd.iutils.object.specialized;
 
 import com.github.jonathanxd.iutils.annotation.Generated;
 import com.github.jonathanxd.iutils.function.consumer.BooleanConsumer;
+import com.github.jonathanxd.iutils.function.function.BooleanFunction;
 import com.github.jonathanxd.iutils.function.unary.BooleanUnaryOperator;
 import com.github.jonathanxd.iutils.object.BaseEither;
 
@@ -37,8 +38,8 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
- * A class which can hold either {@link L} or {@link boolean} (in this documentation we call the hold
- * value as present value).
+ * A class which can hold either {@link L} or {@link boolean} (in this documentation we call the
+ * hold value as present value).
  *
  * Left value ({@link L}) may be null even if the value is present.
  *
@@ -127,8 +128,8 @@ public abstract class EitherObjBoolean<L> extends BaseEither {
     public abstract void ifRight(BooleanConsumer consumer);
 
     /**
-     * Maps left value if present and right value if present and return a new {@link EitherObjBoolean}
-     * instance with mapped values.
+     * Maps left value if present and right value if present and return a new {@link
+     * EitherObjBoolean} instance with mapped values.
      *
      * @param leftMapper  Left value mapper.
      * @param rightMapper Right value mapper.
@@ -136,7 +137,7 @@ public abstract class EitherObjBoolean<L> extends BaseEither {
      * @return {@link EitherObjBoolean} instance with mapped values.
      */
     public abstract <ML> EitherObjBoolean<ML> map(Function<? super L, ? extends ML> leftMapper,
-                                                          BooleanUnaryOperator rightMapper);
+                                                  BooleanUnaryOperator rightMapper);
 
 
     /**
@@ -161,6 +162,37 @@ public abstract class EitherObjBoolean<L> extends BaseEither {
      */
     @SuppressWarnings("unchecked")
     public abstract EitherObjBoolean<L> mapRight(BooleanUnaryOperator rightMapper);
+
+    /**
+     * Flat maps left value if present or right value if present and return {@link EitherObjBoolean}
+     * returned by mapper function.
+     *
+     * @param leftMapper  Left value mapper.
+     * @param rightMapper Right value mapper.
+     * @param <ML>        Left type.
+     * @return {@link EitherObjBoolean} returned by mapper function.
+     */
+    public abstract <ML> EitherObjBoolean<ML> flatMap(Function<? super L, ? extends EitherObjBoolean<ML>> leftMapper,
+                                                      BooleanFunction<? extends EitherObjBoolean<ML>> rightMapper);
+
+    /**
+     * Flat maps left value if present return {@link EitherObjBoolean} returned by mapper function.
+     *
+     * @param leftMapper Left value mapper.
+     * @param <ML>       Left type.
+     * @return {@link EitherObjBoolean} returned by mapper function.
+     */
+    public abstract <ML> EitherObjBoolean<ML> flatMapLeft(Function<? super L, ? extends EitherObjBoolean<ML>> leftMapper);
+
+
+    /**
+     * Flat maps right value if present and return {@link EitherObjBoolean} returned by mapper
+     * function.
+     *
+     * @param rightMapper Right value mapper.
+     * @return {@link EitherObjBoolean} returned by mapper function.
+     */
+    public abstract EitherObjBoolean<L> flatMapRight(BooleanFunction<? extends EitherObjBoolean<L>> rightMapper);
 
     static class Left<L> extends EitherObjBoolean<L> {
         private final L value;
@@ -204,7 +236,8 @@ public abstract class EitherObjBoolean<L> extends BaseEither {
         }
 
         @Override
-        public <ML> EitherObjBoolean<ML> map(Function<? super L, ? extends ML> leftMapper, BooleanUnaryOperator rightMapper) {
+        public <ML> EitherObjBoolean<ML> map(Function<? super L, ? extends ML> leftMapper,
+                                             BooleanUnaryOperator rightMapper) {
             return EitherObjBoolean.left(leftMapper.apply(this.getLeft()));
         }
 
@@ -217,6 +250,23 @@ public abstract class EitherObjBoolean<L> extends BaseEither {
         public EitherObjBoolean<L> mapRight(BooleanUnaryOperator rightMapper) {
             return EitherObjBoolean.left(this.getLeft());
         }
+
+        @Override
+        public <ML> EitherObjBoolean<ML> flatMap(Function<? super L, ? extends EitherObjBoolean<ML>> leftMapper,
+                                                 BooleanFunction<? extends EitherObjBoolean<ML>> rightMapper) {
+            return leftMapper.apply(this.getLeft());
+        }
+
+        @Override
+        public <ML> EitherObjBoolean<ML> flatMapLeft(Function<? super L, ? extends EitherObjBoolean<ML>> leftMapper) {
+            return leftMapper.apply(this.getLeft());
+        }
+
+        @Override
+        public EitherObjBoolean<L> flatMapRight(BooleanFunction<? extends EitherObjBoolean<L>> rightMapper) {
+            return EitherObjBoolean.left(this.getLeft());
+        }
+
     }
 
     static class Right<L> extends EitherObjBoolean<L> {
@@ -261,7 +311,8 @@ public abstract class EitherObjBoolean<L> extends BaseEither {
         }
 
         @Override
-        public <ML> EitherObjBoolean<ML> map(Function<? super L, ? extends ML> leftMapper, BooleanUnaryOperator rightMapper) {
+        public <ML> EitherObjBoolean<ML> map(Function<? super L, ? extends ML> leftMapper,
+                                             BooleanUnaryOperator rightMapper) {
             return EitherObjBoolean.right(rightMapper.apply(this.getRight()));
         }
 
@@ -273,6 +324,22 @@ public abstract class EitherObjBoolean<L> extends BaseEither {
         @Override
         public EitherObjBoolean<L> mapRight(BooleanUnaryOperator rightMapper) {
             return EitherObjBoolean.right(rightMapper.apply(this.getRight()));
+        }
+
+        @Override
+        public <ML> EitherObjBoolean<ML> flatMap(Function<? super L, ? extends EitherObjBoolean<ML>> leftMapper,
+                                                 BooleanFunction<? extends EitherObjBoolean<ML>> rightMapper) {
+            return rightMapper.apply(this.getRight());
+        }
+
+        @Override
+        public <ML> EitherObjBoolean<ML> flatMapLeft(Function<? super L, ? extends EitherObjBoolean<ML>> leftMapper) {
+            return EitherObjBoolean.right(this.getRight());
+        }
+
+        @Override
+        public EitherObjBoolean<L> flatMapRight(BooleanFunction<? extends EitherObjBoolean<L>> rightMapper) {
+            return rightMapper.apply(this.getRight());
         }
     }
 }

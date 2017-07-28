@@ -30,6 +30,8 @@ package com.github.jonathanxd.iutils.object.specialized.all;
 import com.github.jonathanxd.iutils.annotation.Generated;
 import com.github.jonathanxd.iutils.function.consumer.ByteConsumer;
 import com.github.jonathanxd.iutils.function.consumer.ShortConsumer;
+import com.github.jonathanxd.iutils.function.function.ByteFunction;
+import com.github.jonathanxd.iutils.function.function.ShortFunction;
 import com.github.jonathanxd.iutils.function.unary.ByteUnaryOperator;
 import com.github.jonathanxd.iutils.function.unary.ShortUnaryOperator;
 import com.github.jonathanxd.iutils.object.BaseEither;
@@ -155,6 +157,35 @@ public abstract class EitherByteShort extends BaseEither {
     @SuppressWarnings("unchecked")
     public abstract EitherByteShort mapRight(ShortUnaryOperator rightMapper);
 
+    /**
+     * Flat maps left value if present or right value if present and return {@link EitherByteShort}
+     * returned by mapper function.
+     *
+     * @param leftMapper  Left value mapper.
+     * @param rightMapper Right value mapper.
+     * @return {@link EitherByteShort} returned by mapper function.
+     */
+    public abstract EitherByteShort flatMap(ByteFunction<? extends EitherByteShort> leftMapper,
+                                            ShortFunction<? extends EitherByteShort> rightMapper);
+
+    /**
+     * Flat maps left value if present return {@link EitherByteShort} returned by mapper function.
+     *
+     * @param leftMapper Left value mapper.
+     * @return {@link EitherByteShort} returned by mapper function.
+     */
+    public abstract EitherByteShort flatMapLeft(ByteFunction<? extends EitherByteShort> leftMapper);
+
+
+    /**
+     * Flat maps right value if present and return {@link EitherByteShort} returned by mapper
+     * function.
+     *
+     * @param rightMapper Right value mapper.
+     * @return {@link EitherByteShort} returned by mapper function.
+     */
+    public abstract EitherByteShort flatMapRight(ShortFunction<? extends EitherByteShort> rightMapper);
+
     static class Left extends EitherByteShort {
         private final byte value;
 
@@ -208,6 +239,22 @@ public abstract class EitherByteShort extends BaseEither {
 
         @Override
         public EitherByteShort mapRight(ShortUnaryOperator rightMapper) {
+            return EitherByteShort.left(this.getLeft());
+        }
+
+        @Override
+        public EitherByteShort flatMap(ByteFunction<? extends EitherByteShort> leftMapper,
+                                       ShortFunction<? extends EitherByteShort> rightMapper) {
+            return leftMapper.apply(this.getLeft());
+        }
+
+        @Override
+        public EitherByteShort flatMapLeft(ByteFunction<? extends EitherByteShort> leftMapper) {
+            return leftMapper.apply(this.getLeft());
+        }
+
+        @Override
+        public EitherByteShort flatMapRight(ShortFunction<? extends EitherByteShort> rightMapper) {
             return EitherByteShort.left(this.getLeft());
         }
     }
@@ -266,6 +313,22 @@ public abstract class EitherByteShort extends BaseEither {
         @Override
         public EitherByteShort mapRight(ShortUnaryOperator rightMapper) {
             return EitherByteShort.right(rightMapper.apply(this.getRight()));
+        }
+
+        @Override
+        public EitherByteShort flatMap(ByteFunction<? extends EitherByteShort> leftMapper,
+                                       ShortFunction<? extends EitherByteShort> rightMapper) {
+            return rightMapper.apply(this.getRight());
+        }
+
+        @Override
+        public EitherByteShort flatMapLeft(ByteFunction<? extends EitherByteShort> leftMapper) {
+            return EitherByteShort.right(this.getRight());
+        }
+
+        @Override
+        public EitherByteShort flatMapRight(ShortFunction<? extends EitherByteShort> rightMapper) {
+            return rightMapper.apply(this.getRight());
         }
     }
 }

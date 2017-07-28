@@ -29,12 +29,14 @@ package com.github.jonathanxd.iutils.object.specialized.all;
 
 import com.github.jonathanxd.iutils.annotation.Generated;
 import com.github.jonathanxd.iutils.function.consumer.CharConsumer;
+import com.github.jonathanxd.iutils.function.function.CharFunction;
 import com.github.jonathanxd.iutils.function.unary.CharUnaryOperator;
 import com.github.jonathanxd.iutils.function.unary.DoubleUnaryOperator;
 import com.github.jonathanxd.iutils.object.BaseEither;
 
 import java.util.NoSuchElementException;
 import java.util.function.DoubleConsumer;
+import java.util.function.DoubleFunction;
 
 /**
  * A class which can hold either {@link char} or {@link double} (in this documentation we call the
@@ -155,6 +157,35 @@ public abstract class EitherCharDouble extends BaseEither {
     @SuppressWarnings("unchecked")
     public abstract EitherCharDouble mapRight(DoubleUnaryOperator rightMapper);
 
+    /**
+     * Flat maps left value if present or right value if present and return {@link EitherCharDouble}
+     * returned by mapper function.
+     *
+     * @param leftMapper  Left value mapper.
+     * @param rightMapper Right value mapper.
+     * @return {@link EitherCharDouble} returned by mapper function.
+     */
+    public abstract EitherCharDouble flatMap(CharFunction<? extends EitherCharDouble> leftMapper,
+                                             DoubleFunction<? extends EitherCharDouble> rightMapper);
+
+    /**
+     * Flat maps left value if present return {@link EitherCharDouble} returned by mapper function.
+     *
+     * @param leftMapper Left value mapper.
+     * @return {@link EitherCharDouble} returned by mapper function.
+     */
+    public abstract EitherCharDouble flatMapLeft(CharFunction<? extends EitherCharDouble> leftMapper);
+
+
+    /**
+     * Flat maps right value if present and return {@link EitherCharDouble} returned by mapper
+     * function.
+     *
+     * @param rightMapper Right value mapper.
+     * @return {@link EitherCharDouble} returned by mapper function.
+     */
+    public abstract EitherCharDouble flatMapRight(DoubleFunction<? extends EitherCharDouble> rightMapper);
+
     static class Left extends EitherCharDouble {
         private final char value;
 
@@ -208,6 +239,22 @@ public abstract class EitherCharDouble extends BaseEither {
 
         @Override
         public EitherCharDouble mapRight(DoubleUnaryOperator rightMapper) {
+            return EitherCharDouble.left(this.getLeft());
+        }
+
+        @Override
+        public EitherCharDouble flatMap(CharFunction<? extends EitherCharDouble> leftMapper,
+                                        DoubleFunction<? extends EitherCharDouble> rightMapper) {
+            return leftMapper.apply(this.getLeft());
+        }
+
+        @Override
+        public EitherCharDouble flatMapLeft(CharFunction<? extends EitherCharDouble> leftMapper) {
+            return leftMapper.apply(this.getLeft());
+        }
+
+        @Override
+        public EitherCharDouble flatMapRight(DoubleFunction<? extends EitherCharDouble> rightMapper) {
             return EitherCharDouble.left(this.getLeft());
         }
     }
@@ -266,6 +313,22 @@ public abstract class EitherCharDouble extends BaseEither {
         @Override
         public EitherCharDouble mapRight(DoubleUnaryOperator rightMapper) {
             return EitherCharDouble.right(rightMapper.apply(this.getRight()));
+        }
+
+        @Override
+        public EitherCharDouble flatMap(CharFunction<? extends EitherCharDouble> leftMapper,
+                                        DoubleFunction<? extends EitherCharDouble> rightMapper) {
+            return rightMapper.apply(this.getRight());
+        }
+
+        @Override
+        public EitherCharDouble flatMapLeft(CharFunction<? extends EitherCharDouble> leftMapper) {
+            return EitherCharDouble.right(this.getRight());
+        }
+
+        @Override
+        public EitherCharDouble flatMapRight(DoubleFunction<? extends EitherCharDouble> rightMapper) {
+            return rightMapper.apply(this.getRight());
         }
     }
 }

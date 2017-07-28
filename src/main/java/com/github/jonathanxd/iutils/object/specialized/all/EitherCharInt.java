@@ -29,12 +29,14 @@ package com.github.jonathanxd.iutils.object.specialized.all;
 
 import com.github.jonathanxd.iutils.annotation.Generated;
 import com.github.jonathanxd.iutils.function.consumer.CharConsumer;
+import com.github.jonathanxd.iutils.function.function.CharFunction;
 import com.github.jonathanxd.iutils.function.unary.CharUnaryOperator;
 import com.github.jonathanxd.iutils.function.unary.IntUnaryOperator;
 import com.github.jonathanxd.iutils.object.BaseEither;
 
 import java.util.NoSuchElementException;
 import java.util.function.IntConsumer;
+import java.util.function.IntFunction;
 
 /**
  * A class which can hold either {@link char} or {@link int} (in this documentation we call the hold
@@ -155,6 +157,35 @@ public abstract class EitherCharInt extends BaseEither {
     @SuppressWarnings("unchecked")
     public abstract EitherCharInt mapRight(IntUnaryOperator rightMapper);
 
+    /**
+     * Flat maps left value if present or right value if present and return {@link EitherCharInt}
+     * returned by mapper function.
+     *
+     * @param leftMapper  Left value mapper.
+     * @param rightMapper Right value mapper.
+     * @return {@link EitherCharInt} returned by mapper function.
+     */
+    public abstract EitherCharInt flatMap(CharFunction<? extends EitherCharInt> leftMapper,
+                                          IntFunction<? extends EitherCharInt> rightMapper);
+
+    /**
+     * Flat maps left value if present return {@link EitherCharInt} returned by mapper function.
+     *
+     * @param leftMapper Left value mapper.
+     * @return {@link EitherCharInt} returned by mapper function.
+     */
+    public abstract EitherCharInt flatMapLeft(CharFunction<? extends EitherCharInt> leftMapper);
+
+
+    /**
+     * Flat maps right value if present and return {@link EitherCharInt} returned by mapper
+     * function.
+     *
+     * @param rightMapper Right value mapper.
+     * @return {@link EitherCharInt} returned by mapper function.
+     */
+    public abstract EitherCharInt flatMapRight(IntFunction<? extends EitherCharInt> rightMapper);
+
     static class Left extends EitherCharInt {
         private final char value;
 
@@ -208,6 +239,22 @@ public abstract class EitherCharInt extends BaseEither {
 
         @Override
         public EitherCharInt mapRight(IntUnaryOperator rightMapper) {
+            return EitherCharInt.left(this.getLeft());
+        }
+
+        @Override
+        public EitherCharInt flatMap(CharFunction<? extends EitherCharInt> leftMapper,
+                                     IntFunction<? extends EitherCharInt> rightMapper) {
+            return leftMapper.apply(this.getLeft());
+        }
+
+        @Override
+        public EitherCharInt flatMapLeft(CharFunction<? extends EitherCharInt> leftMapper) {
+            return leftMapper.apply(this.getLeft());
+        }
+
+        @Override
+        public EitherCharInt flatMapRight(IntFunction<? extends EitherCharInt> rightMapper) {
             return EitherCharInt.left(this.getLeft());
         }
     }
@@ -266,6 +313,22 @@ public abstract class EitherCharInt extends BaseEither {
         @Override
         public EitherCharInt mapRight(IntUnaryOperator rightMapper) {
             return EitherCharInt.right(rightMapper.apply(this.getRight()));
+        }
+
+        @Override
+        public EitherCharInt flatMap(CharFunction<? extends EitherCharInt> leftMapper,
+                                     IntFunction<? extends EitherCharInt> rightMapper) {
+            return rightMapper.apply(this.getRight());
+        }
+
+        @Override
+        public EitherCharInt flatMapLeft(CharFunction<? extends EitherCharInt> leftMapper) {
+            return EitherCharInt.right(this.getRight());
+        }
+
+        @Override
+        public EitherCharInt flatMapRight(IntFunction<? extends EitherCharInt> rightMapper) {
+            return rightMapper.apply(this.getRight());
         }
     }
 }

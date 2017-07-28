@@ -34,7 +34,9 @@ import com.github.jonathanxd.iutils.object.BaseEither;
 
 import java.util.NoSuchElementException;
 import java.util.function.DoubleConsumer;
+import java.util.function.DoubleFunction;
 import java.util.function.IntConsumer;
+import java.util.function.IntFunction;
 
 /**
  * A class which can hold either {@link int} or {@link double} (in this documentation we call the
@@ -155,6 +157,35 @@ public abstract class EitherIntDouble extends BaseEither {
     @SuppressWarnings("unchecked")
     public abstract EitherIntDouble mapRight(DoubleUnaryOperator rightMapper);
 
+    /**
+     * Flat maps left value if present or right value if present and return {@link EitherIntDouble}
+     * returned by mapper function.
+     *
+     * @param leftMapper  Left value mapper.
+     * @param rightMapper Right value mapper.
+     * @return {@link EitherIntDouble} returned by mapper function.
+     */
+    public abstract EitherIntDouble flatMap(IntFunction<? extends EitherIntDouble> leftMapper,
+                                            DoubleFunction<? extends EitherIntDouble> rightMapper);
+
+    /**
+     * Flat maps left value if present return {@link EitherIntDouble} returned by mapper function.
+     *
+     * @param leftMapper Left value mapper.
+     * @return {@link EitherIntDouble} returned by mapper function.
+     */
+    public abstract EitherIntDouble flatMapLeft(IntFunction<? extends EitherIntDouble> leftMapper);
+
+
+    /**
+     * Flat maps right value if present and return {@link EitherIntDouble} returned by mapper
+     * function.
+     *
+     * @param rightMapper Right value mapper.
+     * @return {@link EitherIntDouble} returned by mapper function.
+     */
+    public abstract EitherIntDouble flatMapRight(DoubleFunction<? extends EitherIntDouble> rightMapper);
+
     static class Left extends EitherIntDouble {
         private final int value;
 
@@ -208,6 +239,22 @@ public abstract class EitherIntDouble extends BaseEither {
 
         @Override
         public EitherIntDouble mapRight(DoubleUnaryOperator rightMapper) {
+            return EitherIntDouble.left(this.getLeft());
+        }
+
+        @Override
+        public EitherIntDouble flatMap(IntFunction<? extends EitherIntDouble> leftMapper,
+                                       DoubleFunction<? extends EitherIntDouble> rightMapper) {
+            return leftMapper.apply(this.getLeft());
+        }
+
+        @Override
+        public EitherIntDouble flatMapLeft(IntFunction<? extends EitherIntDouble> leftMapper) {
+            return leftMapper.apply(this.getLeft());
+        }
+
+        @Override
+        public EitherIntDouble flatMapRight(DoubleFunction<? extends EitherIntDouble> rightMapper) {
             return EitherIntDouble.left(this.getLeft());
         }
     }
@@ -266,6 +313,22 @@ public abstract class EitherIntDouble extends BaseEither {
         @Override
         public EitherIntDouble mapRight(DoubleUnaryOperator rightMapper) {
             return EitherIntDouble.right(rightMapper.apply(this.getRight()));
+        }
+
+        @Override
+        public EitherIntDouble flatMap(IntFunction<? extends EitherIntDouble> leftMapper,
+                                       DoubleFunction<? extends EitherIntDouble> rightMapper) {
+            return rightMapper.apply(this.getRight());
+        }
+
+        @Override
+        public EitherIntDouble flatMapLeft(IntFunction<? extends EitherIntDouble> leftMapper) {
+            return EitherIntDouble.right(this.getRight());
+        }
+
+        @Override
+        public EitherIntDouble flatMapRight(DoubleFunction<? extends EitherIntDouble> rightMapper) {
+            return rightMapper.apply(this.getRight());
         }
     }
 }

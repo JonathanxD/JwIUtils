@@ -30,6 +30,8 @@ package com.github.jonathanxd.iutils.object.specialized.all;
 import com.github.jonathanxd.iutils.annotation.Generated;
 import com.github.jonathanxd.iutils.function.consumer.ByteConsumer;
 import com.github.jonathanxd.iutils.function.consumer.CharConsumer;
+import com.github.jonathanxd.iutils.function.function.ByteFunction;
+import com.github.jonathanxd.iutils.function.function.CharFunction;
 import com.github.jonathanxd.iutils.function.unary.ByteUnaryOperator;
 import com.github.jonathanxd.iutils.function.unary.CharUnaryOperator;
 import com.github.jonathanxd.iutils.object.BaseEither;
@@ -122,15 +124,15 @@ public abstract class EitherByteChar extends BaseEither {
     public abstract void ifRight(CharConsumer consumer);
 
     /**
-     * Maps left value if present and right value if present and return a new {@link
-     * EitherByteChar} instance with mapped values.
+     * Maps left value if present and right value if present and return a new {@link EitherByteChar}
+     * instance with mapped values.
      *
      * @param leftMapper  Left value mapper.
      * @param rightMapper Right value mapper.
      * @return {@link EitherByteChar} instance with mapped values.
      */
     public abstract EitherByteChar map(ByteUnaryOperator leftMapper,
-                                        CharUnaryOperator rightMapper);
+                                       CharUnaryOperator rightMapper);
 
 
     /**
@@ -154,6 +156,35 @@ public abstract class EitherByteChar extends BaseEither {
      */
     @SuppressWarnings("unchecked")
     public abstract EitherByteChar mapRight(CharUnaryOperator rightMapper);
+
+    /**
+     * Flat maps left value if present or right value if present and return {@link EitherByteChar}
+     * returned by mapper function.
+     *
+     * @param leftMapper  Left value mapper.
+     * @param rightMapper Right value mapper.
+     * @return {@link EitherByteChar} returned by mapper function.
+     */
+    public abstract EitherByteChar flatMap(ByteFunction<? extends EitherByteChar> leftMapper,
+                                           CharFunction<? extends EitherByteChar> rightMapper);
+
+    /**
+     * Flat maps left value if present return {@link EitherByteChar} returned by mapper function.
+     *
+     * @param leftMapper Left value mapper.
+     * @return {@link EitherByteChar} returned by mapper function.
+     */
+    public abstract EitherByteChar flatMapLeft(ByteFunction<? extends EitherByteChar> leftMapper);
+
+
+    /**
+     * Flat maps right value if present and return {@link EitherByteChar} returned by mapper
+     * function.
+     *
+     * @param rightMapper Right value mapper.
+     * @return {@link EitherByteChar} returned by mapper function.
+     */
+    public abstract EitherByteChar flatMapRight(CharFunction<? extends EitherByteChar> rightMapper);
 
     static class Left extends EitherByteChar {
         private final byte value;
@@ -208,6 +239,22 @@ public abstract class EitherByteChar extends BaseEither {
 
         @Override
         public EitherByteChar mapRight(CharUnaryOperator rightMapper) {
+            return EitherByteChar.left(this.getLeft());
+        }
+
+        @Override
+        public EitherByteChar flatMap(ByteFunction<? extends EitherByteChar> leftMapper,
+                                      CharFunction<? extends EitherByteChar> rightMapper) {
+            return leftMapper.apply(this.getLeft());
+        }
+
+        @Override
+        public EitherByteChar flatMapLeft(ByteFunction<? extends EitherByteChar> leftMapper) {
+            return leftMapper.apply(this.getLeft());
+        }
+
+        @Override
+        public EitherByteChar flatMapRight(CharFunction<? extends EitherByteChar> rightMapper) {
             return EitherByteChar.left(this.getLeft());
         }
     }
@@ -266,6 +313,22 @@ public abstract class EitherByteChar extends BaseEither {
         @Override
         public EitherByteChar mapRight(CharUnaryOperator rightMapper) {
             return EitherByteChar.right(rightMapper.apply(this.getRight()));
+        }
+
+        @Override
+        public EitherByteChar flatMap(ByteFunction<? extends EitherByteChar> leftMapper,
+                                      CharFunction<? extends EitherByteChar> rightMapper) {
+            return rightMapper.apply(this.getRight());
+        }
+
+        @Override
+        public EitherByteChar flatMapLeft(ByteFunction<? extends EitherByteChar> leftMapper) {
+            return EitherByteChar.right(this.getRight());
+        }
+
+        @Override
+        public EitherByteChar flatMapRight(CharFunction<? extends EitherByteChar> rightMapper) {
+            return rightMapper.apply(this.getRight());
         }
     }
 }

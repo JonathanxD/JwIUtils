@@ -29,6 +29,7 @@ package com.github.jonathanxd.iutils.object.specialized;
 
 import com.github.jonathanxd.iutils.annotation.Generated;
 import com.github.jonathanxd.iutils.function.consumer.ByteConsumer;
+import com.github.jonathanxd.iutils.function.function.ByteFunction;
 import com.github.jonathanxd.iutils.function.unary.ByteUnaryOperator;
 import com.github.jonathanxd.iutils.object.BaseEither;
 
@@ -136,7 +137,7 @@ public abstract class EitherObjByte<L> extends BaseEither {
      * @return {@link EitherObjByte} instance with mapped values.
      */
     public abstract <ML> EitherObjByte<ML> map(Function<? super L, ? extends ML> leftMapper,
-                                                          ByteUnaryOperator rightMapper);
+                                               ByteUnaryOperator rightMapper);
 
 
     /**
@@ -161,6 +162,37 @@ public abstract class EitherObjByte<L> extends BaseEither {
      */
     @SuppressWarnings("unchecked")
     public abstract EitherObjByte<L> mapRight(ByteUnaryOperator rightMapper);
+
+    /**
+     * Flat maps left value if present or right value if present and return {@link EitherObjByte}
+     * returned by mapper function.
+     *
+     * @param leftMapper  Left value mapper.
+     * @param rightMapper Right value mapper.
+     * @param <ML>        Left type.
+     * @return {@link EitherObjByte} returned by mapper function.
+     */
+    public abstract <ML> EitherObjByte<ML> flatMap(Function<? super L, ? extends EitherObjByte<ML>> leftMapper,
+                                                   ByteFunction<? extends EitherObjByte<ML>> rightMapper);
+
+    /**
+     * Flat maps left value if present return {@link EitherObjByte} returned by mapper function.
+     *
+     * @param leftMapper Left value mapper.
+     * @param <ML>       Left type.
+     * @return {@link EitherObjByte} returned by mapper function.
+     */
+    public abstract <ML> EitherObjByte<ML> flatMapLeft(Function<? super L, ? extends EitherObjByte<ML>> leftMapper);
+
+
+    /**
+     * Flat maps right value if present and return {@link EitherObjByte} returned by mapper
+     * function.
+     *
+     * @param rightMapper Right value mapper.
+     * @return {@link EitherObjByte} returned by mapper function.
+     */
+    public abstract EitherObjByte<L> flatMapRight(ByteFunction<? extends EitherObjByte<L>> rightMapper);
 
     static class Left<L> extends EitherObjByte<L> {
         private final L value;
@@ -204,7 +236,8 @@ public abstract class EitherObjByte<L> extends BaseEither {
         }
 
         @Override
-        public <ML> EitherObjByte<ML> map(Function<? super L, ? extends ML> leftMapper, ByteUnaryOperator rightMapper) {
+        public <ML> EitherObjByte<ML> map(Function<? super L, ? extends ML> leftMapper,
+                                          ByteUnaryOperator rightMapper) {
             return EitherObjByte.left(leftMapper.apply(this.getLeft()));
         }
 
@@ -217,6 +250,23 @@ public abstract class EitherObjByte<L> extends BaseEither {
         public EitherObjByte<L> mapRight(ByteUnaryOperator rightMapper) {
             return EitherObjByte.left(this.getLeft());
         }
+
+        @Override
+        public <ML> EitherObjByte<ML> flatMap(Function<? super L, ? extends EitherObjByte<ML>> leftMapper,
+                                              ByteFunction<? extends EitherObjByte<ML>> rightMapper) {
+            return leftMapper.apply(this.getLeft());
+        }
+
+        @Override
+        public <ML> EitherObjByte<ML> flatMapLeft(Function<? super L, ? extends EitherObjByte<ML>> leftMapper) {
+            return leftMapper.apply(this.getLeft());
+        }
+
+        @Override
+        public EitherObjByte<L> flatMapRight(ByteFunction<? extends EitherObjByte<L>> rightMapper) {
+            return EitherObjByte.left(this.getLeft());
+        }
+
     }
 
     static class Right<L> extends EitherObjByte<L> {
@@ -261,7 +311,8 @@ public abstract class EitherObjByte<L> extends BaseEither {
         }
 
         @Override
-        public <ML> EitherObjByte<ML> map(Function<? super L, ? extends ML> leftMapper, ByteUnaryOperator rightMapper) {
+        public <ML> EitherObjByte<ML> map(Function<? super L, ? extends ML> leftMapper,
+                                          ByteUnaryOperator rightMapper) {
             return EitherObjByte.right(rightMapper.apply(this.getRight()));
         }
 
@@ -273,6 +324,22 @@ public abstract class EitherObjByte<L> extends BaseEither {
         @Override
         public EitherObjByte<L> mapRight(ByteUnaryOperator rightMapper) {
             return EitherObjByte.right(rightMapper.apply(this.getRight()));
+        }
+
+        @Override
+        public <ML> EitherObjByte<ML> flatMap(Function<? super L, ? extends EitherObjByte<ML>> leftMapper,
+                                              ByteFunction<? extends EitherObjByte<ML>> rightMapper) {
+            return rightMapper.apply(this.getRight());
+        }
+
+        @Override
+        public <ML> EitherObjByte<ML> flatMapLeft(Function<? super L, ? extends EitherObjByte<ML>> leftMapper) {
+            return EitherObjByte.right(this.getRight());
+        }
+
+        @Override
+        public EitherObjByte<L> flatMapRight(ByteFunction<? extends EitherObjByte<L>> rightMapper) {
+            return rightMapper.apply(this.getRight());
         }
     }
 }

@@ -28,10 +28,12 @@
 package com.github.jonathanxd.iutils.object.specialized.all;
 
 import com.github.jonathanxd.iutils.annotation.Generated;
-import com.github.jonathanxd.iutils.function.consumer.ShortConsumer;
 import com.github.jonathanxd.iutils.function.consumer.CharConsumer;
-import com.github.jonathanxd.iutils.function.unary.ShortUnaryOperator;
+import com.github.jonathanxd.iutils.function.consumer.ShortConsumer;
+import com.github.jonathanxd.iutils.function.function.CharFunction;
+import com.github.jonathanxd.iutils.function.function.ShortFunction;
 import com.github.jonathanxd.iutils.function.unary.CharUnaryOperator;
+import com.github.jonathanxd.iutils.function.unary.ShortUnaryOperator;
 import com.github.jonathanxd.iutils.object.BaseEither;
 
 import java.util.NoSuchElementException;
@@ -155,6 +157,35 @@ public abstract class EitherShortChar extends BaseEither {
     @SuppressWarnings("unchecked")
     public abstract EitherShortChar mapRight(CharUnaryOperator rightMapper);
 
+    /**
+     * Flat maps left value if present or right value if present and return {@link EitherShortChar}
+     * returned by mapper function.
+     *
+     * @param leftMapper  Left value mapper.
+     * @param rightMapper Right value mapper.
+     * @return {@link EitherShortChar} returned by mapper function.
+     */
+    public abstract EitherShortChar flatMap(ShortFunction<? extends EitherShortChar> leftMapper,
+                                            CharFunction<? extends EitherShortChar> rightMapper);
+
+    /**
+     * Flat maps left value if present return {@link EitherShortChar} returned by mapper function.
+     *
+     * @param leftMapper Left value mapper.
+     * @return {@link EitherShortChar} returned by mapper function.
+     */
+    public abstract EitherShortChar flatMapLeft(ShortFunction<? extends EitherShortChar> leftMapper);
+
+
+    /**
+     * Flat maps right value if present and return {@link EitherShortChar} returned by mapper
+     * function.
+     *
+     * @param rightMapper Right value mapper.
+     * @return {@link EitherShortChar} returned by mapper function.
+     */
+    public abstract EitherShortChar flatMapRight(CharFunction<? extends EitherShortChar> rightMapper);
+
     static class Left extends EitherShortChar {
         private final short value;
 
@@ -208,6 +239,22 @@ public abstract class EitherShortChar extends BaseEither {
 
         @Override
         public EitherShortChar mapRight(CharUnaryOperator rightMapper) {
+            return EitherShortChar.left(this.getLeft());
+        }
+
+        @Override
+        public EitherShortChar flatMap(ShortFunction<? extends EitherShortChar> leftMapper,
+                                       CharFunction<? extends EitherShortChar> rightMapper) {
+            return leftMapper.apply(this.getLeft());
+        }
+
+        @Override
+        public EitherShortChar flatMapLeft(ShortFunction<? extends EitherShortChar> leftMapper) {
+            return leftMapper.apply(this.getLeft());
+        }
+
+        @Override
+        public EitherShortChar flatMapRight(CharFunction<? extends EitherShortChar> rightMapper) {
             return EitherShortChar.left(this.getLeft());
         }
     }
@@ -266,6 +313,22 @@ public abstract class EitherShortChar extends BaseEither {
         @Override
         public EitherShortChar mapRight(CharUnaryOperator rightMapper) {
             return EitherShortChar.right(rightMapper.apply(this.getRight()));
+        }
+
+        @Override
+        public EitherShortChar flatMap(ShortFunction<? extends EitherShortChar> leftMapper,
+                                       CharFunction<? extends EitherShortChar> rightMapper) {
+            return rightMapper.apply(this.getRight());
+        }
+
+        @Override
+        public EitherShortChar flatMapLeft(ShortFunction<? extends EitherShortChar> leftMapper) {
+            return EitherShortChar.right(this.getRight());
+        }
+
+        @Override
+        public EitherShortChar flatMapRight(CharFunction<? extends EitherShortChar> rightMapper) {
+            return rightMapper.apply(this.getRight());
         }
     }
 }

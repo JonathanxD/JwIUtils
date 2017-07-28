@@ -29,12 +29,14 @@ package com.github.jonathanxd.iutils.object.specialized.all;
 
 import com.github.jonathanxd.iutils.annotation.Generated;
 import com.github.jonathanxd.iutils.function.consumer.ShortConsumer;
+import com.github.jonathanxd.iutils.function.function.ShortFunction;
 import com.github.jonathanxd.iutils.function.unary.LongUnaryOperator;
 import com.github.jonathanxd.iutils.function.unary.ShortUnaryOperator;
 import com.github.jonathanxd.iutils.object.BaseEither;
 
 import java.util.NoSuchElementException;
 import java.util.function.LongConsumer;
+import java.util.function.LongFunction;
 
 /**
  * A class which can hold either {@link short} or {@link long} (in this documentation we call the
@@ -155,6 +157,35 @@ public abstract class EitherShortLong extends BaseEither {
     @SuppressWarnings("unchecked")
     public abstract EitherShortLong mapRight(LongUnaryOperator rightMapper);
 
+    /**
+     * Flat maps left value if present or right value if present and return {@link EitherShortLong}
+     * returned by mapper function.
+     *
+     * @param leftMapper  Left value mapper.
+     * @param rightMapper Right value mapper.
+     * @return {@link EitherShortLong} returned by mapper function.
+     */
+    public abstract EitherShortLong flatMap(ShortFunction<? extends EitherShortLong> leftMapper,
+                                            LongFunction<? extends EitherShortLong> rightMapper);
+
+    /**
+     * Flat maps left value if present return {@link EitherShortLong} returned by mapper function.
+     *
+     * @param leftMapper Left value mapper.
+     * @return {@link EitherShortLong} returned by mapper function.
+     */
+    public abstract EitherShortLong flatMapLeft(ShortFunction<? extends EitherShortLong> leftMapper);
+
+
+    /**
+     * Flat maps right value if present and return {@link EitherShortLong} returned by mapper
+     * function.
+     *
+     * @param rightMapper Right value mapper.
+     * @return {@link EitherShortLong} returned by mapper function.
+     */
+    public abstract EitherShortLong flatMapRight(LongFunction<? extends EitherShortLong> rightMapper);
+
     static class Left extends EitherShortLong {
         private final short value;
 
@@ -208,6 +239,22 @@ public abstract class EitherShortLong extends BaseEither {
 
         @Override
         public EitherShortLong mapRight(LongUnaryOperator rightMapper) {
+            return EitherShortLong.left(this.getLeft());
+        }
+
+        @Override
+        public EitherShortLong flatMap(ShortFunction<? extends EitherShortLong> leftMapper,
+                                       LongFunction<? extends EitherShortLong> rightMapper) {
+            return leftMapper.apply(this.getLeft());
+        }
+
+        @Override
+        public EitherShortLong flatMapLeft(ShortFunction<? extends EitherShortLong> leftMapper) {
+            return leftMapper.apply(this.getLeft());
+        }
+
+        @Override
+        public EitherShortLong flatMapRight(LongFunction<? extends EitherShortLong> rightMapper) {
             return EitherShortLong.left(this.getLeft());
         }
     }
@@ -266,6 +313,22 @@ public abstract class EitherShortLong extends BaseEither {
         @Override
         public EitherShortLong mapRight(LongUnaryOperator rightMapper) {
             return EitherShortLong.right(rightMapper.apply(this.getRight()));
+        }
+
+        @Override
+        public EitherShortLong flatMap(ShortFunction<? extends EitherShortLong> leftMapper,
+                                       LongFunction<? extends EitherShortLong> rightMapper) {
+            return rightMapper.apply(this.getRight());
+        }
+
+        @Override
+        public EitherShortLong flatMapLeft(ShortFunction<? extends EitherShortLong> leftMapper) {
+            return EitherShortLong.right(this.getRight());
+        }
+
+        @Override
+        public EitherShortLong flatMapRight(LongFunction<? extends EitherShortLong> rightMapper) {
+            return rightMapper.apply(this.getRight());
         }
     }
 }

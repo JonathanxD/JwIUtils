@@ -29,12 +29,14 @@ package com.github.jonathanxd.iutils.object.specialized.all;
 
 import com.github.jonathanxd.iutils.annotation.Generated;
 import com.github.jonathanxd.iutils.function.consumer.ShortConsumer;
+import com.github.jonathanxd.iutils.function.function.ShortFunction;
 import com.github.jonathanxd.iutils.function.unary.DoubleUnaryOperator;
 import com.github.jonathanxd.iutils.function.unary.ShortUnaryOperator;
 import com.github.jonathanxd.iutils.object.BaseEither;
 
 import java.util.NoSuchElementException;
 import java.util.function.DoubleConsumer;
+import java.util.function.DoubleFunction;
 
 /**
  * A class which can hold either {@link short} or {@link double} (in this documentation we call the
@@ -155,6 +157,36 @@ public abstract class EitherShortDouble extends BaseEither {
     @SuppressWarnings("unchecked")
     public abstract EitherShortDouble mapRight(DoubleUnaryOperator rightMapper);
 
+    /**
+     * Flat maps left value if present or right value if present and return {@link
+     * EitherShortDouble} returned by mapper function.
+     *
+     * @param leftMapper  Left value mapper.
+     * @param rightMapper Right value mapper.
+     * @return {@link EitherShortDouble} returned by mapper function.
+     */
+    public abstract EitherShortDouble flatMap(ShortFunction<? extends EitherShortDouble> leftMapper,
+                                              DoubleFunction<? extends EitherShortDouble> rightMapper);
+
+    /**
+     * Flat maps left value if present return {@link EitherShortDouble} returned by mapper
+     * function.
+     *
+     * @param leftMapper Left value mapper.
+     * @return {@link EitherShortDouble} returned by mapper function.
+     */
+    public abstract EitherShortDouble flatMapLeft(ShortFunction<? extends EitherShortDouble> leftMapper);
+
+
+    /**
+     * Flat maps right value if present and return {@link EitherShortDouble} returned by mapper
+     * function.
+     *
+     * @param rightMapper Right value mapper.
+     * @return {@link EitherShortDouble} returned by mapper function.
+     */
+    public abstract EitherShortDouble flatMapRight(DoubleFunction<? extends EitherShortDouble> rightMapper);
+
     static class Left extends EitherShortDouble {
         private final short value;
 
@@ -208,6 +240,22 @@ public abstract class EitherShortDouble extends BaseEither {
 
         @Override
         public EitherShortDouble mapRight(DoubleUnaryOperator rightMapper) {
+            return EitherShortDouble.left(this.getLeft());
+        }
+
+        @Override
+        public EitherShortDouble flatMap(ShortFunction<? extends EitherShortDouble> leftMapper,
+                                         DoubleFunction<? extends EitherShortDouble> rightMapper) {
+            return leftMapper.apply(this.getLeft());
+        }
+
+        @Override
+        public EitherShortDouble flatMapLeft(ShortFunction<? extends EitherShortDouble> leftMapper) {
+            return leftMapper.apply(this.getLeft());
+        }
+
+        @Override
+        public EitherShortDouble flatMapRight(DoubleFunction<? extends EitherShortDouble> rightMapper) {
             return EitherShortDouble.left(this.getLeft());
         }
     }
@@ -266,6 +314,22 @@ public abstract class EitherShortDouble extends BaseEither {
         @Override
         public EitherShortDouble mapRight(DoubleUnaryOperator rightMapper) {
             return EitherShortDouble.right(rightMapper.apply(this.getRight()));
+        }
+
+        @Override
+        public EitherShortDouble flatMap(ShortFunction<? extends EitherShortDouble> leftMapper,
+                                         DoubleFunction<? extends EitherShortDouble> rightMapper) {
+            return rightMapper.apply(this.getRight());
+        }
+
+        @Override
+        public EitherShortDouble flatMapLeft(ShortFunction<? extends EitherShortDouble> leftMapper) {
+            return EitherShortDouble.right(this.getRight());
+        }
+
+        @Override
+        public EitherShortDouble flatMapRight(DoubleFunction<? extends EitherShortDouble> rightMapper) {
+            return rightMapper.apply(this.getRight());
         }
     }
 }

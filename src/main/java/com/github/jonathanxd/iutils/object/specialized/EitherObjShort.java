@@ -29,6 +29,7 @@ package com.github.jonathanxd.iutils.object.specialized;
 
 import com.github.jonathanxd.iutils.annotation.Generated;
 import com.github.jonathanxd.iutils.function.consumer.ShortConsumer;
+import com.github.jonathanxd.iutils.function.function.ShortFunction;
 import com.github.jonathanxd.iutils.function.unary.ShortUnaryOperator;
 import com.github.jonathanxd.iutils.object.BaseEither;
 
@@ -136,7 +137,7 @@ public abstract class EitherObjShort<L> extends BaseEither {
      * @return {@link EitherObjShort} instance with mapped values.
      */
     public abstract <ML> EitherObjShort<ML> map(Function<? super L, ? extends ML> leftMapper,
-                                                          ShortUnaryOperator rightMapper);
+                                             ShortUnaryOperator rightMapper);
 
 
     /**
@@ -161,6 +162,37 @@ public abstract class EitherObjShort<L> extends BaseEither {
      */
     @SuppressWarnings("unchecked")
     public abstract EitherObjShort<L> mapRight(ShortUnaryOperator rightMapper);
+
+    /**
+     * Flat maps left value if present or right value if present and return {@link EitherObjShort}
+     * returned by mapper function.
+     *
+     * @param leftMapper  Left value mapper.
+     * @param rightMapper Right value mapper.
+     * @param <ML>        Left type.
+     * @return {@link EitherObjShort} returned by mapper function.
+     */
+    public abstract <ML> EitherObjShort<ML> flatMap(Function<? super L, ? extends EitherObjShort<ML>> leftMapper,
+                                                      ShortFunction<? extends EitherObjShort<ML>> rightMapper);
+
+    /**
+     * Flat maps left value if present return {@link EitherObjShort} returned by mapper function.
+     *
+     * @param leftMapper Left value mapper.
+     * @param <ML>       Left type.
+     * @return {@link EitherObjShort} returned by mapper function.
+     */
+    public abstract <ML> EitherObjShort<ML> flatMapLeft(Function<? super L, ? extends EitherObjShort<ML>> leftMapper);
+
+
+    /**
+     * Flat maps right value if present and return {@link EitherObjShort} returned by mapper
+     * function.
+     *
+     * @param rightMapper Right value mapper.
+     * @return {@link EitherObjShort} returned by mapper function.
+     */
+    public abstract EitherObjShort<L> flatMapRight(ShortFunction<? extends EitherObjShort<L>> rightMapper);
 
     static class Left<L> extends EitherObjShort<L> {
         private final L value;
@@ -204,7 +236,8 @@ public abstract class EitherObjShort<L> extends BaseEither {
         }
 
         @Override
-        public <ML> EitherObjShort<ML> map(Function<? super L, ? extends ML> leftMapper, ShortUnaryOperator rightMapper) {
+        public <ML> EitherObjShort<ML> map(Function<? super L, ? extends ML> leftMapper,
+                                        ShortUnaryOperator rightMapper) {
             return EitherObjShort.left(leftMapper.apply(this.getLeft()));
         }
 
@@ -217,6 +250,23 @@ public abstract class EitherObjShort<L> extends BaseEither {
         public EitherObjShort<L> mapRight(ShortUnaryOperator rightMapper) {
             return EitherObjShort.left(this.getLeft());
         }
+
+        @Override
+        public <ML> EitherObjShort<ML> flatMap(Function<? super L, ? extends EitherObjShort<ML>> leftMapper,
+                                                 ShortFunction<? extends EitherObjShort<ML>> rightMapper) {
+            return leftMapper.apply(this.getLeft());
+        }
+
+        @Override
+        public <ML> EitherObjShort<ML> flatMapLeft(Function<? super L, ? extends EitherObjShort<ML>> leftMapper) {
+            return leftMapper.apply(this.getLeft());
+        }
+
+        @Override
+        public EitherObjShort<L> flatMapRight(ShortFunction<? extends EitherObjShort<L>> rightMapper) {
+            return EitherObjShort.left(this.getLeft());
+        }
+        
     }
 
     static class Right<L> extends EitherObjShort<L> {
@@ -261,7 +311,8 @@ public abstract class EitherObjShort<L> extends BaseEither {
         }
 
         @Override
-        public <ML> EitherObjShort<ML> map(Function<? super L, ? extends ML> leftMapper, ShortUnaryOperator rightMapper) {
+        public <ML> EitherObjShort<ML> map(Function<? super L, ? extends ML> leftMapper,
+                                                             ShortUnaryOperator rightMapper) {
             return EitherObjShort.right(rightMapper.apply(this.getRight()));
         }
 
@@ -273,6 +324,22 @@ public abstract class EitherObjShort<L> extends BaseEither {
         @Override
         public EitherObjShort<L> mapRight(ShortUnaryOperator rightMapper) {
             return EitherObjShort.right(rightMapper.apply(this.getRight()));
+        }
+        
+        @Override
+        public <ML> EitherObjShort<ML> flatMap(Function<? super L, ? extends EitherObjShort<ML>> leftMapper,
+                                                 ShortFunction<? extends EitherObjShort<ML>> rightMapper) {
+            return rightMapper.apply(this.getRight());
+        }
+
+        @Override
+        public <ML> EitherObjShort<ML> flatMapLeft(Function<? super L, ? extends EitherObjShort<ML>> leftMapper) {
+            return EitherObjShort.right(this.getRight());
+        }
+
+        @Override
+        public EitherObjShort<L> flatMapRight(ShortFunction<? extends EitherObjShort<L>> rightMapper) {
+            return rightMapper.apply(this.getRight());
         }
     }
 }

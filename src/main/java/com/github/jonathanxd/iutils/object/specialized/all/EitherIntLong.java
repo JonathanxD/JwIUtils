@@ -34,7 +34,9 @@ import com.github.jonathanxd.iutils.object.BaseEither;
 
 import java.util.NoSuchElementException;
 import java.util.function.IntConsumer;
+import java.util.function.IntFunction;
 import java.util.function.LongConsumer;
+import java.util.function.LongFunction;
 
 /**
  * A class which can hold either {@link int} or {@link long} (in this documentation we call the hold
@@ -155,6 +157,35 @@ public abstract class EitherIntLong extends BaseEither {
     @SuppressWarnings("unchecked")
     public abstract EitherIntLong mapRight(LongUnaryOperator rightMapper);
 
+    /**
+     * Flat maps left value if present or right value if present and return {@link EitherIntLong}
+     * returned by mapper function.
+     *
+     * @param leftMapper  Left value mapper.
+     * @param rightMapper Right value mapper.
+     * @return {@link EitherIntLong} returned by mapper function.
+     */
+    public abstract EitherIntLong flatMap(IntFunction<? extends EitherIntLong> leftMapper,
+                                          LongFunction<? extends EitherIntLong> rightMapper);
+
+    /**
+     * Flat maps left value if present return {@link EitherIntLong} returned by mapper function.
+     *
+     * @param leftMapper Left value mapper.
+     * @return {@link EitherIntLong} returned by mapper function.
+     */
+    public abstract EitherIntLong flatMapLeft(IntFunction<? extends EitherIntLong> leftMapper);
+
+
+    /**
+     * Flat maps right value if present and return {@link EitherIntLong} returned by mapper
+     * function.
+     *
+     * @param rightMapper Right value mapper.
+     * @return {@link EitherIntLong} returned by mapper function.
+     */
+    public abstract EitherIntLong flatMapRight(LongFunction<? extends EitherIntLong> rightMapper);
+
     static class Left extends EitherIntLong {
         private final int value;
 
@@ -208,6 +239,22 @@ public abstract class EitherIntLong extends BaseEither {
 
         @Override
         public EitherIntLong mapRight(LongUnaryOperator rightMapper) {
+            return EitherIntLong.left(this.getLeft());
+        }
+
+        @Override
+        public EitherIntLong flatMap(IntFunction<? extends EitherIntLong> leftMapper,
+                                     LongFunction<? extends EitherIntLong> rightMapper) {
+            return leftMapper.apply(this.getLeft());
+        }
+
+        @Override
+        public EitherIntLong flatMapLeft(IntFunction<? extends EitherIntLong> leftMapper) {
+            return leftMapper.apply(this.getLeft());
+        }
+
+        @Override
+        public EitherIntLong flatMapRight(LongFunction<? extends EitherIntLong> rightMapper) {
             return EitherIntLong.left(this.getLeft());
         }
     }
@@ -266,6 +313,22 @@ public abstract class EitherIntLong extends BaseEither {
         @Override
         public EitherIntLong mapRight(LongUnaryOperator rightMapper) {
             return EitherIntLong.right(rightMapper.apply(this.getRight()));
+        }
+
+        @Override
+        public EitherIntLong flatMap(IntFunction<? extends EitherIntLong> leftMapper,
+                                     LongFunction<? extends EitherIntLong> rightMapper) {
+            return rightMapper.apply(this.getRight());
+        }
+
+        @Override
+        public EitherIntLong flatMapLeft(IntFunction<? extends EitherIntLong> leftMapper) {
+            return EitherIntLong.right(this.getRight());
+        }
+
+        @Override
+        public EitherIntLong flatMapRight(LongFunction<? extends EitherIntLong> rightMapper) {
+            return rightMapper.apply(this.getRight());
         }
     }
 }

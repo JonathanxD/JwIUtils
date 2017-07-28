@@ -30,6 +30,8 @@ package com.github.jonathanxd.iutils.object.specialized.all;
 import com.github.jonathanxd.iutils.annotation.Generated;
 import com.github.jonathanxd.iutils.function.consumer.BooleanConsumer;
 import com.github.jonathanxd.iutils.function.consumer.ByteConsumer;
+import com.github.jonathanxd.iutils.function.function.BooleanFunction;
+import com.github.jonathanxd.iutils.function.function.ByteFunction;
 import com.github.jonathanxd.iutils.function.unary.BooleanUnaryOperator;
 import com.github.jonathanxd.iutils.function.unary.ByteUnaryOperator;
 import com.github.jonathanxd.iutils.object.BaseEither;
@@ -130,7 +132,7 @@ public abstract class EitherBooleanByte extends BaseEither {
      * @return {@link EitherBooleanByte} instance with mapped values.
      */
     public abstract EitherBooleanByte map(BooleanUnaryOperator leftMapper,
-                                        ByteUnaryOperator rightMapper);
+                                          ByteUnaryOperator rightMapper);
 
 
     /**
@@ -154,6 +156,36 @@ public abstract class EitherBooleanByte extends BaseEither {
      */
     @SuppressWarnings("unchecked")
     public abstract EitherBooleanByte mapRight(ByteUnaryOperator rightMapper);
+
+    /**
+     * Flat maps left value if present or right value if present and return {@link
+     * EitherBooleanByte} returned by mapper function.
+     *
+     * @param leftMapper  Left value mapper.
+     * @param rightMapper Right value mapper.
+     * @return {@link EitherBooleanByte} returned by mapper function.
+     */
+    public abstract EitherBooleanByte flatMap(BooleanFunction<? extends EitherBooleanByte> leftMapper,
+                                              ByteFunction<? extends EitherBooleanByte> rightMapper);
+
+    /**
+     * Flat maps left value if present return {@link EitherBooleanByte} returned by mapper
+     * function.
+     *
+     * @param leftMapper Left value mapper.
+     * @return {@link EitherBooleanByte} returned by mapper function.
+     */
+    public abstract EitherBooleanByte flatMapLeft(BooleanFunction<? extends EitherBooleanByte> leftMapper);
+
+
+    /**
+     * Flat maps right value if present and return {@link EitherBooleanByte} returned by mapper
+     * function.
+     *
+     * @param rightMapper Right value mapper.
+     * @return {@link EitherBooleanByte} returned by mapper function.
+     */
+    public abstract EitherBooleanByte flatMapRight(ByteFunction<? extends EitherBooleanByte> rightMapper);
 
     static class Left extends EitherBooleanByte {
         private final boolean value;
@@ -208,6 +240,22 @@ public abstract class EitherBooleanByte extends BaseEither {
 
         @Override
         public EitherBooleanByte mapRight(ByteUnaryOperator rightMapper) {
+            return EitherBooleanByte.left(this.getLeft());
+        }
+
+        @Override
+        public EitherBooleanByte flatMap(BooleanFunction<? extends EitherBooleanByte> leftMapper,
+                                         ByteFunction<? extends EitherBooleanByte> rightMapper) {
+            return leftMapper.apply(this.getLeft());
+        }
+
+        @Override
+        public EitherBooleanByte flatMapLeft(BooleanFunction<? extends EitherBooleanByte> leftMapper) {
+            return leftMapper.apply(this.getLeft());
+        }
+
+        @Override
+        public EitherBooleanByte flatMapRight(ByteFunction<? extends EitherBooleanByte> rightMapper) {
             return EitherBooleanByte.left(this.getLeft());
         }
     }
@@ -266,6 +314,22 @@ public abstract class EitherBooleanByte extends BaseEither {
         @Override
         public EitherBooleanByte mapRight(ByteUnaryOperator rightMapper) {
             return EitherBooleanByte.right(rightMapper.apply(this.getRight()));
+        }
+
+        @Override
+        public EitherBooleanByte flatMap(BooleanFunction<? extends EitherBooleanByte> leftMapper,
+                                         ByteFunction<? extends EitherBooleanByte> rightMapper) {
+            return rightMapper.apply(this.getRight());
+        }
+
+        @Override
+        public EitherBooleanByte flatMapLeft(BooleanFunction<? extends EitherBooleanByte> leftMapper) {
+            return EitherBooleanByte.right(this.getRight());
+        }
+
+        @Override
+        public EitherBooleanByte flatMapRight(ByteFunction<? extends EitherBooleanByte> rightMapper) {
+            return rightMapper.apply(this.getRight());
         }
     }
 }

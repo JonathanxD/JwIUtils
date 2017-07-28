@@ -28,10 +28,12 @@
 package com.github.jonathanxd.iutils.object.specialized.all;
 
 import com.github.jonathanxd.iutils.annotation.Generated;
-import com.github.jonathanxd.iutils.function.consumer.ShortConsumer;
 import com.github.jonathanxd.iutils.function.consumer.FloatConsumer;
-import com.github.jonathanxd.iutils.function.unary.ShortUnaryOperator;
+import com.github.jonathanxd.iutils.function.consumer.ShortConsumer;
+import com.github.jonathanxd.iutils.function.function.FloatFunction;
+import com.github.jonathanxd.iutils.function.function.ShortFunction;
 import com.github.jonathanxd.iutils.function.unary.FloatUnaryOperator;
+import com.github.jonathanxd.iutils.function.unary.ShortUnaryOperator;
 import com.github.jonathanxd.iutils.object.BaseEither;
 
 import java.util.NoSuchElementException;
@@ -130,7 +132,7 @@ public abstract class EitherShortFloat extends BaseEither {
      * @return {@link EitherShortFloat} instance with mapped values.
      */
     public abstract EitherShortFloat map(ShortUnaryOperator leftMapper,
-                                        FloatUnaryOperator rightMapper);
+                                         FloatUnaryOperator rightMapper);
 
 
     /**
@@ -154,6 +156,35 @@ public abstract class EitherShortFloat extends BaseEither {
      */
     @SuppressWarnings("unchecked")
     public abstract EitherShortFloat mapRight(FloatUnaryOperator rightMapper);
+
+    /**
+     * Flat maps left value if present or right value if present and return {@link EitherShortFloat}
+     * returned by mapper function.
+     *
+     * @param leftMapper  Left value mapper.
+     * @param rightMapper Right value mapper.
+     * @return {@link EitherShortFloat} returned by mapper function.
+     */
+    public abstract EitherShortFloat flatMap(ShortFunction<? extends EitherShortFloat> leftMapper,
+                                             FloatFunction<? extends EitherShortFloat> rightMapper);
+
+    /**
+     * Flat maps left value if present return {@link EitherShortFloat} returned by mapper function.
+     *
+     * @param leftMapper Left value mapper.
+     * @return {@link EitherShortFloat} returned by mapper function.
+     */
+    public abstract EitherShortFloat flatMapLeft(ShortFunction<? extends EitherShortFloat> leftMapper);
+
+
+    /**
+     * Flat maps right value if present and return {@link EitherShortFloat} returned by mapper
+     * function.
+     *
+     * @param rightMapper Right value mapper.
+     * @return {@link EitherShortFloat} returned by mapper function.
+     */
+    public abstract EitherShortFloat flatMapRight(FloatFunction<? extends EitherShortFloat> rightMapper);
 
     static class Left extends EitherShortFloat {
         private final short value;
@@ -208,6 +239,22 @@ public abstract class EitherShortFloat extends BaseEither {
 
         @Override
         public EitherShortFloat mapRight(FloatUnaryOperator rightMapper) {
+            return EitherShortFloat.left(this.getLeft());
+        }
+
+        @Override
+        public EitherShortFloat flatMap(ShortFunction<? extends EitherShortFloat> leftMapper,
+                                        FloatFunction<? extends EitherShortFloat> rightMapper) {
+            return leftMapper.apply(this.getLeft());
+        }
+
+        @Override
+        public EitherShortFloat flatMapLeft(ShortFunction<? extends EitherShortFloat> leftMapper) {
+            return leftMapper.apply(this.getLeft());
+        }
+
+        @Override
+        public EitherShortFloat flatMapRight(FloatFunction<? extends EitherShortFloat> rightMapper) {
             return EitherShortFloat.left(this.getLeft());
         }
     }
@@ -266,6 +313,22 @@ public abstract class EitherShortFloat extends BaseEither {
         @Override
         public EitherShortFloat mapRight(FloatUnaryOperator rightMapper) {
             return EitherShortFloat.right(rightMapper.apply(this.getRight()));
+        }
+
+        @Override
+        public EitherShortFloat flatMap(ShortFunction<? extends EitherShortFloat> leftMapper,
+                                        FloatFunction<? extends EitherShortFloat> rightMapper) {
+            return rightMapper.apply(this.getRight());
+        }
+
+        @Override
+        public EitherShortFloat flatMapLeft(ShortFunction<? extends EitherShortFloat> leftMapper) {
+            return EitherShortFloat.right(this.getRight());
+        }
+
+        @Override
+        public EitherShortFloat flatMapRight(FloatFunction<? extends EitherShortFloat> rightMapper) {
+            return rightMapper.apply(this.getRight());
         }
     }
 }

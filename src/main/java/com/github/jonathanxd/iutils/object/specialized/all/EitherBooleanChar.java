@@ -30,6 +30,8 @@ package com.github.jonathanxd.iutils.object.specialized.all;
 import com.github.jonathanxd.iutils.annotation.Generated;
 import com.github.jonathanxd.iutils.function.consumer.BooleanConsumer;
 import com.github.jonathanxd.iutils.function.consumer.CharConsumer;
+import com.github.jonathanxd.iutils.function.function.BooleanFunction;
+import com.github.jonathanxd.iutils.function.function.CharFunction;
 import com.github.jonathanxd.iutils.function.unary.BooleanUnaryOperator;
 import com.github.jonathanxd.iutils.function.unary.CharUnaryOperator;
 import com.github.jonathanxd.iutils.object.BaseEither;
@@ -130,7 +132,7 @@ public abstract class EitherBooleanChar extends BaseEither {
      * @return {@link EitherBooleanChar} instance with mapped values.
      */
     public abstract EitherBooleanChar map(BooleanUnaryOperator leftMapper,
-                                        CharUnaryOperator rightMapper);
+                                          CharUnaryOperator rightMapper);
 
 
     /**
@@ -154,6 +156,36 @@ public abstract class EitherBooleanChar extends BaseEither {
      */
     @SuppressWarnings("unchecked")
     public abstract EitherBooleanChar mapRight(CharUnaryOperator rightMapper);
+
+    /**
+     * Flat maps left value if present or right value if present and return {@link
+     * EitherBooleanChar} returned by mapper function.
+     *
+     * @param leftMapper  Left value mapper.
+     * @param rightMapper Right value mapper.
+     * @return {@link EitherBooleanChar} returned by mapper function.
+     */
+    public abstract EitherBooleanChar flatMap(BooleanFunction<? extends EitherBooleanChar> leftMapper,
+                                              CharFunction<? extends EitherBooleanChar> rightMapper);
+
+    /**
+     * Flat maps left value if present return {@link EitherBooleanChar} returned by mapper
+     * function.
+     *
+     * @param leftMapper Left value mapper.
+     * @return {@link EitherBooleanChar} returned by mapper function.
+     */
+    public abstract EitherBooleanChar flatMapLeft(BooleanFunction<? extends EitherBooleanChar> leftMapper);
+
+
+    /**
+     * Flat maps right value if present and return {@link EitherBooleanChar} returned by mapper
+     * function.
+     *
+     * @param rightMapper Right value mapper.
+     * @return {@link EitherBooleanChar} returned by mapper function.
+     */
+    public abstract EitherBooleanChar flatMapRight(CharFunction<? extends EitherBooleanChar> rightMapper);
 
     static class Left extends EitherBooleanChar {
         private final boolean value;
@@ -208,6 +240,22 @@ public abstract class EitherBooleanChar extends BaseEither {
 
         @Override
         public EitherBooleanChar mapRight(CharUnaryOperator rightMapper) {
+            return EitherBooleanChar.left(this.getLeft());
+        }
+
+        @Override
+        public EitherBooleanChar flatMap(BooleanFunction<? extends EitherBooleanChar> leftMapper,
+                                         CharFunction<? extends EitherBooleanChar> rightMapper) {
+            return leftMapper.apply(this.getLeft());
+        }
+
+        @Override
+        public EitherBooleanChar flatMapLeft(BooleanFunction<? extends EitherBooleanChar> leftMapper) {
+            return leftMapper.apply(this.getLeft());
+        }
+
+        @Override
+        public EitherBooleanChar flatMapRight(CharFunction<? extends EitherBooleanChar> rightMapper) {
             return EitherBooleanChar.left(this.getLeft());
         }
     }
@@ -266,6 +314,22 @@ public abstract class EitherBooleanChar extends BaseEither {
         @Override
         public EitherBooleanChar mapRight(CharUnaryOperator rightMapper) {
             return EitherBooleanChar.right(rightMapper.apply(this.getRight()));
+        }
+
+        @Override
+        public EitherBooleanChar flatMap(BooleanFunction<? extends EitherBooleanChar> leftMapper,
+                                         CharFunction<? extends EitherBooleanChar> rightMapper) {
+            return rightMapper.apply(this.getRight());
+        }
+
+        @Override
+        public EitherBooleanChar flatMapLeft(BooleanFunction<? extends EitherBooleanChar> leftMapper) {
+            return EitherBooleanChar.right(this.getRight());
+        }
+
+        @Override
+        public EitherBooleanChar flatMapRight(CharFunction<? extends EitherBooleanChar> rightMapper) {
+            return rightMapper.apply(this.getRight());
         }
     }
 }

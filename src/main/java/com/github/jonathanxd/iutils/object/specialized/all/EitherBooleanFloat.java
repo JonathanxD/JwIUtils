@@ -30,6 +30,8 @@ package com.github.jonathanxd.iutils.object.specialized.all;
 import com.github.jonathanxd.iutils.annotation.Generated;
 import com.github.jonathanxd.iutils.function.consumer.BooleanConsumer;
 import com.github.jonathanxd.iutils.function.consumer.FloatConsumer;
+import com.github.jonathanxd.iutils.function.function.BooleanFunction;
+import com.github.jonathanxd.iutils.function.function.FloatFunction;
 import com.github.jonathanxd.iutils.function.unary.BooleanUnaryOperator;
 import com.github.jonathanxd.iutils.function.unary.FloatUnaryOperator;
 import com.github.jonathanxd.iutils.object.BaseEither;
@@ -130,7 +132,7 @@ public abstract class EitherBooleanFloat extends BaseEither {
      * @return {@link EitherBooleanFloat} instance with mapped values.
      */
     public abstract EitherBooleanFloat map(BooleanUnaryOperator leftMapper,
-                                        FloatUnaryOperator rightMapper);
+                                           FloatUnaryOperator rightMapper);
 
 
     /**
@@ -154,6 +156,36 @@ public abstract class EitherBooleanFloat extends BaseEither {
      */
     @SuppressWarnings("unchecked")
     public abstract EitherBooleanFloat mapRight(FloatUnaryOperator rightMapper);
+
+    /**
+     * Flat maps left value if present or right value if present and return {@link
+     * EitherBooleanFloat} returned by mapper function.
+     *
+     * @param leftMapper  Left value mapper.
+     * @param rightMapper Right value mapper.
+     * @return {@link EitherBooleanFloat} returned by mapper function.
+     */
+    public abstract EitherBooleanFloat flatMap(BooleanFunction<? extends EitherBooleanFloat> leftMapper,
+                                               FloatFunction<? extends EitherBooleanFloat> rightMapper);
+
+    /**
+     * Flat maps left value if present return {@link EitherBooleanFloat} returned by mapper
+     * function.
+     *
+     * @param leftMapper Left value mapper.
+     * @return {@link EitherBooleanFloat} returned by mapper function.
+     */
+    public abstract EitherBooleanFloat flatMapLeft(BooleanFunction<? extends EitherBooleanFloat> leftMapper);
+
+
+    /**
+     * Flat maps right value if present and return {@link EitherBooleanFloat} returned by mapper
+     * function.
+     *
+     * @param rightMapper Right value mapper.
+     * @return {@link EitherBooleanFloat} returned by mapper function.
+     */
+    public abstract EitherBooleanFloat flatMapRight(FloatFunction<? extends EitherBooleanFloat> rightMapper);
 
     static class Left extends EitherBooleanFloat {
         private final boolean value;
@@ -208,6 +240,22 @@ public abstract class EitherBooleanFloat extends BaseEither {
 
         @Override
         public EitherBooleanFloat mapRight(FloatUnaryOperator rightMapper) {
+            return EitherBooleanFloat.left(this.getLeft());
+        }
+
+        @Override
+        public EitherBooleanFloat flatMap(BooleanFunction<? extends EitherBooleanFloat> leftMapper,
+                                          FloatFunction<? extends EitherBooleanFloat> rightMapper) {
+            return leftMapper.apply(this.getLeft());
+        }
+
+        @Override
+        public EitherBooleanFloat flatMapLeft(BooleanFunction<? extends EitherBooleanFloat> leftMapper) {
+            return leftMapper.apply(this.getLeft());
+        }
+
+        @Override
+        public EitherBooleanFloat flatMapRight(FloatFunction<? extends EitherBooleanFloat> rightMapper) {
             return EitherBooleanFloat.left(this.getLeft());
         }
     }
@@ -266,6 +314,22 @@ public abstract class EitherBooleanFloat extends BaseEither {
         @Override
         public EitherBooleanFloat mapRight(FloatUnaryOperator rightMapper) {
             return EitherBooleanFloat.right(rightMapper.apply(this.getRight()));
+        }
+
+        @Override
+        public EitherBooleanFloat flatMap(BooleanFunction<? extends EitherBooleanFloat> leftMapper,
+                                          FloatFunction<? extends EitherBooleanFloat> rightMapper) {
+            return rightMapper.apply(this.getRight());
+        }
+
+        @Override
+        public EitherBooleanFloat flatMapLeft(BooleanFunction<? extends EitherBooleanFloat> leftMapper) {
+            return EitherBooleanFloat.right(this.getRight());
+        }
+
+        @Override
+        public EitherBooleanFloat flatMapRight(FloatFunction<? extends EitherBooleanFloat> rightMapper) {
+            return rightMapper.apply(this.getRight());
         }
     }
 }

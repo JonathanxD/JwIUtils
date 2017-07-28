@@ -29,16 +29,18 @@ package com.github.jonathanxd.iutils.object.specialized.all;
 
 import com.github.jonathanxd.iutils.annotation.Generated;
 import com.github.jonathanxd.iutils.function.consumer.BooleanConsumer;
+import com.github.jonathanxd.iutils.function.function.BooleanFunction;
 import com.github.jonathanxd.iutils.function.unary.BooleanUnaryOperator;
 import com.github.jonathanxd.iutils.function.unary.DoubleUnaryOperator;
 import com.github.jonathanxd.iutils.object.BaseEither;
 
 import java.util.NoSuchElementException;
 import java.util.function.DoubleConsumer;
+import java.util.function.DoubleFunction;
 
 /**
- * A class which can hold either {@link boolean} or {@link double} (in this documentation we call the
- * hold value as present value).
+ * A class which can hold either {@link boolean} or {@link double} (in this documentation we call
+ * the hold value as present value).
  */
 @Generated
 public abstract class EitherBooleanDouble extends BaseEither {
@@ -130,7 +132,7 @@ public abstract class EitherBooleanDouble extends BaseEither {
      * @return {@link EitherBooleanDouble} instance with mapped values.
      */
     public abstract EitherBooleanDouble map(BooleanUnaryOperator leftMapper,
-                                        DoubleUnaryOperator rightMapper);
+                                            DoubleUnaryOperator rightMapper);
 
 
     /**
@@ -154,6 +156,36 @@ public abstract class EitherBooleanDouble extends BaseEither {
      */
     @SuppressWarnings("unchecked")
     public abstract EitherBooleanDouble mapRight(DoubleUnaryOperator rightMapper);
+
+    /**
+     * Flat maps left value if present or right value if present and return {@link
+     * EitherBooleanDouble} returned by mapper function.
+     *
+     * @param leftMapper  Left value mapper.
+     * @param rightMapper Right value mapper.
+     * @return {@link EitherBooleanDouble} returned by mapper function.
+     */
+    public abstract EitherBooleanDouble flatMap(BooleanFunction<? extends EitherBooleanDouble> leftMapper,
+                                                DoubleFunction<? extends EitherBooleanDouble> rightMapper);
+
+    /**
+     * Flat maps left value if present return {@link EitherBooleanDouble} returned by mapper
+     * function.
+     *
+     * @param leftMapper Left value mapper.
+     * @return {@link EitherBooleanDouble} returned by mapper function.
+     */
+    public abstract EitherBooleanDouble flatMapLeft(BooleanFunction<? extends EitherBooleanDouble> leftMapper);
+
+
+    /**
+     * Flat maps right value if present and return {@link EitherBooleanDouble} returned by mapper
+     * function.
+     *
+     * @param rightMapper Right value mapper.
+     * @return {@link EitherBooleanDouble} returned by mapper function.
+     */
+    public abstract EitherBooleanDouble flatMapRight(DoubleFunction<? extends EitherBooleanDouble> rightMapper);
 
     static class Left extends EitherBooleanDouble {
         private final boolean value;
@@ -208,6 +240,22 @@ public abstract class EitherBooleanDouble extends BaseEither {
 
         @Override
         public EitherBooleanDouble mapRight(DoubleUnaryOperator rightMapper) {
+            return EitherBooleanDouble.left(this.getLeft());
+        }
+
+        @Override
+        public EitherBooleanDouble flatMap(BooleanFunction<? extends EitherBooleanDouble> leftMapper,
+                                           DoubleFunction<? extends EitherBooleanDouble> rightMapper) {
+            return leftMapper.apply(this.getLeft());
+        }
+
+        @Override
+        public EitherBooleanDouble flatMapLeft(BooleanFunction<? extends EitherBooleanDouble> leftMapper) {
+            return leftMapper.apply(this.getLeft());
+        }
+
+        @Override
+        public EitherBooleanDouble flatMapRight(DoubleFunction<? extends EitherBooleanDouble> rightMapper) {
             return EitherBooleanDouble.left(this.getLeft());
         }
     }
@@ -266,6 +314,22 @@ public abstract class EitherBooleanDouble extends BaseEither {
         @Override
         public EitherBooleanDouble mapRight(DoubleUnaryOperator rightMapper) {
             return EitherBooleanDouble.right(rightMapper.apply(this.getRight()));
+        }
+
+        @Override
+        public EitherBooleanDouble flatMap(BooleanFunction<? extends EitherBooleanDouble> leftMapper,
+                                           DoubleFunction<? extends EitherBooleanDouble> rightMapper) {
+            return rightMapper.apply(this.getRight());
+        }
+
+        @Override
+        public EitherBooleanDouble flatMapLeft(BooleanFunction<? extends EitherBooleanDouble> leftMapper) {
+            return EitherBooleanDouble.right(this.getRight());
+        }
+
+        @Override
+        public EitherBooleanDouble flatMapRight(DoubleFunction<? extends EitherBooleanDouble> rightMapper) {
+            return rightMapper.apply(this.getRight());
         }
     }
 }

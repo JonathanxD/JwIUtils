@@ -123,8 +123,8 @@ public abstract class Either<L, R> extends BaseEither {
     public abstract void ifRight(Consumer<? super R> consumer);
 
     /**
-     * Maps left value if present and right value if present and return a new {@link Either}
-     * instance with mapped values.
+     * Maps left value if present or right value if present and return a new {@link Either} instance
+     * with mapped values.
      *
      * @param leftMapper  Left value mapper.
      * @param rightMapper Right value mapper.
@@ -159,6 +159,38 @@ public abstract class Either<L, R> extends BaseEither {
      */
     @SuppressWarnings("unchecked")
     public abstract <MR> Either<L, MR> mapRight(Function<? super R, ? extends MR> rightMapper);
+
+    /**
+     * Flat maps left value if present or right value if present and return {@link Either} returned
+     * by mapper function.
+     *
+     * @param leftMapper  Left value mapper.
+     * @param rightMapper Right value mapper.
+     * @param <ML>        Left type.
+     * @param <MR>        Right type.
+     * @return {@link Either} returned by mapper function.
+     */
+    public abstract <ML, MR> Either<ML, MR> flatMap(Function<? super L, ? extends Either<ML, MR>> leftMapper,
+                                                    Function<? super R, ? extends Either<ML, MR>> rightMapper);
+
+    /**
+     * Flat maps left value if present return {@link Either} returned by mapper function.
+     *
+     * @param leftMapper Left value mapper.
+     * @param <ML>       Left type.
+     * @return {@link Either} returned by mapper function.
+     */
+    public abstract <ML> Either<ML, R> flatMapLeft(Function<? super L, ? extends Either<ML, R>> leftMapper);
+
+
+    /**
+     * Flat maps right value if present and return {@link Either} returned by mapper function.
+     *
+     * @param rightMapper Right value mapper.
+     * @param <MR>        Right type.
+     * @return {@link Either} returned by mapper function.
+     */
+    public abstract <MR> Either<L, MR> flatMapRight(Function<? super R, ? extends Either<L, MR>> rightMapper);
 
     static class Left<L, R> extends Either<L, R> {
         private final L value;
@@ -202,8 +234,25 @@ public abstract class Either<L, R> extends BaseEither {
         }
 
         @Override
-        public <ML, MR> Either<ML, MR> map(Function<? super L, ? extends ML> leftMapper, Function<? super R, ? extends MR> rightMapper) {
+        public <ML, MR> Either<ML, MR> map(Function<? super L, ? extends ML> leftMapper,
+                                           Function<? super R, ? extends MR> rightMapper) {
             return Either.left(leftMapper.apply(this.getLeft()));
+        }
+
+        @Override
+        public <ML, MR> Either<ML, MR> flatMap(Function<? super L, ? extends Either<ML, MR>> leftMapper,
+                                               Function<? super R, ? extends Either<ML, MR>> rightMapper) {
+            return leftMapper.apply(this.getLeft());
+        }
+
+        @Override
+        public <ML> Either<ML, R> flatMapLeft(Function<? super L, ? extends Either<ML, R>> leftMapper) {
+            return leftMapper.apply(this.getLeft());
+        }
+
+        @Override
+        public <MR> Either<L, MR> flatMapRight(Function<? super R, ? extends Either<L, MR>> rightMapper) {
+            return Either.left(this.getLeft());
         }
 
         @Override
@@ -259,8 +308,25 @@ public abstract class Either<L, R> extends BaseEither {
         }
 
         @Override
-        public <ML, MR> Either<ML, MR> map(Function<? super L, ? extends ML> leftMapper, Function<? super R, ? extends MR> rightMapper) {
+        public <ML, MR> Either<ML, MR> map(Function<? super L, ? extends ML> leftMapper,
+                                           Function<? super R, ? extends MR> rightMapper) {
             return Either.right(rightMapper.apply(this.getRight()));
+        }
+
+        @Override
+        public <ML, MR> Either<ML, MR> flatMap(Function<? super L, ? extends Either<ML, MR>> leftMapper,
+                                               Function<? super R, ? extends Either<ML, MR>> rightMapper) {
+            return rightMapper.apply(this.getRight());
+        }
+
+        @Override
+        public <ML> Either<ML, R> flatMapLeft(Function<? super L, ? extends Either<ML, R>> leftMapper) {
+            return Either.right(this.getRight());
+        }
+
+        @Override
+        public <MR> Either<L, MR> flatMapRight(Function<? super R, ? extends Either<L, MR>> rightMapper) {
+            return rightMapper.apply(this.getRight());
         }
 
         @Override

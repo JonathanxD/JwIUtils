@@ -29,12 +29,14 @@ package com.github.jonathanxd.iutils.object.specialized.all;
 
 import com.github.jonathanxd.iutils.annotation.Generated;
 import com.github.jonathanxd.iutils.function.consumer.ByteConsumer;
+import com.github.jonathanxd.iutils.function.function.ByteFunction;
 import com.github.jonathanxd.iutils.function.unary.ByteUnaryOperator;
 import com.github.jonathanxd.iutils.function.unary.DoubleUnaryOperator;
 import com.github.jonathanxd.iutils.object.BaseEither;
 
 import java.util.NoSuchElementException;
 import java.util.function.DoubleConsumer;
+import java.util.function.DoubleFunction;
 
 /**
  * A class which can hold either {@link byte} or {@link double} (in this documentation we call the
@@ -155,6 +157,35 @@ public abstract class EitherByteDouble extends BaseEither {
     @SuppressWarnings("unchecked")
     public abstract EitherByteDouble mapRight(DoubleUnaryOperator rightMapper);
 
+    /**
+     * Flat maps left value if present or right value if present and return {@link EitherByteDouble}
+     * returned by mapper function.
+     *
+     * @param leftMapper  Left value mapper.
+     * @param rightMapper Right value mapper.
+     * @return {@link EitherByteDouble} returned by mapper function.
+     */
+    public abstract EitherByteDouble flatMap(ByteFunction<? extends EitherByteDouble> leftMapper,
+                                             DoubleFunction<? extends EitherByteDouble> rightMapper);
+
+    /**
+     * Flat maps left value if present return {@link EitherByteDouble} returned by mapper function.
+     *
+     * @param leftMapper Left value mapper.
+     * @return {@link EitherByteDouble} returned by mapper function.
+     */
+    public abstract EitherByteDouble flatMapLeft(ByteFunction<? extends EitherByteDouble> leftMapper);
+
+
+    /**
+     * Flat maps right value if present and return {@link EitherByteDouble} returned by mapper
+     * function.
+     *
+     * @param rightMapper Right value mapper.
+     * @return {@link EitherByteDouble} returned by mapper function.
+     */
+    public abstract EitherByteDouble flatMapRight(DoubleFunction<? extends EitherByteDouble> rightMapper);
+
     static class Left extends EitherByteDouble {
         private final byte value;
 
@@ -208,6 +239,22 @@ public abstract class EitherByteDouble extends BaseEither {
 
         @Override
         public EitherByteDouble mapRight(DoubleUnaryOperator rightMapper) {
+            return EitherByteDouble.left(this.getLeft());
+        }
+
+        @Override
+        public EitherByteDouble flatMap(ByteFunction<? extends EitherByteDouble> leftMapper,
+                                        DoubleFunction<? extends EitherByteDouble> rightMapper) {
+            return leftMapper.apply(this.getLeft());
+        }
+
+        @Override
+        public EitherByteDouble flatMapLeft(ByteFunction<? extends EitherByteDouble> leftMapper) {
+            return leftMapper.apply(this.getLeft());
+        }
+
+        @Override
+        public EitherByteDouble flatMapRight(DoubleFunction<? extends EitherByteDouble> rightMapper) {
             return EitherByteDouble.left(this.getLeft());
         }
     }
@@ -266,6 +313,22 @@ public abstract class EitherByteDouble extends BaseEither {
         @Override
         public EitherByteDouble mapRight(DoubleUnaryOperator rightMapper) {
             return EitherByteDouble.right(rightMapper.apply(this.getRight()));
+        }
+
+        @Override
+        public EitherByteDouble flatMap(ByteFunction<? extends EitherByteDouble> leftMapper,
+                                        DoubleFunction<? extends EitherByteDouble> rightMapper) {
+            return rightMapper.apply(this.getRight());
+        }
+
+        @Override
+        public EitherByteDouble flatMapLeft(ByteFunction<? extends EitherByteDouble> leftMapper) {
+            return EitherByteDouble.right(this.getRight());
+        }
+
+        @Override
+        public EitherByteDouble flatMapRight(DoubleFunction<? extends EitherByteDouble> rightMapper) {
+            return rightMapper.apply(this.getRight());
         }
     }
 }

@@ -143,6 +143,13 @@ public class EitherTest {
 
         EitherIntDouble map = e2.map(v -> v * 9, v -> v * 5.1);
         assertLeft(map, o -> Assert.assertEquals(5 * 9, (int) o));
+
+        EitherIntDouble e3 = map
+                .flatMap(value -> value % 2 == 0 ? EitherIntDouble.right(5.0) : EitherIntDouble.left(9),
+                        value -> value % 2 == 0 ? EitherIntDouble.left(7) : EitherIntDouble.right(1.0));
+
+        assertLeft(e3, o -> Assert.assertEquals(9, (int) o));
+
     }
 
 

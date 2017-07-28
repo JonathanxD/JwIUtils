@@ -30,6 +30,8 @@ package com.github.jonathanxd.iutils.object.specialized.all;
 import com.github.jonathanxd.iutils.annotation.Generated;
 import com.github.jonathanxd.iutils.function.consumer.ByteConsumer;
 import com.github.jonathanxd.iutils.function.consumer.FloatConsumer;
+import com.github.jonathanxd.iutils.function.function.ByteFunction;
+import com.github.jonathanxd.iutils.function.function.FloatFunction;
 import com.github.jonathanxd.iutils.function.unary.ByteUnaryOperator;
 import com.github.jonathanxd.iutils.function.unary.FloatUnaryOperator;
 import com.github.jonathanxd.iutils.object.BaseEither;
@@ -155,6 +157,35 @@ public abstract class EitherByteFloat extends BaseEither {
     @SuppressWarnings("unchecked")
     public abstract EitherByteFloat mapRight(FloatUnaryOperator rightMapper);
 
+    /**
+     * Flat maps left value if present or right value if present and return {@link EitherByteFloat}
+     * returned by mapper function.
+     *
+     * @param leftMapper  Left value mapper.
+     * @param rightMapper Right value mapper.
+     * @return {@link EitherByteFloat} returned by mapper function.
+     */
+    public abstract EitherByteFloat flatMap(ByteFunction<? extends EitherByteFloat> leftMapper,
+                                            FloatFunction<? extends EitherByteFloat> rightMapper);
+
+    /**
+     * Flat maps left value if present return {@link EitherByteFloat} returned by mapper function.
+     *
+     * @param leftMapper Left value mapper.
+     * @return {@link EitherByteFloat} returned by mapper function.
+     */
+    public abstract EitherByteFloat flatMapLeft(ByteFunction<? extends EitherByteFloat> leftMapper);
+
+
+    /**
+     * Flat maps right value if present and return {@link EitherByteFloat} returned by mapper
+     * function.
+     *
+     * @param rightMapper Right value mapper.
+     * @return {@link EitherByteFloat} returned by mapper function.
+     */
+    public abstract EitherByteFloat flatMapRight(FloatFunction<? extends EitherByteFloat> rightMapper);
+
     static class Left extends EitherByteFloat {
         private final byte value;
 
@@ -208,6 +239,22 @@ public abstract class EitherByteFloat extends BaseEither {
 
         @Override
         public EitherByteFloat mapRight(FloatUnaryOperator rightMapper) {
+            return EitherByteFloat.left(this.getLeft());
+        }
+
+        @Override
+        public EitherByteFloat flatMap(ByteFunction<? extends EitherByteFloat> leftMapper,
+                                       FloatFunction<? extends EitherByteFloat> rightMapper) {
+            return leftMapper.apply(this.getLeft());
+        }
+
+        @Override
+        public EitherByteFloat flatMapLeft(ByteFunction<? extends EitherByteFloat> leftMapper) {
+            return leftMapper.apply(this.getLeft());
+        }
+
+        @Override
+        public EitherByteFloat flatMapRight(FloatFunction<? extends EitherByteFloat> rightMapper) {
             return EitherByteFloat.left(this.getLeft());
         }
     }
@@ -266,6 +313,22 @@ public abstract class EitherByteFloat extends BaseEither {
         @Override
         public EitherByteFloat mapRight(FloatUnaryOperator rightMapper) {
             return EitherByteFloat.right(rightMapper.apply(this.getRight()));
+        }
+
+        @Override
+        public EitherByteFloat flatMap(ByteFunction<? extends EitherByteFloat> leftMapper,
+                                       FloatFunction<? extends EitherByteFloat> rightMapper) {
+            return rightMapper.apply(this.getRight());
+        }
+
+        @Override
+        public EitherByteFloat flatMapLeft(ByteFunction<? extends EitherByteFloat> leftMapper) {
+            return EitherByteFloat.right(this.getRight());
+        }
+
+        @Override
+        public EitherByteFloat flatMapRight(FloatFunction<? extends EitherByteFloat> rightMapper) {
+            return rightMapper.apply(this.getRight());
         }
     }
 }

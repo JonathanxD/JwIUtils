@@ -29,6 +29,7 @@ package com.github.jonathanxd.iutils.object.specialized;
 
 import com.github.jonathanxd.iutils.annotation.Generated;
 import com.github.jonathanxd.iutils.function.consumer.CharConsumer;
+import com.github.jonathanxd.iutils.function.function.CharFunction;
 import com.github.jonathanxd.iutils.function.unary.CharUnaryOperator;
 import com.github.jonathanxd.iutils.object.BaseEither;
 
@@ -136,7 +137,7 @@ public abstract class EitherObjChar<L> extends BaseEither {
      * @return {@link EitherObjChar} instance with mapped values.
      */
     public abstract <ML> EitherObjChar<ML> map(Function<? super L, ? extends ML> leftMapper,
-                                                          CharUnaryOperator rightMapper);
+                                               CharUnaryOperator rightMapper);
 
 
     /**
@@ -161,6 +162,37 @@ public abstract class EitherObjChar<L> extends BaseEither {
      */
     @SuppressWarnings("unchecked")
     public abstract EitherObjChar<L> mapRight(CharUnaryOperator rightMapper);
+
+    /**
+     * Flat maps left value if present or right value if present and return {@link EitherObjChar}
+     * returned by mapper function.
+     *
+     * @param leftMapper  Left value mapper.
+     * @param rightMapper Right value mapper.
+     * @param <ML>        Left type.
+     * @return {@link EitherObjChar} returned by mapper function.
+     */
+    public abstract <ML> EitherObjChar<ML> flatMap(Function<? super L, ? extends EitherObjChar<ML>> leftMapper,
+                                                   CharFunction<? extends EitherObjChar<ML>> rightMapper);
+
+    /**
+     * Flat maps left value if present return {@link EitherObjChar} returned by mapper function.
+     *
+     * @param leftMapper Left value mapper.
+     * @param <ML>       Left type.
+     * @return {@link EitherObjChar} returned by mapper function.
+     */
+    public abstract <ML> EitherObjChar<ML> flatMapLeft(Function<? super L, ? extends EitherObjChar<ML>> leftMapper);
+
+
+    /**
+     * Flat maps right value if present and return {@link EitherObjChar} returned by mapper
+     * function.
+     *
+     * @param rightMapper Right value mapper.
+     * @return {@link EitherObjChar} returned by mapper function.
+     */
+    public abstract EitherObjChar<L> flatMapRight(CharFunction<? extends EitherObjChar<L>> rightMapper);
 
     static class Left<L> extends EitherObjChar<L> {
         private final L value;
@@ -204,7 +236,8 @@ public abstract class EitherObjChar<L> extends BaseEither {
         }
 
         @Override
-        public <ML> EitherObjChar<ML> map(Function<? super L, ? extends ML> leftMapper, CharUnaryOperator rightMapper) {
+        public <ML> EitherObjChar<ML> map(Function<? super L, ? extends ML> leftMapper,
+                                          CharUnaryOperator rightMapper) {
             return EitherObjChar.left(leftMapper.apply(this.getLeft()));
         }
 
@@ -217,6 +250,23 @@ public abstract class EitherObjChar<L> extends BaseEither {
         public EitherObjChar<L> mapRight(CharUnaryOperator rightMapper) {
             return EitherObjChar.left(this.getLeft());
         }
+
+        @Override
+        public <ML> EitherObjChar<ML> flatMap(Function<? super L, ? extends EitherObjChar<ML>> leftMapper,
+                                              CharFunction<? extends EitherObjChar<ML>> rightMapper) {
+            return leftMapper.apply(this.getLeft());
+        }
+
+        @Override
+        public <ML> EitherObjChar<ML> flatMapLeft(Function<? super L, ? extends EitherObjChar<ML>> leftMapper) {
+            return leftMapper.apply(this.getLeft());
+        }
+
+        @Override
+        public EitherObjChar<L> flatMapRight(CharFunction<? extends EitherObjChar<L>> rightMapper) {
+            return EitherObjChar.left(this.getLeft());
+        }
+
     }
 
     static class Right<L> extends EitherObjChar<L> {
@@ -261,7 +311,8 @@ public abstract class EitherObjChar<L> extends BaseEither {
         }
 
         @Override
-        public <ML> EitherObjChar<ML> map(Function<? super L, ? extends ML> leftMapper, CharUnaryOperator rightMapper) {
+        public <ML> EitherObjChar<ML> map(Function<? super L, ? extends ML> leftMapper,
+                                          CharUnaryOperator rightMapper) {
             return EitherObjChar.right(rightMapper.apply(this.getRight()));
         }
 
@@ -273,6 +324,22 @@ public abstract class EitherObjChar<L> extends BaseEither {
         @Override
         public EitherObjChar<L> mapRight(CharUnaryOperator rightMapper) {
             return EitherObjChar.right(rightMapper.apply(this.getRight()));
+        }
+
+        @Override
+        public <ML> EitherObjChar<ML> flatMap(Function<? super L, ? extends EitherObjChar<ML>> leftMapper,
+                                              CharFunction<? extends EitherObjChar<ML>> rightMapper) {
+            return rightMapper.apply(this.getRight());
+        }
+
+        @Override
+        public <ML> EitherObjChar<ML> flatMapLeft(Function<? super L, ? extends EitherObjChar<ML>> leftMapper) {
+            return EitherObjChar.right(this.getRight());
+        }
+
+        @Override
+        public EitherObjChar<L> flatMapRight(CharFunction<? extends EitherObjChar<L>> rightMapper) {
+            return rightMapper.apply(this.getRight());
         }
     }
 }

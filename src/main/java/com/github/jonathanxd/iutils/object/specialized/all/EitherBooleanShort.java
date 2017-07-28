@@ -30,6 +30,8 @@ package com.github.jonathanxd.iutils.object.specialized.all;
 import com.github.jonathanxd.iutils.annotation.Generated;
 import com.github.jonathanxd.iutils.function.consumer.BooleanConsumer;
 import com.github.jonathanxd.iutils.function.consumer.ShortConsumer;
+import com.github.jonathanxd.iutils.function.function.BooleanFunction;
+import com.github.jonathanxd.iutils.function.function.ShortFunction;
 import com.github.jonathanxd.iutils.function.unary.BooleanUnaryOperator;
 import com.github.jonathanxd.iutils.function.unary.ShortUnaryOperator;
 import com.github.jonathanxd.iutils.object.BaseEither;
@@ -130,7 +132,7 @@ public abstract class EitherBooleanShort extends BaseEither {
      * @return {@link EitherBooleanShort} instance with mapped values.
      */
     public abstract EitherBooleanShort map(BooleanUnaryOperator leftMapper,
-                                        ShortUnaryOperator rightMapper);
+                                           ShortUnaryOperator rightMapper);
 
 
     /**
@@ -154,6 +156,36 @@ public abstract class EitherBooleanShort extends BaseEither {
      */
     @SuppressWarnings("unchecked")
     public abstract EitherBooleanShort mapRight(ShortUnaryOperator rightMapper);
+
+    /**
+     * Flat maps left value if present or right value if present and return {@link
+     * EitherBooleanShort} returned by mapper function.
+     *
+     * @param leftMapper  Left value mapper.
+     * @param rightMapper Right value mapper.
+     * @return {@link EitherBooleanShort} returned by mapper function.
+     */
+    public abstract EitherBooleanShort flatMap(BooleanFunction<? extends EitherBooleanShort> leftMapper,
+                                               ShortFunction<? extends EitherBooleanShort> rightMapper);
+
+    /**
+     * Flat maps left value if present return {@link EitherBooleanShort} returned by mapper
+     * function.
+     *
+     * @param leftMapper Left value mapper.
+     * @return {@link EitherBooleanShort} returned by mapper function.
+     */
+    public abstract EitherBooleanShort flatMapLeft(BooleanFunction<? extends EitherBooleanShort> leftMapper);
+
+
+    /**
+     * Flat maps right value if present and return {@link EitherBooleanShort} returned by mapper
+     * function.
+     *
+     * @param rightMapper Right value mapper.
+     * @return {@link EitherBooleanShort} returned by mapper function.
+     */
+    public abstract EitherBooleanShort flatMapRight(ShortFunction<? extends EitherBooleanShort> rightMapper);
 
     static class Left extends EitherBooleanShort {
         private final boolean value;
@@ -208,6 +240,22 @@ public abstract class EitherBooleanShort extends BaseEither {
 
         @Override
         public EitherBooleanShort mapRight(ShortUnaryOperator rightMapper) {
+            return EitherBooleanShort.left(this.getLeft());
+        }
+
+        @Override
+        public EitherBooleanShort flatMap(BooleanFunction<? extends EitherBooleanShort> leftMapper,
+                                          ShortFunction<? extends EitherBooleanShort> rightMapper) {
+            return leftMapper.apply(this.getLeft());
+        }
+
+        @Override
+        public EitherBooleanShort flatMapLeft(BooleanFunction<? extends EitherBooleanShort> leftMapper) {
+            return leftMapper.apply(this.getLeft());
+        }
+
+        @Override
+        public EitherBooleanShort flatMapRight(ShortFunction<? extends EitherBooleanShort> rightMapper) {
             return EitherBooleanShort.left(this.getLeft());
         }
     }
@@ -266,6 +314,22 @@ public abstract class EitherBooleanShort extends BaseEither {
         @Override
         public EitherBooleanShort mapRight(ShortUnaryOperator rightMapper) {
             return EitherBooleanShort.right(rightMapper.apply(this.getRight()));
+        }
+
+        @Override
+        public EitherBooleanShort flatMap(BooleanFunction<? extends EitherBooleanShort> leftMapper,
+                                          ShortFunction<? extends EitherBooleanShort> rightMapper) {
+            return rightMapper.apply(this.getRight());
+        }
+
+        @Override
+        public EitherBooleanShort flatMapLeft(BooleanFunction<? extends EitherBooleanShort> leftMapper) {
+            return EitherBooleanShort.right(this.getRight());
+        }
+
+        @Override
+        public EitherBooleanShort flatMapRight(ShortFunction<? extends EitherBooleanShort> rightMapper) {
+            return rightMapper.apply(this.getRight());
         }
     }
 }

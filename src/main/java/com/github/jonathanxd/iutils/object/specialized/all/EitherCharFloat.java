@@ -30,6 +30,8 @@ package com.github.jonathanxd.iutils.object.specialized.all;
 import com.github.jonathanxd.iutils.annotation.Generated;
 import com.github.jonathanxd.iutils.function.consumer.CharConsumer;
 import com.github.jonathanxd.iutils.function.consumer.FloatConsumer;
+import com.github.jonathanxd.iutils.function.function.CharFunction;
+import com.github.jonathanxd.iutils.function.function.FloatFunction;
 import com.github.jonathanxd.iutils.function.unary.CharUnaryOperator;
 import com.github.jonathanxd.iutils.function.unary.FloatUnaryOperator;
 import com.github.jonathanxd.iutils.object.BaseEither;
@@ -155,6 +157,35 @@ public abstract class EitherCharFloat extends BaseEither {
     @SuppressWarnings("unchecked")
     public abstract EitherCharFloat mapRight(FloatUnaryOperator rightMapper);
 
+    /**
+     * Flat maps left value if present or right value if present and return {@link EitherCharFloat}
+     * returned by mapper function.
+     *
+     * @param leftMapper  Left value mapper.
+     * @param rightMapper Right value mapper.
+     * @return {@link EitherCharFloat} returned by mapper function.
+     */
+    public abstract EitherCharFloat flatMap(CharFunction<? extends EitherCharFloat> leftMapper,
+                                            FloatFunction<? extends EitherCharFloat> rightMapper);
+
+    /**
+     * Flat maps left value if present return {@link EitherCharFloat} returned by mapper function.
+     *
+     * @param leftMapper Left value mapper.
+     * @return {@link EitherCharFloat} returned by mapper function.
+     */
+    public abstract EitherCharFloat flatMapLeft(CharFunction<? extends EitherCharFloat> leftMapper);
+
+
+    /**
+     * Flat maps right value if present and return {@link EitherCharFloat} returned by mapper
+     * function.
+     *
+     * @param rightMapper Right value mapper.
+     * @return {@link EitherCharFloat} returned by mapper function.
+     */
+    public abstract EitherCharFloat flatMapRight(FloatFunction<? extends EitherCharFloat> rightMapper);
+
     static class Left extends EitherCharFloat {
         private final char value;
 
@@ -208,6 +239,22 @@ public abstract class EitherCharFloat extends BaseEither {
 
         @Override
         public EitherCharFloat mapRight(FloatUnaryOperator rightMapper) {
+            return EitherCharFloat.left(this.getLeft());
+        }
+
+        @Override
+        public EitherCharFloat flatMap(CharFunction<? extends EitherCharFloat> leftMapper,
+                                       FloatFunction<? extends EitherCharFloat> rightMapper) {
+            return leftMapper.apply(this.getLeft());
+        }
+
+        @Override
+        public EitherCharFloat flatMapLeft(CharFunction<? extends EitherCharFloat> leftMapper) {
+            return leftMapper.apply(this.getLeft());
+        }
+
+        @Override
+        public EitherCharFloat flatMapRight(FloatFunction<? extends EitherCharFloat> rightMapper) {
             return EitherCharFloat.left(this.getLeft());
         }
     }
@@ -266,6 +313,22 @@ public abstract class EitherCharFloat extends BaseEither {
         @Override
         public EitherCharFloat mapRight(FloatUnaryOperator rightMapper) {
             return EitherCharFloat.right(rightMapper.apply(this.getRight()));
+        }
+
+        @Override
+        public EitherCharFloat flatMap(CharFunction<? extends EitherCharFloat> leftMapper,
+                                       FloatFunction<? extends EitherCharFloat> rightMapper) {
+            return rightMapper.apply(this.getRight());
+        }
+
+        @Override
+        public EitherCharFloat flatMapLeft(CharFunction<? extends EitherCharFloat> leftMapper) {
+            return EitherCharFloat.right(this.getRight());
+        }
+
+        @Override
+        public EitherCharFloat flatMapRight(FloatFunction<? extends EitherCharFloat> rightMapper) {
+            return rightMapper.apply(this.getRight());
         }
     }
 }

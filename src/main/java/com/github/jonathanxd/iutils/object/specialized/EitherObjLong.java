@@ -35,6 +35,7 @@ import java.util.NoSuchElementException;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.LongConsumer;
+import java.util.function.LongFunction;
 
 /**
  * A class which can hold either {@link L} or {@link long} (in this documentation we call the hold
@@ -162,6 +163,37 @@ public abstract class EitherObjLong<L> extends BaseEither {
     @SuppressWarnings("unchecked")
     public abstract EitherObjLong<L> mapRight(LongUnaryOperator rightMapper);
 
+    /**
+     * Flat maps left value if present or right value if present and return {@link EitherObjLong}
+     * returned by mapper function.
+     *
+     * @param leftMapper  Left value mapper.
+     * @param rightMapper Right value mapper.
+     * @param <ML>        Left type.
+     * @return {@link EitherObjLong} returned by mapper function.
+     */
+    public abstract <ML> EitherObjLong<ML> flatMap(Function<? super L, ? extends EitherObjLong<ML>> leftMapper,
+                                                   LongFunction<? extends EitherObjLong<ML>> rightMapper);
+
+    /**
+     * Flat maps left value if present return {@link EitherObjLong} returned by mapper function.
+     *
+     * @param leftMapper Left value mapper.
+     * @param <ML>       Left type.
+     * @return {@link EitherObjLong} returned by mapper function.
+     */
+    public abstract <ML> EitherObjLong<ML> flatMapLeft(Function<? super L, ? extends EitherObjLong<ML>> leftMapper);
+
+
+    /**
+     * Flat maps right value if present and return {@link EitherObjLong} returned by mapper
+     * function.
+     *
+     * @param rightMapper Right value mapper.
+     * @return {@link EitherObjLong} returned by mapper function.
+     */
+    public abstract EitherObjLong<L> flatMapRight(LongFunction<? extends EitherObjLong<L>> rightMapper);
+
     static class Left<L> extends EitherObjLong<L> {
         private final L value;
 
@@ -204,7 +236,8 @@ public abstract class EitherObjLong<L> extends BaseEither {
         }
 
         @Override
-        public <ML> EitherObjLong<ML> map(Function<? super L, ? extends ML> leftMapper, LongUnaryOperator rightMapper) {
+        public <ML> EitherObjLong<ML> map(Function<? super L, ? extends ML> leftMapper,
+                                          LongUnaryOperator rightMapper) {
             return EitherObjLong.left(leftMapper.apply(this.getLeft()));
         }
 
@@ -217,6 +250,23 @@ public abstract class EitherObjLong<L> extends BaseEither {
         public EitherObjLong<L> mapRight(LongUnaryOperator rightMapper) {
             return EitherObjLong.left(this.getLeft());
         }
+
+        @Override
+        public <ML> EitherObjLong<ML> flatMap(Function<? super L, ? extends EitherObjLong<ML>> leftMapper,
+                                              LongFunction<? extends EitherObjLong<ML>> rightMapper) {
+            return leftMapper.apply(this.getLeft());
+        }
+
+        @Override
+        public <ML> EitherObjLong<ML> flatMapLeft(Function<? super L, ? extends EitherObjLong<ML>> leftMapper) {
+            return leftMapper.apply(this.getLeft());
+        }
+
+        @Override
+        public EitherObjLong<L> flatMapRight(LongFunction<? extends EitherObjLong<L>> rightMapper) {
+            return EitherObjLong.left(this.getLeft());
+        }
+
     }
 
     static class Right<L> extends EitherObjLong<L> {
@@ -261,7 +311,8 @@ public abstract class EitherObjLong<L> extends BaseEither {
         }
 
         @Override
-        public <ML> EitherObjLong<ML> map(Function<? super L, ? extends ML> leftMapper, LongUnaryOperator rightMapper) {
+        public <ML> EitherObjLong<ML> map(Function<? super L, ? extends ML> leftMapper,
+                                          LongUnaryOperator rightMapper) {
             return EitherObjLong.right(rightMapper.apply(this.getRight()));
         }
 
@@ -273,6 +324,22 @@ public abstract class EitherObjLong<L> extends BaseEither {
         @Override
         public EitherObjLong<L> mapRight(LongUnaryOperator rightMapper) {
             return EitherObjLong.right(rightMapper.apply(this.getRight()));
+        }
+
+        @Override
+        public <ML> EitherObjLong<ML> flatMap(Function<? super L, ? extends EitherObjLong<ML>> leftMapper,
+                                              LongFunction<? extends EitherObjLong<ML>> rightMapper) {
+            return rightMapper.apply(this.getRight());
+        }
+
+        @Override
+        public <ML> EitherObjLong<ML> flatMapLeft(Function<? super L, ? extends EitherObjLong<ML>> leftMapper) {
+            return EitherObjLong.right(this.getRight());
+        }
+
+        @Override
+        public EitherObjLong<L> flatMapRight(LongFunction<? extends EitherObjLong<L>> rightMapper) {
+            return rightMapper.apply(this.getRight());
         }
     }
 }
