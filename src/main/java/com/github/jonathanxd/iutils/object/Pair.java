@@ -107,6 +107,20 @@ public abstract class Pair<A, B> {
     public abstract B getSecond();
 
     /**
+     * First value (Kotlin compatibility purpose).
+     */
+    public final A component1() {
+        return this.getFirst();
+    }
+
+    /**
+     * Second value (Kotlin compatibility purpose).
+     */
+    public final B component2() {
+        return this.getSecond();
+    }
+
+    /**
      * Returns true if both {@link #getFirst()} and {@link #getSecond()} returns {@code null}.
      *
      * @return True if both {@link #getFirst()} and {@link #getSecond()} returns {@code null}.

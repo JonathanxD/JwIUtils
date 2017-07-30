@@ -89,6 +89,20 @@ public final class IntNode<V> {
         return this.value;
     }
 
+    /**
+     * Key value (Kotlin compatibility purpose).
+     */
+    public final int component1() {
+        return this.getKey();
+    }
+
+    /**
+     * Value (Kotlin compatibility purpose).
+     */
+    public final V component2() {
+        return this.getValue();
+    }
+
     @Override
     public String toString() {
         return "Node[" + this.getKey() + "=" + this.getValue() + "]";

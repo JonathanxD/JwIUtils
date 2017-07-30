@@ -105,6 +105,20 @@ public abstract class EitherObjFloat<L> extends BaseEither {
     public abstract float getRight();
 
     /**
+     * Left value. (Kotlin compatibility purpose)
+     */
+    public final L component1() {
+        return this.getLeft();
+    }
+
+    /**
+     * Right value. (Kotlin compatibility purpose)
+     */
+    public final float component2() {
+        return this.getRight();
+    }
+
+    /**
      * Consumes the left value with {@code leftConsumer} if the value is present, or consumes the
      * right value with {@code rightConsumer} (which must be present if left value is not).
      *
@@ -137,7 +151,7 @@ public abstract class EitherObjFloat<L> extends BaseEither {
      * @return {@link EitherObjFloat} instance with mapped values.
      */
     public abstract <ML> EitherObjFloat<ML> map(Function<? super L, ? extends ML> leftMapper,
-                                             FloatUnaryOperator rightMapper);
+                                                FloatUnaryOperator rightMapper);
 
 
     /**
@@ -173,7 +187,7 @@ public abstract class EitherObjFloat<L> extends BaseEither {
      * @return {@link EitherObjFloat} returned by mapper function.
      */
     public abstract <ML> EitherObjFloat<ML> flatMap(Function<? super L, ? extends EitherObjFloat<ML>> leftMapper,
-                                                      FloatFunction<? extends EitherObjFloat<ML>> rightMapper);
+                                                    FloatFunction<? extends EitherObjFloat<ML>> rightMapper);
 
     /**
      * Flat maps left value if present return {@link EitherObjFloat} returned by mapper function.
@@ -237,7 +251,7 @@ public abstract class EitherObjFloat<L> extends BaseEither {
 
         @Override
         public <ML> EitherObjFloat<ML> map(Function<? super L, ? extends ML> leftMapper,
-                                        FloatUnaryOperator rightMapper) {
+                                           FloatUnaryOperator rightMapper) {
             return EitherObjFloat.left(leftMapper.apply(this.getLeft()));
         }
 
@@ -253,7 +267,7 @@ public abstract class EitherObjFloat<L> extends BaseEither {
 
         @Override
         public <ML> EitherObjFloat<ML> flatMap(Function<? super L, ? extends EitherObjFloat<ML>> leftMapper,
-                                                 FloatFunction<? extends EitherObjFloat<ML>> rightMapper) {
+                                               FloatFunction<? extends EitherObjFloat<ML>> rightMapper) {
             return leftMapper.apply(this.getLeft());
         }
 
@@ -266,7 +280,7 @@ public abstract class EitherObjFloat<L> extends BaseEither {
         public EitherObjFloat<L> flatMapRight(FloatFunction<? extends EitherObjFloat<L>> rightMapper) {
             return EitherObjFloat.left(this.getLeft());
         }
-        
+
     }
 
     static class Right<L> extends EitherObjFloat<L> {
@@ -312,7 +326,7 @@ public abstract class EitherObjFloat<L> extends BaseEither {
 
         @Override
         public <ML> EitherObjFloat<ML> map(Function<? super L, ? extends ML> leftMapper,
-                                                             FloatUnaryOperator rightMapper) {
+                                           FloatUnaryOperator rightMapper) {
             return EitherObjFloat.right(rightMapper.apply(this.getRight()));
         }
 
@@ -325,10 +339,10 @@ public abstract class EitherObjFloat<L> extends BaseEither {
         public EitherObjFloat<L> mapRight(FloatUnaryOperator rightMapper) {
             return EitherObjFloat.right(rightMapper.apply(this.getRight()));
         }
-        
+
         @Override
         public <ML> EitherObjFloat<ML> flatMap(Function<? super L, ? extends EitherObjFloat<ML>> leftMapper,
-                                                 FloatFunction<? extends EitherObjFloat<ML>> rightMapper) {
+                                               FloatFunction<? extends EitherObjFloat<ML>> rightMapper) {
             return rightMapper.apply(this.getRight());
         }
 

@@ -133,8 +133,8 @@ public final class TypedKey<T> {
     }
 
     /**
-     * Gets the value associated to {@link #key} and {@link #type} in {@code map} or evaluate
-     * {@code value} lazy and sets to value if no one was set.
+     * Gets the value associated to {@link #key} and {@link #type} in {@code map} or evaluate {@code
+     * value} lazy and sets to value if no one was set.
      *
      * @param map Map to find associated value.
      * @return Associated value if present, {@code value} otherwise.
@@ -142,6 +142,64 @@ public final class TypedKey<T> {
     public T getOrSetLazily(TypedMap<Object, ? super T> map, Lazy<T> value) {
         if (map.containsTyped(this.getKey(), this.getType()))
             map.putTyped(this.getKey(), value.get(), this.getType());
+
+        return map.getTyped(this.getKey(), this.getType());
+    }
+
+    /**
+     * Gets the value associated to {@link #key} and {@link #type} in {@code map} or return {@code
+     * orValue} if the value is not present.
+     *
+     * @param map     Map to find associated value.
+     * @param orValue Value to return if no one value is associated to @link #key} and {@link
+     *                #type}.
+     * @return Associated value if present, {@code orValue} otherwise.
+     */
+    public T getOrElse(DataBase<?> map, T orValue) {
+        return map.getOptional(this.getKey(), this.getType()).orElse(orValue);
+    }
+
+    /**
+     * Gets the value associated to {@link #key} and {@link #type} in {@code map} or return {@code
+     * orValue} if the value is not present.
+     *
+     * @param map     Map to find associated value.
+     * @param orValue Value to return if no one value is associated to @link #key} and {@link
+     *                #type}.
+     * @return Associated value if present, {@code orValue} otherwise.
+     */
+    public T getOrElse(TypedMap<Object, ? super T> map, T orValue) {
+        if (!map.containsTyped(this.getKey(), this.getType()))
+            return orValue;
+
+        return map.getTyped(this.getKey(), this.getType());
+    }
+
+    /**
+     * Gets the value associated to {@link #key} and {@link #type} in {@code map} or return
+     * evaluated {@code orValue} if the value is not present.
+     *
+     * @param map     Map to find associated value.
+     * @param orValue Value to return if no one value is associated to @link #key} and {@link
+     *                #type}.
+     * @return Associated value if present, evaluated {@code orValue} otherwise.
+     */
+    public T getOrElseLazily(DataBase<?> map, Lazy<T> orValue) {
+        return map.getOptional(this.getKey(), this.getType()).orElse(orValue.get());
+    }
+
+    /**
+     * Gets the value associated to {@link #key} and {@link #type} in {@code map} or return
+     * evaluated {@code orValue} if the value is not present.
+     *
+     * @param map     Map to find associated value.
+     * @param orValue Value to return if no one value is associated to @link #key} and {@link
+     *                #type}.
+     * @return Associated value if present, evaluated {@code orValue} otherwise.
+     */
+    public T getOrElseLazily(TypedMap<Object, ? super T> map, Lazy<T> orValue) {
+        if (!map.containsTyped(this.getKey(), this.getType()))
+            return orValue.get();
 
         return map.getTyped(this.getKey(), this.getType());
     }

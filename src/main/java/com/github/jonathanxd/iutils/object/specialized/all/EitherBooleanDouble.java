@@ -101,6 +101,20 @@ public abstract class EitherBooleanDouble extends BaseEither {
     public abstract double getRight();
 
     /**
+     * Left value. (Kotlin compatibility purpose)
+     */
+    public final boolean component1() {
+        return this.getLeft();
+    }
+
+    /**
+     * Right value. (Kotlin compatibility purpose)
+     */
+    public final double component2() {
+        return this.getRight();
+    }
+
+    /**
      * Consumes the left value with {@code leftConsumer} if the value is present, or consumes the
      * right value with {@code rightConsumer} (which must be present if left value is not).
      *

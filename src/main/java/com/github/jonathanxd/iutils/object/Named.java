@@ -87,6 +87,20 @@ public class Named<T> {
     }
 
     /**
+     * Name. (Kotlin compatibility purpose).
+     */
+    public final String component1() {
+        return this.getName();
+    }
+
+    /**
+     * Value. (Kotlin compatibility purpose).
+     */
+    public final T component2() {
+        return this.getValue();
+    }
+
+    /**
      * Finds {@code this} {@link Named} element in a {@code collection}.
      *
      * @param collection Collection
