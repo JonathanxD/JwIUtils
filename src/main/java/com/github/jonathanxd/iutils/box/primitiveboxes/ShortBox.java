@@ -32,39 +32,39 @@ import com.github.jonathanxd.iutils.box.MutableBox;
 import com.github.jonathanxd.iutils.box.UnknownBox;
 
 /**
- * Improved to {@link float} primitive type
+ * Improved to {@link short} primitive type
  */
-public class FloatBox implements UnknownBox<Float> {
+public class ShortBox implements UnknownBox<Short> {
 
     /**
      * Value
      */
-    private float d;
+    private short d;
 
     /**
-     * Creates a float box with {@code 0} as initial value.
+     * Creates a short box with {@code 0} as initial value.
      */
-    public FloatBox() {
-        this(0F);
+    public ShortBox() {
+        this((short) 0);
     }
 
     /**
-     * Creates a float box with {@code d} as initial value.
+     * Creates a short box with {@code d} as initial value.
      *
      * @param d Initial value.
      */
-    public FloatBox(float d) {
+    public ShortBox(short d) {
         this.d = d;
     }
 
     /**
-     * Creates a float box with {@code d} as initial value.
+     * Creates a short box with {@code d} as initial value.
      *
      * @param d Initial value.
-     * @return Float box with {@code d} as initial value.
+     * @return Short box with {@code d} as initial value.
      */
-    public static FloatBox of(float d) {
-        return new FloatBox(d);
+    public static ShortBox of(short d) {
+        return new ShortBox(d);
     }
 
     /**
@@ -73,8 +73,8 @@ public class FloatBox implements UnknownBox<Float> {
      *
      * @param d Right operand of arithmetic operation addition ({@code +}).
      */
-    public void add(float d) {
-        this.set(this.get() + d);
+    public void add(short d) {
+        this.set((short) (this.get() + d));
     }
 
     /**
@@ -82,7 +82,7 @@ public class FloatBox implements UnknownBox<Float> {
      * right operand.
      */
     public void add() {
-        this.add(1);
+        this.add((short) 1);
     }
 
     /**
@@ -91,8 +91,8 @@ public class FloatBox implements UnknownBox<Float> {
      *
      * @param d Right operand of arithmetic operation subtraction ({@code -}).
      */
-    public void remove(float d) {
-        this.set(this.get() - d);
+    public void remove(short d) {
+        this.set((short) (this.get() - d));
     }
 
     /**
@@ -100,7 +100,7 @@ public class FloatBox implements UnknownBox<Float> {
      * right operand.
      */
     public void remove() {
-        this.remove(1);
+        this.remove((short) 1);
     }
 
     /**
@@ -109,8 +109,8 @@ public class FloatBox implements UnknownBox<Float> {
      *
      * @param d Right operand of arithmetic operation multiplication ({@code *}).
      */
-    public void multiply(float d) {
-        this.set(this.get() * d);
+    public void multiply(short d) {
+        this.set((short) (this.get() * d));
     }
 
     /**
@@ -119,8 +119,8 @@ public class FloatBox implements UnknownBox<Float> {
      *
      * @param d Right operand of arithmetic operation division ({@code /}).
      */
-    public void divide(float d) {
-        this.set(this.get() / d);
+    public void divide(short d) {
+        this.set((short) (this.get() / d));
     }
 
     /**
@@ -129,49 +129,49 @@ public class FloatBox implements UnknownBox<Float> {
      *
      * @param d Right operand of arithmetic operation power ({@code ^}).
      */
-    public void pow(float d) {
-        this.set((float) Math.pow(this.get(), d));
+    public void pow(short d) {
+        this.set((short) Math.pow(this.get(), d));
     }
 
     /**
      * Applies arithmetic operation square root ({@code √}) to the current value.
      */
     public void sqrt() {
-        this.set((float) Math.sqrt(this.get()));
+        this.set((short) Math.sqrt(this.get()));
     }
 
     /**
      * Applies arithmetic operation cube root ({@code ∛}) to the current value.
      */
     public void cbrt() {
-        this.set((float) Math.cbrt(this.get()));
+        this.set((short) Math.cbrt(this.get()));
     }
 
     /**
-     * Sets the float value to {@code d}.
+     * Sets the short value to {@code d}.
      *
-     * @param d New float value.
+     * @param d New short value.
      */
-    public void set(float d) {
+    public void set(short d) {
         this.d = d;
     }
 
     /**
-     * Gets the float value.
+     * Gets the short value.
      *
-     * @return Current float value.
+     * @return Current short value.
      */
-    public float get() {
+    public short get() {
         return this.d;
     }
 
     @Override
-    public BaseBox<Float> box() {
+    public BaseBox<Short> box() {
         return MutableBox.of(d);
     }
 
     @Override
     public Class<?> type() {
-        return Float.TYPE;
+        return Short.TYPE;
     }
 }

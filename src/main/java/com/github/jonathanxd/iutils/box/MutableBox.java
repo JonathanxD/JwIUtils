@@ -181,7 +181,7 @@ public class MutableBox<T> implements IMutableBox<T> {
 
     @Override
     public int hashCode() {
-        return this.getValue().hashCode();
+        return Objects.hash(2, this.getValue());
     }
 
     @Override

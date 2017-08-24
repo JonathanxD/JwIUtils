@@ -36,59 +36,142 @@ import com.github.jonathanxd.iutils.box.UnknownBox;
  */
 public class IntBox implements UnknownBox<Integer> {
 
-    private int i;
+    /**
+     * Value
+     */
+    private int d;
 
+    /**
+     * Creates a int box with {@code 0} as initial value.
+     */
     public IntBox() {
-        this.i = 0;
+        this(0);
     }
 
-    public IntBox(int i) {
-        this.i = i;
+    /**
+     * Creates a int box with {@code d} as initial value.
+     *
+     * @param d Initial value.
+     */
+    public IntBox(int d) {
+        this.d = d;
     }
 
-    public static IntBox of(int i) {
-        return new IntBox(i);
+    /**
+     * Creates a int box with {@code d} as initial value.
+     *
+     * @param d Initial value.
+     * @return Int box with {@code d} as initial value.
+     */
+    public static IntBox of(int d) {
+        return new IntBox(d);
     }
 
-    public void add(int i) {
-        this.set(this.get() + i);
+    /**
+     * Applies arithmetic operation addition ({@code +}) to the current value with {@code d} as
+     * right operand.
+     *
+     * @param d Right operand of arithmetic operation addition ({@code +}).
+     */
+    public void add(int d) {
+        this.set(this.get() + d);
     }
 
+    /**
+     * Applies arithmetic operation addition ({@code +}) to the current value with {@code 1} as
+     * right operand.
+     */
     public void add() {
         this.add(1);
     }
 
-    public void remove(int i) {
-        this.add(-i);
+    /**
+     * Applies arithmetic operation subtraction ({@code -}) to the current value with {@code d} as
+     * right operand.
+     *
+     * @param d Right operand of arithmetic operation subtraction ({@code -}).
+     */
+    public void remove(int d) {
+        this.set(this.get() - d);
     }
 
+    /**
+     * Applies arithmetic operation subtraction ({@code -}) to the current value with {@code 1} as
+     * right operand.
+     */
     public void remove() {
         this.remove(1);
     }
 
-    public void multiply(int i) {
-        this.set(this.get() * i);
+    /**
+     * Applies arithmetic operation multiplication ({@code *}) to the current value with {@code d}
+     * as right operand.
+     *
+     * @param d Right operand of arithmetic operation multiplication ({@code *}).
+     */
+    public void multiply(int d) {
+        this.set(this.get() * d);
     }
 
-    public void divide(int i) {
-        this.set(this.get() / i);
+    /**
+     * Applies arithmetic operation division ({@code /}) to the current value with {@code d} as
+     * right operand.
+     *
+     * @param d Right operand of arithmetic operation division ({@code /}).
+     */
+    public void divide(int d) {
+        this.set(this.get() / d);
+    }
+
+    /**
+     * Applies arithmetic operation power ({@code ^}) to the current value with {@code d} as right
+     * operand.
+     *
+     * @param d Right operand of arithmetic operation power ({@code ^}).
+     */
+    public void pow(int d) {
+        this.set((int) Math.pow(this.get(), d));
+    }
+
+    /**
+     * Applies arithmetic operation square root ({@code √}) to the current value.
+     */
+    public void sqrt() {
+        this.set((int) Math.sqrt(this.get()));
+    }
+
+    /**
+     * Applies arithmetic operation cube root ({@code ∛}) to the current value.
+     */
+    public void cbrt() {
+        this.set((int) Math.cbrt(this.get()));
+    }
+
+    /**
+     * Sets the int value to {@code d}.
+     *
+     * @param d New int value.
+     */
+    public void set(int d) {
+        this.d = d;
+    }
+
+    /**
+     * Gets the int value.
+     *
+     * @return Current int value.
+     */
+    public int get() {
+        return this.d;
     }
 
     @Override
     public BaseBox<Integer> box() {
-        return MutableBox.of(i);
+        return MutableBox.of(d);
     }
 
     @Override
     public Class<?> type() {
         return Integer.TYPE;
-    }
-
-    public void set(int i) {
-        this.i = i;
-    }
-
-    public int get() {
-        return this.i;
     }
 }

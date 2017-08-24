@@ -36,50 +36,133 @@ import com.github.jonathanxd.iutils.box.UnknownBox;
  */
 public class DoubleBox implements UnknownBox<Double> {
 
+    /**
+     * Value
+     */
     private double d;
 
+    /**
+     * Creates a double box with {@code 0} as initial value.
+     */
     public DoubleBox() {
         this(0D);
     }
 
+    /**
+     * Creates a double box with {@code d} as initial value.
+     *
+     * @param d Initial value.
+     */
     public DoubleBox(double d) {
         this.d = d;
     }
 
+    /**
+     * Creates a double box with {@code d} as initial value.
+     *
+     * @param d Initial value.
+     * @return Double box with {@code d} as initial value.
+     */
     public static DoubleBox of(double d) {
         return new DoubleBox(d);
     }
 
+    /**
+     * Applies arithmetic operation addition ({@code +}) to the current value with {@code d} as
+     * right operand.
+     *
+     * @param d Right operand of arithmetic operation addition ({@code +}).
+     */
     public void add(double d) {
         this.set(this.get() + d);
     }
 
+    /**
+     * Applies arithmetic operation addition ({@code +}) to the current value with {@code 1} as
+     * right operand.
+     */
     public void add() {
         this.add(1);
     }
 
+    /**
+     * Applies arithmetic operation subtraction ({@code -}) to the current value with {@code d} as
+     * right operand.
+     *
+     * @param d Right operand of arithmetic operation subtraction ({@code -}).
+     */
     public void remove(double d) {
-        this.add(-d);
+        this.set(this.get() - d);
     }
 
+    /**
+     * Applies arithmetic operation subtraction ({@code -}) to the current value with {@code 1} as
+     * right operand.
+     */
     public void remove() {
         this.remove(1);
     }
 
+    /**
+     * Applies arithmetic operation multiplication ({@code *}) to the current value with {@code d}
+     * as right operand.
+     *
+     * @param d Right operand of arithmetic operation multiplication ({@code *}).
+     */
     public void multiply(double d) {
         this.set(this.get() * d);
     }
 
+    /**
+     * Applies arithmetic operation division ({@code /}) to the current value with {@code d} as
+     * right operand.
+     *
+     * @param d Right operand of arithmetic operation division ({@code /}).
+     */
     public void divide(double d) {
         this.set(this.get() / d);
     }
 
+    /**
+     * Applies arithmetic operation power ({@code ^}) to the current value with {@code d} as right
+     * operand.
+     *
+     * @param d Right operand of arithmetic operation power ({@code ^}).
+     */
+    public void pow(double d) {
+        this.set(Math.pow(this.get(), d));
+    }
+
+    /**
+     * Applies arithmetic operation square root ({@code √}) to the current value.
+     */
+    public void sqrt() {
+        this.set(Math.sqrt(this.get()));
+    }
+
+    /**
+     * Applies arithmetic operation cube root ({@code ∛}) to the current value.
+     */
+    public void cbrt() {
+        this.set(Math.cbrt(this.get()));
+    }
+
+    /**
+     * Sets the double value to {@code d}.
+     *
+     * @param d New double value.
+     */
     public void set(double d) {
         this.d = d;
     }
 
+    /**
+     * Gets the double value.
+     *
+     * @return Current double value.
+     */
     public double get() {
-        return d;
+        return this.d;
     }
 
     @Override

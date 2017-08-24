@@ -32,39 +32,39 @@ import com.github.jonathanxd.iutils.box.MutableBox;
 import com.github.jonathanxd.iutils.box.UnknownBox;
 
 /**
- * Improved to {@link float} primitive type
+ * Improved to {@link char} primitive type
  */
-public class FloatBox implements UnknownBox<Float> {
+public class CharBox implements UnknownBox<Character> {
 
     /**
      * Value
      */
-    private float d;
+    private char d;
 
     /**
-     * Creates a float box with {@code 0} as initial value.
+     * Creates a char box with {@code 0} as initial value.
      */
-    public FloatBox() {
-        this(0F);
+    public CharBox() {
+        this((char) 0);
     }
 
     /**
-     * Creates a float box with {@code d} as initial value.
+     * Creates a char box with {@code d} as initial value.
      *
      * @param d Initial value.
      */
-    public FloatBox(float d) {
+    public CharBox(char d) {
         this.d = d;
     }
 
     /**
-     * Creates a float box with {@code d} as initial value.
+     * Creates a char box with {@code d} as initial value.
      *
      * @param d Initial value.
-     * @return Float box with {@code d} as initial value.
+     * @return Char box with {@code d} as initial value.
      */
-    public static FloatBox of(float d) {
-        return new FloatBox(d);
+    public static CharBox of(char d) {
+        return new CharBox(d);
     }
 
     /**
@@ -73,8 +73,8 @@ public class FloatBox implements UnknownBox<Float> {
      *
      * @param d Right operand of arithmetic operation addition ({@code +}).
      */
-    public void add(float d) {
-        this.set(this.get() + d);
+    public void add(char d) {
+        this.set((char) (this.get() + d));
     }
 
     /**
@@ -82,7 +82,7 @@ public class FloatBox implements UnknownBox<Float> {
      * right operand.
      */
     public void add() {
-        this.add(1);
+        this.add((char) 1);
     }
 
     /**
@@ -91,8 +91,8 @@ public class FloatBox implements UnknownBox<Float> {
      *
      * @param d Right operand of arithmetic operation subtraction ({@code -}).
      */
-    public void remove(float d) {
-        this.set(this.get() - d);
+    public void remove(char d) {
+        this.set((char) (this.get() - d));
     }
 
     /**
@@ -100,7 +100,7 @@ public class FloatBox implements UnknownBox<Float> {
      * right operand.
      */
     public void remove() {
-        this.remove(1);
+        this.remove((char) 1);
     }
 
     /**
@@ -109,8 +109,8 @@ public class FloatBox implements UnknownBox<Float> {
      *
      * @param d Right operand of arithmetic operation multiplication ({@code *}).
      */
-    public void multiply(float d) {
-        this.set(this.get() * d);
+    public void multiply(char d) {
+        this.set((char) (this.get() * d));
     }
 
     /**
@@ -119,8 +119,8 @@ public class FloatBox implements UnknownBox<Float> {
      *
      * @param d Right operand of arithmetic operation division ({@code /}).
      */
-    public void divide(float d) {
-        this.set(this.get() / d);
+    public void divide(char d) {
+        this.set((char) (this.get() / d));
     }
 
     /**
@@ -129,49 +129,49 @@ public class FloatBox implements UnknownBox<Float> {
      *
      * @param d Right operand of arithmetic operation power ({@code ^}).
      */
-    public void pow(float d) {
-        this.set((float) Math.pow(this.get(), d));
+    public void pow(char d) {
+        this.set((char) Math.pow(this.get(), d));
     }
 
     /**
      * Applies arithmetic operation square root ({@code √}) to the current value.
      */
     public void sqrt() {
-        this.set((float) Math.sqrt(this.get()));
+        this.set((char) Math.sqrt(this.get()));
     }
 
     /**
      * Applies arithmetic operation cube root ({@code ∛}) to the current value.
      */
     public void cbrt() {
-        this.set((float) Math.cbrt(this.get()));
+        this.set((char) Math.cbrt(this.get()));
     }
 
     /**
-     * Sets the float value to {@code d}.
+     * Sets the char value to {@code d}.
      *
-     * @param d New float value.
+     * @param d New char value.
      */
-    public void set(float d) {
+    public void set(char d) {
         this.d = d;
     }
 
     /**
-     * Gets the float value.
+     * Gets the char value.
      *
-     * @return Current float value.
+     * @return Current char value.
      */
-    public float get() {
+    public char get() {
         return this.d;
     }
 
     @Override
-    public BaseBox<Float> box() {
+    public BaseBox<Character> box() {
         return MutableBox.of(d);
     }
 
     @Override
     public Class<?> type() {
-        return Float.TYPE;
+        return Character.TYPE;
     }
 }

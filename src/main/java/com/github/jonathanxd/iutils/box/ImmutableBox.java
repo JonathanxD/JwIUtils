@@ -33,30 +33,60 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 /**
- * Immutable box.
+ * A box that hold reference cannot be changed.
  *
  * @param <T> Type of value.
  */
 public final class ImmutableBox<T> implements BaseBox<T> {
 
+    /**
+     * Empty box.
+     */
     private static ImmutableBox<?> empty = new ImmutableBox<>();
 
+    /**
+     * Reference
+     */
     private final T value;
 
-    public ImmutableBox() {
+    /**
+     * Creates a immutable box of {@code null}.
+     */
+    private ImmutableBox() {
         this.value = null;
     }
 
-    public ImmutableBox(T value) {
+    /**
+     * Creates a immutable box that holds reference to {@code value}.
+     *
+     * @param value Value to hold reference to.
+     */
+    private ImmutableBox(T value) {
         this.value = value;
     }
 
+    /**
+     * Creates a box that holds reference to {@code value}.
+     *
+     * If the {@code value} is {@code null}, then {@link #empty()} is returned.
+     *
+     * @param value Value to hold reference to.
+     * @param <T>   Type of value.
+     * @return Box that holds reference to {@code value}.
+     */
     public static <T> ImmutableBox<T> of(T value) {
-        Objects.requireNonNull(value);
+        if (value == null)
+            return ImmutableBox.empty();
 
         return new ImmutableBox<>(value);
     }
 
+    /**
+     * Returns an empty immutable box (aka a box that references to {@code null}).
+     *
+     * @param <T> Type of value.
+     * @return Empty immutable box (aka a box that references to {@code null}).
+     */
     @SuppressWarnings("unchecked")
     public static <T> T empty() {
         return (T) ImmutableBox.empty;
@@ -130,14 +160,13 @@ public final class ImmutableBox<T> implements BaseBox<T> {
         return Objects.equals(this.getValue(), other.getValue());
     }
 
-    // This box type (MutableBox) has a different hash codes for same value
     @Override
     public int hashCode() {
-        return super.hashCode();
+        return Objects.hash(1, this.getValue());
     }
 
     @Override
     public String toString() {
-        return String.format("Box[%s]", (this.isPresent() ? this.value : "null"));
+        return String.format("Box[%s]", (this.isPresent() ? this.getValue() : "null"));
     }
 }

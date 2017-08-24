@@ -27,6 +27,7 @@
  */
 package com.github.jonathanxd.iutils.object;
 
+import com.github.jonathanxd.iutils.condition.Conditions;
 import com.github.jonathanxd.iutils.function.checked.CRunnable;
 import com.github.jonathanxd.iutils.function.checked.ERunnable;
 import com.github.jonathanxd.iutils.function.checked.function.CFunction;
@@ -136,5 +137,33 @@ public final class Try {
         } catch (Exception t) {
             return Either.left(t);
         }
+    }
+
+
+    /**
+     * Try all suppliers and return first successful, or either left with all exceptions (suppressed).
+     *
+     * @param suppliers Suppliers.
+     * @param <R>       Return type.
+     * @return Either of suppressed exceptions or first valid result.
+     */
+    @SafeVarargs
+    public static <R> Either<Exception, R> TryAll(ESupplier<R>... suppliers) {
+        Conditions.require(suppliers.length > 0, "Supplier array cannot be empty.");
+
+        Exception e = null;
+        for (ESupplier<R> supplier : suppliers) {
+            try {
+                return Either.right(supplier.getChecked());
+            } catch (Exception x) {
+
+                if (e == null)
+                    e = x;
+                else
+                    e.addSuppressed(x);
+            }
+        }
+
+        return Either.left(e);
     }
 }

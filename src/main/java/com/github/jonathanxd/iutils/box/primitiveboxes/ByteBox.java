@@ -32,39 +32,39 @@ import com.github.jonathanxd.iutils.box.MutableBox;
 import com.github.jonathanxd.iutils.box.UnknownBox;
 
 /**
- * Improved to {@link float} primitive type
+ * Improved to {@link byte} primitive type
  */
-public class FloatBox implements UnknownBox<Float> {
+public class ByteBox implements UnknownBox<Byte> {
 
     /**
      * Value
      */
-    private float d;
+    private byte d;
 
     /**
-     * Creates a float box with {@code 0} as initial value.
+     * Creates a byte box with {@code 0} as initial value.
      */
-    public FloatBox() {
-        this(0F);
+    public ByteBox() {
+        this((byte) 0);
     }
 
     /**
-     * Creates a float box with {@code d} as initial value.
+     * Creates a byte box with {@code d} as initial value.
      *
      * @param d Initial value.
      */
-    public FloatBox(float d) {
+    public ByteBox(byte d) {
         this.d = d;
     }
 
     /**
-     * Creates a float box with {@code d} as initial value.
+     * Creates a byte box with {@code d} as initial value.
      *
      * @param d Initial value.
-     * @return Float box with {@code d} as initial value.
+     * @return Byte box with {@code d} as initial value.
      */
-    public static FloatBox of(float d) {
-        return new FloatBox(d);
+    public static ByteBox of(byte d) {
+        return new ByteBox(d);
     }
 
     /**
@@ -73,8 +73,8 @@ public class FloatBox implements UnknownBox<Float> {
      *
      * @param d Right operand of arithmetic operation addition ({@code +}).
      */
-    public void add(float d) {
-        this.set(this.get() + d);
+    public void add(byte d) {
+        this.set((byte) (this.get() + d));
     }
 
     /**
@@ -82,7 +82,7 @@ public class FloatBox implements UnknownBox<Float> {
      * right operand.
      */
     public void add() {
-        this.add(1);
+        this.add((byte) 1);
     }
 
     /**
@@ -91,8 +91,8 @@ public class FloatBox implements UnknownBox<Float> {
      *
      * @param d Right operand of arithmetic operation subtraction ({@code -}).
      */
-    public void remove(float d) {
-        this.set(this.get() - d);
+    public void remove(byte d) {
+        this.set((byte) (this.get() - d));
     }
 
     /**
@@ -100,7 +100,7 @@ public class FloatBox implements UnknownBox<Float> {
      * right operand.
      */
     public void remove() {
-        this.remove(1);
+        this.remove((byte) 1);
     }
 
     /**
@@ -109,8 +109,8 @@ public class FloatBox implements UnknownBox<Float> {
      *
      * @param d Right operand of arithmetic operation multiplication ({@code *}).
      */
-    public void multiply(float d) {
-        this.set(this.get() * d);
+    public void multiply(byte d) {
+        this.set((byte) (this.get() * d));
     }
 
     /**
@@ -119,8 +119,8 @@ public class FloatBox implements UnknownBox<Float> {
      *
      * @param d Right operand of arithmetic operation division ({@code /}).
      */
-    public void divide(float d) {
-        this.set(this.get() / d);
+    public void divide(byte d) {
+        this.set((byte) (this.get() / d));
     }
 
     /**
@@ -129,49 +129,49 @@ public class FloatBox implements UnknownBox<Float> {
      *
      * @param d Right operand of arithmetic operation power ({@code ^}).
      */
-    public void pow(float d) {
-        this.set((float) Math.pow(this.get(), d));
+    public void pow(byte d) {
+        this.set((byte) Math.pow(this.get(), d));
     }
 
     /**
      * Applies arithmetic operation square root ({@code √}) to the current value.
      */
     public void sqrt() {
-        this.set((float) Math.sqrt(this.get()));
+        this.set((byte) Math.sqrt(this.get()));
     }
 
     /**
      * Applies arithmetic operation cube root ({@code ∛}) to the current value.
      */
     public void cbrt() {
-        this.set((float) Math.cbrt(this.get()));
+        this.set((byte) Math.cbrt(this.get()));
     }
 
     /**
-     * Sets the float value to {@code d}.
+     * Sets the byte value to {@code d}.
      *
-     * @param d New float value.
+     * @param d New byte value.
      */
-    public void set(float d) {
+    public void set(byte d) {
         this.d = d;
     }
 
     /**
-     * Gets the float value.
+     * Gets the byte value.
      *
-     * @return Current float value.
+     * @return Current byte value.
      */
-    public float get() {
+    public byte get() {
         return this.d;
     }
 
     @Override
-    public BaseBox<Float> box() {
+    public BaseBox<Byte> box() {
         return MutableBox.of(d);
     }
 
     @Override
     public Class<?> type() {
-        return Float.TYPE;
+        return Byte.TYPE;
     }
 }

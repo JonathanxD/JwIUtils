@@ -32,39 +32,39 @@ import com.github.jonathanxd.iutils.box.MutableBox;
 import com.github.jonathanxd.iutils.box.UnknownBox;
 
 /**
- * Improved to {@link float} primitive type
+ * Improved to {@link long} primitive type
  */
-public class FloatBox implements UnknownBox<Float> {
+public class LongBox implements UnknownBox<Long> {
 
     /**
      * Value
      */
-    private float d;
+    private long d;
 
     /**
-     * Creates a float box with {@code 0} as initial value.
+     * Creates a long box with {@code 0L} as initial value.
      */
-    public FloatBox() {
-        this(0F);
+    public LongBox() {
+        this(0L);
     }
 
     /**
-     * Creates a float box with {@code d} as initial value.
+     * Creates a long box with {@code d} as initial value.
      *
      * @param d Initial value.
      */
-    public FloatBox(float d) {
+    public LongBox(long d) {
         this.d = d;
     }
 
     /**
-     * Creates a float box with {@code d} as initial value.
+     * Creates a long box with {@code d} as initial value.
      *
      * @param d Initial value.
-     * @return Float box with {@code d} as initial value.
+     * @return Long box with {@code d} as initial value.
      */
-    public static FloatBox of(float d) {
-        return new FloatBox(d);
+    public static LongBox of(long d) {
+        return new LongBox(d);
     }
 
     /**
@@ -73,7 +73,7 @@ public class FloatBox implements UnknownBox<Float> {
      *
      * @param d Right operand of arithmetic operation addition ({@code +}).
      */
-    public void add(float d) {
+    public void add(long d) {
         this.set(this.get() + d);
     }
 
@@ -91,7 +91,7 @@ public class FloatBox implements UnknownBox<Float> {
      *
      * @param d Right operand of arithmetic operation subtraction ({@code -}).
      */
-    public void remove(float d) {
+    public void remove(long d) {
         this.set(this.get() - d);
     }
 
@@ -109,7 +109,7 @@ public class FloatBox implements UnknownBox<Float> {
      *
      * @param d Right operand of arithmetic operation multiplication ({@code *}).
      */
-    public void multiply(float d) {
+    public void multiply(long d) {
         this.set(this.get() * d);
     }
 
@@ -119,7 +119,7 @@ public class FloatBox implements UnknownBox<Float> {
      *
      * @param d Right operand of arithmetic operation division ({@code /}).
      */
-    public void divide(float d) {
+    public void divide(long d) {
         this.set(this.get() / d);
     }
 
@@ -129,49 +129,49 @@ public class FloatBox implements UnknownBox<Float> {
      *
      * @param d Right operand of arithmetic operation power ({@code ^}).
      */
-    public void pow(float d) {
-        this.set((float) Math.pow(this.get(), d));
+    public void pow(long d) {
+        this.set((long) Math.pow(this.get(), d));
     }
 
     /**
      * Applies arithmetic operation square root ({@code √}) to the current value.
      */
     public void sqrt() {
-        this.set((float) Math.sqrt(this.get()));
+        this.set((long) Math.sqrt(this.get()));
     }
 
     /**
      * Applies arithmetic operation cube root ({@code ∛}) to the current value.
      */
     public void cbrt() {
-        this.set((float) Math.cbrt(this.get()));
+        this.set((long) Math.cbrt(this.get()));
     }
 
     /**
-     * Sets the float value to {@code d}.
+     * Sets the long value to {@code d}.
      *
-     * @param d New float value.
+     * @param d New long value.
      */
-    public void set(float d) {
+    public void set(long d) {
         this.d = d;
     }
 
     /**
-     * Gets the float value.
+     * Gets the long value.
      *
-     * @return Current float value.
+     * @return Current long value.
      */
-    public float get() {
+    public long get() {
         return this.d;
     }
 
     @Override
-    public BaseBox<Float> box() {
+    public BaseBox<Long> box() {
         return MutableBox.of(d);
     }
 
     @Override
     public Class<?> type() {
-        return Float.TYPE;
+        return Long.TYPE;
     }
 }
