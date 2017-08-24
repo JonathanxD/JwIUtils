@@ -47,8 +47,10 @@ public class DataTest {
         data.set("amount", 10);
 
         int get = data.getOrSet("amount", 5);
+        int get0 = data.getOrSet("am0unt", 5);
 
-        Assert.assertEquals(5, get);
+        Assert.assertEquals(10, get);
+        Assert.assertEquals(5, get0);
     }
 
     static class Product {

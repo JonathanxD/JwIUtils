@@ -1,5 +1,5 @@
 /*
- *      JwIUtils - Utility Library for Java <https://github.com/JonathanxD/>
+ *      JwIUtils-kt - Extension of JwIUtils for Kotlin <https://github.com/JonathanxD/JwIUtils/>
  *
  *         The MIT License (MIT)
  *
@@ -25,21 +25,30 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.checked;
+package com.github.jonathanxd.jwiutils.kt
 
-import com.github.jonathanxd.iutils.function.checked.supplier.CSupplier;
+import com.github.jonathanxd.iutils.`object`.Either
 
-import org.junit.Test;
+/**
+ * Tries to run function [f]. Returns an [Either] of [Exception] occurred inside
+ * [f], or returns value of type [R] returned by function [f].
+ */
+inline fun <R> Try(f: () -> R): Either<Exception, R> =
+        try {
+            right(f())
+        } catch (e: Exception) {
+            left(e)
+        }
 
-import java.util.function.Function;
-
-public class CheckedTest {
-
-    @Test(expected = RuntimeException.class)
-    public void t() {
-        Function<String, Integer> func = s -> ((CSupplier<Integer>) () -> Integer.parseInt(s)).get();
-
-        func.apply("hs");
-    }
-
-}
+/**
+ * Tries to run function [f]. Returns an [Either] of [Throwable] occurred inside
+ * [f], or returns value of type [R] returned by function [f].
+ *
+ * Not recommended. Use [Try] instead.
+ */
+inline fun <R> TryThrowable(f: () -> R): Either<Throwable, R> =
+        try {
+            right(f())
+        } catch (e: Throwable) {
+            left(e)
+        }

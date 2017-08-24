@@ -178,11 +178,11 @@ public class Lazy<T> {
 
         private static final Executor EXECUTOR = Executors.newCachedThreadPool();
         private final Lazy<T> wrapped;
-        private volatile boolean isEvaluating;
+        private volatile boolean isEvaluating = false;
 
         Async(Lazy<T> lazy) {
             super(null);
-            this.wrapped = lazy.copy(true);
+            this.wrapped = lazy.copy(false);
             Conditions.require(!(lazy instanceof Lazy.Async<?>), "Cannot wrap an AsyncLazy into another.");
         }
 
@@ -235,7 +235,7 @@ public class Lazy<T> {
          *
          * @return True if is evaluating the operation asynchronously.
          */
-        public boolean isEvaluating() {
+        public synchronized boolean isEvaluating() {
             return this.isEvaluating;
         }
 

@@ -75,8 +75,8 @@ public class OptTest {
                 }, () -> {
                 });
 
-        OptObject.optObjectNotNull("Here2")
-                .filter(s -> s.length() > 5)
+        OptObject.optObjectNotNull("Here")
+                .filter(s -> s.length() > 3)
                 .ifPresent(s -> Assert.assertEquals("Here", s), () -> {
                     throw new AssertionError();
                 });
@@ -108,7 +108,7 @@ public class OptTest {
         });
 
         Assert.assertFalse(lazie.isEvaluated());
-        System.out.println(lazie.getValue()); // Evaluted here
+        System.out.println(lazie.getValue()); // Evaluated here
         Assert.assertTrue(lazie.isEvaluated());
 
     }

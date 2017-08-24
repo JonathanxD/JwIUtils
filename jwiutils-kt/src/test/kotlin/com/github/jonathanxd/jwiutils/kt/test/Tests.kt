@@ -1,5 +1,5 @@
 /*
- *      JwIUtils - Utility Library for Java <https://github.com/JonathanxD/>
+ *      JwIUtils-kt - Extension of JwIUtils for Kotlin <https://github.com/JonathanxD/JwIUtils/>
  *
  *         The MIT License (MIT)
  *
@@ -25,21 +25,27 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.checked;
+package com.github.jonathanxd.jwiutils.kt.test
 
-import com.github.jonathanxd.iutils.function.checked.supplier.CSupplier;
+import com.github.jonathanxd.jwiutils.kt.*
+import org.junit.Assert
+import org.junit.Test
 
-import org.junit.Test;
+class Tests {
 
-import java.util.function.Function;
+    @Test
+    fun testOpt() {
+        val value = some(9)
 
-public class CheckedTest {
-
-    @Test(expected = RuntimeException.class)
-    public void t() {
-        Function<String, Integer> func = s -> ((CSupplier<Integer>) () -> Integer.parseInt(s)).get();
-
-        func.apply("hs");
+        Assert.assertTrue(value.isPresent)
     }
 
+    @Test
+    fun testEither() {
+        val value = left<Int, String>(9)
+        val value2 = right<Int, String>("9")
+
+        Assert.assertTrue(value.isLeft)
+        Assert.assertTrue(value2.isRight)
+    }
 }

@@ -3,13 +3,10 @@ plugins {
 }
 
 group 'com.github.jonathanxd'
-version '4.7.3'
+version '4.7.4'
 
 apply plugin: 'java'
 apply plugin: 'license'
-apply plugin: 'maven'
-
-defaultTasks 'licenseFormat', 'build', 'jar', 'uploadArchives'
 
 sourceCompatibility = 1.8
 
