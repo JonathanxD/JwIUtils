@@ -30,9 +30,7 @@ package com.github.jonathanxd.iutils.opt.specialized;
 import com.github.jonathanxd.iutils.function.function.LongToLongFunction;
 import com.github.jonathanxd.iutils.object.Lazy;
 import com.github.jonathanxd.iutils.opt.AbstractOpt;
-import com.github.jonathanxd.iutils.opt.None;
 import com.github.jonathanxd.iutils.opt.Opt;
-import com.github.jonathanxd.iutils.opt.Some;
 import com.github.jonathanxd.iutils.opt.ValueHolder;
 
 import java.util.Objects;
@@ -48,24 +46,24 @@ import java.util.stream.LongStream;
 /**
  * Long specialized {@link Opt}.
  */
-public final class OptLong extends AbstractOpt<OptLong> {
+public final class OptLong extends AbstractOpt<OptLong, ValueHolder.LongValueHolder> {
 
-    private static final OptLong NONE = new OptLong();
+    private static final OptLong NONE = new OptLong(new ValueHolder.LongValueHolder.None());
+    private final ValueHolder.LongValueHolder holder;
 
-    private OptLong() {
-        super(None.INSTANCE);
+    private OptLong(ValueHolder.LongValueHolder holder) {
+        this.holder = holder;
     }
 
     private OptLong(long value) {
-        super(new SomeLong(value));
+        this(new ValueHolder.LongValueHolder.Some(value));
     }
 
     /**
      * Creates an {@link Opt} from {@code value}.
      *
      * @param value Value to create {@link Opt}.
-     * @return An {@link Opt} of {@link Some} if value is not null, or an {@link Opt} of {@link
-     * None} if value is null.
+     * @return An {@link Opt} of {@code Some} {@code value}
      */
     @SuppressWarnings("unchecked")
     public static OptLong optLong(long value) {
@@ -73,29 +71,34 @@ public final class OptLong extends AbstractOpt<OptLong> {
     }
 
     /**
-     * Creates a {@link Opt} with {@link None} value.
+     * Creates a {@link Opt} with {@code None} value.
      *
-     * @return {@link Opt} with {@link None} value.
+     * @return {@link Opt} with {@code None} value.
      */
     @SuppressWarnings("unchecked")
     public static OptLong none() {
         return NONE;
     }
 
+    @Override
+    public ValueHolder.LongValueHolder getValueHolder() {
+        return this.holder;
+    }
+
     /**
      * Gets the value holden by this optional.
      *
      * @return Value.
-     * @throws NullPointerException If this {@link Opt} holds an {@link None}.
+     * @throws NullPointerException If this {@link Opt} holds an {@code None}.
      */
     @SuppressWarnings("unchecked")
     public long getValue() {
-        ValueHolder valueHolder = this.getValueHolder();
+        ValueHolder.LongValueHolder valueHolder = this.getValueHolder();
 
-        if (valueHolder instanceof None)
+        if (!valueHolder.hasSome())
             throw new NullPointerException("No value found!");
 
-        return ((SomeLong) valueHolder).getValue();
+        return valueHolder.getValue();
     }
 
     /**
@@ -130,7 +133,7 @@ public final class OptLong extends AbstractOpt<OptLong> {
      * Test value against {@code predicate} if value is present.
      *
      * @param predicate Predicate to test value.
-     * @return An {@link Opt} of {@link None} if value does not match predicate, or return same
+     * @return An {@link Opt} of {@code None} if value does not match predicate, or return same
      * {@link Opt} if either value is not present or value matches predicate.
      */
     public OptLong filter(LongPredicate predicate) {
@@ -147,7 +150,7 @@ public final class OptLong extends AbstractOpt<OptLong> {
      * Maps the value of {@code this} {@link Opt} to a another value using {@code mapper}.
      *
      * @param mapper Mapper to map value.
-     * @return An {@link Opt} of mapped value if present, or an {@link Opt} of {@link None} if no
+     * @return An {@link Opt} of mapped value if present, or an {@link Opt} of {@code None} if no
      * value is present.
      */
     public OptLong map(LongToLongFunction mapper) {
@@ -163,7 +166,7 @@ public final class OptLong extends AbstractOpt<OptLong> {
      * Flat maps the value of {@code this} {@link Opt} to another {@link Opt}.
      *
      * @param mapper Flat mapper to map value.
-     * @return An {@link Opt} of {@link None} if the value is not present, or the {@link Opt}
+     * @return An {@link Opt} of {@code None} if the value is not present, or the {@link Opt}
      * returned by {@code mapper} if value is present.
      */
     public OptLong flatMap(LongFunction<? extends OptLong> mapper) {
@@ -179,12 +182,13 @@ public final class OptLong extends AbstractOpt<OptLong> {
      * Flat maps the value of {@code this} {@link Opt} to an {@link Opt} of type {@link O}.
      *
      * @param mapper Flat mapper to map value.
-     * @param none   Supplier of instance of {@link O} with {@link None} value.
+     * @param none   Supplier of instance of {@link O} with {@code None} value.
      * @param <O>    Type of opt.
      * @return An {@link Opt} supplied by {@code none} if value is not present, or {@link Opt}
      * returned by {@code mapper}.
      */
-    public <O extends Opt<O>> O flatMapTo(LongFunction<? extends O> mapper, Supplier<O> none) {
+    public <O extends Opt<O, V>, V extends ValueHolder>
+    O flatMapTo(LongFunction<? extends O> mapper, Supplier<O> none) {
         Objects.requireNonNull(mapper);
         Objects.requireNonNull(none);
 
@@ -202,7 +206,6 @@ public final class OptLong extends AbstractOpt<OptLong> {
      * @return Value of this {@link Opt} if present, or {@code value} if not.
      */
     public long orElse(long value) {
-
         if (this.isPresent())
             return this.getValue();
 

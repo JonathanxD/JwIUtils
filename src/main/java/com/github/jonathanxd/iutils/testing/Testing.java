@@ -35,12 +35,12 @@ import com.github.jonathanxd.iutils.opt.Opt;
 public interface Testing {
 
     /**
-     * Returns next available value, or {@link Opt} of {@link com.github.jonathanxd.iutils.opt.None}
+     * Returns next available value, or {@link Opt} of {@code None}
      * if there is no more values.
      *
      * @return Next available value.
      */
-    Opt<?> nextValue();
+    Opt<?, ?> nextValue();
 
     /**
      * Expects the available value to be {@link Object#equals(Object)} to {@code value}.

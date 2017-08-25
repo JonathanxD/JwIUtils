@@ -27,8 +27,357 @@
  */
 package com.github.jonathanxd.iutils.opt;
 
+import com.github.jonathanxd.iutils.object.Lazy;
+
 /**
- * Base class of {@link None} and {@link Some}.
+ * Base class of specialized {@code None} and {@code Some} holders.
+ *
+ * All implementations of {@link ValueHolder} must provide specialized {@code getValue} methods.
+ * {@code getValue} methods may throw {@link UnsupportedOperationException} when called on {@code
+ * None} holders. A check should be made through {@link #hasSome()} to ensure that the {@link
+ * ValueHolder} has value. Whenever {@link #hasSome()} returns {@code true}, {@code getValue} must
+ * not throw any exception.
  */
 public interface ValueHolder {
+
+    /**
+     * Returns {@code true} if the holder has some value, {@code false} otherwise.
+     *
+     * @return {@code true} if the holder has some value, {@code false} otherwise.
+     */
+    boolean hasSome();
+
+    interface SomeValueHolder extends ValueHolder {
+        @Override
+        default boolean hasSome() {
+            return true;
+        }
+    }
+
+    interface NoneValueHolder extends ValueHolder {
+        @Override
+        default boolean hasSome() {
+            return false;
+        }
+    }
+
+    interface ObjectValueHolder<T> extends ValueHolder {
+        /**
+         * Gets the object value.
+         *
+         * @return Object value.
+         * @see ValueHolder
+         */
+        T getValue();
+
+        final class Some<T> implements ObjectValueHolder<T>, SomeValueHolder {
+            private final T value;
+
+            public Some(T value) {
+                this.value = value;
+            }
+
+            @Override
+            public T getValue() {
+                return this.value;
+            }
+        }
+
+        final class None<T> implements ObjectValueHolder<T>, NoneValueHolder {
+
+            @Override
+            public T getValue() {
+                throw new UnsupportedOperationException("No value present");
+            }
+        }
+    }
+
+    interface LazyValueHolder<T> extends ObjectValueHolder<T> {
+
+        /**
+         * Gets the lazy instance.
+         *
+         * @return Lazy instance.
+         */
+        Lazy<T> getLazy();
+
+        final class Some<T> implements LazyValueHolder<T>, SomeValueHolder {
+            private final Lazy<T> lazy;
+
+            public Some(Lazy<T> lazy) {
+                this.lazy = lazy;
+            }
+
+            @Override
+            public T getValue() {
+                return this.lazy.get();
+            }
+
+            @Override
+            public Lazy<T> getLazy() {
+                return this.lazy;
+            }
+        }
+
+        final class None<T> implements LazyValueHolder<T>, NoneValueHolder {
+
+            @Override
+            public T getValue() {
+                throw new UnsupportedOperationException("No value present");
+            }
+
+            @Override
+            public Lazy<T> getLazy() {
+                throw new UnsupportedOperationException("No value present");
+            }
+        }
+    }
+
+    interface BooleanValueHolder extends ValueHolder {
+        /**
+         * Gets the boolean value.
+         *
+         * @return Boolean value.
+         * @see ValueHolder
+         */
+        boolean getValue();
+
+        final class Some implements BooleanValueHolder, SomeValueHolder {
+            private final boolean value;
+
+            public Some(boolean value) {
+                this.value = value;
+            }
+
+            @Override
+            public boolean getValue() {
+                return this.value;
+            }
+        }
+
+        final class None implements BooleanValueHolder, NoneValueHolder {
+            @Override
+            public boolean getValue() {
+                throw new UnsupportedOperationException("No value present");
+            }
+        }
+    }
+
+    interface ByteValueHolder extends ValueHolder {
+
+        /**
+         * Gets the byte value.
+         *
+         * @return Byte value.
+         * @see ValueHolder
+         */
+        byte getValue();
+
+        final class Some implements ByteValueHolder, SomeValueHolder {
+            private final byte value;
+
+            public Some(byte value) {
+                this.value = value;
+            }
+
+            @Override
+            public byte getValue() {
+                return this.value;
+            }
+        }
+
+        final class None implements ByteValueHolder, NoneValueHolder {
+            @Override
+            public byte getValue() {
+                throw new UnsupportedOperationException("No value present");
+            }
+        }
+    }
+
+    interface CharValueHolder extends ValueHolder {
+
+        /**
+         * Gets the char value.
+         *
+         * @return Char value.
+         * @see ValueHolder
+         */
+        char getValue();
+
+        final class Some implements CharValueHolder, SomeValueHolder {
+            private final char value;
+
+            public Some(char value) {
+                this.value = value;
+            }
+
+            @Override
+            public char getValue() {
+                return this.value;
+            }
+        }
+
+        final class None implements CharValueHolder, NoneValueHolder {
+            @Override
+            public char getValue() {
+                throw new UnsupportedOperationException("No value present");
+            }
+        }
+    }
+
+    interface DoubleValueHolder extends ValueHolder {
+
+        /**
+         * Gets the double value.
+         *
+         * @return Double value.
+         * @see ValueHolder
+         */
+        double getValue();
+
+        final class Some implements DoubleValueHolder, SomeValueHolder {
+            private final double value;
+
+            public Some(double value) {
+                this.value = value;
+            }
+
+            @Override
+            public double getValue() {
+                return this.value;
+            }
+        }
+
+        final class None implements DoubleValueHolder, NoneValueHolder {
+            @Override
+            public double getValue() {
+                throw new UnsupportedOperationException("No value present");
+            }
+        }
+    }
+
+    interface FloatValueHolder extends ValueHolder {
+        /**
+         * Gets the float value.
+         *
+         * @return Float value.
+         * @see ValueHolder
+         */
+        float getValue();
+
+        final class Some implements FloatValueHolder, SomeValueHolder {
+            private final float value;
+
+            public Some(float value) {
+                this.value = value;
+            }
+
+            @Override
+            public float getValue() {
+                return this.value;
+            }
+        }
+
+        final class None implements FloatValueHolder, NoneValueHolder {
+            @Override
+            public float getValue() {
+                throw new UnsupportedOperationException("No value present");
+            }
+        }
+    }
+
+    interface IntValueHolder extends ValueHolder {
+        /**
+         * Gets the int value.
+         *
+         * @return Int value.
+         * @see ValueHolder
+         */
+        int getValue();
+
+        final class Some implements IntValueHolder, SomeValueHolder {
+            private final int value;
+
+            public Some(int value) {
+                this.value = value;
+            }
+
+            @Override
+            public int getValue() {
+                return this.value;
+            }
+
+            @Override
+            public boolean hasSome() {
+                return true;
+            }
+        }
+
+        final class None implements IntValueHolder, NoneValueHolder {
+            @Override
+            public int getValue() {
+                throw new UnsupportedOperationException("No value present");
+            }
+        }
+    }
+
+    interface LongValueHolder extends ValueHolder {
+        /**
+         * Gets the long value.
+         *
+         * @return Long value.
+         * @see ValueHolder
+         */
+        long getValue();
+
+        final class Some implements LongValueHolder, SomeValueHolder {
+            private final long value;
+
+            public Some(long value) {
+                this.value = value;
+            }
+
+            @Override
+            public long getValue() {
+                return this.value;
+            }
+        }
+
+        final class None implements LongValueHolder, NoneValueHolder {
+            @Override
+            public long getValue() {
+                throw new UnsupportedOperationException("No value present");
+            }
+        }
+    }
+
+    interface ShortValueHolder extends ValueHolder {
+        /**
+         * Gets the short value.
+         *
+         * @return Short value.
+         * @see ValueHolder
+         */
+        short getValue();
+
+        final class Some implements ShortValueHolder, SomeValueHolder {
+            private final short value;
+
+            public Some(short value) {
+                this.value = value;
+            }
+
+            @Override
+            public short getValue() {
+                return this.value;
+            }
+        }
+
+        final class None implements ShortValueHolder, NoneValueHolder {
+            @Override
+            public short getValue() {
+                throw new UnsupportedOperationException("No value present");
+            }
+        }
+    }
 }

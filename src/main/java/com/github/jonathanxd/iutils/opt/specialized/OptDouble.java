@@ -30,44 +30,40 @@ package com.github.jonathanxd.iutils.opt.specialized;
 import com.github.jonathanxd.iutils.function.function.DoubleToDoubleFunction;
 import com.github.jonathanxd.iutils.object.Lazy;
 import com.github.jonathanxd.iutils.opt.AbstractOpt;
-import com.github.jonathanxd.iutils.opt.None;
 import com.github.jonathanxd.iutils.opt.Opt;
-import com.github.jonathanxd.iutils.opt.Some;
 import com.github.jonathanxd.iutils.opt.ValueHolder;
 
 import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalDouble;
-import java.util.OptionalInt;
 import java.util.function.DoubleConsumer;
 import java.util.function.DoubleFunction;
 import java.util.function.DoublePredicate;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 import java.util.stream.DoubleStream;
-import java.util.stream.IntStream;
 
 /**
  * Double specialized {@link Opt}.
  */
-public final class OptDouble extends AbstractOpt<OptDouble> {
+public final class OptDouble extends AbstractOpt<OptDouble, ValueHolder.DoubleValueHolder> {
 
-    private static final OptDouble NONE = new OptDouble();
+    private static final OptDouble NONE = new OptDouble(new ValueHolder.DoubleValueHolder.None());
+    private final ValueHolder.DoubleValueHolder holder;
 
-    private OptDouble() {
-        super(None.INSTANCE);
+    private OptDouble(ValueHolder.DoubleValueHolder holder) {
+        this.holder = new ValueHolder.DoubleValueHolder.None();
     }
 
     private OptDouble(double value) {
-        super(new SomeDouble(value));
+        this(new ValueHolder.DoubleValueHolder.Some(value));
     }
 
     /**
      * Creates an {@link Opt} from {@code value}.
      *
      * @param value Value to create {@link Opt}.
-     * @return An {@link Opt} of {@link Some} if value is not null, or an {@link Opt} of {@link
-     * None} if value is null.
+     * @return An {@link Opt} of {@code Some} {@code value}.
      */
     @SuppressWarnings("unchecked")
     public static OptDouble optDouble(double value) {
@@ -75,29 +71,34 @@ public final class OptDouble extends AbstractOpt<OptDouble> {
     }
 
     /**
-     * Creates a {@link Opt} with {@link None} value.
+     * Creates a {@link Opt} with {@code None} value.
      *
-     * @return {@link Opt} with {@link None} value.
+     * @return {@link Opt} with {@code None} value.
      */
     @SuppressWarnings("unchecked")
     public static OptDouble none() {
         return NONE;
     }
 
+    @Override
+    public ValueHolder.DoubleValueHolder getValueHolder() {
+        return this.holder;
+    }
+
     /**
      * Gets the value holden by this optional.
      *
      * @return Value.
-     * @throws NullPointerException If this {@link Opt} holds an {@link None}.
+     * @throws NullPointerException If this {@link Opt} holds an {@code None}.
      */
     @SuppressWarnings("unchecked")
     public double getValue() {
-        ValueHolder valueHolder = this.getValueHolder();
+        ValueHolder.DoubleValueHolder valueHolder = this.getValueHolder();
 
-        if (valueHolder instanceof None)
+        if (!valueHolder.hasSome())
             throw new NullPointerException("No value found!");
 
-        return ((SomeDouble) valueHolder).getValue();
+        return valueHolder.getValue();
     }
 
     /**
@@ -132,7 +133,7 @@ public final class OptDouble extends AbstractOpt<OptDouble> {
      * Test value against {@code predicate} if value is present.
      *
      * @param predicate Predicate to test value.
-     * @return An {@link Opt} of {@link None} if value does not match predicate, or return same
+     * @return An {@link Opt} of {@code None} if value does not match predicate, or return same
      * {@link Opt} if either value is not present or value matches predicate.
      */
     public OptDouble filter(DoublePredicate predicate) {
@@ -149,7 +150,7 @@ public final class OptDouble extends AbstractOpt<OptDouble> {
      * Maps the value of {@code this} {@link Opt} to a another value using {@code mapper}.
      *
      * @param mapper Mapper to map value.
-     * @return An {@link Opt} of mapped value if present, or an {@link Opt} of {@link None} if no
+     * @return An {@link Opt} of mapped value if present, or an {@link Opt} of {@code None} if no
      * value is present.
      */
     public OptDouble map(DoubleToDoubleFunction mapper) {
@@ -165,7 +166,7 @@ public final class OptDouble extends AbstractOpt<OptDouble> {
      * Flat maps the value of {@code this} {@link Opt} to another {@link Opt}.
      *
      * @param mapper Flat mapper to map value.
-     * @return An {@link Opt} of {@link None} if the value is not present, or the {@link Opt}
+     * @return An {@link Opt} of {@code None} if the value is not present, or the {@link Opt}
      * returned by {@code mapper} if value is present.
      */
     public OptDouble flatMap(DoubleFunction<? extends OptDouble> mapper) {
@@ -181,12 +182,13 @@ public final class OptDouble extends AbstractOpt<OptDouble> {
      * Flat maps the value of {@code this} {@link Opt} to an {@link Opt} of type {@link O}.
      *
      * @param mapper Flat mapper to map value.
-     * @param none   Supplier of instance of {@link O} with {@link None} value.
+     * @param none   Supplier of instance of {@link O} with {@code None} value.
      * @param <O>    Type of opt.
      * @return An {@link Opt} supplied by {@code none} if value is not present, or {@link Opt}
      * returned by {@code mapper}.
      */
-    public <O extends Opt<O>> O flatMapTo(DoubleFunction<? extends O> mapper, Supplier<O> none) {
+    public <O extends Opt<O, V>, V extends ValueHolder>
+    O flatMapTo(DoubleFunction<? extends O> mapper, Supplier<O> none) {
         Objects.requireNonNull(mapper);
         Objects.requireNonNull(none);
 
@@ -204,7 +206,6 @@ public final class OptDouble extends AbstractOpt<OptDouble> {
      * @return Value of this {@link Opt} if present, or {@code value} if not.
      */
     public double orElse(double value) {
-
         if (this.isPresent())
             return this.getValue();
 
@@ -263,14 +264,14 @@ public final class OptDouble extends AbstractOpt<OptDouble> {
     }
 
     /**
-     * Returns a {@link DoubleStream} with value of this {@link Opt} or an empty {@link DoubleStream} if
-     * value is not present.
+     * Returns a {@link DoubleStream} with value of this {@link Opt} or an empty {@link
+     * DoubleStream} if value is not present.
      *
      * This uses {@code 1} for {@code true} and {@code 0} for {@code false} because there are no
      * BooleanStream (there is no reason to have too).
      *
-     * @return {@link DoubleStream} with value of this {@link Opt} or an empty {@link DoubleStream} if
-     * value is not present.
+     * @return {@link DoubleStream} with value of this {@link Opt} or an empty {@link DoubleStream}
+     * if value is not present.
      */
     public DoubleStream stream() {
         if (this.isPresent())

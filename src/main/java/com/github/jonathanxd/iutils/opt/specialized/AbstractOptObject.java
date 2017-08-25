@@ -30,7 +30,6 @@ package com.github.jonathanxd.iutils.opt.specialized;
 import com.github.jonathanxd.iutils.iterator.IteratorUtil;
 import com.github.jonathanxd.iutils.object.Lazy;
 import com.github.jonathanxd.iutils.opt.AbstractOpt;
-import com.github.jonathanxd.iutils.opt.None;
 import com.github.jonathanxd.iutils.opt.Opt;
 import com.github.jonathanxd.iutils.opt.ValueHolder;
 
@@ -46,33 +45,24 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-public abstract class AbstractOptObject<T, O extends AbstractOptObject<T, O>> extends AbstractOpt<O> {
-
-    /**
-     * Constructs an {@link AbstractOpt}.
-     *
-     * @param valueHolder Value holder, may be either {@link com.github.jonathanxd.iutils.opt.None}
-     *                    or a instance of one of the {@link com.github.jonathanxd.iutils.opt.specialized
-     *                    specialized some}.
-     */
-    protected AbstractOptObject(ValueHolder valueHolder) {
-        super(valueHolder);
-    }
+public abstract class AbstractOptObject<T,
+        V extends ValueHolder.ObjectValueHolder<T>,
+        O extends AbstractOptObject<T, V, O>> extends AbstractOpt<O, V> {
 
     /**
      * Gets the value holden by this optional.
      *
      * @return Value.
-     * @throws NullPointerException If this {@link Opt} holds an {@link None}.
+     * @throws NullPointerException If this {@link Opt} holds an {@code None}.
      */
     @SuppressWarnings("unchecked")
     public final T getValue() {
-        ValueHolder valueHolder = this.getValueHolder();
+        V valueHolder = this.getValueHolder();
 
-        if (valueHolder instanceof None)
+        if (!valueHolder.hasSome())
             throw new NullPointerException("No value found!");
 
-        return ((AbstractSomeObject<T>) valueHolder).getValue();
+        return valueHolder.getValue();
     }
 
     @Override
@@ -112,7 +102,7 @@ public abstract class AbstractOptObject<T, O extends AbstractOptObject<T, O>> ex
      * Test value against {@code predicate} if value is present.
      *
      * @param predicate Predicate to test value.
-     * @return An {@link Opt} of {@link None} if value does not match predicate, or return same
+     * @return An {@link Opt} of {@code None} if value does not match predicate, or return same
      * {@link Opt} if either value is not present or value matches predicate.
      */
     @SuppressWarnings("unchecked")
@@ -127,23 +117,24 @@ public abstract class AbstractOptObject<T, O extends AbstractOptObject<T, O>> ex
     }
 
     /**
-     * Converts this {@link AbstractOptObject} of {@link com.github.jonathanxd.iutils.opt.Some} to
-     * {@link AbstractOptObject} with {@link None} value.
+     * Converts this {@link AbstractOptObject} of {@code Some} to {@link AbstractOptObject} with
+     * {@code None} value.
      *
-     * @return {@link AbstractOptObject} with {@link None} value.
+     * @return {@link AbstractOptObject} with {@code None} value.
      */
     public abstract O toNone();
 
     /**
-     * Flat maps the value of {@code this} {@link Opt} to an {@link Opt} of type {@link O}.
+     * Flat maps the value of {@code this} {@link Opt} to an {@link Opt} of type {@link O2}.
      *
      * @param mapper Flat mapper to map value.
-     * @param none   Supplier of instance of {@link O} with {@link None} value.
-     * @param <O>    Type of opt.
+     * @param none   Supplier of instance of {@link O2} with {@code None} value.
+     * @param <O2>   Type of opt.
      * @return An {@link Opt} supplied by {@code none} if value is not present, or {@link Opt}
      * returned by {@code mapper}.
      */
-    public final <O extends Opt<O>> O flatMapTo(Function<? super T, ? extends O> mapper, Supplier<O> none) {
+    public final <O2 extends Opt<O2, V2>, V2 extends ValueHolder>
+    O2 flatMapTo(Function<? super T, ? extends O2> mapper, Supplier<O2> none) {
         Objects.requireNonNull(mapper);
         Objects.requireNonNull(none);
 

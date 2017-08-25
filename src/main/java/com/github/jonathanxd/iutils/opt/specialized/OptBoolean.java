@@ -33,9 +33,7 @@ import com.github.jonathanxd.iutils.function.function.BooleanFunction;
 import com.github.jonathanxd.iutils.function.predicate.BooleanPredicate;
 import com.github.jonathanxd.iutils.object.Lazy;
 import com.github.jonathanxd.iutils.opt.AbstractOpt;
-import com.github.jonathanxd.iutils.opt.None;
 import com.github.jonathanxd.iutils.opt.Opt;
-import com.github.jonathanxd.iutils.opt.Some;
 import com.github.jonathanxd.iutils.opt.ValueHolder;
 
 import java.util.Objects;
@@ -48,26 +46,26 @@ import java.util.stream.IntStream;
 /**
  * Object specialized {@link Opt}.
  */
-public final class OptBoolean extends AbstractOpt<OptBoolean> {
+public final class OptBoolean extends AbstractOpt<OptBoolean, ValueHolder.BooleanValueHolder> {
 
-    private static final OptBoolean NONE = new OptBoolean();
+    private static final OptBoolean NONE = new OptBoolean(new ValueHolder.BooleanValueHolder.None());
     private static final OptBoolean TRUE = new OptBoolean(true);
     private static final OptBoolean FALSE = new OptBoolean(false);
+    private final ValueHolder.BooleanValueHolder holder;
 
-    private OptBoolean() {
-        super(None.INSTANCE);
+    private OptBoolean(ValueHolder.BooleanValueHolder holder) {
+        this.holder = holder;
     }
 
     private OptBoolean(boolean value) {
-        super(new SomeBoolean(value));
+        this(new ValueHolder.BooleanValueHolder.Some(value));
     }
 
     /**
      * Creates an {@link Opt} from {@code value}.
      *
      * @param value Value to create {@link Opt}.
-     * @return An {@link Opt} of {@link Some} if value is not null, or an {@link Opt} of {@link
-     * None} if value is null.
+     * @return An {@link Opt} of {@code Some} {@code value}.
      */
     @SuppressWarnings("unchecked")
     public static OptBoolean optBoolean(boolean value) {
@@ -95,9 +93,9 @@ public final class OptBoolean extends AbstractOpt<OptBoolean> {
     }
 
     /**
-     * Creates a {@link Opt} with {@link None} value.
+     * Creates a {@link Opt} with {@code None} value.
      *
-     * @return {@link Opt} with {@link None} value.
+     * @return {@link Opt} with {@code None} value.
      */
     @SuppressWarnings("unchecked")
     public static OptBoolean none() {
@@ -108,16 +106,21 @@ public final class OptBoolean extends AbstractOpt<OptBoolean> {
      * Gets the value holden by this optional.
      *
      * @return Value.
-     * @throws NullPointerException If this {@link Opt} holds an {@link None}.
+     * @throws NullPointerException If this {@link Opt} holds an {@code None}.
      */
     @SuppressWarnings("unchecked")
     public boolean getValue() {
-        ValueHolder valueHolder = this.getValueHolder();
+        ValueHolder.BooleanValueHolder valueHolder = this.getValueHolder();
 
-        if (valueHolder instanceof None)
+        if (!valueHolder.hasSome())
             throw new NullPointerException("No value found!");
 
-        return ((SomeBoolean) valueHolder).getValue();
+        return valueHolder.getValue();
+    }
+
+    @Override
+    public ValueHolder.BooleanValueHolder getValueHolder() {
+        return this.holder;
     }
 
     /**
@@ -152,7 +155,7 @@ public final class OptBoolean extends AbstractOpt<OptBoolean> {
      * Test value against {@code predicate} if value is present.
      *
      * @param predicate Predicate to test value.
-     * @return An {@link Opt} of {@link None} if value does not match predicate, or return same
+     * @return An {@link Opt} of {@code None} if value does not match predicate, or return same
      * {@link Opt} if either value is not present or value matches predicate.
      */
     public OptBoolean filter(BooleanPredicate predicate) {
@@ -169,7 +172,7 @@ public final class OptBoolean extends AbstractOpt<OptBoolean> {
      * Maps the value of {@code this} {@link Opt} to a another value using {@code mapper}.
      *
      * @param mapper Mapper to map value.
-     * @return An {@link Opt} of mapped value if present, or an {@link Opt} of {@link None} if no
+     * @return An {@link Opt} of mapped value if present, or an {@link Opt} of {@code None} if no
      * value is present.
      */
     public OptBoolean map(BoolToBoolFunction mapper) {
@@ -185,7 +188,7 @@ public final class OptBoolean extends AbstractOpt<OptBoolean> {
      * Flat maps the value of {@code this} {@link Opt} to another {@link Opt}.
      *
      * @param mapper Flat mapper to map value.
-     * @return An {@link Opt} of {@link None} if the value is not present, or the {@link Opt}
+     * @return An {@link Opt} of {@code None} if the value is not present, or the {@link Opt}
      * returned by {@code mapper} if value is present.
      */
     public OptBoolean flatMap(BooleanFunction<? extends OptBoolean> mapper) {
@@ -201,12 +204,13 @@ public final class OptBoolean extends AbstractOpt<OptBoolean> {
      * Flat maps the value of {@code this} {@link Opt} to an {@link Opt} of type {@link O}.
      *
      * @param mapper Flat mapper to map value.
-     * @param none   Supplier of instance of {@link O} with {@link None} value.
+     * @param none   Supplier of instance of {@link O} with {@code None} value.
      * @param <O>    Type of opt.
      * @return An {@link Opt} supplied by {@code none} if value is not present, or {@link Opt}
      * returned by {@code mapper}.
      */
-    public <O extends Opt<O>> O flatMapTo(BooleanFunction<? extends O> mapper, Supplier<O> none) {
+    public <O extends Opt<O, V>, V extends ValueHolder> O
+    flatMapTo(BooleanFunction<? extends O> mapper, Supplier<O> none) {
         Objects.requireNonNull(mapper);
         Objects.requireNonNull(none);
 
@@ -224,8 +228,6 @@ public final class OptBoolean extends AbstractOpt<OptBoolean> {
      * @return Value of this {@link Opt} if present, or {@code value} if not.
      */
     public boolean orElse(boolean value) {
-        Objects.requireNonNull(value);
-
         if (this.isPresent())
             return this.getValue();
 

@@ -28,9 +28,7 @@
 package com.github.jonathanxd.iutils.opt.specialized;
 
 import com.github.jonathanxd.iutils.function.checked.supplier.CSupplier;
-import com.github.jonathanxd.iutils.opt.None;
 import com.github.jonathanxd.iutils.opt.Opt;
-import com.github.jonathanxd.iutils.opt.Some;
 import com.github.jonathanxd.iutils.opt.ValueHolder;
 
 import java.util.Objects;
@@ -41,16 +39,17 @@ import java.util.function.Function;
  *
  * @param <T> Type of value.
  */
-public final class OptObject<T> extends AbstractOptObject<T, OptObject<T>> {
+public final class OptObject<T> extends AbstractOptObject<T, ValueHolder.ObjectValueHolder<T>, OptObject<T>> {
 
-    private static final OptObject<?> NONE = new OptObject<>(None.INSTANCE);
+    private static final OptObject<?> NONE = new OptObject<>(new ValueHolder.ObjectValueHolder.None<>());
+    private final ValueHolder.ObjectValueHolder<T> holder;
 
-    private OptObject(ValueHolder valueHolder) {
-        super(valueHolder);
+    private OptObject(ValueHolder.ObjectValueHolder<T> holder) {
+        this.holder = holder;
     }
 
     private OptObject(T value) {
-        super(value == null ? None.INSTANCE : new SomeObject<>(value));
+        this(new ValueHolder.ObjectValueHolder.Some<>(value));
     }
 
     /**
@@ -58,8 +57,7 @@ public final class OptObject<T> extends AbstractOptObject<T, OptObject<T>> {
      *
      * @param value Value to create {@link Opt}.
      * @param <T>   Type of value.
-     * @return An {@link Opt} of {@link Some} if value is not null, or an {@link Opt} of {@link
-     * None} if value is null.
+     * @return An {@link Opt} of {@code Some} {@code value}.
      */
     @SuppressWarnings("unchecked")
     public static <T> OptObject<T> optObject(T value) {
@@ -71,7 +69,7 @@ public final class OptObject<T> extends AbstractOptObject<T, OptObject<T>> {
      *
      * @param value Value to create {@link Opt}.
      * @param <T>   Type of value.
-     * @return An {@link Opt} of {@link Some} if value is not null, or an {@link Opt} of {@link
+     * @return An {@link Opt} of {@code Some} if value is not null, or an {@link Opt} of {@code
      * None} if value is null.
      */
     @SuppressWarnings("unchecked")
@@ -81,12 +79,12 @@ public final class OptObject<T> extends AbstractOptObject<T, OptObject<T>> {
 
     /**
      * Returns an {@link Opt} of {@link T} if {@code supplier} returns a value, returns a {@link
-     * Opt} with {@link None} value if {@code supplier} throws an exception.
+     * Opt} with {@code None} value if {@code supplier} throws an exception.
      *
      * @param supplier Supplier of value.
      * @param <T>      Type of value.
      * @return {@link Opt} of {@link T} if {@code supplier} returns a value, returns a {@link Opt}
-     * with {@link None} value if {@code supplier} throws an exception.
+     * with {@code None} value if {@code supplier} throws an exception.
      */
     public static <T> OptObject<T> $try(CSupplier<T> supplier) {
         try {
@@ -101,7 +99,7 @@ public final class OptObject<T> extends AbstractOptObject<T, OptObject<T>> {
      *
      * @param value Value to create {@link Opt}.
      * @param <T>   Type of value.
-     * @return An {@link Opt} of {@link Some} if value is not null, or an {@link Opt} of {@link
+     * @return An {@link Opt} of {@code Some} if value is not null, or an {@link Opt} of {@code
      * None} if value is null.
      */
     @SuppressWarnings("unchecked")
@@ -110,14 +108,19 @@ public final class OptObject<T> extends AbstractOptObject<T, OptObject<T>> {
     }
 
     /**
-     * Creates a {@link Opt} with {@link None} value.
+     * Creates a {@link Opt} with {@code None} value.
      *
      * @param <T> Type of value.
-     * @return {@link Opt} with {@link None} value.
+     * @return {@link Opt} with {@code None} value.
      */
     @SuppressWarnings("unchecked")
     public static <T> OptObject<T> none() {
         return (OptObject<T>) NONE;
+    }
+
+    @Override
+    public ValueHolder.ObjectValueHolder<T> getValueHolder() {
+        return this.holder;
     }
 
     @Override
@@ -127,11 +130,12 @@ public final class OptObject<T> extends AbstractOptObject<T, OptObject<T>> {
 
 
     /**
-     * Maps the value of {@code this} {@link Opt} to a value of type {@link R} using {@code mapper}.
+     * Maps the value of {@code this} {@link Opt} to a value of type {@link R} using {@code
+     * mapper}.
      *
      * @param mapper Mapper to map value.
      * @param <R>    Type of result value.
-     * @return An {@link Opt} of mapped value if present, or an {@link Opt} of {@link None} if no
+     * @return An {@link Opt} of mapped value if present, or an {@link Opt} of {@code None} if no
      * value is present.
      */
     public <R> OptObject<R> map(Function<? super T, ? extends R> mapper) {
@@ -144,11 +148,12 @@ public final class OptObject<T> extends AbstractOptObject<T, OptObject<T>> {
     }
 
     /**
-     * Flat maps the value of {@code this} {@link Opt} to an {@link Opt} of value of type {@link R}.
+     * Flat maps the value of {@code this} {@link Opt} to an {@link Opt} of value of type {@link
+     * R}.
      *
      * @param mapper Flat mapper to map value.
      * @param <R>    Type of result value.
-     * @return An {@link Opt} of {@link None} if the value is not present, or the {@link Opt}
+     * @return An {@link Opt} of {@code None} if the value is not present, or the {@link Opt}
      * returned by {@code mapper} if value is present.
      */
     public <R> OptObject<R> flatMap(Function<? super T, ? extends OptObject<R>> mapper) {

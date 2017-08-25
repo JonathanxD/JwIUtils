@@ -27,43 +27,15 @@
  */
 package com.github.jonathanxd.iutils.opt;
 
-import java.util.Objects;
-
 /**
  * Abstract implementation of {@link Opt}.
  *
  * @param <O> Type of {@link Opt}.
  */
-public abstract class AbstractOpt<O extends AbstractOpt<O>> implements Opt<O> {
-
-    /**
-     * Value holder.
-     */
-    private final ValueHolder valueHolder;
-
-    /**
-     * Constructs an {@link AbstractOpt}.
-     *
-     * @param valueHolder Value holder, may be either {@link None} or a instance of one of the
-     *                    {@link com.github.jonathanxd.iutils.opt.specialized specialized some}.
-     */
-    protected AbstractOpt(ValueHolder valueHolder) {
-        this.valueHolder = Objects.requireNonNull(valueHolder, "ValueHolder cannot be null");
-    }
-
-    /**
-     * Gets the value holder.
-     *
-     * @return ValueHolder, it may be either {@link None} or a instance of one of the {@link
-     * com.github.jonathanxd.iutils.opt.specialized specialized some}.
-     */
-    public final ValueHolder getValueHolder() {
-        return this.valueHolder;
-    }
-
+public abstract class AbstractOpt<O extends AbstractOpt<O, V>, V extends ValueHolder> implements Opt<O, V> {
     @Override
     public boolean equals(Object obj) {
-        if (!(obj instanceof AbstractOpt<?>))
+        if (!(obj instanceof AbstractOpt<?, ?>))
             return super.equals(obj);
 
         return this.getValueHolder().equals(((AbstractOpt) obj).getValueHolder());
@@ -76,6 +48,6 @@ public abstract class AbstractOpt<O extends AbstractOpt<O>> implements Opt<O> {
 
     @Override
     public final String toString() {
-        return "Opt[" + this.getValueHolder().toString() + "]";
+        return this.getClass().getSimpleName() + "[" + this.getValueHolder().toString() + "]";
     }
 }

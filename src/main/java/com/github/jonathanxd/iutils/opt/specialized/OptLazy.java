@@ -28,8 +28,8 @@
 package com.github.jonathanxd.iutils.opt.specialized;
 
 import com.github.jonathanxd.iutils.object.Lazy;
-import com.github.jonathanxd.iutils.opt.None;
 import com.github.jonathanxd.iutils.opt.Opt;
+import com.github.jonathanxd.iutils.opt.ValueHolder;
 
 import java.util.Objects;
 import java.util.function.Function;
@@ -40,12 +40,17 @@ import java.util.function.Function;
  *
  * @param <T> Type of value.
  */
-public final class OptLazy<T> extends AbstractOptObject<T, OptLazy<T>> {
+public final class OptLazy<T> extends AbstractOptObject<T, ValueHolder.LazyValueHolder<T>, OptLazy<T>> {
 
-    private static final OptLazy<?> NONE = new OptLazy<>(null);
+    private static final OptLazy<?> NONE = new OptLazy<>(new ValueHolder.LazyValueHolder.None<>());
+    private final ValueHolder.LazyValueHolder<T> holder;
+
+    private OptLazy(ValueHolder.LazyValueHolder<T> holder) {
+        this.holder = holder;
+    }
 
     private OptLazy(Lazy<T> value) {
-        super(value == null ? None.INSTANCE : new SomeLazy<>(value));
+        this(new ValueHolder.LazyValueHolder.Some<>(value));
     }
 
     /**
@@ -71,14 +76,19 @@ public final class OptLazy<T> extends AbstractOptObject<T, OptLazy<T>> {
     }
 
     /**
-     * Gets a {@link None} {@link Lazy lazy} {@link com.github.jonathanxd.iutils.opt.Opt opt}.
+     * Gets a {@code None} {@link Lazy lazy} {@link com.github.jonathanxd.iutils.opt.Opt opt}.
      *
      * @param <T> Type of value.
-     * @return {@link None} {@link Lazy lazy} {@link com.github.jonathanxd.iutils.opt.Opt opt}.
+     * @return {@code None} {@link Lazy lazy} {@link com.github.jonathanxd.iutils.opt.Opt opt}.
      */
     @SuppressWarnings("unchecked")
     public static <T> OptLazy<T> none() {
         return (OptLazy<T>) NONE;
+    }
+
+    @Override
+    public ValueHolder.LazyValueHolder<T> getValueHolder() {
+        return this.holder;
     }
 
     /**
@@ -88,7 +98,7 @@ public final class OptLazy<T> extends AbstractOptObject<T, OptLazy<T>> {
      */
     @SuppressWarnings("unchecked")
     public boolean isEvaluated() {
-        return !this.isPresent() || ((SomeLazy<T>) this.getValueHolder()).getLazy().isEvaluated();
+        return !this.isPresent() || this.getValueHolder().getLazy().isEvaluated();
     }
 
     @Override
@@ -97,11 +107,12 @@ public final class OptLazy<T> extends AbstractOptObject<T, OptLazy<T>> {
     }
 
     /**
-     * Maps the value of {@code this} {@link Opt} to a value of type {@link R} using {@code mapper}.
+     * Maps the value of {@code this} {@link Opt} to a value of type {@link R} using {@code
+     * mapper}.
      *
      * @param mapper Mapper to map value.
      * @param <R>    Type of result value.
-     * @return An {@link Opt} of mapped value if present, or an {@link Opt} of {@link None} if no
+     * @return An {@link Opt} of mapped value if present, or an {@link Opt} of {@code None} if no
      * value is present.
      */
     public <R> OptLazy<R> map(Function<? super T, ? extends R> mapper) {
@@ -114,11 +125,12 @@ public final class OptLazy<T> extends AbstractOptObject<T, OptLazy<T>> {
     }
 
     /**
-     * Flat maps the value of {@code this} {@link Opt} to an {@link Opt} of value of type {@link R}.
+     * Flat maps the value of {@code this} {@link Opt} to an {@link Opt} of value of type {@link
+     * R}.
      *
      * @param mapper Flat mapper to map value.
      * @param <R>    Type of result value.
-     * @return An {@link Opt} of {@link None} if the value is not present, or the {@link Opt}
+     * @return An {@link Opt} of {@code None} if the value is not present, or the {@link Opt}
      * returned by {@code mapper} if value is present.
      */
     public <R> OptLazy<R> flatMap(Function<? super T, ? extends OptLazy<R>> mapper) {
@@ -137,9 +149,9 @@ public final class OptLazy<T> extends AbstractOptObject<T, OptLazy<T>> {
      */
     @SuppressWarnings("unchecked")
     public OptObject<Lazy<T>> toObjectOpt() {
-        if(!this.isPresent())
+        if (!this.isPresent())
             return OptObject.none();
 
-        return OptObject.optObjectNotNull(((SomeLazy<T>) this.getValueHolder()).getLazy().copy());
+        return OptObject.optObjectNotNull(this.getValueHolder().getLazy().copy());
     }
 }
