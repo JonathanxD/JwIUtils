@@ -28,7 +28,7 @@
 package com.github.jonathanxd.jwiutils.kt
 
 import com.github.jonathanxd.iutils.`object`.Either
-import com.github.jonathanxd.iutils.`object`.specialized.EitherObjBoolean
+import com.github.jonathanxd.iutils.`object`.specialized.*
 
 /**
  * Right value of [Either] or throw the left exception if the present value is on left side.
@@ -38,9 +38,65 @@ val <R> Either<Exception, R>.rightOrFail: R
     else this.right
 
 /**
- * Right value of [Either] or throw the left exception if the present value is on left side.
+ * Left value of [Either] or throw the right exception if the present value is on right side.
+ */
+val <L> Either<L, Exception>.leftOrFail: L
+    get() = if (this.isRight) throw this.right
+    else this.left
+
+/**
+ * Right value of [EitherObjBoolean] or throw the left exception if the present value is on left side.
  */
 val EitherObjBoolean<Exception>.rightOrFail: Boolean
+    get() = if (this.isLeft) throw this.left
+    else this.right
+
+/**
+ * Right value of [EitherObjByte] or throw the left exception if the present value is on left side.
+ */
+val EitherObjByte<Exception>.rightOrFail: Byte
+    get() = if (this.isLeft) throw this.left
+    else this.right
+
+/**
+ * Right value of [EitherObjChar] or throw the left exception if the present value is on left side.
+ */
+val EitherObjChar<Exception>.rightOrFail: Char
+    get() = if (this.isLeft) throw this.left
+    else this.right
+
+/**
+ * Right value of [EitherObjDouble] or throw the left exception if the present value is on left side.
+ */
+val EitherObjDouble<Exception>.rightOrFail: Double
+    get() = if (this.isLeft) throw this.left
+    else this.right
+
+/**
+ * Right value of [EitherObjFloat] or throw the left exception if the present value is on left side.
+ */
+val EitherObjFloat<Exception>.rightOrFail: Float
+    get() = if (this.isLeft) throw this.left
+    else this.right
+
+/**
+ * Right value of [EitherObjFloat] or throw the left exception if the present value is on left side.
+ */
+val EitherObjInt<Exception>.rightOrFail: Int
+    get() = if (this.isLeft) throw this.left
+    else this.right
+
+/**
+ * Right value of [EitherObjFloat] or throw the left exception if the present value is on left side.
+ */
+val EitherObjLong<Exception>.rightOrFail: Long
+    get() = if (this.isLeft) throw this.left
+    else this.right
+
+/**
+ * Right value of [EitherObjFloat] or throw the left exception if the present value is on left side.
+ */
+val EitherObjShort<Exception>.rightOrFail: Short
     get() = if (this.isLeft) throw this.left
     else this.right
 
