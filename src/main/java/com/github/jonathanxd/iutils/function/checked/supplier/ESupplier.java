@@ -27,6 +27,8 @@
  */
 package com.github.jonathanxd.iutils.function.checked.supplier;
 
+import com.github.jonathanxd.iutils.exception.RethrowException;
+
 import java.util.function.Supplier;
 
 /**
@@ -42,7 +44,7 @@ public interface ESupplier<T> extends Supplier<T> {
         try {
             return this.getChecked();
         } catch (Exception t) {
-            throw new RuntimeException(t);
+            throw RethrowException.rethrow(t);
         }
     }
 
@@ -52,7 +54,7 @@ public interface ESupplier<T> extends Supplier<T> {
      *
      * Like other interfaces of this package, this interface implements a java corresponding
      * interface. All exceptions which occurs inside the lambda is rethrown in the implemented
-     * method using {@link RuntimeException}.
+     * method using {@link RethrowException#rethrow(Throwable)}.
      *
      * @return See {@link Supplier#get}.
      * @throws Exception Exception occurred inside of function.

@@ -30,6 +30,7 @@ package com.github.jonathanxd.iutils.object.specialized.all;
 import com.github.jonathanxd.iutils.annotation.Generated;
 import com.github.jonathanxd.iutils.function.consumer.ByteConsumer;
 import com.github.jonathanxd.iutils.function.function.ByteFunction;
+import com.github.jonathanxd.iutils.function.supplier.ByteSupplier;
 import com.github.jonathanxd.iutils.function.unary.ByteUnaryOperator;
 import com.github.jonathanxd.iutils.function.unary.IntUnaryOperator;
 import com.github.jonathanxd.iutils.object.BaseEither;
@@ -37,6 +38,7 @@ import com.github.jonathanxd.iutils.object.BaseEither;
 import java.util.NoSuchElementException;
 import java.util.function.IntConsumer;
 import java.util.function.IntFunction;
+import java.util.function.IntSupplier;
 
 /**
  * A class which can hold either {@link byte} or {@link int} (in this documentation we call the hold
@@ -93,12 +95,48 @@ public abstract class EitherByteInt extends BaseEither {
     public abstract byte getLeft();
 
     /**
+     * Returns left value or {@code value} if this is a {@link EitherByteInt#right(int)}.
+     *
+     * @param value Value to return if this is a {@link EitherByteInt#right(int)}
+     * @return Left value or {@code value} if this is a {@link EitherByteInt#right(int)}.
+     */
+    public abstract byte leftOr(byte value);
+
+    /**
+     * Returns left value or value supplied by {@code supplier} if this is a {@link
+     * EitherByteInt#right(int)}.
+     *
+     * @param supplier Supplier of value to return if this is a {@link EitherByteInt#right(int)}
+     * @return Left value or value supplied by {@code supplier} if this is a {@link
+     * EitherByteInt#right(int)}.
+     */
+    public abstract byte leftOrGet(ByteSupplier supplier);
+
+    /**
      * Gets right value.
      *
      * @return Right value.
      * @throws NoSuchElementException If the right value is not present.
      */
     public abstract int getRight();
+
+    /**
+     * Returns right value or {@code value} if this is a {@link EitherByteInt#left(byte)}.
+     *
+     * @param value Value to return if this is a {@link EitherByteInt#left(byte)}
+     * @return Right value or {@code value} if this is a {@link EitherByteInt#left(byte)}.
+     */
+    public abstract int rightOr(int value);
+
+    /**
+     * Returns right value or value supplied by {@code supplier} if this is a {@link
+     * EitherByteInt#left(byte)}.
+     *
+     * @param supplier Supplier of value to return if this is a {@link EitherByteInt#left(byte)}
+     * @return Right value or value supplied by {@code supplier} if this is a {@link
+     * EitherByteInt#left(byte)}.
+     */
+    public abstract int rightOrGet(IntSupplier supplier);
 
     /**
      * Left value. (Kotlin compatibility purpose)
@@ -223,8 +261,28 @@ public abstract class EitherByteInt extends BaseEither {
         }
 
         @Override
+        public byte leftOr(byte value) {
+            return this.getLeft();
+        }
+
+        @Override
+        public byte leftOrGet(ByteSupplier supplier) {
+            return this.getLeft();
+        }
+
+        @Override
         public int getRight() {
             throw new NoSuchElementException();
+        }
+
+        @Override
+        public int rightOr(int value) {
+            return value;
+        }
+
+        @Override
+        public int rightOrGet(IntSupplier supplier) {
+            return supplier.getAsInt();
         }
 
         @Override
@@ -296,8 +354,28 @@ public abstract class EitherByteInt extends BaseEither {
         }
 
         @Override
+        public byte leftOr(byte value) {
+            return value;
+        }
+
+        @Override
+        public byte leftOrGet(ByteSupplier supplier) {
+            return supplier.get();
+        }
+
+        @Override
         public int getRight() {
             return this.value;
+        }
+
+        @Override
+        public int rightOr(int value) {
+            return this.getRight();
+        }
+
+        @Override
+        public int rightOrGet(IntSupplier supplier) {
+            return this.getRight();
         }
 
         @Override

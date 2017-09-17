@@ -129,3 +129,39 @@ inline fun <A, L : A, R : A> Either<L, R>.consumeLeftOrRight(consumer: (A) -> Un
             this.isRight -> consumer(this.right)
             else -> Unit
         }
+
+/**
+ * Inline version of [Either.mapRight]
+ */
+inline fun <V, L, R> Either<L, R>.mapRightSide(mapper: (R) -> V): Either<L, V> =
+    if (this.isRight) right(mapper(this.right))
+    else left(this.left)
+
+/**
+ * Inline version of [Either.mapLeft]
+ */
+inline fun <V, L, R> Either<L, R>.mapLeftSide(mapper: (L) -> V): Either<V, R> =
+        if (this.isLeft) left(mapper(this.left))
+        else right(this.right)
+
+/**
+ * Inline version of [Either.map]
+ */
+inline fun <L, R, L2, R2> Either<L, R>.mapLeftOrRight(leftMapper: (L) -> L2,
+                                                      rightMapper: (R) -> R2): Either<L2, R2> =
+        if (this.isLeft) left(leftMapper(this.left))
+        else right(rightMapper(this.right))
+
+/**
+ * Inline version of [Either.ifRight]
+ */
+inline fun <L, R> Either<L, R>.ifRightSide(consumer: (R) -> Unit) =
+        if (this.isRight) consumer(this.right)
+        else Unit
+
+/**
+ * Inline version of [Either.ifLeft]
+ */
+inline fun <L, R> Either<L, R>.ifLeftSide(consumer: (L) -> Unit) =
+        if (this.isLeft) consumer(this.left)
+        else Unit

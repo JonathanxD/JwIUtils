@@ -27,6 +27,8 @@
  */
 package com.github.jonathanxd.iutils.function.checked;
 
+import com.github.jonathanxd.iutils.exception.RethrowException;
+
 /**
  * {@link Runnable}
  *
@@ -40,7 +42,7 @@ public interface CRunnable extends Runnable {
         try {
             this.runChecked();
         } catch (Throwable t) {
-            throw new RuntimeException(t);
+            throw RethrowException.rethrow(t);
         }
     }
 
@@ -50,7 +52,7 @@ public interface CRunnable extends Runnable {
      *
      * Like other interfaces of this package, this interface implements a java corresponding
      * interface. All exceptions which occurs inside the lambda is rethrown in the implemented
-     * method using {@link RuntimeException}.
+     * method using {@link RethrowException#rethrow(Throwable)}.
      *
      * @throws Throwable Exception occurred inside of function.
      */

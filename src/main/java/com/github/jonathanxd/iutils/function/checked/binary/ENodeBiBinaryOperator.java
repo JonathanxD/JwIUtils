@@ -27,6 +27,7 @@
  */
 package com.github.jonathanxd.iutils.function.checked.binary;
 
+import com.github.jonathanxd.iutils.exception.RethrowException;
 import com.github.jonathanxd.iutils.function.binary.NodeBiBinaryOperator;
 import com.github.jonathanxd.iutils.object.Node;
 
@@ -44,7 +45,7 @@ public interface ENodeBiBinaryOperator<T, U> extends NodeBiBinaryOperator<T, U> 
         try {
             return this.applyChecked(t, u, t2, u2);
         } catch (Exception th) {
-            throw new RuntimeException(th);
+            throw RethrowException.rethrow(th);
         }
     }
 
@@ -54,7 +55,7 @@ public interface ENodeBiBinaryOperator<T, U> extends NodeBiBinaryOperator<T, U> 
      *
      * Like other interfaces of this package, this interface implements a java corresponding
      * interface. All exceptions which occurs inside the lambda is rethrown in the implemented
-     * method using {@link RuntimeException}.
+     * method using {@link RethrowException#rethrow(Throwable)}.
      *
      * @return See {@link NodeBiBinaryOperator#apply}.
      * @throws Exception Exception occurred inside of function.

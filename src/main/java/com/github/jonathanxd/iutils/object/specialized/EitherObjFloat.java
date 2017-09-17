@@ -27,15 +27,16 @@
  */
 package com.github.jonathanxd.iutils.object.specialized;
 
-import com.github.jonathanxd.iutils.annotation.Generated;
 import com.github.jonathanxd.iutils.function.consumer.FloatConsumer;
 import com.github.jonathanxd.iutils.function.function.FloatFunction;
+import com.github.jonathanxd.iutils.function.supplier.FloatSupplier;
 import com.github.jonathanxd.iutils.function.unary.FloatUnaryOperator;
 import com.github.jonathanxd.iutils.object.BaseEither;
 
 import java.util.NoSuchElementException;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * A class which can hold either {@link L} or {@link float} (in this documentation we call the hold
@@ -45,7 +46,6 @@ import java.util.function.Function;
  *
  * @param <L> Left value.
  */
-@Generated
 public abstract class EitherObjFloat<L> extends BaseEither {
 
     EitherObjFloat() {
@@ -97,12 +97,57 @@ public abstract class EitherObjFloat<L> extends BaseEither {
     public abstract L getLeft();
 
     /**
+     * Returns left value or {@code value} if this is a {@link EitherObjFloat#right(float)}.
+     *
+     * @param value Value to return if this is a {@link EitherObjFloat#right(float)}
+     * @return Left value or {@code value} if this is a {@link EitherObjFloat#right(float)}.
+     */
+    public abstract L leftOr(L value);
+
+    /**
+     * Returns left value or {@code null} if this is a {@link EitherObjFloat#right(float)}.
+     *
+     * @return Left value or {@code null} if this is a {@link EitherObjFloat#right(float)}.
+     */
+    public final L leftOrNull() {
+        return this.leftOr(null);
+    }
+
+    /**
+     * Returns left value or value supplied by {@code supplier} if this is a {@link
+     * EitherObjFloat#right(float)}.
+     *
+     * @param supplier Supplier of value to return if this is a {@link EitherObjFloat#right(float)}
+     * @return Left value or value supplied by {@code supplier} if this is a {@link
+     * EitherObjFloat#right(float)}.
+     */
+    public abstract L leftOrGet(Supplier<L> supplier);
+
+    /**
      * Gets right value.
      *
      * @return Right value.
      * @throws NoSuchElementException If the right value is not present.
      */
     public abstract float getRight();
+
+    /**
+     * Returns right value or {@code value} if this is a {@link EitherObjFloat#left(Object)}.
+     *
+     * @param value Value to return if this is a {@link EitherObjFloat#left(Object)}
+     * @return Right value or {@code value} if this is a {@link EitherObjFloat#left(Object)}.
+     */
+    public abstract float rightOr(float value);
+
+    /**
+     * Returns right value or value supplied by {@code supplier} if this is a {@link
+     * EitherObjFloat#left(Object)}.
+     *
+     * @param supplier Supplier of value to return if this is a {@link EitherObjFloat#left(Object)}
+     * @return Right value or value supplied by {@code supplier} if this is a {@link
+     * EitherObjFloat#left(Object)}.
+     */
+    public abstract float rightOrGet(FloatSupplier supplier);
 
     /**
      * Left value. (Kotlin compatibility purpose)
@@ -231,8 +276,28 @@ public abstract class EitherObjFloat<L> extends BaseEither {
         }
 
         @Override
+        public L leftOr(L value) {
+            return this.getLeft();
+        }
+
+        @Override
+        public L leftOrGet(Supplier<L> supplier) {
+            return this.getLeft();
+        }
+
+        @Override
         public float getRight() {
             throw new NoSuchElementException();
+        }
+
+        @Override
+        public float rightOr(float value) {
+            return value;
+        }
+
+        @Override
+        public float rightOrGet(FloatSupplier supplier) {
+            return supplier.get();
         }
 
         @Override
@@ -306,8 +371,28 @@ public abstract class EitherObjFloat<L> extends BaseEither {
         }
 
         @Override
+        public L leftOr(L value) {
+            return value;
+        }
+
+        @Override
+        public L leftOrGet(Supplier<L> supplier) {
+            return supplier.get();
+        }
+
+        @Override
         public float getRight() {
             return this.value;
+        }
+
+        @Override
+        public float rightOr(float value) {
+            return this.getRight();
+        }
+
+        @Override
+        public float rightOrGet(FloatSupplier supplier) {
+            return this.getRight();
         }
 
         @Override
@@ -340,6 +425,7 @@ public abstract class EitherObjFloat<L> extends BaseEither {
             return EitherObjFloat.right(rightMapper.apply(this.getRight()));
         }
 
+
         @Override
         public <ML> EitherObjFloat<ML> flatMap(Function<? super L, ? extends EitherObjFloat<ML>> leftMapper,
                                                FloatFunction<? extends EitherObjFloat<ML>> rightMapper) {
@@ -355,5 +441,6 @@ public abstract class EitherObjFloat<L> extends BaseEither {
         public EitherObjFloat<L> flatMapRight(FloatFunction<? extends EitherObjFloat<L>> rightMapper) {
             return rightMapper.apply(this.getRight());
         }
+
     }
 }

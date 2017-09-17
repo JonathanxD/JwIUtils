@@ -30,6 +30,7 @@ package com.github.jonathanxd.iutils.object;
 import java.util.NoSuchElementException;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * A class which can hold either {@link L} or {@link R} (in this documentation we call the hold
@@ -92,12 +93,66 @@ public abstract class Either<L, R> extends BaseEither {
     public abstract L getLeft();
 
     /**
+     * Returns left value or {@code value} if this is a {@link Either#right(Object)}.
+     *
+     * @param value Value to return if this is a {@link Either#right(Object)}
+     * @return Left value or {@code value} if this is a {@link Either#right(Object)}.
+     */
+    public abstract L leftOr(L value);
+
+    /**
+     * Returns left value or {@code null} if this is a {@link Either#right(Object)}.
+     *
+     * @return Left value or {@code null} if this is a {@link Either#right(Object)}.
+     */
+    public final L leftOrNull() {
+        return this.leftOr(null);
+    }
+
+    /**
+     * Returns left value or value supplied by {@code supplier} if this is a {@link
+     * Either#right(Object)}.
+     *
+     * @param supplier Supplier of value to return if this is a {@link Either#right(Object)}
+     * @return Left value or value supplied by {@code supplier} if this is a {@link
+     * Either#right(Object)}.
+     */
+    public abstract L leftOrGet(Supplier<L> supplier);
+
+    /**
      * Gets right value.
      *
      * @return Right value.
      * @throws NoSuchElementException If the right value is not present.
      */
     public abstract R getRight();
+
+    /**
+     * Returns right value or {@code value} if this is a {@link Either#left(Object)}.
+     *
+     * @param value Value to return if this is a {@link Either#left(Object)}
+     * @return Right value or {@code value} if this is a {@link Either#left(Object)}.
+     */
+    public abstract R rightOr(R value);
+
+    /**
+     * Returns right value or {@code null} if this is a {@link Either#left(Object)}.
+     *
+     * @return Right value or {@code null} if this is a {@link Either#left(Object)}.
+     */
+    public final R rightOrNull() {
+        return this.rightOr(null);
+    }
+
+    /**
+     * Returns right value or value supplied by {@code supplier} if this is a {@link
+     * Either#left(Object)}.
+     *
+     * @param supplier Supplier of value to return if this is a {@link Either#left(Object)}
+     * @return Right value or value supplied by {@code supplier} if this is a {@link
+     * Either#left(Object)}.
+     */
+    public abstract R rightOrGet(Supplier<R> supplier);
 
     /**
      * Left value. (Kotlin compatibility purpose)
@@ -229,8 +284,28 @@ public abstract class Either<L, R> extends BaseEither {
         }
 
         @Override
+        public L leftOr(L value) {
+            return this.getLeft();
+        }
+
+        @Override
+        public L leftOrGet(Supplier<L> supplier) {
+            return this.getLeft();
+        }
+
+        @Override
         public R getRight() {
             throw new NoSuchElementException();
+        }
+
+        @Override
+        public R rightOr(R value) {
+            return value;
+        }
+
+        @Override
+        public R rightOrGet(Supplier<R> supplier) {
+            return supplier.get();
         }
 
         @Override
@@ -303,8 +378,28 @@ public abstract class Either<L, R> extends BaseEither {
         }
 
         @Override
+        public L leftOr(L value) {
+            return value;
+        }
+
+        @Override
+        public L leftOrGet(Supplier<L> supplier) {
+            return supplier.get();
+        }
+
+        @Override
         public R getRight() {
             return this.value;
+        }
+
+        @Override
+        public R rightOrGet(Supplier<R> supplier) {
+            return this.getRight();
+        }
+
+        @Override
+        public R rightOr(R value) {
+            return this.getRight();
         }
 
         @Override

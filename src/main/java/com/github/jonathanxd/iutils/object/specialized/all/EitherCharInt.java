@@ -30,6 +30,7 @@ package com.github.jonathanxd.iutils.object.specialized.all;
 import com.github.jonathanxd.iutils.annotation.Generated;
 import com.github.jonathanxd.iutils.function.consumer.CharConsumer;
 import com.github.jonathanxd.iutils.function.function.CharFunction;
+import com.github.jonathanxd.iutils.function.supplier.CharSupplier;
 import com.github.jonathanxd.iutils.function.unary.CharUnaryOperator;
 import com.github.jonathanxd.iutils.function.unary.IntUnaryOperator;
 import com.github.jonathanxd.iutils.object.BaseEither;
@@ -37,6 +38,7 @@ import com.github.jonathanxd.iutils.object.BaseEither;
 import java.util.NoSuchElementException;
 import java.util.function.IntConsumer;
 import java.util.function.IntFunction;
+import java.util.function.IntSupplier;
 
 /**
  * A class which can hold either {@link char} or {@link int} (in this documentation we call the hold
@@ -93,12 +95,48 @@ public abstract class EitherCharInt extends BaseEither {
     public abstract char getLeft();
 
     /**
+     * Returns left value or {@code value} if this is a {@link EitherCharInt#right(int)}.
+     *
+     * @param value Value to return if this is a {@link EitherCharInt#right(int)}
+     * @return Left value or {@code value} if this is a {@link EitherCharInt#right(int)}.
+     */
+    public abstract char leftOr(char value);
+
+    /**
+     * Returns left value or value supplied by {@code supplier} if this is a {@link
+     * EitherCharInt#right(int)}.
+     *
+     * @param supplier Supplier of value to return if this is a {@link EitherCharInt#right(int)}
+     * @return Left value or value supplied by {@code supplier} if this is a {@link
+     * EitherCharInt#right(int)}.
+     */
+    public abstract char leftOrGet(CharSupplier supplier);
+
+    /**
      * Gets right value.
      *
      * @return Right value.
      * @throws NoSuchElementException If the right value is not present.
      */
     public abstract int getRight();
+
+    /**
+     * Returns right value or {@code value} if this is a {@link EitherCharInt#left(char)}.
+     *
+     * @param value Value to return if this is a {@link EitherCharInt#left(char)}
+     * @return Right value or {@code value} if this is a {@link EitherCharInt#left(char)}.
+     */
+    public abstract int rightOr(int value);
+
+    /**
+     * Returns right value or value supplied by {@code supplier} if this is a {@link
+     * EitherCharInt#left(char)}.
+     *
+     * @param supplier Supplier of value to return if this is a {@link EitherCharInt#left(char)}
+     * @return Right value or value supplied by {@code supplier} if this is a {@link
+     * EitherCharInt#left(char)}.
+     */
+    public abstract int rightOrGet(IntSupplier supplier);
 
     /**
      * Left value. (Kotlin compatibility purpose)
@@ -223,8 +261,28 @@ public abstract class EitherCharInt extends BaseEither {
         }
 
         @Override
+        public char leftOr(char value) {
+            return this.getLeft();
+        }
+
+        @Override
+        public char leftOrGet(CharSupplier supplier) {
+            return this.getLeft();
+        }
+
+        @Override
         public int getRight() {
             throw new NoSuchElementException();
+        }
+
+        @Override
+        public int rightOr(int value) {
+            return value;
+        }
+
+        @Override
+        public int rightOrGet(IntSupplier supplier) {
+            return supplier.getAsInt();
         }
 
         @Override
@@ -296,8 +354,28 @@ public abstract class EitherCharInt extends BaseEither {
         }
 
         @Override
+        public char leftOr(char value) {
+            return value;
+        }
+
+        @Override
+        public char leftOrGet(CharSupplier supplier) {
+            return supplier.get();
+        }
+
+        @Override
         public int getRight() {
             return this.value;
+        }
+
+        @Override
+        public int rightOr(int value) {
+            return this.getRight();
+        }
+
+        @Override
+        public int rightOrGet(IntSupplier supplier) {
+            return this.getRight();
         }
 
         @Override

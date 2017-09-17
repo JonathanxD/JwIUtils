@@ -27,6 +27,7 @@
  */
 package com.github.jonathanxd.iutils.function.checked.binary;
 
+import com.github.jonathanxd.iutils.exception.RethrowException;
 import com.github.jonathanxd.iutils.function.binary.StackBiBinaryOperator;
 
 /**
@@ -42,7 +43,7 @@ public interface EStackBiBinaryOperator<T, PLAIN_T, U> extends StackBiBinaryOper
         try {
             return this.applyChecked(value, value2, value3, value4);
         } catch (Exception th) {
-            throw new RuntimeException(th);
+            throw RethrowException.rethrow(th);
         }
     }
 
@@ -52,7 +53,7 @@ public interface EStackBiBinaryOperator<T, PLAIN_T, U> extends StackBiBinaryOper
      *
      * Like other interfaces of this package, this interface implements a java corresponding
      * interface. All exceptions which occurs inside the lambda is rethrown in the implemented
-     * method using {@link RuntimeException}.
+     * method using {@link RethrowException#rethrow(Throwable)}.
      *
      * @return See {@link StackBiBinaryOperator#apply}.
      * @throws Exception Exception occurred inside of function.

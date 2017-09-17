@@ -27,6 +27,8 @@
  */
 package com.github.jonathanxd.iutils.function.checked.comparator;
 
+import com.github.jonathanxd.iutils.exception.RethrowException;
+
 import java.util.Comparator;
 
 /**
@@ -42,7 +44,7 @@ public interface CComparator<T> extends Comparator<T> {
         try {
             return this.compareChecked(t, t2);
         } catch (Throwable th) {
-            throw new RuntimeException(th);
+            throw RethrowException.rethrow(th);
         }
     }
 
@@ -52,7 +54,7 @@ public interface CComparator<T> extends Comparator<T> {
      *
      * Like other interfaces of this package, this interface implements a java corresponding
      * interface. All exceptions which occurs inside the lambda is rethrown in the implemented
-     * method using {@link RuntimeException}.
+     * method using {@link RethrowException#rethrow(Throwable)}.
      *
      * @return See {@link Comparator#compare}.
      * @throws Throwable Exception occurred inside of function.

@@ -35,8 +35,10 @@ import com.github.jonathanxd.iutils.function.unary.DoubleUnaryOperator;
 import com.github.jonathanxd.iutils.object.BaseEither;
 
 import java.util.NoSuchElementException;
+import java.util.function.BooleanSupplier;
 import java.util.function.DoubleConsumer;
 import java.util.function.DoubleFunction;
+import java.util.function.DoubleSupplier;
 
 /**
  * A class which can hold either {@link boolean} or {@link double} (in this documentation we call
@@ -93,12 +95,48 @@ public abstract class EitherBooleanDouble extends BaseEither {
     public abstract boolean getLeft();
 
     /**
+     * Returns left value or {@code value} if this is a {@link EitherBooleanDouble#right(double)}.
+     *
+     * @param value Value to return if this is a {@link EitherBooleanDouble#right(double)}
+     * @return Left value or {@code value} if this is a {@link EitherBooleanDouble#right(double)}.
+     */
+    public abstract boolean leftOr(boolean value);
+
+    /**
+     * Returns left value or value supplied by {@code supplier} if this is a {@link
+     * EitherBooleanDouble#right(double)}.
+     *
+     * @param supplier Supplier of value to return if this is a {@link EitherBooleanDouble#right(double)}
+     * @return Left value or value supplied by {@code supplier} if this is a {@link
+     * EitherBooleanDouble#right(double)}.
+     */
+    public abstract boolean leftOrGet(BooleanSupplier supplier);
+
+    /**
      * Gets right value.
      *
      * @return Right value.
      * @throws NoSuchElementException If the right value is not present.
      */
     public abstract double getRight();
+
+    /**
+     * Returns right value or {@code value} if this is a {@link EitherBooleanDouble#left(boolean)}.
+     *
+     * @param value Value to return if this is a {@link EitherBooleanDouble#left(boolean)}
+     * @return Right value or {@code value} if this is a {@link EitherBooleanDouble#left(boolean)}.
+     */
+    public abstract double rightOr(double value);
+
+    /**
+     * Returns right value or value supplied by {@code supplier} if this is a {@link
+     * EitherBooleanDouble#left(boolean)}.
+     *
+     * @param supplier Supplier of value to return if this is a {@link EitherBooleanDouble#left(boolean)}
+     * @return Right value or value supplied by {@code supplier} if this is a {@link
+     * EitherBooleanDouble#left(boolean)}.
+     */
+    public abstract double rightOrGet(DoubleSupplier supplier);
 
     /**
      * Left value. (Kotlin compatibility purpose)
@@ -224,8 +262,28 @@ public abstract class EitherBooleanDouble extends BaseEither {
         }
 
         @Override
+        public boolean leftOr(boolean value) {
+            return this.getLeft();
+        }
+
+        @Override
+        public boolean leftOrGet(BooleanSupplier supplier) {
+            return this.getLeft();
+        }
+
+        @Override
         public double getRight() {
             throw new NoSuchElementException();
+        }
+
+        @Override
+        public double rightOr(double value) {
+            return value;
+        }
+
+        @Override
+        public double rightOrGet(DoubleSupplier supplier) {
+            return supplier.getAsDouble();
         }
 
         @Override
@@ -297,8 +355,28 @@ public abstract class EitherBooleanDouble extends BaseEither {
         }
 
         @Override
+        public boolean leftOr(boolean value) {
+            return value;
+        }
+
+        @Override
+        public boolean leftOrGet(BooleanSupplier supplier) {
+            return supplier.getAsBoolean();
+        }
+
+        @Override
         public double getRight() {
             return this.value;
+        }
+
+        @Override
+        public double rightOr(double value) {
+            return this.getRight();
+        }
+
+        @Override
+        public double rightOrGet(DoubleSupplier supplier) {
+            return this.getRight();
         }
 
         @Override

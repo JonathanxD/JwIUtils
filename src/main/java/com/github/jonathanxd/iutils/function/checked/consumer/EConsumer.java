@@ -25,40 +25,40 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.function.checked.binary;
+package com.github.jonathanxd.iutils.function.checked.consumer;
 
 import com.github.jonathanxd.iutils.exception.RethrowException;
-import com.github.jonathanxd.iutils.function.binary.NodeBinaryOperator;
-import com.github.jonathanxd.iutils.object.Node;
+
+import java.util.function.Consumer;
 
 /**
- * {@link NodeBinaryOperator}
+ * {@link Consumer}
  *
  * @see com.github.jonathanxd.iutils.function.checked
  */
 @FunctionalInterface
-public interface CNodeBinaryOperator<T, U> extends NodeBinaryOperator<T, U> {
+public interface EConsumer<T> extends Consumer<T> {
 
     @Override
-    default Node<T, U> apply(T t, U u) {
+    default void accept(T value) {
         try {
-            return this.applyChecked(t, u);
-        } catch (Throwable th) {
-            throw RethrowException.rethrow(th);
+            this.acceptChecked(value);
+        } catch (Exception t) {
+            throw RethrowException.rethrow(t);
         }
     }
 
     /**
-     * {@link NodeBinaryOperator#apply} equivalent which declares a {@code throws} clauses, allowing
+     * {@link Consumer#accept(Object)} equivalent which declares a {@code throws} clauses, allowing
      * exceptions to be caught outside of lambda context.
      *
      * Like other interfaces of this package, this interface implements a java corresponding
      * interface. All exceptions which occurs inside the lambda is rethrown in the implemented
      * method using {@link RethrowException#rethrow(Throwable)}.
      *
-     * @return See {@link NodeBinaryOperator#apply}.
-     * @throws Throwable Exception occurred inside of function.
+     * @param value {@link Consumer#accept(Object)}.
+     * @throws Exception Exception occurred inside of function.
      */
-    Node<T, U> applyChecked(T t, U u) throws Throwable;
+    void acceptChecked(T value) throws Exception;
 
 }

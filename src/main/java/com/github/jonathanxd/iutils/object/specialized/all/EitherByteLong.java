@@ -30,6 +30,7 @@ package com.github.jonathanxd.iutils.object.specialized.all;
 import com.github.jonathanxd.iutils.annotation.Generated;
 import com.github.jonathanxd.iutils.function.consumer.ByteConsumer;
 import com.github.jonathanxd.iutils.function.function.ByteFunction;
+import com.github.jonathanxd.iutils.function.supplier.ByteSupplier;
 import com.github.jonathanxd.iutils.function.unary.ByteUnaryOperator;
 import com.github.jonathanxd.iutils.function.unary.LongUnaryOperator;
 import com.github.jonathanxd.iutils.object.BaseEither;
@@ -37,6 +38,7 @@ import com.github.jonathanxd.iutils.object.BaseEither;
 import java.util.NoSuchElementException;
 import java.util.function.LongConsumer;
 import java.util.function.LongFunction;
+import java.util.function.LongSupplier;
 
 /**
  * A class which can hold either {@link byte} or {@link long} (in this documentation we call the
@@ -93,12 +95,48 @@ public abstract class EitherByteLong extends BaseEither {
     public abstract byte getLeft();
 
     /**
+     * Returns left value or {@code value} if this is a {@link EitherByteLong#right(long)}.
+     *
+     * @param value Value to return if this is a {@link EitherByteLong#right(long)}
+     * @return Left value or {@code value} if this is a {@link EitherByteLong#right(long)}.
+     */
+    public abstract byte leftOr(byte value);
+
+    /**
+     * Returns left value or value supplied by {@code supplier} if this is a {@link
+     * EitherByteLong#right(long)}.
+     *
+     * @param supplier Supplier of value to return if this is a {@link EitherByteLong#right(long)}
+     * @return Left value or value supplied by {@code supplier} if this is a {@link
+     * EitherByteLong#right(long)}.
+     */
+    public abstract byte leftOrGet(ByteSupplier supplier);
+
+    /**
      * Gets right value.
      *
      * @return Right value.
      * @throws NoSuchElementException If the right value is not present.
      */
     public abstract long getRight();
+
+    /**
+     * Returns right value or {@code value} if this is a {@link EitherByteLong#left(byte)}.
+     *
+     * @param value Value to return if this is a {@link EitherByteLong#left(byte)}
+     * @return Right value or {@code value} if this is a {@link EitherByteLong#left(byte)}.
+     */
+    public abstract long rightOr(long value);
+
+    /**
+     * Returns right value or value supplied by {@code supplier} if this is a {@link
+     * EitherByteLong#left(byte)}.
+     *
+     * @param supplier Supplier of value to return if this is a {@link EitherByteLong#left(byte)}
+     * @return Right value or value supplied by {@code supplier} if this is a {@link
+     * EitherByteLong#left(byte)}.
+     */
+    public abstract long rightOrGet(LongSupplier supplier);
 
     /**
      * Left value. (Kotlin compatibility purpose)
@@ -223,8 +261,28 @@ public abstract class EitherByteLong extends BaseEither {
         }
 
         @Override
+        public byte leftOr(byte value) {
+            return this.getLeft();
+        }
+
+        @Override
+        public byte leftOrGet(ByteSupplier supplier) {
+            return this.getLeft();
+        }
+
+        @Override
         public long getRight() {
             throw new NoSuchElementException();
+        }
+
+        @Override
+        public long rightOr(long value) {
+            return value;
+        }
+
+        @Override
+        public long rightOrGet(LongSupplier supplier) {
+            return supplier.getAsLong();
         }
 
         @Override
@@ -296,8 +354,28 @@ public abstract class EitherByteLong extends BaseEither {
         }
 
         @Override
+        public byte leftOr(byte value) {
+            return value;
+        }
+
+        @Override
+        public byte leftOrGet(ByteSupplier supplier) {
+            return supplier.get();
+        }
+
+        @Override
         public long getRight() {
             return this.value;
+        }
+
+        @Override
+        public long rightOr(long value) {
+            return this.getRight();
+        }
+
+        @Override
+        public long rightOrGet(LongSupplier supplier) {
+            return this.getRight();
         }
 
         @Override

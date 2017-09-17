@@ -27,6 +27,7 @@
  */
 package com.github.jonathanxd.iutils.function.checked.supplier;
 
+import com.github.jonathanxd.iutils.exception.RethrowException;
 import com.github.jonathanxd.iutils.function.supplier.PairSupplier;
 import com.github.jonathanxd.iutils.object.Pair;
 
@@ -43,7 +44,7 @@ public interface CPairSupplier<T, U> extends PairSupplier<T, U> {
         try {
             return this.getChecked();
         } catch (Throwable t) {
-            throw new RuntimeException(t);
+            throw RethrowException.rethrow(t);
         }
     }
 
@@ -53,7 +54,7 @@ public interface CPairSupplier<T, U> extends PairSupplier<T, U> {
      *
      * Like other interfaces of this package, this interface implements a java corresponding
      * interface. All exceptions which occurs inside the lambda is rethrown in the implemented
-     * method using {@link RuntimeException}.
+     * method using {@link RethrowException#rethrow(Throwable)}.
      *
      * @return See {@link PairSupplier#get}.
      * @throws Throwable Exception occurred inside of function.

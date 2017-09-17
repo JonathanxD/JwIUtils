@@ -27,6 +27,8 @@
  */
 package com.github.jonathanxd.iutils.function.checked.function;
 
+import com.github.jonathanxd.iutils.exception.RethrowException;
+
 import java.util.function.Function;
 
 /**
@@ -42,7 +44,7 @@ public interface CFunction<T, R> extends Function<T, R> {
         try {
             return this.applyChecked(t);
         } catch (Throwable th) {
-            throw new RuntimeException(th);
+            throw RethrowException.rethrow(th);
         }
     }
 
@@ -52,7 +54,7 @@ public interface CFunction<T, R> extends Function<T, R> {
      *
      * Like other interfaces of this package, this interface implements a java corresponding
      * interface. All exceptions which occurs inside the lambda is rethrown in the implemented
-     * method using {@link RuntimeException}.
+     * method using {@link RethrowException#rethrow(Throwable)}.
      *
      * @return See {@link Function#apply}.
      * @throws Throwable Exception occurred inside of function.

@@ -32,6 +32,8 @@ import com.github.jonathanxd.iutils.function.consumer.ByteConsumer;
 import com.github.jonathanxd.iutils.function.consumer.ShortConsumer;
 import com.github.jonathanxd.iutils.function.function.ByteFunction;
 import com.github.jonathanxd.iutils.function.function.ShortFunction;
+import com.github.jonathanxd.iutils.function.supplier.ByteSupplier;
+import com.github.jonathanxd.iutils.function.supplier.ShortSupplier;
 import com.github.jonathanxd.iutils.function.unary.ByteUnaryOperator;
 import com.github.jonathanxd.iutils.function.unary.ShortUnaryOperator;
 import com.github.jonathanxd.iutils.object.BaseEither;
@@ -93,12 +95,48 @@ public abstract class EitherByteShort extends BaseEither {
     public abstract byte getLeft();
 
     /**
+     * Returns left value or {@code value} if this is a {@link EitherByteShort#right(short)}.
+     *
+     * @param value Value to return if this is a {@link EitherByteShort#right(short)}
+     * @return Left value or {@code value} if this is a {@link EitherByteShort#right(short)}.
+     */
+    public abstract byte leftOr(byte value);
+
+    /**
+     * Returns left value or value supplied by {@code supplier} if this is a {@link
+     * EitherByteShort#right(short)}.
+     *
+     * @param supplier Supplier of value to return if this is a {@link EitherByteShort#right(short)}
+     * @return Left value or value supplied by {@code supplier} if this is a {@link
+     * EitherByteShort#right(short)}.
+     */
+    public abstract byte leftOrGet(ByteSupplier supplier);
+
+    /**
      * Gets right value.
      *
      * @return Right value.
      * @throws NoSuchElementException If the right value is not present.
      */
     public abstract short getRight();
+
+    /**
+     * Returns right value or {@code value} if this is a {@link EitherByteShort#left(byte)}.
+     *
+     * @param value Value to return if this is a {@link EitherByteShort#left(byte)}
+     * @return Right value or {@code value} if this is a {@link EitherByteShort#left(byte)}.
+     */
+    public abstract short rightOr(short value);
+
+    /**
+     * Returns right value or value supplied by {@code supplier} if this is a {@link
+     * EitherByteShort#left(byte)}.
+     *
+     * @param supplier Supplier of value to return if this is a {@link EitherByteShort#left(byte)}
+     * @return Right value or value supplied by {@code supplier} if this is a {@link
+     * EitherByteShort#left(byte)}.
+     */
+    public abstract short rightOrGet(ShortSupplier supplier);
 
     /**
      * Left value. (Kotlin compatibility purpose)
@@ -223,8 +261,28 @@ public abstract class EitherByteShort extends BaseEither {
         }
 
         @Override
+        public byte leftOr(byte value) {
+            return this.getLeft();
+        }
+
+        @Override
+        public byte leftOrGet(ByteSupplier supplier) {
+            return this.getLeft();
+        }
+
+        @Override
         public short getRight() {
             throw new NoSuchElementException();
+        }
+
+        @Override
+        public short rightOr(short value) {
+            return value;
+        }
+
+        @Override
+        public short rightOrGet(ShortSupplier supplier) {
+            return supplier.get();
         }
 
         @Override
@@ -296,8 +354,28 @@ public abstract class EitherByteShort extends BaseEither {
         }
 
         @Override
+        public byte leftOr(byte value) {
+            return value;
+        }
+
+        @Override
+        public byte leftOrGet(ByteSupplier supplier) {
+            return supplier.get();
+        }
+
+        @Override
         public short getRight() {
             return this.value;
+        }
+
+        @Override
+        public short rightOr(short value) {
+            return this.getRight();
+        }
+
+        @Override
+        public short rightOrGet(ShortSupplier supplier) {
+            return this.getRight();
         }
 
         @Override

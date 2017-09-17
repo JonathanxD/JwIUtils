@@ -32,6 +32,8 @@ import com.github.jonathanxd.iutils.function.consumer.FloatConsumer;
 import com.github.jonathanxd.iutils.function.consumer.ShortConsumer;
 import com.github.jonathanxd.iutils.function.function.FloatFunction;
 import com.github.jonathanxd.iutils.function.function.ShortFunction;
+import com.github.jonathanxd.iutils.function.supplier.FloatSupplier;
+import com.github.jonathanxd.iutils.function.supplier.ShortSupplier;
 import com.github.jonathanxd.iutils.function.unary.FloatUnaryOperator;
 import com.github.jonathanxd.iutils.function.unary.ShortUnaryOperator;
 import com.github.jonathanxd.iutils.object.BaseEither;
@@ -93,12 +95,48 @@ public abstract class EitherShortFloat extends BaseEither {
     public abstract short getLeft();
 
     /**
+     * Returns left value or {@code value} if this is a {@link EitherShortFloat#right(float)}.
+     *
+     * @param value Value to return if this is a {@link EitherShortFloat#right(float)}
+     * @return Left value or {@code value} if this is a {@link EitherShortFloat#right(float)}.
+     */
+    public abstract short leftOr(short value);
+
+    /**
+     * Returns left value or value supplied by {@code supplier} if this is a {@link
+     * EitherShortFloat#right(float)}.
+     *
+     * @param supplier Supplier of value to return if this is a {@link EitherShortFloat#right(float)}
+     * @return Left value or value supplied by {@code supplier} if this is a {@link
+     * EitherShortFloat#right(float)}.
+     */
+    public abstract short leftOrGet(ShortSupplier supplier);
+
+    /**
      * Gets right value.
      *
      * @return Right value.
      * @throws NoSuchElementException If the right value is not present.
      */
     public abstract float getRight();
+
+    /**
+     * Returns right value or {@code value} if this is a {@link EitherShortFloat#left(short)}.
+     *
+     * @param value Value to return if this is a {@link EitherShortFloat#left(short)}
+     * @return Right value or {@code value} if this is a {@link EitherShortFloat#left(short)}.
+     */
+    public abstract float rightOr(float value);
+
+    /**
+     * Returns right value or value supplied by {@code supplier} if this is a {@link
+     * EitherShortFloat#left(short)}.
+     *
+     * @param supplier Supplier of value to return if this is a {@link EitherShortFloat#left(short)}
+     * @return Right value or value supplied by {@code supplier} if this is a {@link
+     * EitherShortFloat#left(short)}.
+     */
+    public abstract float rightOrGet(FloatSupplier supplier);
 
     /**
      * Left value. (Kotlin compatibility purpose)
@@ -223,8 +261,28 @@ public abstract class EitherShortFloat extends BaseEither {
         }
 
         @Override
+        public short leftOr(short value) {
+            return this.getLeft();
+        }
+
+        @Override
+        public short leftOrGet(ShortSupplier supplier) {
+            return this.getLeft();
+        }
+
+        @Override
         public float getRight() {
             throw new NoSuchElementException();
+        }
+
+        @Override
+        public float rightOr(float value) {
+            return value;
+        }
+
+        @Override
+        public float rightOrGet(FloatSupplier supplier) {
+            return supplier.get();
         }
 
         @Override
@@ -296,8 +354,28 @@ public abstract class EitherShortFloat extends BaseEither {
         }
 
         @Override
+        public short leftOr(short value) {
+            return value;
+        }
+
+        @Override
+        public short leftOrGet(ShortSupplier supplier) {
+            return supplier.get();
+        }
+
+        @Override
         public float getRight() {
             return this.value;
+        }
+
+        @Override
+        public float rightOr(float value) {
+            return this.getRight();
+        }
+
+        @Override
+        public float rightOrGet(FloatSupplier supplier) {
+            return this.getRight();
         }
 
         @Override

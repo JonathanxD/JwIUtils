@@ -32,6 +32,8 @@ import com.github.jonathanxd.iutils.function.consumer.CharConsumer;
 import com.github.jonathanxd.iutils.function.consumer.FloatConsumer;
 import com.github.jonathanxd.iutils.function.function.CharFunction;
 import com.github.jonathanxd.iutils.function.function.FloatFunction;
+import com.github.jonathanxd.iutils.function.supplier.CharSupplier;
+import com.github.jonathanxd.iutils.function.supplier.FloatSupplier;
 import com.github.jonathanxd.iutils.function.unary.CharUnaryOperator;
 import com.github.jonathanxd.iutils.function.unary.FloatUnaryOperator;
 import com.github.jonathanxd.iutils.object.BaseEither;
@@ -93,12 +95,48 @@ public abstract class EitherCharFloat extends BaseEither {
     public abstract char getLeft();
 
     /**
+     * Returns left value or {@code value} if this is a {@link EitherCharFloat#right(float)}.
+     *
+     * @param value Value to return if this is a {@link EitherCharFloat#right(float)}
+     * @return Left value or {@code value} if this is a {@link EitherCharFloat#right(float)}.
+     */
+    public abstract char leftOr(char value);
+
+    /**
+     * Returns left value or value supplied by {@code supplier} if this is a {@link
+     * EitherCharFloat#right(float)}.
+     *
+     * @param supplier Supplier of value to return if this is a {@link EitherCharFloat#right(float)}
+     * @return Left value or value supplied by {@code supplier} if this is a {@link
+     * EitherCharFloat#right(float)}.
+     */
+    public abstract char leftOrGet(CharSupplier supplier);
+
+    /**
      * Gets right value.
      *
      * @return Right value.
      * @throws NoSuchElementException If the right value is not present.
      */
     public abstract float getRight();
+
+    /**
+     * Returns right value or {@code value} if this is a {@link EitherCharFloat#left(char)}.
+     *
+     * @param value Value to return if this is a {@link EitherCharFloat#left(char)}
+     * @return Right value or {@code value} if this is a {@link EitherCharFloat#left(char)}.
+     */
+    public abstract float rightOr(float value);
+
+    /**
+     * Returns right value or value supplied by {@code supplier} if this is a {@link
+     * EitherCharFloat#left(char)}.
+     *
+     * @param supplier Supplier of value to return if this is a {@link EitherCharFloat#left(char)}
+     * @return Right value or value supplied by {@code supplier} if this is a {@link
+     * EitherCharFloat#left(char)}.
+     */
+    public abstract float rightOrGet(FloatSupplier supplier);
 
     /**
      * Left value. (Kotlin compatibility purpose)
@@ -223,8 +261,28 @@ public abstract class EitherCharFloat extends BaseEither {
         }
 
         @Override
+        public char leftOr(char value) {
+            return this.getLeft();
+        }
+
+        @Override
+        public char leftOrGet(CharSupplier supplier) {
+            return this.getLeft();
+        }
+
+        @Override
         public float getRight() {
             throw new NoSuchElementException();
+        }
+
+        @Override
+        public float rightOr(float value) {
+            return value;
+        }
+
+        @Override
+        public float rightOrGet(FloatSupplier supplier) {
+            return supplier.get();
         }
 
         @Override
@@ -296,8 +354,28 @@ public abstract class EitherCharFloat extends BaseEither {
         }
 
         @Override
+        public char leftOr(char value) {
+            return value;
+        }
+
+        @Override
+        public char leftOrGet(CharSupplier supplier) {
+            return supplier.get();
+        }
+
+        @Override
         public float getRight() {
             return this.value;
+        }
+
+        @Override
+        public float rightOr(float value) {
+            return this.getRight();
+        }
+
+        @Override
+        public float rightOrGet(FloatSupplier supplier) {
+            return this.getRight();
         }
 
         @Override

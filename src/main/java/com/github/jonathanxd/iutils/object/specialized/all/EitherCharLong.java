@@ -30,6 +30,7 @@ package com.github.jonathanxd.iutils.object.specialized.all;
 import com.github.jonathanxd.iutils.annotation.Generated;
 import com.github.jonathanxd.iutils.function.consumer.CharConsumer;
 import com.github.jonathanxd.iutils.function.function.CharFunction;
+import com.github.jonathanxd.iutils.function.supplier.CharSupplier;
 import com.github.jonathanxd.iutils.function.unary.CharUnaryOperator;
 import com.github.jonathanxd.iutils.function.unary.LongUnaryOperator;
 import com.github.jonathanxd.iutils.object.BaseEither;
@@ -37,6 +38,7 @@ import com.github.jonathanxd.iutils.object.BaseEither;
 import java.util.NoSuchElementException;
 import java.util.function.LongConsumer;
 import java.util.function.LongFunction;
+import java.util.function.LongSupplier;
 
 /**
  * A class which can hold either {@link char} or {@link long} (in this documentation we call the
@@ -93,12 +95,48 @@ public abstract class EitherCharLong extends BaseEither {
     public abstract char getLeft();
 
     /**
+     * Returns left value or {@code value} if this is a {@link EitherCharLong#right(long)}.
+     *
+     * @param value Value to return if this is a {@link EitherCharLong#right(long)}
+     * @return Left value or {@code value} if this is a {@link EitherCharLong#right(long)}.
+     */
+    public abstract char leftOr(char value);
+
+    /**
+     * Returns left value or value supplied by {@code supplier} if this is a {@link
+     * EitherCharLong#right(long)}.
+     *
+     * @param supplier Supplier of value to return if this is a {@link EitherCharLong#right(long)}
+     * @return Left value or value supplied by {@code supplier} if this is a {@link
+     * EitherCharLong#right(long)}.
+     */
+    public abstract char leftOrGet(CharSupplier supplier);
+
+    /**
      * Gets right value.
      *
      * @return Right value.
      * @throws NoSuchElementException If the right value is not present.
      */
     public abstract long getRight();
+
+    /**
+     * Returns right value or {@code value} if this is a {@link EitherCharLong#left(char)}.
+     *
+     * @param value Value to return if this is a {@link EitherCharLong#left(char)}
+     * @return Right value or {@code value} if this is a {@link EitherCharLong#left(char)}.
+     */
+    public abstract long rightOr(long value);
+
+    /**
+     * Returns right value or value supplied by {@code supplier} if this is a {@link
+     * EitherCharLong#left(char)}.
+     *
+     * @param supplier Supplier of value to return if this is a {@link EitherCharLong#left(char)}
+     * @return Right value or value supplied by {@code supplier} if this is a {@link
+     * EitherCharLong#left(char)}.
+     */
+    public abstract long rightOrGet(LongSupplier supplier);
 
     /**
      * Left value. (Kotlin compatibility purpose)
@@ -223,8 +261,28 @@ public abstract class EitherCharLong extends BaseEither {
         }
 
         @Override
+        public char leftOr(char value) {
+            return this.getLeft();
+        }
+
+        @Override
+        public char leftOrGet(CharSupplier supplier) {
+            return this.getLeft();
+        }
+
+        @Override
         public long getRight() {
             throw new NoSuchElementException();
+        }
+
+        @Override
+        public long rightOr(long value) {
+            return value;
+        }
+
+        @Override
+        public long rightOrGet(LongSupplier supplier) {
+            return supplier.getAsLong();
         }
 
         @Override
@@ -296,8 +354,28 @@ public abstract class EitherCharLong extends BaseEither {
         }
 
         @Override
+        public char leftOr(char value) {
+            return value;
+        }
+
+        @Override
+        public char leftOrGet(CharSupplier supplier) {
+            return supplier.get();
+        }
+
+        @Override
         public long getRight() {
             return this.value;
+        }
+
+        @Override
+        public long rightOr(long value) {
+            return this.getRight();
+        }
+
+        @Override
+        public long rightOrGet(LongSupplier supplier) {
+            return this.getRight();
         }
 
         @Override

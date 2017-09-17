@@ -32,6 +32,8 @@ import com.github.jonathanxd.iutils.function.consumer.CharConsumer;
 import com.github.jonathanxd.iutils.function.consumer.ShortConsumer;
 import com.github.jonathanxd.iutils.function.function.CharFunction;
 import com.github.jonathanxd.iutils.function.function.ShortFunction;
+import com.github.jonathanxd.iutils.function.supplier.CharSupplier;
+import com.github.jonathanxd.iutils.function.supplier.ShortSupplier;
 import com.github.jonathanxd.iutils.function.unary.CharUnaryOperator;
 import com.github.jonathanxd.iutils.function.unary.ShortUnaryOperator;
 import com.github.jonathanxd.iutils.object.BaseEither;
@@ -93,12 +95,48 @@ public abstract class EitherShortChar extends BaseEither {
     public abstract short getLeft();
 
     /**
+     * Returns left value or {@code value} if this is a {@link EitherShortChar#right(char)}.
+     *
+     * @param value Value to return if this is a {@link EitherShortChar#right(char)}
+     * @return Left value or {@code value} if this is a {@link EitherShortChar#right(char)}.
+     */
+    public abstract short leftOr(short value);
+
+    /**
+     * Returns left value or value supplied by {@code supplier} if this is a {@link
+     * EitherShortChar#right(char)}.
+     *
+     * @param supplier Supplier of value to return if this is a {@link EitherShortChar#right(char)}
+     * @return Left value or value supplied by {@code supplier} if this is a {@link
+     * EitherShortChar#right(char)}.
+     */
+    public abstract short leftOrGet(ShortSupplier supplier);
+
+    /**
      * Gets right value.
      *
      * @return Right value.
      * @throws NoSuchElementException If the right value is not present.
      */
     public abstract char getRight();
+
+    /**
+     * Returns right value or {@code value} if this is a {@link EitherShortChar#left(short)}.
+     *
+     * @param value Value to return if this is a {@link EitherShortChar#left(short)}
+     * @return Right value or {@code value} if this is a {@link EitherShortChar#left(short)}.
+     */
+    public abstract char rightOr(char value);
+
+    /**
+     * Returns right value or value supplied by {@code supplier} if this is a {@link
+     * EitherShortChar#left(short)}.
+     *
+     * @param supplier Supplier of value to return if this is a {@link EitherShortChar#left(short)}
+     * @return Right value or value supplied by {@code supplier} if this is a {@link
+     * EitherShortChar#left(short)}.
+     */
+    public abstract char rightOrGet(CharSupplier supplier);
 
     /**
      * Left value. (Kotlin compatibility purpose)
@@ -223,8 +261,28 @@ public abstract class EitherShortChar extends BaseEither {
         }
 
         @Override
+        public short leftOr(short value) {
+            return this.getLeft();
+        }
+
+        @Override
+        public short leftOrGet(ShortSupplier supplier) {
+            return this.getLeft();
+        }
+
+        @Override
         public char getRight() {
             throw new NoSuchElementException();
+        }
+
+        @Override
+        public char rightOr(char value) {
+            return value;
+        }
+
+        @Override
+        public char rightOrGet(CharSupplier supplier) {
+            return supplier.get();
         }
 
         @Override
@@ -296,8 +354,28 @@ public abstract class EitherShortChar extends BaseEither {
         }
 
         @Override
+        public short leftOr(short value) {
+            return value;
+        }
+
+        @Override
+        public short leftOrGet(ShortSupplier supplier) {
+            return supplier.get();
+        }
+
+        @Override
         public char getRight() {
             return this.value;
+        }
+
+        @Override
+        public char rightOr(char value) {
+            return this.getRight();
+        }
+
+        @Override
+        public char rightOrGet(CharSupplier supplier) {
+            return this.getRight();
         }
 
         @Override

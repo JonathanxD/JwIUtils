@@ -27,7 +27,6 @@
  */
 package com.github.jonathanxd.iutils.object.specialized;
 
-import com.github.jonathanxd.iutils.annotation.Generated;
 import com.github.jonathanxd.iutils.function.unary.LongUnaryOperator;
 import com.github.jonathanxd.iutils.object.BaseEither;
 
@@ -36,6 +35,8 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.LongConsumer;
 import java.util.function.LongFunction;
+import java.util.function.LongSupplier;
+import java.util.function.Supplier;
 
 /**
  * A class which can hold either {@link L} or {@link long} (in this documentation we call the hold
@@ -45,7 +46,6 @@ import java.util.function.LongFunction;
  *
  * @param <L> Left value.
  */
-@Generated
 public abstract class EitherObjLong<L> extends BaseEither {
 
     EitherObjLong() {
@@ -97,12 +97,57 @@ public abstract class EitherObjLong<L> extends BaseEither {
     public abstract L getLeft();
 
     /**
+     * Returns left value or {@code value} if this is a {@link EitherObjLong#right(long)}.
+     *
+     * @param value Value to return if this is a {@link EitherObjLong#right(long)}
+     * @return Left value or {@code value} if this is a {@link EitherObjLong#right(long)}.
+     */
+    public abstract L leftOr(L value);
+
+    /**
+     * Returns left value or {@code null} if this is a {@link EitherObjLong#right(long)}.
+     *
+     * @return Left value or {@code null} if this is a {@link EitherObjLong#right(long)}.
+     */
+    public final L leftOrNull() {
+        return this.leftOr(null);
+    }
+
+    /**
+     * Returns left value or value supplied by {@code supplier} if this is a {@link
+     * EitherObjLong#right(long)}.
+     *
+     * @param supplier Supplier of value to return if this is a {@link EitherObjLong#right(long)}
+     * @return Left value or value supplied by {@code supplier} if this is a {@link
+     * EitherObjLong#right(long)}.
+     */
+    public abstract L leftOrGet(Supplier<L> supplier);
+
+    /**
      * Gets right value.
      *
      * @return Right value.
      * @throws NoSuchElementException If the right value is not present.
      */
     public abstract long getRight();
+
+    /**
+     * Returns right value or {@code value} if this is a {@link EitherObjLong#left(Object)}.
+     *
+     * @param value Value to return if this is a {@link EitherObjLong#left(Object)}
+     * @return Right value or {@code value} if this is a {@link EitherObjLong#left(Object)}.
+     */
+    public abstract long rightOr(long value);
+
+    /**
+     * Returns right value or value supplied by {@code supplier} if this is a {@link
+     * EitherObjLong#left(Object)}.
+     *
+     * @param supplier Supplier of value to return if this is a {@link EitherObjLong#left(Object)}
+     * @return Right value or value supplied by {@code supplier} if this is a {@link
+     * EitherObjLong#left(Object)}.
+     */
+    public abstract long rightOrGet(LongSupplier supplier);
 
     /**
      * Left value. (Kotlin compatibility purpose)
@@ -231,8 +276,28 @@ public abstract class EitherObjLong<L> extends BaseEither {
         }
 
         @Override
+        public L leftOr(L value) {
+            return this.getLeft();
+        }
+
+        @Override
+        public L leftOrGet(Supplier<L> supplier) {
+            return this.getLeft();
+        }
+
+        @Override
         public long getRight() {
             throw new NoSuchElementException();
+        }
+
+        @Override
+        public long rightOr(long value) {
+            return value;
+        }
+
+        @Override
+        public long rightOrGet(LongSupplier supplier) {
+            return supplier.getAsLong();
         }
 
         @Override
@@ -306,8 +371,28 @@ public abstract class EitherObjLong<L> extends BaseEither {
         }
 
         @Override
+        public L leftOr(L value) {
+            return value;
+        }
+
+        @Override
+        public L leftOrGet(Supplier<L> supplier) {
+            return supplier.get();
+        }
+
+        @Override
         public long getRight() {
             return this.value;
+        }
+
+        @Override
+        public long rightOr(long value) {
+            return this.getRight();
+        }
+
+        @Override
+        public long rightOrGet(LongSupplier supplier) {
+            return this.getRight();
         }
 
         @Override
@@ -340,6 +425,7 @@ public abstract class EitherObjLong<L> extends BaseEither {
             return EitherObjLong.right(rightMapper.apply(this.getRight()));
         }
 
+
         @Override
         public <ML> EitherObjLong<ML> flatMap(Function<? super L, ? extends EitherObjLong<ML>> leftMapper,
                                               LongFunction<? extends EitherObjLong<ML>> rightMapper) {
@@ -355,5 +441,6 @@ public abstract class EitherObjLong<L> extends BaseEither {
         public EitherObjLong<L> flatMapRight(LongFunction<? extends EitherObjLong<L>> rightMapper) {
             return rightMapper.apply(this.getRight());
         }
+
     }
 }

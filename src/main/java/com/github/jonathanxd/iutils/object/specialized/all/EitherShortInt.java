@@ -30,6 +30,7 @@ package com.github.jonathanxd.iutils.object.specialized.all;
 import com.github.jonathanxd.iutils.annotation.Generated;
 import com.github.jonathanxd.iutils.function.consumer.ShortConsumer;
 import com.github.jonathanxd.iutils.function.function.ShortFunction;
+import com.github.jonathanxd.iutils.function.supplier.ShortSupplier;
 import com.github.jonathanxd.iutils.function.unary.IntUnaryOperator;
 import com.github.jonathanxd.iutils.function.unary.ShortUnaryOperator;
 import com.github.jonathanxd.iutils.object.BaseEither;
@@ -37,6 +38,7 @@ import com.github.jonathanxd.iutils.object.BaseEither;
 import java.util.NoSuchElementException;
 import java.util.function.IntConsumer;
 import java.util.function.IntFunction;
+import java.util.function.IntSupplier;
 
 /**
  * A class which can hold either {@link short} or {@link int} (in this documentation we call the
@@ -93,12 +95,48 @@ public abstract class EitherShortInt extends BaseEither {
     public abstract short getLeft();
 
     /**
+     * Returns left value or {@code value} if this is a {@link EitherShortInt#right(int)}.
+     *
+     * @param value Value to return if this is a {@link EitherShortInt#right(int)}
+     * @return Left value or {@code value} if this is a {@link EitherShortInt#right(int)}.
+     */
+    public abstract short leftOr(short value);
+
+    /**
+     * Returns left value or value supplied by {@code supplier} if this is a {@link
+     * EitherShortInt#right(int)}.
+     *
+     * @param supplier Supplier of value to return if this is a {@link EitherShortInt#right(int)}
+     * @return Left value or value supplied by {@code supplier} if this is a {@link
+     * EitherShortInt#right(int)}.
+     */
+    public abstract short leftOrGet(ShortSupplier supplier);
+
+    /**
      * Gets right value.
      *
      * @return Right value.
      * @throws NoSuchElementException If the right value is not present.
      */
     public abstract int getRight();
+
+    /**
+     * Returns right value or {@code value} if this is a {@link EitherShortInt#left(short)}.
+     *
+     * @param value Value to return if this is a {@link EitherShortInt#left(short)}
+     * @return Right value or {@code value} if this is a {@link EitherShortInt#left(short)}.
+     */
+    public abstract int rightOr(int value);
+
+    /**
+     * Returns right value or value supplied by {@code supplier} if this is a {@link
+     * EitherShortInt#left(short)}.
+     *
+     * @param supplier Supplier of value to return if this is a {@link EitherShortInt#left(short)}
+     * @return Right value or value supplied by {@code supplier} if this is a {@link
+     * EitherShortInt#left(short)}.
+     */
+    public abstract int rightOrGet(IntSupplier supplier);
 
     /**
      * Left value. (Kotlin compatibility purpose)
@@ -223,8 +261,28 @@ public abstract class EitherShortInt extends BaseEither {
         }
 
         @Override
+        public short leftOr(short value) {
+            return this.getLeft();
+        }
+
+        @Override
+        public short leftOrGet(ShortSupplier supplier) {
+            return this.getLeft();
+        }
+
+        @Override
         public int getRight() {
             throw new NoSuchElementException();
+        }
+
+        @Override
+        public int rightOr(int value) {
+            return value;
+        }
+
+        @Override
+        public int rightOrGet(IntSupplier supplier) {
+            return supplier.getAsInt();
         }
 
         @Override
@@ -296,8 +354,28 @@ public abstract class EitherShortInt extends BaseEither {
         }
 
         @Override
+        public short leftOr(short value) {
+            return value;
+        }
+
+        @Override
+        public short leftOrGet(ShortSupplier supplier) {
+            return supplier.get();
+        }
+
+        @Override
         public int getRight() {
             return this.value;
+        }
+
+        @Override
+        public int rightOr(int value) {
+            return this.getRight();
+        }
+
+        @Override
+        public int rightOrGet(IntSupplier supplier) {
+            return this.getRight();
         }
 
         @Override

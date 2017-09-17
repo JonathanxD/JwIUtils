@@ -27,15 +27,16 @@
  */
 package com.github.jonathanxd.iutils.object.specialized;
 
-import com.github.jonathanxd.iutils.annotation.Generated;
 import com.github.jonathanxd.iutils.function.consumer.ShortConsumer;
 import com.github.jonathanxd.iutils.function.function.ShortFunction;
+import com.github.jonathanxd.iutils.function.supplier.ShortSupplier;
 import com.github.jonathanxd.iutils.function.unary.ShortUnaryOperator;
 import com.github.jonathanxd.iutils.object.BaseEither;
 
 import java.util.NoSuchElementException;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * A class which can hold either {@link L} or {@link short} (in this documentation we call the hold
@@ -45,7 +46,6 @@ import java.util.function.Function;
  *
  * @param <L> Left value.
  */
-@Generated
 public abstract class EitherObjShort<L> extends BaseEither {
 
     EitherObjShort() {
@@ -97,12 +97,57 @@ public abstract class EitherObjShort<L> extends BaseEither {
     public abstract L getLeft();
 
     /**
+     * Returns left value or {@code value} if this is a {@link EitherObjShort#right(short)}.
+     *
+     * @param value Value to return if this is a {@link EitherObjShort#right(short)}
+     * @return Left value or {@code value} if this is a {@link EitherObjShort#right(short)}.
+     */
+    public abstract L leftOr(L value);
+
+    /**
+     * Returns left value or {@code null} if this is a {@link EitherObjShort#right(short)}.
+     *
+     * @return Left value or {@code null} if this is a {@link EitherObjShort#right(short)}.
+     */
+    public final L leftOrNull() {
+        return this.leftOr(null);
+    }
+
+    /**
+     * Returns left value or value supplied by {@code supplier} if this is a {@link
+     * EitherObjShort#right(short)}.
+     *
+     * @param supplier Supplier of value to return if this is a {@link EitherObjShort#right(short)}
+     * @return Left value or value supplied by {@code supplier} if this is a {@link
+     * EitherObjShort#right(short)}.
+     */
+    public abstract L leftOrGet(Supplier<L> supplier);
+
+    /**
      * Gets right value.
      *
      * @return Right value.
      * @throws NoSuchElementException If the right value is not present.
      */
     public abstract short getRight();
+
+    /**
+     * Returns right value or {@code value} if this is a {@link EitherObjShort#left(Object)}.
+     *
+     * @param value Value to return if this is a {@link EitherObjShort#left(Object)}
+     * @return Right value or {@code value} if this is a {@link EitherObjShort#left(Object)}.
+     */
+    public abstract short rightOr(short value);
+
+    /**
+     * Returns right value or value supplied by {@code supplier} if this is a {@link
+     * EitherObjShort#left(Object)}.
+     *
+     * @param supplier Supplier of value to return if this is a {@link EitherObjShort#left(Object)}
+     * @return Right value or value supplied by {@code supplier} if this is a {@link
+     * EitherObjShort#left(Object)}.
+     */
+    public abstract short rightOrGet(ShortSupplier supplier);
 
     /**
      * Left value. (Kotlin compatibility purpose)
@@ -231,8 +276,28 @@ public abstract class EitherObjShort<L> extends BaseEither {
         }
 
         @Override
+        public L leftOr(L value) {
+            return this.getLeft();
+        }
+
+        @Override
+        public L leftOrGet(Supplier<L> supplier) {
+            return this.getLeft();
+        }
+
+        @Override
         public short getRight() {
             throw new NoSuchElementException();
+        }
+
+        @Override
+        public short rightOr(short value) {
+            return value;
+        }
+
+        @Override
+        public short rightOrGet(ShortSupplier supplier) {
+            return supplier.get();
         }
 
         @Override
@@ -306,8 +371,28 @@ public abstract class EitherObjShort<L> extends BaseEither {
         }
 
         @Override
+        public L leftOr(L value) {
+            return value;
+        }
+
+        @Override
+        public L leftOrGet(Supplier<L> supplier) {
+            return supplier.get();
+        }
+
+        @Override
         public short getRight() {
             return this.value;
+        }
+
+        @Override
+        public short rightOr(short value) {
+            return this.getRight();
+        }
+
+        @Override
+        public short rightOrGet(ShortSupplier supplier) {
+            return this.getRight();
         }
 
         @Override
@@ -340,6 +425,7 @@ public abstract class EitherObjShort<L> extends BaseEither {
             return EitherObjShort.right(rightMapper.apply(this.getRight()));
         }
 
+
         @Override
         public <ML> EitherObjShort<ML> flatMap(Function<? super L, ? extends EitherObjShort<ML>> leftMapper,
                                                ShortFunction<? extends EitherObjShort<ML>> rightMapper) {
@@ -355,5 +441,6 @@ public abstract class EitherObjShort<L> extends BaseEither {
         public EitherObjShort<L> flatMapRight(ShortFunction<? extends EitherObjShort<L>> rightMapper) {
             return rightMapper.apply(this.getRight());
         }
+
     }
 }

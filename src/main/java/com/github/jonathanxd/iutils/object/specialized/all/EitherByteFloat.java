@@ -32,6 +32,8 @@ import com.github.jonathanxd.iutils.function.consumer.ByteConsumer;
 import com.github.jonathanxd.iutils.function.consumer.FloatConsumer;
 import com.github.jonathanxd.iutils.function.function.ByteFunction;
 import com.github.jonathanxd.iutils.function.function.FloatFunction;
+import com.github.jonathanxd.iutils.function.supplier.ByteSupplier;
+import com.github.jonathanxd.iutils.function.supplier.FloatSupplier;
 import com.github.jonathanxd.iutils.function.unary.ByteUnaryOperator;
 import com.github.jonathanxd.iutils.function.unary.FloatUnaryOperator;
 import com.github.jonathanxd.iutils.object.BaseEither;
@@ -93,12 +95,48 @@ public abstract class EitherByteFloat extends BaseEither {
     public abstract byte getLeft();
 
     /**
+     * Returns left value or {@code value} if this is a {@link EitherByteFloat#right(float)}.
+     *
+     * @param value Value to return if this is a {@link EitherByteFloat#right(float)}
+     * @return Left value or {@code value} if this is a {@link EitherByteFloat#right(float)}.
+     */
+    public abstract byte leftOr(byte value);
+
+    /**
+     * Returns left value or value supplied by {@code supplier} if this is a {@link
+     * EitherByteFloat#right(float)}.
+     *
+     * @param supplier Supplier of value to return if this is a {@link EitherByteFloat#right(float)}
+     * @return Left value or value supplied by {@code supplier} if this is a {@link
+     * EitherByteFloat#right(float)}.
+     */
+    public abstract byte leftOrGet(ByteSupplier supplier);
+
+    /**
      * Gets right value.
      *
      * @return Right value.
      * @throws NoSuchElementException If the right value is not present.
      */
     public abstract float getRight();
+
+    /**
+     * Returns right value or {@code value} if this is a {@link EitherByteFloat#left(byte)}.
+     *
+     * @param value Value to return if this is a {@link EitherByteFloat#left(byte)}
+     * @return Right value or {@code value} if this is a {@link EitherByteFloat#left(byte)}.
+     */
+    public abstract float rightOr(float value);
+
+    /**
+     * Returns right value or value supplied by {@code supplier} if this is a {@link
+     * EitherByteFloat#left(byte)}.
+     *
+     * @param supplier Supplier of value to return if this is a {@link EitherByteFloat#left(byte)}
+     * @return Right value or value supplied by {@code supplier} if this is a {@link
+     * EitherByteFloat#left(byte)}.
+     */
+    public abstract float rightOrGet(FloatSupplier supplier);
 
     /**
      * Left value. (Kotlin compatibility purpose)
@@ -223,8 +261,28 @@ public abstract class EitherByteFloat extends BaseEither {
         }
 
         @Override
+        public byte leftOr(byte value) {
+            return this.getLeft();
+        }
+
+        @Override
+        public byte leftOrGet(ByteSupplier supplier) {
+            return this.getLeft();
+        }
+
+        @Override
         public float getRight() {
             throw new NoSuchElementException();
+        }
+
+        @Override
+        public float rightOr(float value) {
+            return value;
+        }
+
+        @Override
+        public float rightOrGet(FloatSupplier supplier) {
+            return supplier.get();
         }
 
         @Override
@@ -296,8 +354,28 @@ public abstract class EitherByteFloat extends BaseEither {
         }
 
         @Override
+        public byte leftOr(byte value) {
+            return value;
+        }
+
+        @Override
+        public byte leftOrGet(ByteSupplier supplier) {
+            return supplier.get();
+        }
+
+        @Override
         public float getRight() {
             return this.value;
+        }
+
+        @Override
+        public float rightOr(float value) {
+            return this.getRight();
+        }
+
+        @Override
+        public float rightOrGet(FloatSupplier supplier) {
+            return this.getRight();
         }
 
         @Override

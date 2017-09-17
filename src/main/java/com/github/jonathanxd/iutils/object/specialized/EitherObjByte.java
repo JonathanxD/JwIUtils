@@ -27,15 +27,16 @@
  */
 package com.github.jonathanxd.iutils.object.specialized;
 
-import com.github.jonathanxd.iutils.annotation.Generated;
 import com.github.jonathanxd.iutils.function.consumer.ByteConsumer;
 import com.github.jonathanxd.iutils.function.function.ByteFunction;
+import com.github.jonathanxd.iutils.function.supplier.ByteSupplier;
 import com.github.jonathanxd.iutils.function.unary.ByteUnaryOperator;
 import com.github.jonathanxd.iutils.object.BaseEither;
 
 import java.util.NoSuchElementException;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * A class which can hold either {@link L} or {@link byte} (in this documentation we call the hold
@@ -45,7 +46,6 @@ import java.util.function.Function;
  *
  * @param <L> Left value.
  */
-@Generated
 public abstract class EitherObjByte<L> extends BaseEither {
 
     EitherObjByte() {
@@ -97,12 +97,57 @@ public abstract class EitherObjByte<L> extends BaseEither {
     public abstract L getLeft();
 
     /**
+     * Returns left value or {@code value} if this is a {@link EitherObjByte#right(byte)}.
+     *
+     * @param value Value to return if this is a {@link EitherObjByte#right(byte)}
+     * @return Left value or {@code value} if this is a {@link EitherObjByte#right(byte)}.
+     */
+    public abstract L leftOr(L value);
+
+    /**
+     * Returns left value or {@code null} if this is a {@link EitherObjByte#right(byte)}.
+     *
+     * @return Left value or {@code null} if this is a {@link EitherObjByte#right(byte)}.
+     */
+    public final L leftOrNull() {
+        return this.leftOr(null);
+    }
+
+    /**
+     * Returns left value or value supplied by {@code supplier} if this is a {@link
+     * EitherObjByte#right(byte)}.
+     *
+     * @param supplier Supplier of value to return if this is a {@link EitherObjByte#right(byte)}
+     * @return Left value or value supplied by {@code supplier} if this is a {@link
+     * EitherObjByte#right(byte)}.
+     */
+    public abstract L leftOrGet(Supplier<L> supplier);
+
+    /**
      * Gets right value.
      *
      * @return Right value.
      * @throws NoSuchElementException If the right value is not present.
      */
     public abstract byte getRight();
+
+    /**
+     * Returns right value or {@code value} if this is a {@link EitherObjByte#left(Object)}.
+     *
+     * @param value Value to return if this is a {@link EitherObjByte#left(Object)}
+     * @return Right value or {@code value} if this is a {@link EitherObjByte#left(Object)}.
+     */
+    public abstract byte rightOr(byte value);
+
+    /**
+     * Returns right value or value supplied by {@code supplier} if this is a {@link
+     * EitherObjByte#left(Object)}.
+     *
+     * @param supplier Supplier of value to return if this is a {@link EitherObjByte#left(Object)}
+     * @return Right value or value supplied by {@code supplier} if this is a {@link
+     * EitherObjByte#left(Object)}.
+     */
+    public abstract byte rightOrGet(ByteSupplier supplier);
 
     /**
      * Left value. (Kotlin compatibility purpose)
@@ -231,8 +276,28 @@ public abstract class EitherObjByte<L> extends BaseEither {
         }
 
         @Override
+        public L leftOr(L value) {
+            return this.getLeft();
+        }
+
+        @Override
+        public L leftOrGet(Supplier<L> supplier) {
+            return this.getLeft();
+        }
+
+        @Override
         public byte getRight() {
             throw new NoSuchElementException();
+        }
+
+        @Override
+        public byte rightOr(byte value) {
+            return value;
+        }
+
+        @Override
+        public byte rightOrGet(ByteSupplier supplier) {
+            return supplier.get();
         }
 
         @Override
@@ -306,8 +371,28 @@ public abstract class EitherObjByte<L> extends BaseEither {
         }
 
         @Override
+        public L leftOr(L value) {
+            return value;
+        }
+
+        @Override
+        public L leftOrGet(Supplier<L> supplier) {
+            return supplier.get();
+        }
+
+        @Override
         public byte getRight() {
             return this.value;
+        }
+
+        @Override
+        public byte rightOr(byte value) {
+            return this.getRight();
+        }
+
+        @Override
+        public byte rightOrGet(ByteSupplier supplier) {
+            return this.getRight();
         }
 
         @Override
@@ -340,6 +425,7 @@ public abstract class EitherObjByte<L> extends BaseEither {
             return EitherObjByte.right(rightMapper.apply(this.getRight()));
         }
 
+
         @Override
         public <ML> EitherObjByte<ML> flatMap(Function<? super L, ? extends EitherObjByte<ML>> leftMapper,
                                               ByteFunction<? extends EitherObjByte<ML>> rightMapper) {
@@ -355,5 +441,6 @@ public abstract class EitherObjByte<L> extends BaseEither {
         public EitherObjByte<L> flatMapRight(ByteFunction<? extends EitherObjByte<L>> rightMapper) {
             return rightMapper.apply(this.getRight());
         }
+
     }
 }

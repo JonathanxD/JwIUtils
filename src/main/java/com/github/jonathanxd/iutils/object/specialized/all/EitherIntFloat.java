@@ -30,6 +30,7 @@ package com.github.jonathanxd.iutils.object.specialized.all;
 import com.github.jonathanxd.iutils.annotation.Generated;
 import com.github.jonathanxd.iutils.function.consumer.FloatConsumer;
 import com.github.jonathanxd.iutils.function.function.FloatFunction;
+import com.github.jonathanxd.iutils.function.supplier.FloatSupplier;
 import com.github.jonathanxd.iutils.function.unary.FloatUnaryOperator;
 import com.github.jonathanxd.iutils.function.unary.IntUnaryOperator;
 import com.github.jonathanxd.iutils.object.BaseEither;
@@ -37,6 +38,7 @@ import com.github.jonathanxd.iutils.object.BaseEither;
 import java.util.NoSuchElementException;
 import java.util.function.IntConsumer;
 import java.util.function.IntFunction;
+import java.util.function.IntSupplier;
 
 /**
  * A class which can hold either {@link int} or {@link float} (in this documentation we call the
@@ -93,12 +95,48 @@ public abstract class EitherIntFloat extends BaseEither {
     public abstract int getLeft();
 
     /**
+     * Returns left value or {@code value} if this is a {@link EitherIntFloat#right(float)}.
+     *
+     * @param value Value to return if this is a {@link EitherIntFloat#right(float)}
+     * @return Left value or {@code value} if this is a {@link EitherIntFloat#right(float)}.
+     */
+    public abstract int leftOr(int value);
+
+    /**
+     * Returns left value or value supplied by {@code supplier} if this is a {@link
+     * EitherIntFloat#right(float)}.
+     *
+     * @param supplier Supplier of value to return if this is a {@link EitherIntFloat#right(float)}
+     * @return Left value or value supplied by {@code supplier} if this is a {@link
+     * EitherIntFloat#right(float)}.
+     */
+    public abstract int leftOrGet(IntSupplier supplier);
+
+    /**
      * Gets right value.
      *
      * @return Right value.
      * @throws NoSuchElementException If the right value is not present.
      */
     public abstract float getRight();
+
+    /**
+     * Returns right value or {@code value} if this is a {@link EitherIntFloat#left(int)}.
+     *
+     * @param value Value to return if this is a {@link EitherIntFloat#left(int)}
+     * @return Right value or {@code value} if this is a {@link EitherIntFloat#left(int)}.
+     */
+    public abstract float rightOr(float value);
+
+    /**
+     * Returns right value or value supplied by {@code supplier} if this is a {@link
+     * EitherIntFloat#left(int)}.
+     *
+     * @param supplier Supplier of value to return if this is a {@link EitherIntFloat#left(int)}
+     * @return Right value or value supplied by {@code supplier} if this is a {@link
+     * EitherIntFloat#left(int)}.
+     */
+    public abstract float rightOrGet(FloatSupplier supplier);
 
     /**
      * Left value. (Kotlin compatibility purpose)
@@ -223,8 +261,28 @@ public abstract class EitherIntFloat extends BaseEither {
         }
 
         @Override
+        public int leftOr(int value) {
+            return this.getLeft();
+        }
+
+        @Override
+        public int leftOrGet(IntSupplier supplier) {
+            return this.getLeft();
+        }
+
+        @Override
         public float getRight() {
             throw new NoSuchElementException();
+        }
+
+        @Override
+        public float rightOr(float value) {
+            return value;
+        }
+
+        @Override
+        public float rightOrGet(FloatSupplier supplier) {
+            return supplier.get();
         }
 
         @Override
@@ -296,8 +354,28 @@ public abstract class EitherIntFloat extends BaseEither {
         }
 
         @Override
+        public int leftOr(int value) {
+            return value;
+        }
+
+        @Override
+        public int leftOrGet(IntSupplier supplier) {
+            return supplier.getAsInt();
+        }
+
+        @Override
         public float getRight() {
             return this.value;
+        }
+
+        @Override
+        public float rightOr(float value) {
+            return this.getRight();
+        }
+
+        @Override
+        public float rightOrGet(FloatSupplier supplier) {
+            return this.getRight();
         }
 
         @Override

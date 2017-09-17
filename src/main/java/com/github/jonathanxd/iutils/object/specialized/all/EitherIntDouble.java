@@ -35,8 +35,10 @@ import com.github.jonathanxd.iutils.object.BaseEither;
 import java.util.NoSuchElementException;
 import java.util.function.DoubleConsumer;
 import java.util.function.DoubleFunction;
+import java.util.function.DoubleSupplier;
 import java.util.function.IntConsumer;
 import java.util.function.IntFunction;
+import java.util.function.IntSupplier;
 
 /**
  * A class which can hold either {@link int} or {@link double} (in this documentation we call the
@@ -93,12 +95,48 @@ public abstract class EitherIntDouble extends BaseEither {
     public abstract int getLeft();
 
     /**
+     * Returns left value or {@code value} if this is a {@link EitherIntDouble#right(double)}.
+     *
+     * @param value Value to return if this is a {@link EitherIntDouble#right(double)}
+     * @return Left value or {@code value} if this is a {@link EitherIntDouble#right(double)}.
+     */
+    public abstract int leftOr(int value);
+
+    /**
+     * Returns left value or value supplied by {@code supplier} if this is a {@link
+     * EitherIntDouble#right(double)}.
+     *
+     * @param supplier Supplier of value to return if this is a {@link EitherIntDouble#right(double)}
+     * @return Left value or value supplied by {@code supplier} if this is a {@link
+     * EitherIntDouble#right(double)}.
+     */
+    public abstract int leftOrGet(IntSupplier supplier);
+
+    /**
      * Gets right value.
      *
      * @return Right value.
      * @throws NoSuchElementException If the right value is not present.
      */
     public abstract double getRight();
+
+    /**
+     * Returns right value or {@code value} if this is a {@link EitherIntDouble#left(int)}.
+     *
+     * @param value Value to return if this is a {@link EitherIntDouble#left(int)}
+     * @return Right value or {@code value} if this is a {@link EitherIntDouble#left(int)}.
+     */
+    public abstract double rightOr(double value);
+
+    /**
+     * Returns right value or value supplied by {@code supplier} if this is a {@link
+     * EitherIntDouble#left(int)}.
+     *
+     * @param supplier Supplier of value to return if this is a {@link EitherIntDouble#left(int)}
+     * @return Right value or value supplied by {@code supplier} if this is a {@link
+     * EitherIntDouble#left(int)}.
+     */
+    public abstract double rightOrGet(DoubleSupplier supplier);
 
     /**
      * Left value. (Kotlin compatibility purpose)
@@ -223,8 +261,28 @@ public abstract class EitherIntDouble extends BaseEither {
         }
 
         @Override
+        public int leftOr(int value) {
+            return this.getLeft();
+        }
+
+        @Override
+        public int leftOrGet(IntSupplier supplier) {
+            return this.getLeft();
+        }
+
+        @Override
         public double getRight() {
             throw new NoSuchElementException();
+        }
+
+        @Override
+        public double rightOr(double value) {
+            return value;
+        }
+
+        @Override
+        public double rightOrGet(DoubleSupplier supplier) {
+            return supplier.getAsDouble();
         }
 
         @Override
@@ -296,8 +354,28 @@ public abstract class EitherIntDouble extends BaseEither {
         }
 
         @Override
+        public int leftOr(int value) {
+            return value;
+        }
+
+        @Override
+        public int leftOrGet(IntSupplier supplier) {
+            return supplier.getAsInt();
+        }
+
+        @Override
         public double getRight() {
             return this.value;
+        }
+
+        @Override
+        public double rightOr(double value) {
+            return this.getRight();
+        }
+
+        @Override
+        public double rightOrGet(DoubleSupplier supplier) {
+            return this.getRight();
         }
 
         @Override

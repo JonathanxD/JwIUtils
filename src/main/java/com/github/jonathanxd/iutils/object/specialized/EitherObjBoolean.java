@@ -27,15 +27,16 @@
  */
 package com.github.jonathanxd.iutils.object.specialized;
 
-import com.github.jonathanxd.iutils.annotation.Generated;
 import com.github.jonathanxd.iutils.function.consumer.BooleanConsumer;
 import com.github.jonathanxd.iutils.function.function.BooleanFunction;
 import com.github.jonathanxd.iutils.function.unary.BooleanUnaryOperator;
 import com.github.jonathanxd.iutils.object.BaseEither;
 
 import java.util.NoSuchElementException;
+import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * A class which can hold either {@link L} or {@link boolean} (in this documentation we call the
@@ -45,7 +46,6 @@ import java.util.function.Function;
  *
  * @param <L> Left value.
  */
-@Generated
 public abstract class EitherObjBoolean<L> extends BaseEither {
 
     EitherObjBoolean() {
@@ -97,12 +97,57 @@ public abstract class EitherObjBoolean<L> extends BaseEither {
     public abstract L getLeft();
 
     /**
+     * Returns left value or {@code value} if this is a {@link EitherObjBoolean#right(boolean)}.
+     *
+     * @param value Value to return if this is a {@link EitherObjBoolean#right(boolean)}
+     * @return Left value or {@code value} if this is a {@link EitherObjBoolean#right(boolean)}.
+     */
+    public abstract L leftOr(L value);
+
+    /**
+     * Returns left value or {@code null} if this is a {@link EitherObjBoolean#right(boolean)}.
+     *
+     * @return Left value or {@code null} if this is a {@link EitherObjBoolean#right(boolean)}.
+     */
+    public final L leftOrNull() {
+        return this.leftOr(null);
+    }
+
+    /**
+     * Returns left value or value supplied by {@code supplier} if this is a {@link
+     * EitherObjBoolean#right(boolean)}.
+     *
+     * @param supplier Supplier of value to return if this is a {@link EitherObjBoolean#right(boolean)}
+     * @return Left value or value supplied by {@code supplier} if this is a {@link
+     * EitherObjBoolean#right(boolean)}.
+     */
+    public abstract L leftOrGet(Supplier<L> supplier);
+
+    /**
      * Gets right value.
      *
      * @return Right value.
      * @throws NoSuchElementException If the right value is not present.
      */
     public abstract boolean getRight();
+
+    /**
+     * Returns right value or {@code value} if this is a {@link EitherObjBoolean#left(Object)}.
+     *
+     * @param value Value to return if this is a {@link EitherObjBoolean#left(Object)}
+     * @return Right value or {@code value} if this is a {@link EitherObjBoolean#left(Object)}.
+     */
+    public abstract boolean rightOr(boolean value);
+
+    /**
+     * Returns right value or value supplied by {@code supplier} if this is a {@link
+     * EitherObjBoolean#left(Object)}.
+     *
+     * @param supplier Supplier of value to return if this is a {@link EitherObjBoolean#left(Object)}
+     * @return Right value or value supplied by {@code supplier} if this is a {@link
+     * EitherObjBoolean#left(Object)}.
+     */
+    public abstract boolean rightOrGet(BooleanSupplier supplier);
 
     /**
      * Left value. (Kotlin compatibility purpose)
@@ -231,8 +276,28 @@ public abstract class EitherObjBoolean<L> extends BaseEither {
         }
 
         @Override
+        public L leftOr(L value) {
+            return this.getLeft();
+        }
+
+        @Override
+        public L leftOrGet(Supplier<L> supplier) {
+            return this.getLeft();
+        }
+
+        @Override
         public boolean getRight() {
             throw new NoSuchElementException();
+        }
+
+        @Override
+        public boolean rightOr(boolean value) {
+            return value;
+        }
+
+        @Override
+        public boolean rightOrGet(BooleanSupplier supplier) {
+            return supplier.getAsBoolean();
         }
 
         @Override
@@ -306,8 +371,28 @@ public abstract class EitherObjBoolean<L> extends BaseEither {
         }
 
         @Override
+        public L leftOr(L value) {
+            return value;
+        }
+
+        @Override
+        public L leftOrGet(Supplier<L> supplier) {
+            return supplier.get();
+        }
+
+        @Override
         public boolean getRight() {
             return this.value;
+        }
+
+        @Override
+        public boolean rightOr(boolean value) {
+            return this.getRight();
+        }
+
+        @Override
+        public boolean rightOrGet(BooleanSupplier supplier) {
+            return this.getRight();
         }
 
         @Override
@@ -340,6 +425,7 @@ public abstract class EitherObjBoolean<L> extends BaseEither {
             return EitherObjBoolean.right(rightMapper.apply(this.getRight()));
         }
 
+
         @Override
         public <ML> EitherObjBoolean<ML> flatMap(Function<? super L, ? extends EitherObjBoolean<ML>> leftMapper,
                                                  BooleanFunction<? extends EitherObjBoolean<ML>> rightMapper) {
@@ -355,5 +441,6 @@ public abstract class EitherObjBoolean<L> extends BaseEither {
         public EitherObjBoolean<L> flatMapRight(BooleanFunction<? extends EitherObjBoolean<L>> rightMapper) {
             return rightMapper.apply(this.getRight());
         }
+
     }
 }

@@ -32,6 +32,8 @@ import com.github.jonathanxd.iutils.function.consumer.ByteConsumer;
 import com.github.jonathanxd.iutils.function.consumer.CharConsumer;
 import com.github.jonathanxd.iutils.function.function.ByteFunction;
 import com.github.jonathanxd.iutils.function.function.CharFunction;
+import com.github.jonathanxd.iutils.function.supplier.ByteSupplier;
+import com.github.jonathanxd.iutils.function.supplier.CharSupplier;
 import com.github.jonathanxd.iutils.function.unary.ByteUnaryOperator;
 import com.github.jonathanxd.iutils.function.unary.CharUnaryOperator;
 import com.github.jonathanxd.iutils.object.BaseEither;
@@ -93,12 +95,48 @@ public abstract class EitherByteChar extends BaseEither {
     public abstract byte getLeft();
 
     /**
+     * Returns left value or {@code value} if this is a {@link EitherByteChar#right(char)}.
+     *
+     * @param value Value to return if this is a {@link EitherByteChar#right(char)}
+     * @return Left value or {@code value} if this is a {@link EitherByteChar#right(char)}.
+     */
+    public abstract byte leftOr(byte value);
+
+    /**
+     * Returns left value or value supplied by {@code supplier} if this is a {@link
+     * EitherByteChar#right(char)}.
+     *
+     * @param supplier Supplier of value to return if this is a {@link EitherByteChar#right(char)}
+     * @return Left value or value supplied by {@code supplier} if this is a {@link
+     * EitherByteChar#right(char)}.
+     */
+    public abstract byte leftOrGet(ByteSupplier supplier);
+
+    /**
      * Gets right value.
      *
      * @return Right value.
      * @throws NoSuchElementException If the right value is not present.
      */
     public abstract char getRight();
+
+    /**
+     * Returns right value or {@code value} if this is a {@link EitherByteChar#left(byte)}.
+     *
+     * @param value Value to return if this is a {@link EitherByteChar#left(byte)}
+     * @return Right value or {@code value} if this is a {@link EitherByteChar#left(byte)}.
+     */
+    public abstract char rightOr(char value);
+
+    /**
+     * Returns right value or value supplied by {@code supplier} if this is a {@link
+     * EitherByteChar#left(byte)}.
+     *
+     * @param supplier Supplier of value to return if this is a {@link EitherByteChar#left(byte)}
+     * @return Right value or value supplied by {@code supplier} if this is a {@link
+     * EitherByteChar#left(byte)}.
+     */
+    public abstract char rightOrGet(CharSupplier supplier);
 
     /**
      * Left value. (Kotlin compatibility purpose)
@@ -223,8 +261,28 @@ public abstract class EitherByteChar extends BaseEither {
         }
 
         @Override
+        public byte leftOr(byte value) {
+            return this.getLeft();
+        }
+
+        @Override
+        public byte leftOrGet(ByteSupplier supplier) {
+            return this.getLeft();
+        }
+
+        @Override
         public char getRight() {
             throw new NoSuchElementException();
+        }
+
+        @Override
+        public char rightOr(char value) {
+            return value;
+        }
+
+        @Override
+        public char rightOrGet(CharSupplier supplier) {
+            return supplier.get();
         }
 
         @Override
@@ -296,8 +354,28 @@ public abstract class EitherByteChar extends BaseEither {
         }
 
         @Override
+        public byte leftOr(byte value) {
+            return value;
+        }
+
+        @Override
+        public byte leftOrGet(ByteSupplier supplier) {
+            return supplier.get();
+        }
+
+        @Override
         public char getRight() {
             return this.value;
+        }
+
+        @Override
+        public char rightOr(char value) {
+            return this.getRight();
+        }
+
+        @Override
+        public char rightOrGet(CharSupplier supplier) {
+            return this.getRight();
         }
 
         @Override

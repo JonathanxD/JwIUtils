@@ -27,6 +27,7 @@
  */
 package com.github.jonathanxd.iutils.function.checked.comparator;
 
+import com.github.jonathanxd.iutils.exception.RethrowException;
 import com.github.jonathanxd.iutils.function.comparators.BiComparator;
 
 /**
@@ -42,7 +43,7 @@ public interface EBiComparator<T, U> extends BiComparator<T, U> {
         try {
             return this.compareChecked(t, u, t2, u2);
         } catch (Exception th) {
-            throw new RuntimeException(th);
+            throw RethrowException.rethrow(th);
         }
     }
 
@@ -52,7 +53,7 @@ public interface EBiComparator<T, U> extends BiComparator<T, U> {
      *
      * Like other interfaces of this package, this interface implements a java corresponding
      * interface. All exceptions which occurs inside the lambda is rethrown in the implemented
-     * method using {@link RuntimeException}.
+     * method using {@link RethrowException#rethrow(Throwable)}.
      *
      * @return See {@link BiComparator#compare}.
      * @throws Exception Exception occurred inside of function.

@@ -28,8 +28,8 @@
 /**
  * Contains specialized versions of {@link com.github.jonathanxd.iutils.object.Either}.
  *
- * For either of object or primitive, only {@code right} side is specialized (in other words, if
- * you want an {@link com.github.jonathanxd.iutils.object.Either} instance that holds either X or Y
+ * For either of object or primitive, only {@code right} side is specialized (in other words, if you
+ * want an {@link com.github.jonathanxd.iutils.object.Either} instance that holds either X or Y
  * (where Y is primitive) you will have only right side specialized for those primitives values).
  *
  * For either of primitive values, neither sides can have same primitive type.

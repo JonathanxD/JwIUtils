@@ -30,6 +30,7 @@ package com.github.jonathanxd.iutils.object.specialized.all;
 import com.github.jonathanxd.iutils.annotation.Generated;
 import com.github.jonathanxd.iutils.function.consumer.FloatConsumer;
 import com.github.jonathanxd.iutils.function.function.FloatFunction;
+import com.github.jonathanxd.iutils.function.supplier.FloatSupplier;
 import com.github.jonathanxd.iutils.function.unary.DoubleUnaryOperator;
 import com.github.jonathanxd.iutils.function.unary.FloatUnaryOperator;
 import com.github.jonathanxd.iutils.object.BaseEither;
@@ -37,6 +38,7 @@ import com.github.jonathanxd.iutils.object.BaseEither;
 import java.util.NoSuchElementException;
 import java.util.function.DoubleConsumer;
 import java.util.function.DoubleFunction;
+import java.util.function.DoubleSupplier;
 
 /**
  * A class which can hold either {@link float} or {@link double} (in this documentation we call the
@@ -93,12 +95,48 @@ public abstract class EitherFloatDouble extends BaseEither {
     public abstract float getLeft();
 
     /**
+     * Returns left value or {@code value} if this is a {@link EitherFloatDouble#right(double)}.
+     *
+     * @param value Value to return if this is a {@link EitherFloatDouble#right(double)}
+     * @return Left value or {@code value} if this is a {@link EitherFloatDouble#right(double)}.
+     */
+    public abstract float leftOr(float value);
+
+    /**
+     * Returns left value or value supplied by {@code supplier} if this is a {@link
+     * EitherFloatDouble#right(double)}.
+     *
+     * @param supplier Supplier of value to return if this is a {@link EitherFloatDouble#right(double)}
+     * @return Left value or value supplied by {@code supplier} if this is a {@link
+     * EitherFloatDouble#right(double)}.
+     */
+    public abstract float leftOrGet(FloatSupplier supplier);
+
+    /**
      * Gets right value.
      *
      * @return Right value.
      * @throws NoSuchElementException If the right value is not present.
      */
     public abstract double getRight();
+
+    /**
+     * Returns right value or {@code value} if this is a {@link EitherFloatDouble#left(float)}.
+     *
+     * @param value Value to return if this is a {@link EitherFloatDouble#left(float)}
+     * @return Right value or {@code value} if this is a {@link EitherFloatDouble#left(float)}.
+     */
+    public abstract double rightOr(double value);
+
+    /**
+     * Returns right value or value supplied by {@code supplier} if this is a {@link
+     * EitherFloatDouble#left(float)}.
+     *
+     * @param supplier Supplier of value to return if this is a {@link EitherFloatDouble#left(float)}
+     * @return Right value or value supplied by {@code supplier} if this is a {@link
+     * EitherFloatDouble#left(float)}.
+     */
+    public abstract double rightOrGet(DoubleSupplier supplier);
 
     /**
      * Left value. (Kotlin compatibility purpose)
@@ -224,8 +262,28 @@ public abstract class EitherFloatDouble extends BaseEither {
         }
 
         @Override
+        public float leftOr(float value) {
+            return this.getLeft();
+        }
+
+        @Override
+        public float leftOrGet(FloatSupplier supplier) {
+            return this.getLeft();
+        }
+
+        @Override
         public double getRight() {
             throw new NoSuchElementException();
+        }
+
+        @Override
+        public double rightOr(double value) {
+            return value;
+        }
+
+        @Override
+        public double rightOrGet(DoubleSupplier supplier) {
+            return supplier.getAsDouble();
         }
 
         @Override
@@ -297,8 +355,28 @@ public abstract class EitherFloatDouble extends BaseEither {
         }
 
         @Override
+        public float leftOr(float value) {
+            return value;
+        }
+
+        @Override
+        public float leftOrGet(FloatSupplier supplier) {
+            return supplier.get();
+        }
+
+        @Override
         public double getRight() {
             return this.value;
+        }
+
+        @Override
+        public double rightOr(double value) {
+            return this.getRight();
+        }
+
+        @Override
+        public double rightOrGet(DoubleSupplier supplier) {
+            return this.getRight();
         }
 
         @Override

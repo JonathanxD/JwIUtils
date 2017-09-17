@@ -27,15 +27,16 @@
  */
 package com.github.jonathanxd.iutils.object.specialized;
 
-import com.github.jonathanxd.iutils.annotation.Generated;
 import com.github.jonathanxd.iutils.function.consumer.CharConsumer;
 import com.github.jonathanxd.iutils.function.function.CharFunction;
+import com.github.jonathanxd.iutils.function.supplier.CharSupplier;
 import com.github.jonathanxd.iutils.function.unary.CharUnaryOperator;
 import com.github.jonathanxd.iutils.object.BaseEither;
 
 import java.util.NoSuchElementException;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * A class which can hold either {@link L} or {@link char} (in this documentation we call the hold
@@ -45,7 +46,6 @@ import java.util.function.Function;
  *
  * @param <L> Left value.
  */
-@Generated
 public abstract class EitherObjChar<L> extends BaseEither {
 
     EitherObjChar() {
@@ -97,12 +97,57 @@ public abstract class EitherObjChar<L> extends BaseEither {
     public abstract L getLeft();
 
     /**
+     * Returns left value or {@code value} if this is a {@link EitherObjChar#right(char)}.
+     *
+     * @param value Value to return if this is a {@link EitherObjChar#right(char)}
+     * @return Left value or {@code value} if this is a {@link EitherObjChar#right(char)}.
+     */
+    public abstract L leftOr(L value);
+
+    /**
+     * Returns left value or {@code null} if this is a {@link EitherObjChar#right(char)}.
+     *
+     * @return Left value or {@code null} if this is a {@link EitherObjChar#right(char)}.
+     */
+    public final L leftOrNull() {
+        return this.leftOr(null);
+    }
+
+    /**
+     * Returns left value or value supplied by {@code supplier} if this is a {@link
+     * EitherObjChar#right(char)}.
+     *
+     * @param supplier Supplier of value to return if this is a {@link EitherObjChar#right(char)}
+     * @return Left value or value supplied by {@code supplier} if this is a {@link
+     * EitherObjChar#right(char)}.
+     */
+    public abstract L leftOrGet(Supplier<L> supplier);
+
+    /**
      * Gets right value.
      *
      * @return Right value.
      * @throws NoSuchElementException If the right value is not present.
      */
     public abstract char getRight();
+
+    /**
+     * Returns right value or {@code value} if this is a {@link EitherObjChar#left(Object)}.
+     *
+     * @param value Value to return if this is a {@link EitherObjChar#left(Object)}
+     * @return Right value or {@code value} if this is a {@link EitherObjChar#left(Object)}.
+     */
+    public abstract char rightOr(char value);
+
+    /**
+     * Returns right value or value supplied by {@code supplier} if this is a {@link
+     * EitherObjChar#left(Object)}.
+     *
+     * @param supplier Supplier of value to return if this is a {@link EitherObjChar#left(Object)}
+     * @return Right value or value supplied by {@code supplier} if this is a {@link
+     * EitherObjChar#left(Object)}.
+     */
+    public abstract char rightOrGet(CharSupplier supplier);
 
     /**
      * Left value. (Kotlin compatibility purpose)
@@ -231,8 +276,28 @@ public abstract class EitherObjChar<L> extends BaseEither {
         }
 
         @Override
+        public L leftOr(L value) {
+            return this.getLeft();
+        }
+
+        @Override
+        public L leftOrGet(Supplier<L> supplier) {
+            return this.getLeft();
+        }
+
+        @Override
         public char getRight() {
             throw new NoSuchElementException();
+        }
+
+        @Override
+        public char rightOr(char value) {
+            return value;
+        }
+
+        @Override
+        public char rightOrGet(CharSupplier supplier) {
+            return supplier.get();
         }
 
         @Override
@@ -306,8 +371,28 @@ public abstract class EitherObjChar<L> extends BaseEither {
         }
 
         @Override
+        public L leftOr(L value) {
+            return value;
+        }
+
+        @Override
+        public L leftOrGet(Supplier<L> supplier) {
+            return supplier.get();
+        }
+
+        @Override
         public char getRight() {
             return this.value;
+        }
+
+        @Override
+        public char rightOr(char value) {
+            return this.getRight();
+        }
+
+        @Override
+        public char rightOrGet(CharSupplier supplier) {
+            return this.getRight();
         }
 
         @Override
@@ -340,6 +425,7 @@ public abstract class EitherObjChar<L> extends BaseEither {
             return EitherObjChar.right(rightMapper.apply(this.getRight()));
         }
 
+
         @Override
         public <ML> EitherObjChar<ML> flatMap(Function<? super L, ? extends EitherObjChar<ML>> leftMapper,
                                               CharFunction<? extends EitherObjChar<ML>> rightMapper) {
@@ -355,5 +441,6 @@ public abstract class EitherObjChar<L> extends BaseEither {
         public EitherObjChar<L> flatMapRight(CharFunction<? extends EitherObjChar<L>> rightMapper) {
             return rightMapper.apply(this.getRight());
         }
+
     }
 }

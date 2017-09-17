@@ -27,6 +27,8 @@
  */
 package com.github.jonathanxd.iutils.function.checked.binary;
 
+import com.github.jonathanxd.iutils.exception.RethrowException;
+
 import java.util.function.BinaryOperator;
 
 /**
@@ -44,7 +46,7 @@ public interface EBinaryOperator<T> extends BinaryOperator<T> {
         try {
             return this.applyChecked(t, u);
         } catch (Exception th) {
-            throw new RuntimeException(th);
+            throw RethrowException.rethrow(th);
         }
     }
 
@@ -54,7 +56,7 @@ public interface EBinaryOperator<T> extends BinaryOperator<T> {
      *
      * Like other interfaces of this package, this interface implements a java corresponding
      * interface. All exceptions which occurs inside the lambda is rethrown in the implemented
-     * method using {@link RuntimeException}.
+     * method using {@link RethrowException#rethrow(Throwable)}.
      *
      * @return See {@link BinaryOperator#apply}.
      * @throws Exception Exception occurred inside of function.

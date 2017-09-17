@@ -27,7 +27,6 @@
  */
 package com.github.jonathanxd.iutils.object.specialized;
 
-import com.github.jonathanxd.iutils.annotation.Generated;
 import com.github.jonathanxd.iutils.function.unary.IntUnaryOperator;
 import com.github.jonathanxd.iutils.object.BaseEither;
 
@@ -36,6 +35,8 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.IntConsumer;
 import java.util.function.IntFunction;
+import java.util.function.IntSupplier;
+import java.util.function.Supplier;
 
 /**
  * A class which can hold either {@link L} or {@link int} (in this documentation we call the hold
@@ -45,7 +46,6 @@ import java.util.function.IntFunction;
  *
  * @param <L> Left value.
  */
-@Generated
 public abstract class EitherObjInt<L> extends BaseEither {
 
     EitherObjInt() {
@@ -97,12 +97,57 @@ public abstract class EitherObjInt<L> extends BaseEither {
     public abstract L getLeft();
 
     /**
+     * Returns left value or {@code value} if this is a {@link EitherObjInt#right(int)}.
+     *
+     * @param value Value to return if this is a {@link EitherObjInt#right(int)}
+     * @return Left value or {@code value} if this is a {@link EitherObjInt#right(int)}.
+     */
+    public abstract L leftOr(L value);
+
+    /**
+     * Returns left value or {@code null} if this is a {@link EitherObjInt#right(int)}.
+     *
+     * @return Left value or {@code null} if this is a {@link EitherObjInt#right(int)}.
+     */
+    public final L leftOrNull() {
+        return this.leftOr(null);
+    }
+
+    /**
+     * Returns left value or value supplied by {@code supplier} if this is a {@link
+     * EitherObjInt#right(int)}.
+     *
+     * @param supplier Supplier of value to return if this is a {@link EitherObjInt#right(int)}
+     * @return Left value or value supplied by {@code supplier} if this is a {@link
+     * EitherObjInt#right(int)}.
+     */
+    public abstract L leftOrGet(Supplier<L> supplier);
+
+    /**
      * Gets right value.
      *
      * @return Right value.
      * @throws NoSuchElementException If the right value is not present.
      */
     public abstract int getRight();
+
+    /**
+     * Returns right value or {@code value} if this is a {@link EitherObjInt#left(Object)}.
+     *
+     * @param value Value to return if this is a {@link EitherObjInt#left(Object)}
+     * @return Right value or {@code value} if this is a {@link EitherObjInt#left(Object)}.
+     */
+    public abstract int rightOr(int value);
+
+    /**
+     * Returns right value or value supplied by {@code supplier} if this is a {@link
+     * EitherObjInt#left(Object)}.
+     *
+     * @param supplier Supplier of value to return if this is a {@link EitherObjInt#left(Object)}
+     * @return Right value or value supplied by {@code supplier} if this is a {@link
+     * EitherObjInt#left(Object)}.
+     */
+    public abstract int rightOrGet(IntSupplier supplier);
 
     /**
      * Left value. (Kotlin compatibility purpose)
@@ -231,8 +276,28 @@ public abstract class EitherObjInt<L> extends BaseEither {
         }
 
         @Override
+        public L leftOr(L value) {
+            return this.getLeft();
+        }
+
+        @Override
+        public L leftOrGet(Supplier<L> supplier) {
+            return this.getLeft();
+        }
+
+        @Override
         public int getRight() {
             throw new NoSuchElementException();
+        }
+
+        @Override
+        public int rightOr(int value) {
+            return value;
+        }
+
+        @Override
+        public int rightOrGet(IntSupplier supplier) {
+            return supplier.getAsInt();
         }
 
         @Override
@@ -306,8 +371,28 @@ public abstract class EitherObjInt<L> extends BaseEither {
         }
 
         @Override
+        public L leftOr(L value) {
+            return value;
+        }
+
+        @Override
+        public L leftOrGet(Supplier<L> supplier) {
+            return supplier.get();
+        }
+
+        @Override
         public int getRight() {
             return this.value;
+        }
+
+        @Override
+        public int rightOr(int value) {
+            return this.getRight();
+        }
+
+        @Override
+        public int rightOrGet(IntSupplier supplier) {
+            return this.getRight();
         }
 
         @Override
@@ -340,6 +425,7 @@ public abstract class EitherObjInt<L> extends BaseEither {
             return EitherObjInt.right(rightMapper.apply(this.getRight()));
         }
 
+
         @Override
         public <ML> EitherObjInt<ML> flatMap(Function<? super L, ? extends EitherObjInt<ML>> leftMapper,
                                              IntFunction<? extends EitherObjInt<ML>> rightMapper) {
@@ -355,5 +441,6 @@ public abstract class EitherObjInt<L> extends BaseEither {
         public EitherObjInt<L> flatMapRight(IntFunction<? extends EitherObjInt<L>> rightMapper) {
             return rightMapper.apply(this.getRight());
         }
+
     }
 }
