@@ -27,6 +27,9 @@
  */
 package com.github.jonathanxd.iutils.reflection;
 
+import com.github.jonathanxd.iutils.annotation.Singleton;
+
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -34,8 +37,41 @@ import java.lang.reflect.Modifier;
 
 public final class Reflection {
 
+    private static final MethodHandles.Lookup LOOKUP = MethodHandles.publicLookup();
+
     private Reflection() {
         throw new UnsupportedOperationException();
+    }
+
+
+    /**
+     * Gets the singleton instance of a {@code type}, this requires that the class have a {@code
+     * public static} {@code INSTANCE} field of the same type as enclosing type ({@code type} in
+     * this case) or is annotated with {@link Singleton} that specifies the name of singleton
+     * field.
+     *
+     * @param type Type to get singleton instance.
+     * @param <T>  Class type.
+     * @return Singleton instance of {@code type}.
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> T getInstance(Class<T> type) {
+        Singleton singleton = type.getDeclaredAnnotation(Singleton.class);
+        String name = singleton == null ? "INSTANCE" : singleton.value();
+
+        try {
+            return (T) LOOKUP.findStaticGetter(type, name, type).invokeWithArguments();
+        } catch (NoSuchFieldException e) {
+            throw new IllegalStateException("Cannot find public static singleton field with name '" +
+                    name + "' in " + type.getCanonicalName(), e);
+
+        } catch (IllegalAccessException e) {
+            throw new IllegalStateException("Cannot access public static singleton field with name '" +
+                    name + "' in " + type.getCanonicalName(), e);
+
+        } catch (Throwable throwable) {
+            throw new IllegalStateException("Failed to invoke field getter.", throwable);
+        }
     }
 
     /**
