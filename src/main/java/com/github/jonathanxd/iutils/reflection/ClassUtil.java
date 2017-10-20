@@ -41,6 +41,47 @@ public final class ClassUtil {
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * Compares inheritance of {@code a} and {@code b}.
+     *
+     * @param a First class to compare.
+     * @param b Second class to compare.
+     * @return {@code -1} if neither {@code a} is assignable to {@code b} and {@code b} is not
+     * assignable to a, or have lower inheritance. Returns {@code 1} if {@code a} have higher
+     * inheritance. Returns {@code 0} if both are equals or have same inheritance level.
+     */
+    public static int compare(Class<?> a, Class<?> b) {
+        if (!ClassUtil.isCompatible(a, b))
+            return -1;
+
+        if (a.equals(b))
+            return 0;
+
+        return Integer.compare(ClassUtil.getInheritLevel(a), ClassUtil.getInheritLevel(b));
+    }
+
+    /**
+     * Returns whether {@code a} is compatible to {@code b}. (Either {@code a} is assignable from
+     * {@code b} or {@code b} is assignable from {@code a}).
+     *
+     * @param a First class.
+     * @param b Second class.
+     * @return Whether {@code a} is compatible to {@code b}. (Either {@code a} is assignable from
+     * {@code b} or {@code b} is assignable from {@code a}).
+     */
+    public static boolean isCompatible(Class<?> a, Class<?> b) {
+        return a.isAssignableFrom(b) || b.isAssignableFrom(a);
+    }
+
+    /**
+     * Gets inheritance level of {@code a}.
+     *
+     * @param a Class to get inheritance level.
+     * @return Inheritance level of {@code a}.
+     */
+    public static int getInheritLevel(Class<?> a) {
+        return ClassUtil.getSortedSuperTypes(a).size();
+    }
 
     /**
      * Create a sorted list representing the class hierarchy.
