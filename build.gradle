@@ -3,7 +3,7 @@ plugins {
 }
 
 group 'com.github.jonathanxd'
-version '4.7.10'
+version '4.7.11'
 
 apply plugin: 'java'
 apply plugin: 'license'

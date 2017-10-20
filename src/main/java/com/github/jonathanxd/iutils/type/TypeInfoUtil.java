@@ -91,13 +91,31 @@ public final class TypeInfoUtil {
      * This method will not resolve the types, it will provide them as class literal, to resolve and
      * load types use: {@link TypeInfo#loadTypes(Function)}.
      *
-     * This method may parse {@link TypeMirror#toString() TypeMirror type representation}.
+     * This method can parse {@link TypeMirror#toString() TypeMirror type representation}.
      *
      * @param fullString String representation of an {@link TypeInfo}.
      * @return {@link TypeInfo TypeInfo list} that {@code fullString} represents.
      */
     @SuppressWarnings("Duplicates")
     public static List<TypeInfo<?>> fromFullString(String fullString) {
+        return TypeInfoUtil.fromFullString(fullString, it -> null);
+    }
+
+    /**
+     * Parse {@code fullString} and returns {@link TypeInfo TypeInfo list} that {@code fullString}
+     * represents.
+     *
+     * This method can resolve types through {@code classResolver}, if the resolver returns null,
+     * the class will not be resolved, the {@link TypeInfo} will be constructed with type literals
+     * that can be resolved later using {@link TypeInfo#loadTypes(Function)}.
+     *
+     * This method can parse {@link TypeMirror#toString() TypeMirror type representation}.
+     *
+     * @param fullString    String representation of an {@link TypeInfo}.
+     * @param classResolver Resolver of string to class.
+     * @return {@link TypeInfo TypeInfo list} that {@code fullString} represents.
+     */
+    public static List<TypeInfo<?>> fromFullString(String fullString, Function<String, Class<?>> classResolver) {
         Deque<TypeInfoBuilder<?>> builders = new ArrayDeque<>();
 
         List<TypeInfo<?>> typeInfoList = new ArrayList<>();
@@ -110,9 +128,8 @@ public final class TypeInfoUtil {
 
             if (current == '<') {
 
-                String classLiteral = getClLiteral(stringBuilder);
-
-                TypeInfoBuilder<?> a = new TypeInfoBuilder<>().a(classLiteral);
+                String classLiteral = TypeInfoUtil.getClLiteral(stringBuilder);
+                TypeInfoBuilder<?> a = TypeInfoUtil.createBuilder(classLiteral, classResolver);
 
                 if (builders.isEmpty()) {
                     builders.offer(a);
@@ -123,8 +140,8 @@ public final class TypeInfoUtil {
                 }
             } else if (current == ',') {
                 if (stringBuilder.length() > 0) {
-                    String classLiteral = getClLiteral(stringBuilder);
-                    TypeInfoBuilder<?> a = new TypeInfoBuilder<>().a(classLiteral);
+                    String classLiteral = TypeInfoUtil.getClLiteral(stringBuilder);
+                    TypeInfoBuilder<?> a = TypeInfoUtil.createBuilder(classLiteral, classResolver);
 
                     builders.peekLast().of(a);
                     //builders.offer(a); @Bug
@@ -132,8 +149,8 @@ public final class TypeInfoUtil {
                 ++i; //Jump Space after comma
             } else if (current == '>') {
                 if (stringBuilder.length() != 0) {
-                    String classLiteral = getClLiteral(stringBuilder);
-                    TypeInfoBuilder<?> a = new TypeInfoBuilder<>().a(classLiteral);
+                    String classLiteral = TypeInfoUtil.getClLiteral(stringBuilder);
+                    TypeInfoBuilder<?> a = TypeInfoUtil.createBuilder(classLiteral, classResolver);
 
                     builders.peekLast().of(a);
                 }
@@ -173,12 +190,21 @@ public final class TypeInfoUtil {
         }
 
         if (stringBuilder.length() > 0) {
-            String classLiteral = getClLiteral(stringBuilder);
-            typeInfoList.add(TypeInfo.of(classLiteral));
+            String classLiteral = TypeInfoUtil.getClLiteral(stringBuilder);
+            typeInfoList.add(TypeInfoUtil.createBuilder(classLiteral, classResolver).build());
         }
 
         return typeInfoList;
     }
+
+    private static TypeInfoBuilder<?> createBuilder(String classLiteral, Function<String, Class<?>> resolver) {
+        Class<?> r;
+        if ((r = resolver.apply(classLiteral)) != null)
+            return new TypeInfoBuilder<>().a(r);
+
+        return new TypeInfoBuilder<>().a(classLiteral);
+    }
+
 
     private static String getClLiteral(StringBuilder stringBuilder) {
         String classString = stringBuilder.toString();
@@ -288,5 +314,48 @@ public final class TypeInfoUtil {
 
         // bump
         return subInfos.toArray(new TypeInfo[subInfos.size()]);
+    }
+
+    /**
+     * A class resolver that use a list of class loaders to resolve classes. Resolution operation
+     * always return {@code null} when none class loader resolves the class.
+     */
+    public static class ClassLoaderClassResolver implements Function<String, Class<?>> {
+
+        private final List<ClassLoader> classLoaders = new ArrayList<>();
+
+        public ClassLoaderClassResolver() {
+        }
+
+        /**
+         * Constructs the resolver with {@code defaultLoaders} in list.
+         *
+         * @param defaultLoaders Default class loaders.
+         */
+        public ClassLoaderClassResolver(List<ClassLoader> defaultLoaders) {
+            this.classLoaders.addAll(defaultLoaders);
+        }
+
+        /**
+         * Gets the mutable list of class loaders.
+         *
+         * @return Mutable list of class loaders.
+         */
+        public List<ClassLoader> getClassLoadersList() {
+            return this.classLoaders;
+        }
+
+        @Override
+        public Class<?> apply(String s) {
+
+            for (ClassLoader classLoader : this.classLoaders) {
+                try {
+                    return classLoader.loadClass(s);
+                } catch (ClassNotFoundException ignored) {
+                }
+            }
+
+            return null;
+        }
     }
 }
