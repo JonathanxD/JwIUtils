@@ -29,10 +29,15 @@ package com.github.jonathanxd.iutils.type;
 
 import com.github.jonathanxd.iutils.exception.TypeResolutionException;
 
+import java.lang.reflect.TypeVariable;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Holds information about generic types.
@@ -48,55 +53,51 @@ import java.util.function.Function;
 public class TypeInfo<T> implements Comparable<TypeInfo> {
 
     /**
-     * Accessed and modified via reflection in {@link AbstractTypeInfo}
-     * Class literal.
+     * Accessed and modified via reflection in {@link AbstractTypeInfo} Class literal.
      */
     private final String classLiteral;
 
     /**
-     * Accessed and modified via reflection in {@link AbstractTypeInfo} & {@link DynamicTypeInfo}
+     * Contains information of type parameters.
      */
-    private final TypeInfo[] related;
-
-    /**
-     * Marking it as unique will make this to use default implementation of {@link #hashCode()} and
-     * {@link #equals(Object)} from {@link Object}
-     */
-    private final boolean isUnique;
+    private final List<TypeInfo<?>> typeParameters;
 
     /**
      * Cached class instance.
      */
-    private Class<? extends T> cachedAClass;
+    private Class<T> cachedAClass;
+
+    /**
+     * Cached type variables.
+     */
+    private List<TypeVariable<?>> typeVariableCache;
 
     /**
      * Sub types info
      */
-    private TypeInfo<?>[] subTypesInfo;
+    private List<TypeInfo<?>> subTypesInfo;
 
     protected TypeInfo() {
         this.classLiteral = null;
-        this.related = null;
-        this.isUnique = false;
+        this.typeParameters = Collections.emptyList();
     }
 
     protected TypeInfo(TypeInfo<T> typeInfo) {
-        this.related = typeInfo.getRelated();
+        this.typeParameters = Collections.unmodifiableList(new ArrayList<>(typeInfo.getTypeParameters()));
         this.classLiteral = typeInfo.getClassLiteral();
-        this.isUnique = typeInfo.isUnique();
     }
 
-    TypeInfo(Class<? extends T> aClass, TypeInfo[] related, boolean isUnique) {
+    @SuppressWarnings("unchecked")
+    TypeInfo(Class<T> aClass, List<TypeInfo<?>> typeParameters) {
         this.classLiteral = TypeUtil.fixName(aClass.getName());
         this.cachedAClass = aClass;
-        this.related = related != null ? related : new TypeInfo[0];
-        this.isUnique = isUnique;
+        this.typeParameters = Collections.unmodifiableList(new ArrayList<>(typeParameters));
     }
 
-    TypeInfo(String classLiteral, TypeInfo[] related, boolean isUnique) {
+    @SuppressWarnings("unchecked")
+    TypeInfo(String classLiteral, List<TypeInfo<?>> typeParameters) {
         this.classLiteral = TypeUtil.fixName(classLiteral);
-        this.related = related != null ? related : new TypeInfo[0];
-        this.isUnique = isUnique;
+        this.typeParameters = Collections.unmodifiableList(new ArrayList<>(typeParameters));
     }
 
     /**
@@ -107,16 +108,6 @@ public class TypeInfo<T> implements Comparable<TypeInfo> {
      */
     public static <T> TypeInfoBuilder<T> builder() {
         return new TypeInfoBuilder<>();
-    }
-
-    /**
-     * Creates a {@link TypeInfoBuilder} of a unique {@link TypeInfo}.
-     *
-     * @param <T> Type.
-     * @return {@link TypeInfoBuilder}.
-     */
-    public static <T> TypeInfoBuilder<T> builderOfUnique() {
-        return new TypeInfoBuilder<T>().setUnique(true);
     }
 
     /**
@@ -137,26 +128,6 @@ public class TypeInfo<T> implements Comparable<TypeInfo> {
      */
     public static <T> TypeInfoBuilder<T> builderOf(String classLiteral) {
         return TypeInfo.<T>builder().a(classLiteral);
-    }
-
-    /**
-     * Creates a {@link TypeInfoBuilder} of a unique {@link TypeInfo} of a {@code aClass}.
-     *
-     * @param <T> Type.
-     * @return {@link TypeInfoBuilder}.
-     */
-    public static <T> TypeInfoBuilder<T> builderOfUnique(Class<T> aClass) {
-        return TypeInfo.<T>builder().a(aClass).setUnique(true);
-    }
-
-    /**
-     * Creates a {@link TypeInfoBuilder} of a unique {@link TypeInfo} of a {@code classLiteral}.
-     *
-     * @param <T> Type.
-     * @return {@link TypeInfoBuilder}.
-     */
-    public static <T> TypeInfoBuilder<T> builderOfUnique(String classLiteral) {
-        return TypeInfo.<T>builder().a(classLiteral).setUnique(true);
     }
 
 
@@ -183,48 +154,20 @@ public class TypeInfo<T> implements Comparable<TypeInfo> {
     }
 
     /**
-     * Creates a unique {@link TypeInfo} of a {@code aClass}.
-     *
-     * @param aClass Type.
-     * @param <T>    Type.
-     * @return {@link TypeInfo} of a {@code aClass}.
-     */
-    public static <T> TypeInfo<T> ofUnique(Class<T> aClass) {
-        return TypeInfo.<T>builder().a(aClass).setUnique(true).build();
-    }
-
-    /**
-     * Creates a unique {@link TypeInfo} of a {@code classLiteral}.
-     *
-     * @param classLiteral Class Literal.
-     * @param <T>          Type.
-     * @return {@link TypeInfo} of a {@code classLiteral}.
-     */
-    public static <T> TypeInfo<T> ofUnique(String classLiteral) {
-        return TypeInfo.<T>builder().a(classLiteral).setUnique(true).build();
-    }
-
-    /**
-     * Returns a unique instance of {@code this} {@link TypeInfo}.
-     *
-     * @return Unique instance of {@code this} {@link TypeInfo}.
-     */
-    @SuppressWarnings("unchecked")
-    public TypeInfo<T> asUnique() {
-        return this.isUnique() ? this : (TypeInfo<T>) this.but().setUnique(true).build();
-    }
-
-    /**
      * Creates a builder from {@code this} {@link TypeInfo}.
      *
      * @return Builder from {@code this} {@link TypeInfo}.
      */
     public TypeInfoBuilder<? extends T> but() {
-        return TypeInfo.<T>builder().a(this.getClassLiteral()).ofArray(this.fastGetRelated());
+        if (this.isResolved())
+            return TypeInfo.<T>builder().a(this.getTypeClass()).of(this.getTypeParameters());
+        else
+            return TypeInfo.<T>builder().a(this.getClassLiteral()).of(this.getTypeParameters());
     }
 
     /**
-     * This method will load and cache all types, including types of {@link #related} type info.
+     * This method will load and cache all types, including types of {@link #typeParameters} type
+     * info.
      *
      * @param function Function that resolves the class loader of the class by the {@link
      *                 #getClassLiteral() literal name}.
@@ -236,13 +179,13 @@ public class TypeInfo<T> implements Comparable<TypeInfo> {
             String classLiteral = this.getClassLiteral();
             ClassLoader classLoader = function.apply(classLiteral);
             try {
-                this.cachedAClass = (Class<? extends T>) classLoader.loadClass(classLiteral);
+                this.cachedAClass = (Class<T>) classLoader.loadClass(classLiteral);
             } catch (ClassNotFoundException e) {
                 throw new RuntimeException("Failed to resolve class '" + classLiteral + "' using class loader: '" + classLiteral + "'!");
             }
         }
 
-        for (TypeInfo typeInfo : this.fastGetRelated()) {
+        for (TypeInfo typeInfo : this.getTypeParameters()) {
             typeInfo.loadTypes(function);
         }
 
@@ -276,13 +219,29 @@ public class TypeInfo<T> implements Comparable<TypeInfo> {
      *
      * @return Raw class that this type is representing.
      */
-    public Class<? extends T> getTypeClass() {
+    public Class<T> getTypeClass() {
 
         if (this.cachedAClass != null)
             return this.cachedAClass;
         else {
             this.cachedAClass = TypeUtil.resolveClass(this.getClassLiteral());
             return this.cachedAClass;
+        }
+    }
+
+    /**
+     * Gets {@link #getTypeClass() type class} {@link Class#getTypeParameters() type parameters}.
+     *
+     * @return {@link #getTypeClass() type class} {@link Class#getTypeParameters() type parameters}.
+     */
+    private List<TypeVariable<?>> getTypeClassTypeVariables() {
+        if (this.typeVariableCache != null) {
+            return this.typeVariableCache;
+        } else {
+            this.typeVariableCache =
+                    Collections.unmodifiableList(new ArrayList<>(Arrays.asList(this.getTypeClass().getTypeParameters())));
+
+            return this.typeVariableCache;
         }
     }
 
@@ -296,30 +255,60 @@ public class TypeInfo<T> implements Comparable<TypeInfo> {
     }
 
     /**
-     * Returns whether {@code this} {@link TypeInfo} is unique or not.
+     * Gets type parameters type information.
      *
-     * @return Whether {@code this} {@link TypeInfo} is unique or not.
+     * @return Type parameters information.
      */
-    public boolean isUnique() {
-        return this.isUnique;
+    public List<TypeInfo<?>> getTypeParameters() {
+        return this.typeParameters;
     }
 
     /**
-     * Gets related type information.
+     * Gets information of type parameter in position {@code pos}.
      *
-     * @return Related type information.
+     * Example, for {@code Map<String, Integer>}, {@code getTypeParameter(1)} returns {@code
+     * Integer} type info.
+     *
+     * @param pos Position.
+     * @return Information of type parameter in position {@code pos}.
+     * @throws IllegalArgumentException  If {@code pos} is negative.
+     * @throws IndexOutOfBoundsException If {@code pos} exceeds the amount of type parameters in
+     *                                   {@link #getTypeClass() type class}.
      */
-    public TypeInfo[] getRelated() {
-        return this.related.clone();
+    public TypeInfo<?> getTypeParameter(int pos) throws IllegalArgumentException, IndexOutOfBoundsException {
+        this.validate();
+        this.validatePos(pos);
+
+        return this.getTypeParameters().get(pos);
     }
 
     /**
-     * Gets related type information without array cloning.
+     * Gets the type parameter information by {@code name} of type variable of {@link
+     * #getTypeClass() type class}.
      *
-     * @return Related type information.
+     * Example, for {@code Map<String, Integer>}, which is declared as {@code Map<K, V>}, {@code
+     * getTypeParameter("V")} return {@code Integer} type info.
+     *
+     * @param name Name of type variable of {@link #getTypeClass() type class}.
+     * @return Type parameter information corresponding to type variable with specified {@code
+     * name}.
+     * @throws IllegalArgumentException If there is no type variable with specified name in {@link
+     *                                  #getTypeClass() type class}.
      */
-    protected TypeInfo[] fastGetRelated() {
-        return this.related;
+    public TypeInfo<?> getTypeParameter(String name) throws IllegalArgumentException {
+        this.validate();
+        this.validateName(name);
+
+        List<TypeVariable<?>> typeClassTypeVariables = this.getTypeClassTypeVariables();
+
+        for (int i = 0; i < typeClassTypeVariables.size(); i++) {
+            TypeVariable<?> typeVariable = typeClassTypeVariables.get(i);
+
+            if (typeVariable.getName().equals(name))
+                return this.getTypeParameter(i);
+        }
+
+        throw new IllegalStateException();
     }
 
     /**
@@ -327,19 +316,9 @@ public class TypeInfo<T> implements Comparable<TypeInfo> {
      *
      * @return Information of sub types of {@code this} {@link TypeInfo}.
      */
-    public TypeInfo<?>[] getSubTypeInfos() {
-        return this.fastGetSubTypeInfos().clone();
-    }
-
-    /**
-     * Gets information of sub types of {@code this} {@link TypeInfo} without array cloling.
-     *
-     * @return Information of sub types of {@code this} {@link TypeInfo}.
-     */
-    protected TypeInfo<?>[] fastGetSubTypeInfos() {
-
+    public List<TypeInfo<?>> getSubTypeInfoList() {
         if (this.subTypesInfo == null)
-            this.subTypesInfo = TypeInfoUtil.createSubTypeInfos(this);
+            this.subTypesInfo = Collections.unmodifiableList(new ArrayList<>(TypeInfoUtil.createSubTypeInfos(this)));
 
         return this.subTypesInfo;
     }
@@ -354,10 +333,10 @@ public class TypeInfo<T> implements Comparable<TypeInfo> {
         if (this.compareTypeAndRelatedTo(info) == 0)
             return true;
 
-        TypeInfo<?>[] otherSubTypeInfos = info.fastGetSubTypeInfos();
+        List<TypeInfo<?>> otherSubTypeInfos = info.getSubTypeInfoList();
 
-        if (otherSubTypeInfos.length == 1)
-            return this.isAssignableFrom(otherSubTypeInfos[0]);
+        if (otherSubTypeInfos.size() == 1)
+            return this.isAssignableFrom(otherSubTypeInfos.get(0));
 
         for (TypeInfo<?> otherSubTypeInfo : otherSubTypeInfos) {
             if (this.isAssignableFrom(otherSubTypeInfo)) {
@@ -405,21 +384,63 @@ public class TypeInfo<T> implements Comparable<TypeInfo> {
         return TypeInfoUtil.toFullString(this);
     }
 
+    /**
+     * Validates type info. This method checks if this {@link TypeInfo} specifies type parameters
+     * information for all type parameters of {@link #getTypeClass()}.
+     */
+    private void validate() {
+        Class<?> typeClass = this.getTypeClass();
+        int typeClassSize = this.getTypeClassTypeVariables().size();
+        int thisSpecSize = this.getTypeParameters().size();
+
+        if (thisSpecSize != typeClassSize)
+            throw new IllegalStateException("Mismatch type parameters." +
+                    " Type class parameters: '" + typeClassSize + "'." +
+                    " This info parameters: '" + thisSpecSize + "'." +
+                    " Type class: '" + typeClass.getCanonicalName() + "'." +
+                    " This info: '" + this + "'.");
+    }
+
+    /**
+     * Validate access position of type variables.
+     *
+     * @param pos Position to validate.
+     */
+    private void validatePos(int pos) throws IllegalArgumentException, IndexOutOfBoundsException {
+        if (pos < 0)
+            throw new IllegalArgumentException("Negative position provided: '" + pos + "'!");
+
+        int max = this.getTypeClassTypeVariables().size();
+
+        if (pos >= max)
+            throw new IndexOutOfBoundsException("Position: '" + pos + "'. Max: '" + max + "'!");
+    }
+
+    /**
+     * Validates name to access type variables.
+     *
+     * @param name Name to validate.
+     */
+    private void validateName(String name) throws IllegalArgumentException {
+        List<String> typeClassTypeVariables =
+                this.getTypeClassTypeVariables().stream()
+                        .map(TypeVariable::getName)
+                        .collect(Collectors.toList());
+
+        if (!typeClassTypeVariables.contains(name)) {
+            throw new IllegalArgumentException("Cannot find type variable with name: '" + name + "'" +
+                    " in type variable list: '" + typeClassTypeVariables + "' of class" +
+                    " '" + this.getTypeClass().getCanonicalName() + "'!");
+        }
+    }
+
     @Override
     public int hashCode() {
-
-        if (this.isUnique())
-            return super.hashCode();
-
-        return Objects.hash(this.getClassLiteral(), Arrays.deepHashCode(this.fastGetRelated()));
+        return Objects.hash(this.getClassLiteral(), this.getTypeParameters().hashCode());
     }
 
     @Override
     public boolean equals(Object obj) {
-
-        if (this.isUnique())
-            return super.equals(obj);
-
         if (!(obj instanceof TypeInfo))
             return false;
 
@@ -435,7 +456,7 @@ public class TypeInfo<T> implements Comparable<TypeInfo> {
 
         if (this.getClassLiteral().equals(compareTo.getClassLiteral())) {
 
-            if (Arrays.deepEquals(this.fastGetRelated(), compareTo.fastGetRelated())) {
+            if (this.getTypeParameters().equals(compareTo.getTypeParameters())) {
                 return 0;
             }
 
@@ -458,20 +479,21 @@ public class TypeInfo<T> implements Comparable<TypeInfo> {
      * @param compareTo Element to compare
      * @return 0 if comparison succeed, positive or negative number if not.
      */
+    @SuppressWarnings("unchecked")
     public int compareTypeAndRelatedTo(TypeInfo compareTo) {
 
         Objects.requireNonNull(compareTo);
 
         if (this.getTypeClass().isAssignableFrom(compareTo.getTypeClass())) {
-            TypeInfo[] thisRelated = this.fastGetRelated();
-            TypeInfo[] otherRelated = compareTo.fastGetRelated();
+            List<TypeInfo<?>> thisRelated = this.getTypeParameters();
+            List<TypeInfo<?>> otherRelated = compareTo.getTypeParameters();
 
-            if (thisRelated.length != otherRelated.length)
+            if (thisRelated.size() != otherRelated.size())
                 return -1;
 
-            for (int x = 0; x < thisRelated.length; ++x) {
-                Class<?> mainRefClass = thisRelated[x].getTypeClass();
-                Class<?> compareRefClass = otherRelated[x].getTypeClass();
+            for (int x = 0; x < thisRelated.size(); ++x) {
+                Class<?> mainRefClass = thisRelated.get(x).getTypeClass();
+                Class<?> compareRefClass = otherRelated.get(x).getTypeClass();
 
                 if (!mainRefClass.isAssignableFrom(compareRefClass)) {
 

@@ -25,45 +25,34 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.type;
+package com.github.jonathanxd.iutils.list;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 
 /**
- * A {@link TypeInfo} that have dynamic type parameters.
+ * A {@link PredicateList} backed by a {@link List}. This variant throw an exception when element
+ * does not match the predicate.
  *
- * @param <T> Type.
+ * @param <E> Element type.
  */
-public final class DynamicTypeInfo<T> extends TypeInfo<T> {
+public class PredicateWrappedFailingList<E> extends PredicateWrappedList<E> {
 
-    private final List<TypeInfo<?>> typeParameters = new ArrayList<>();
-
-    DynamicTypeInfo(Class<T> aClass, List<TypeInfo<?>> typeParameters) {
-        super(aClass, typeParameters);
-
-        this.typeParameters.addAll(typeParameters);
+    public PredicateWrappedFailingList(List<E> list, Predicate<E> predicate) {
+        super(list, predicate);
     }
 
-    DynamicTypeInfo(String classLiteral, List<TypeInfo<?>> typeParameters) {
-        super(classLiteral, typeParameters);
-
-        this.typeParameters.addAll(typeParameters);
-    }
-
-    public void addRelated(TypeInfo<?> typeInfo) {
-        this.typeParameters.add(typeInfo);
-    }
-
-    public TypeInfo<T> toTypeInfo() {
-        if (this.isResolved())
-            return new TypeInfo<>(this.getTypeClass(), this.getTypeParameters());
-
-        return new TypeInfo<>(this.getClassLiteral(), this.getTypeParameters());
+    public PredicateWrappedFailingList(Predicate<E> predicate) {
+        super(predicate);
     }
 
     @Override
-    public List<TypeInfo<?>> getTypeParameters() {
-        return this.typeParameters;
+    public List<E> subList(int fromIndex, int toIndex) {
+        return new PredicateWrappedFailingList<>(this.getWrappedList().subList(fromIndex, toIndex), this.getPredicate());
+    }
+
+    @Override
+    public void onReject(E e) {
+        throw new IllegalArgumentException("Cannot accept element '" + e + "'");
     }
 }

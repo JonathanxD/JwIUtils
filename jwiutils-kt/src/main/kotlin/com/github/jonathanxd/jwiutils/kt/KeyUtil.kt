@@ -30,7 +30,6 @@ package com.github.jonathanxd.jwiutils.kt
 import com.github.jonathanxd.iutils.`object`.Pair
 import com.github.jonathanxd.iutils.`object`.TypedKey
 import com.github.jonathanxd.iutils.data.TypedData
-import com.github.jonathanxd.iutils.type.AbstractTypeInfo
 import com.github.jonathanxd.iutils.type.TypeInfo
 import java.util.*
 
@@ -66,7 +65,7 @@ fun <T> TypedData.containsAnyKey(key: TypedKey<T>): Boolean = this.contains(key.
  * Creates a [TypeInfo] of type [T].
  */
 inline fun <reified T> typedKeyOf(key: Any): TypedKey<T> =
-        TypedKey<T>(key, object : AbstractTypeInfo<T>(){})
+        TypedKey(key, typeInfo())
 
 /**
  * Adds [value] to list associated to this key

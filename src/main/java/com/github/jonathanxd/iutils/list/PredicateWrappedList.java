@@ -28,21 +28,15 @@
 package com.github.jonathanxd.iutils.list;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.function.Predicate;
-import java.util.function.UnaryOperator;
 
 /**
  * A {@link PredicateList} backed by a {@link List}.
  *
  * @param <E> Element type.
  */
-public class PredicateWrappedList<E> implements PredicateList<E> {
-
-    private final List<E> list;
+public class PredicateWrappedList<E> extends AbstractPredicateWrappedList<E> implements PredicateList<E> {
 
     /**
      * Predicate to test elements to add.
@@ -56,7 +50,7 @@ public class PredicateWrappedList<E> implements PredicateList<E> {
      * @param predicate Predicate to test elements to add.
      */
     public PredicateWrappedList(List<E> list, Predicate<E> predicate) {
-        this.list = list;
+        super(list);
         this.predicate = predicate;
     }
 
@@ -69,178 +63,22 @@ public class PredicateWrappedList<E> implements PredicateList<E> {
         this(new ArrayList<>(), predicate);
     }
 
-    @Override
-    public int size() {
-        return this.getWrappedList().size();
-    }
-
-    @Override
-    public boolean isEmpty() {
-        return this.getWrappedList().isEmpty();
-    }
-
-    @Override
-    public boolean contains(Object o) {
-        return this.getWrappedList().contains(o);
-    }
-
-    @Override
-    public Iterator<E> iterator() {
-        return this.getWrappedList().iterator();
-    }
-
-    @Override
-    public Object[] toArray() {
-        return this.getWrappedList().toArray();
-    }
-
-    @Override
-    public <T> T[] toArray(T[] a) {
-        return this.getWrappedList().toArray(a);
-    }
-
-    @Override
-    public boolean add(E e) {
-        if (!this.isAcceptable(e)) {
-            this.onReject(e);
-        } else {
-            return this.getWrappedList().add(e);
-        }
-
-        return false;
-    }
-
-    @Override
-    public boolean remove(Object o) {
-        return this.getWrappedList().remove(o);
-    }
-
-    @Override
-    public boolean containsAll(Collection<?> c) {
-        return this.getWrappedList().containsAll(c);
-    }
-
-    @Override
-    public void add(int index, E element) {
-        if (!this.isAcceptable(element)) {
-            this.onReject(element);
-        } else {
-            this.getWrappedList().add(index, element);
-        }
-    }
-
-    @Override
-    public E remove(int index) {
-        return this.getWrappedList().remove(index);
-    }
-
-    @Override
-    public int indexOf(Object o) {
-        return this.getWrappedList().indexOf(o);
-    }
-
-    @Override
-    public int lastIndexOf(Object o) {
-        return this.getWrappedList().lastIndexOf(o);
-    }
-
-    @Override
-    public ListIterator<E> listIterator() {
-        return new PredicateWrappedListIterator<>(this, this.getWrappedList().listIterator());
-    }
-
-    @Override
-    public ListIterator<E> listIterator(int index) {
-        return new PredicateWrappedListIterator<>(this, this.getWrappedList().listIterator(index));
-    }
 
     @Override
     public List<E> subList(int fromIndex, int toIndex) {
-        return new PredicateWrappedList<>(this.getWrappedList().subList(fromIndex, toIndex), this.predicate);
-    }
-
-    @Override
-    public boolean addAll(Collection<? extends E> c) {
-
-        Collection<E> toAdd = new ArrayList<>();
-
-        for (E e : c) {
-            if (this.isAcceptable(e)) {
-                toAdd.add(e);
-            } else {
-                this.onReject(e);
-            }
-        }
-
-
-        return this.getWrappedList().addAll(toAdd);
-    }
-
-    @Override
-    public boolean addAll(int index, Collection<? extends E> c) {
-        Collection<E> toAdd = new ArrayList<>();
-
-        for (E e : c) {
-            if (this.isAcceptable(e)) {
-                toAdd.add(e);
-            } else {
-                this.onReject(e);
-            }
-        }
-
-
-        return this.getWrappedList().addAll(index, toAdd);
-    }
-
-    @Override
-    public boolean removeAll(Collection<?> c) {
-        return this.getWrappedList().removeAll(c);
-    }
-
-    @Override
-    public boolean retainAll(Collection<?> c) {
-        return this.getWrappedList().retainAll(c);
-    }
-
-    @Override
-    public E set(int index, E element) {
-        if (!this.isAcceptable(element)) {
-            this.onReject(element);
-        } else {
-            this.getWrappedList().set(index, element);
-        }
-
-        return null;
-    }
-
-    @Override
-    public void replaceAll(UnaryOperator<E> operator) {
-        this.getWrappedList().replaceAll(new PredicateListUnaryOperator<>(this, operator));
-    }
-
-    @Override
-    public void clear() {
-        this.getWrappedList().clear();
-    }
-
-    @Override
-    public E get(int index) {
-        return this.getWrappedList().get(index);
-    }
-
-
-    protected List<E> getWrappedList() {
-        return this.list;
+        return new PredicateWrappedList<>(this.getWrappedList().subList(fromIndex, toIndex), this.getPredicate());
     }
 
     @Override
     public boolean isAcceptable(E e) {
-        return predicate.test(e);
+        return this.getPredicate().test(e);
     }
 
     @Override
     public void onReject(E e) {
-        throw new IllegalArgumentException("Cannot accept element '" + e + "'");
     }
 
+    protected Predicate<E> getPredicate() {
+        return this.predicate;
+    }
 }

@@ -27,43 +27,51 @@
  */
 package com.github.jonathanxd.iutils.type;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 
 /**
- * A {@link TypeInfo} that have dynamic type parameters.
+ * Abstract class to provide type information (workaround for erasure). Unlike {@link
+ * AbstractTypeInfo}, this approach does not prevents the garbage collector to collect this instance
+ * if you wish only to use {@link TypeInfo}. This approach is not expensive as {@link
+ * AbstractTypeInfo}, only {@link Type} is referenced, and does not require to allocate all objects
+ * of {@link TypeInfo} only to delegate invocations to a {@code wrapper} instance (that is allocated
+ * too).
+ *
+ * The {@link TypeInfo} provided by this class is not cached, and it is intentional..
  *
  * @param <T> Type.
  */
-public final class DynamicTypeInfo<T> extends TypeInfo<T> {
+public abstract class TypeParameterProvider<T> {
 
-    private final List<TypeInfo<?>> typeParameters = new ArrayList<>();
+    /**
+     * Reference to type {@link T}.
+     */
+    private final Type type;
 
-    DynamicTypeInfo(Class<T> aClass, List<TypeInfo<?>> typeParameters) {
-        super(aClass, typeParameters);
-
-        this.typeParameters.addAll(typeParameters);
+    /**
+     * Constructor
+     */
+    protected TypeParameterProvider() {
+        this.type = ((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments()[0];
     }
 
-    DynamicTypeInfo(String classLiteral, List<TypeInfo<?>> typeParameters) {
-        super(classLiteral, typeParameters);
-
-        this.typeParameters.addAll(typeParameters);
+    /**
+     * Gets the reference to type {@link T}.
+     *
+     * @return Reference to type {@link T}.
+     */
+    public final Type getType() {
+        return this.type;
     }
 
-    public void addRelated(TypeInfo<?> typeInfo) {
-        this.typeParameters.add(typeInfo);
-    }
-
-    public TypeInfo<T> toTypeInfo() {
-        if (this.isResolved())
-            return new TypeInfo<>(this.getTypeClass(), this.getTypeParameters());
-
-        return new TypeInfo<>(this.getClassLiteral(), this.getTypeParameters());
-    }
-
-    @Override
-    public List<TypeInfo<?>> getTypeParameters() {
-        return this.typeParameters;
+    /**
+     * Creates a {@link TypeInfo} of type {@link T} using the {@link #type reference}.
+     *
+     * @return Information of type {@link T}.
+     */
+    @SuppressWarnings("unchecked")
+    public final TypeInfo<T> createTypeInfo() {
+        return (TypeInfo<T>) TypeUtil.toTypeInfo(this.getType());
     }
 }

@@ -25,45 +25,29 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.type;
+package com.github.jonathanxd.iutils;
 
-import java.util.ArrayList;
+import com.github.jonathanxd.iutils.collection.Collections3;
+
+import org.junit.Assert;
+import org.junit.Test;
+
 import java.util.List;
 
-/**
- * A {@link TypeInfo} that have dynamic type parameters.
- *
- * @param <T> Type.
- */
-public final class DynamicTypeInfo<T> extends TypeInfo<T> {
+public class PredicateListTest {
 
-    private final List<TypeInfo<?>> typeParameters = new ArrayList<>();
+    @Test
+    public void predicateListTest() {
+        List<String> acceptUpper = Collections3.predicateListOf(s -> s.toUpperCase().equals(s), "A", "B", "c", "D");
 
-    DynamicTypeInfo(Class<T> aClass, List<TypeInfo<?>> typeParameters) {
-        super(aClass, typeParameters);
-
-        this.typeParameters.addAll(typeParameters);
+        Assert.assertEquals(Collections3.listOf("A", "B", "D"), acceptUpper);
     }
 
-    DynamicTypeInfo(String classLiteral, List<TypeInfo<?>> typeParameters) {
-        super(classLiteral, typeParameters);
+    @Test(expected = IllegalArgumentException.class)
+    public void predicateFailingListTest() {
+        List<String> acceptUpper =
+                Collections3.predicateFailingListOf(s -> s.toUpperCase().equals(s), "A", "B", "c", "D");
 
-        this.typeParameters.addAll(typeParameters);
-    }
-
-    public void addRelated(TypeInfo<?> typeInfo) {
-        this.typeParameters.add(typeInfo);
-    }
-
-    public TypeInfo<T> toTypeInfo() {
-        if (this.isResolved())
-            return new TypeInfo<>(this.getTypeClass(), this.getTypeParameters());
-
-        return new TypeInfo<>(this.getClassLiteral(), this.getTypeParameters());
-    }
-
-    @Override
-    public List<TypeInfo<?>> getTypeParameters() {
-        return this.typeParameters;
+        Assert.assertEquals(Collections3.listOf("A", "B", "D"), acceptUpper);
     }
 }

@@ -25,15 +25,16 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.reference;
+package com.github.jonathanxd.iutils.typeinfo;
 
-import com.github.jonathanxd.iutils.type.AbstractTypeInfo;
 import com.github.jonathanxd.iutils.type.TypeInfo;
 import com.github.jonathanxd.iutils.type.TypeInfoUtil;
+import com.github.jonathanxd.iutils.type.TypeParameterProvider;
 import com.github.jonathanxd.iutils.type.TypeProvider;
 import com.github.jonathanxd.iutils.type.TypeUtil;
 
 import org.junit.Assert;
+import org.junit.Test;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -43,16 +44,16 @@ import java.util.Map;
 public class TypeInfoTest {
 
 
-    private final TypeInfo<A> aInfo = new AbstractTypeInfo<A>() {
-    };
-    private final TypeInfo<B<List<?>>> bInfo = new AbstractTypeInfo<B<List<?>>>() {
-    };
+    private final TypeInfo<A> aInfo = new TypeParameterProvider<A>() {
+    }.createTypeInfo();
+    private final TypeInfo<B<List<?>>> bInfo = new TypeParameterProvider<B<List<?>>>() {
+    }.createTypeInfo();
 
     @org.junit.Test
     public void testRef() {
 
-        TypeInfo<Dict<? extends CharSequence, ? super Number>> ref = new AbstractTypeInfo<Dict<? extends CharSequence, ? super Number>>() {
-        };
+        TypeInfo<Dict<? extends CharSequence, ? super Number>> ref = new TypeParameterProvider<Dict<? extends CharSequence, ? super Number>>() {
+        }.createTypeInfo();
 
         Assert.assertEquals("Dict<CharSequence, Object>", ref.toString());
 
@@ -62,13 +63,13 @@ public class TypeInfoTest {
 
         Assert.assertEquals("CharSequence", myRefs[0].toString());
 
-        TypeInfo<Dict<List<String>, Integer>> dictTypeInfo = new AbstractTypeInfo<Dict<List<String>, Integer>>() {
-        };
+        TypeInfo<Dict<List<String>, Integer>> dictTypeInfo = new TypeParameterProvider<Dict<List<String>, Integer>>() {
+        }.createTypeInfo();
         String toFullString1 = dictTypeInfo.toFullString();
 
         Assert.assertEquals("Dict<List<String>, Integer>", dictTypeInfo.toString());
 
-        Assert.assertEquals("com.github.jonathanxd.iutils.reference.TypeInfoTest$Dict<java.util.List<java.lang.String>, java.lang.Integer>", toFullString1);
+        Assert.assertEquals("com.github.jonathanxd.iutils.typeinfo.TypeInfoTest$Dict<java.util.List<java.lang.String>, java.lang.Integer>", toFullString1);
 
         Assert.assertEquals(dictTypeInfo, TypeInfoUtil.fromFullString(toFullString1).get(0));
 
@@ -80,18 +81,18 @@ public class TypeInfoTest {
 
         Assert.assertEquals("[Map<String, List<Map<String, Integer[]>>>, Map<String, List<Map<String, Integer[]>>>]", TypeInfoUtil.fromFullString("java.util.Map<java.lang.String, java.util.List<java.util.Map<java.lang.String, [Ljava.lang.Integer;>>>, java.util.Map<java.lang.String, java.util.List<java.util.Map<java.lang.String, [Ljava.lang.Integer;>>>").toString());
 
-        TypeInfo<String> typeInfo1 = new AbstractTypeInfo<String>() {
-        };
+        TypeInfo<String> typeInfo1 = new TypeParameterProvider<String>() {
+        }.createTypeInfo();
 
         Assert.assertEquals(TypeInfo.of(String.class), typeInfo1);
 
-        TypeInfo<List<String>> typeInfo2 = new AbstractTypeInfo<List<String>>() {
-        };
+        TypeInfo<List<String>> typeInfo2 = new TypeParameterProvider<List<String>>() {
+        }.createTypeInfo();
 
         Assert.assertEquals(TypeInfo.builderOf(List.class).of(String.class).build(), typeInfo2);
 
-        TypeInfo<List<?>> typeInfo3 = new AbstractTypeInfo<List<?>>() {
-        };
+        TypeInfo<List<?>> typeInfo3 = new TypeParameterProvider<List<?>>() {
+        }.createTypeInfo();
 
         Assert.assertEquals(TypeInfo.builderOf(List.class).of(Object.class).build(), typeInfo3);
 
@@ -119,10 +120,10 @@ public class TypeInfoTest {
 
         Assert.assertEquals("java.util.List<java.lang.String, java.util.List<java.lang.Integer>, java.util.List<java.lang.String>>", representationN.toFullString());
 
-        TypeInfo<List<Object>> typeInfo6 = new AbstractTypeInfo<List<Object>>() {
-        };
-        TypeInfo<List<String>> typeInfo7 = new AbstractTypeInfo<List<String>>() {
-        };
+        TypeInfo<List<Object>> typeInfo6 = new TypeParameterProvider<List<Object>>() {
+        }.createTypeInfo();
+        TypeInfo<List<String>> typeInfo7 = new TypeParameterProvider<List<String>>() {
+        }.createTypeInfo();
         //noinspection deprecation
         Assert.assertTrue(typeInfo6.isAssignableFrom(typeInfo7));
 
@@ -138,6 +139,22 @@ public class TypeInfoTest {
 
         Assert.assertTrue(bInfo.isAssignableFrom(aInfo));
 
+    }
+
+    @org.junit.Test
+    public void testNew() {
+        TypeInfo<List<Map<Integer, A>>> expected =
+                TypeInfo.builderOf(List.class).of(TypeInfo.builderOf(Map.class).of(Integer.class).of(A.class)).buildGeneric();
+        TypeInfo<List<Map<Integer, A>>> typeInfo = new TypeParameterProvider<List<Map<Integer, A>>>() {}.createTypeInfo();
+
+        TypeInfo<Map<Integer, A>> expected2 =
+                TypeInfo.builderOf(Map.class).of(Integer.class).of(A.class).buildGeneric();
+
+        Assert.assertEquals(expected, typeInfo);
+        Assert.assertEquals(expected2, typeInfo.getTypeParameter("E"));
+        Assert.assertEquals(expected2, typeInfo.getTypeParameter(0));
+        Assert.assertEquals(TypeInfo.of(Integer.class), typeInfo.getTypeParameter("E").getTypeParameter("K"));
+        Assert.assertEquals(TypeInfo.of(A.class), typeInfo.getTypeParameter("E").getTypeParameter("V"));
     }
 
     public static class A extends X<List<?>> {

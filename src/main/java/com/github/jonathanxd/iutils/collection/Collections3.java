@@ -28,8 +28,12 @@
 package com.github.jonathanxd.iutils.collection;
 
 import com.github.jonathanxd.iutils.exception.LimitExceededException;
+import com.github.jonathanxd.iutils.list.PredicateList;
+import com.github.jonathanxd.iutils.list.PredicateWrappedFailingList;
+import com.github.jonathanxd.iutils.list.PredicateWrappedList;
 import com.github.jonathanxd.iutils.list.SizedJavaList;
 import com.github.jonathanxd.iutils.list.StaticList;
+import com.github.jonathanxd.iutils.list.UniqueList;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -39,6 +43,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.BiConsumer;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 /**
@@ -176,4 +181,59 @@ public class Collections3 {
         return set;
     }
 
+    // Predicate
+
+    /**
+     * Creates a {@link UniqueList} of {@link E} and add {@code elements} to the {@link List}.
+     *
+     * @param elements Elements to add to list.
+     * @param <E>      Element type.
+     * @return {@link UniqueList} of {@link E} with {@code elements}.
+     */
+    @SafeVarargs
+    public static <E> UniqueList<E> uniqueListOf(E... elements) {
+        UniqueList<E> list = new UniqueList<>();
+
+        Collections.addAll(list, elements);
+
+        return list;
+    }
+
+    /**
+     * Creates a {@link PredicateList} of {@link E} with specified acceptor {@code predicate} and
+     * add {@code elements} to the {@link List}.
+     *
+     * @param predicate Predicate to test elements to add.
+     * @param elements  Elements to add to list.
+     * @param <E>       Element type.
+     * @return {@link PredicateList} of {@link E} with {@code elements}.
+     */
+    @SafeVarargs
+    public static <E> PredicateList<E> predicateListOf(Predicate<E> predicate, E... elements) {
+        PredicateList<E> list = new PredicateWrappedList<>(predicate);
+
+        Collections.addAll(list, elements);
+
+        return list;
+    }
+
+    /**
+     * Creates a {@link PredicateList} of {@link E} with specified acceptor {@code predicate} and
+     * add {@code elements} to the {@link List}. The created list throws an exception if added
+     * elements does not match predicate.
+     *
+     * @param predicate Predicate to test elements.
+     * @param elements  Elements to add to list.
+     * @param <E>       Element type.
+     * @return {@link PredicateList} of {@link E} with {@code elements} that throws an exception if
+     * added elements does not match predicate.
+     */
+    @SafeVarargs
+    public static <E> PredicateList<E> predicateFailingListOf(Predicate<E> predicate, E... elements) {
+        PredicateList<E> list = new PredicateWrappedFailingList<>(predicate);
+
+        Collections.addAll(list, elements);
+
+        return list;
+    }
 }

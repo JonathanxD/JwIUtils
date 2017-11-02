@@ -25,45 +25,38 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.type;
+package com.github.jonathanxd.iutils.list;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A {@link TypeInfo} that have dynamic type parameters.
+ * An {@link AbstractPredicateWrappedList} that does not allow duplicated elements and does not
+ * throw exceptions when trying to add duplicated elements.
  *
- * @param <T> Type.
+ * @param <E> Element type.
  */
-public final class DynamicTypeInfo<T> extends TypeInfo<T> {
+public class UniqueList<E> extends AbstractPredicateWrappedList<E> {
 
-    private final List<TypeInfo<?>> typeParameters = new ArrayList<>();
-
-    DynamicTypeInfo(Class<T> aClass, List<TypeInfo<?>> typeParameters) {
-        super(aClass, typeParameters);
-
-        this.typeParameters.addAll(typeParameters);
+    public UniqueList() {
+        this(new ArrayList<>());
     }
 
-    DynamicTypeInfo(String classLiteral, List<TypeInfo<?>> typeParameters) {
-        super(classLiteral, typeParameters);
-
-        this.typeParameters.addAll(typeParameters);
-    }
-
-    public void addRelated(TypeInfo<?> typeInfo) {
-        this.typeParameters.add(typeInfo);
-    }
-
-    public TypeInfo<T> toTypeInfo() {
-        if (this.isResolved())
-            return new TypeInfo<>(this.getTypeClass(), this.getTypeParameters());
-
-        return new TypeInfo<>(this.getClassLiteral(), this.getTypeParameters());
+    public UniqueList(List<E> list) {
+        super(list);
     }
 
     @Override
-    public List<TypeInfo<?>> getTypeParameters() {
-        return this.typeParameters;
+    public boolean isAcceptable(E e) {
+        return !this.getWrappedList().contains(e);
+    }
+
+    @Override
+    public void onReject(E e) {
+    }
+
+    @Override
+    public List<E> subList(int fromIndex, int toIndex) {
+        return new UniqueList<>(this.getWrappedList().subList(fromIndex, toIndex));
     }
 }

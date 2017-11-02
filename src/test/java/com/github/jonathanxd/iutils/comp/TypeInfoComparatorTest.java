@@ -28,9 +28,9 @@
 package com.github.jonathanxd.iutils.comp;
 
 import com.github.jonathanxd.iutils.collection.Collections3;
-import com.github.jonathanxd.iutils.type.AbstractTypeInfo;
 import com.github.jonathanxd.iutils.type.TypeInfo;
 import com.github.jonathanxd.iutils.type.TypeInfoSortComparator;
+import com.github.jonathanxd.iutils.type.TypeParameterProvider;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -48,10 +48,10 @@ public class TypeInfoComparatorTest {
     public void typeInfoComparatorTest() {
 
 
-        TypeInfo<List<String>> typeInfo1 = new AbstractTypeInfo<List<String>>() {
-        };
-        TypeInfo<List<CharSequence>> typeInfo2 = new AbstractTypeInfo<List<CharSequence>>() {
-        };
+        TypeInfo<List<String>> typeInfo1 = new TypeParameterProvider<List<String>>() {
+        }.createTypeInfo();
+        TypeInfo<List<CharSequence>> typeInfo2 = new TypeParameterProvider<List<CharSequence>>() {
+        }.createTypeInfo();
 
         List<TypeInfo<?>> t = Collections3.listOf(typeInfo1, typeInfo2);
 
@@ -60,11 +60,11 @@ public class TypeInfoComparatorTest {
         Assert.assertEquals(t.get(0), typeInfo2);
         Assert.assertEquals(t.get(1), typeInfo1);
 
-        TypeInfo<Collection<String>> typeInfo3 = new AbstractTypeInfo<Collection<String>>() {
-        };
+        TypeInfo<Collection<String>> typeInfo3 = new TypeParameterProvider<Collection<String>>() {
+        }.createTypeInfo();
 
-        TypeInfo<Collection<CharSequence>> typeInfo4 = new AbstractTypeInfo<Collection<CharSequence>>() {
-        };
+        TypeInfo<Collection<CharSequence>> typeInfo4 = new TypeParameterProvider<Collection<CharSequence>>() {
+        }.createTypeInfo();
 
         t = Collections3.listOf(typeInfo1, typeInfo3, typeInfo4);
 
@@ -79,11 +79,11 @@ public class TypeInfoComparatorTest {
 
     @Test
     public void typeInfoComparatorTestMultiRel() {
-        TypeInfo<Map<Entity, String>> typeInfo1 = new AbstractTypeInfo<Map<Entity, String>>() {
-        };
+        TypeInfo<Map<Entity, String>> typeInfo1 = new TypeParameterProvider<Map<Entity, String>>() {
+        }.createTypeInfo();
 
-        TypeInfo<Map<Person, String>> typeInfo2 = new AbstractTypeInfo<Map<Person, String>>() {
-        };
+        TypeInfo<Map<Person, String>> typeInfo2 = new TypeParameterProvider<Map<Person, String>>() {
+        }.createTypeInfo();
 
         // First is less than second
         Assert.assertEquals(-1, TYPE_INFO_SORT_COMPARATOR.compare(typeInfo1, typeInfo2));
@@ -92,11 +92,11 @@ public class TypeInfoComparatorTest {
 
     @Test
     public void typeInfoComparatorTestMultiRel2() {
-        TypeInfo<Map<Entity, CharSequence>> typeInfo1 = new AbstractTypeInfo<Map<Entity, CharSequence>>() {
-        };
+        TypeInfo<Map<Entity, CharSequence>> typeInfo1 = new TypeParameterProvider<Map<Entity, CharSequence>>() {
+        }.createTypeInfo();
 
-        TypeInfo<Map<Person, String>> typeInfo2 = new AbstractTypeInfo<Map<Person, String>>() {
-        };
+        TypeInfo<Map<Person, String>> typeInfo2 = new TypeParameterProvider<Map<Person, String>>() {
+        }.createTypeInfo();
 
         // First is less than second
         Assert.assertEquals(-1, TYPE_INFO_SORT_COMPARATOR.compare(typeInfo1, typeInfo2));
@@ -105,11 +105,11 @@ public class TypeInfoComparatorTest {
 
     @Test
     public void typeInfoComparatorTestMultiRel3() {
-        TypeInfo<Map<Entity, CharSequence>> typeInfo1 = new AbstractTypeInfo<Map<Entity, CharSequence>>() {
-        };
+        TypeInfo<Map<Entity, CharSequence>> typeInfo1 = new TypeParameterProvider<Map<Entity, CharSequence>>() {
+        }.createTypeInfo();
 
-        TypeInfo<Map<Person, CharSequence>> typeInfo2 = new AbstractTypeInfo<Map<Person, CharSequence>>() {
-        };
+        TypeInfo<Map<Person, CharSequence>> typeInfo2 = new TypeParameterProvider<Map<Person, CharSequence>>() {
+        }.createTypeInfo();
 
         // First is less than second
         Assert.assertEquals(-1, TYPE_INFO_SORT_COMPARATOR.compare(typeInfo1, typeInfo2));
@@ -117,11 +117,11 @@ public class TypeInfoComparatorTest {
 
     @Test
     public void typeInfoComparatorTestMultiRel4() {
-        TypeInfo<Map<Entity, String>> typeInfo1 = new AbstractTypeInfo<Map<Entity, String>>() {
-        };
+        TypeInfo<Map<Entity, String>> typeInfo1 = new TypeParameterProvider<Map<Entity, String>>() {
+        }.createTypeInfo();
 
-        TypeInfo<Map<Person, CharSequence>> typeInfo2 = new AbstractTypeInfo<Map<Person, CharSequence>>() {
-        };
+        TypeInfo<Map<Person, CharSequence>> typeInfo2 = new TypeParameterProvider<Map<Person, CharSequence>>() {
+        }.createTypeInfo();
 
         // Both are equals
         Assert.assertEquals(0, TYPE_INFO_SORT_COMPARATOR.compare(typeInfo1, typeInfo2));

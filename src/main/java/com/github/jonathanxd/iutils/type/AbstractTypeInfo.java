@@ -28,37 +28,26 @@
 package com.github.jonathanxd.iutils.type;
 
 import java.lang.reflect.ParameterizedType;
+import java.util.List;
 
 /**
  * Abstract type info.
  *
  * @param <T> Type.
+ * @deprecated This strategy creates two instances of {@link TypeInfo} (this, and of object to be
+ * wrapped) and prevents the {@link AbstractTypeInfo} instance to be collected by the garbage
+ * collector. Use {@link TypeParameterProvider#createTypeInfo()}.
  */
 public abstract class AbstractTypeInfo<T> extends TypeInfo<T> {
 
     private final TypeInfo<T> wrapped;
-    private final boolean isUnique;
 
     @SuppressWarnings("unchecked")
-    public AbstractTypeInfo(boolean isUnique) {
+    public AbstractTypeInfo() {
         super();
 
-        this.wrapped = (TypeInfo<T>) TypeUtil.toTypeInfo(((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0]);
-        this.isUnique = isUnique;
-    }
-
-    public AbstractTypeInfo() {
-        this(false);
-    }
-
-    @Override
-    public TypeInfo[] getRelated() {
-        return this.getWrapped().getRelated();
-    }
-
-    @Override
-    protected TypeInfo[] fastGetRelated() {
-        return this.getWrapped().fastGetRelated();
+        this.wrapped = (TypeInfo<T>)
+                TypeUtil.toTypeInfo(((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0]);
     }
 
     @Override
@@ -67,18 +56,8 @@ public abstract class AbstractTypeInfo<T> extends TypeInfo<T> {
     }
 
     @Override
-    public TypeInfo<?>[] getSubTypeInfos() {
-        return this.getWrapped().getSubTypeInfos();
-    }
-
-    @Override
-    protected TypeInfo<?>[] fastGetSubTypeInfos() {
-        return this.getWrapped().fastGetSubTypeInfos();
-    }
-
-    @Override
-    public boolean isUnique() {
-        return this.isUnique;
+    public List<TypeInfo<?>> getTypeParameters() {
+        return this.getWrapped().getTypeParameters();
     }
 
     protected TypeInfo<T> getWrapped() {

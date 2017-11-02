@@ -28,7 +28,7 @@
 package com.github.jonathanxd.iutils.reflection;
 
 import com.github.jonathanxd.iutils.function.stream.BiStreams;
-import com.github.jonathanxd.iutils.list.ListSet;
+import com.github.jonathanxd.iutils.list.UniqueList;
 
 import java.util.HashMap;
 import java.util.List;
@@ -100,7 +100,7 @@ public final class ClassUtil {
      * @return List representing the class hierarchy by level.
      */
     public static List<Leveled<Class<?>>> getSuperTypesLeveled(Class<?> aClass) {
-        List<Leveled<Class<?>>> list = new ListSet<>();
+        List<Leveled<Class<?>>> list = new UniqueList<>();
 
         ClassUtil.getSuperTypesLeveled(aClass, list, 1);
 

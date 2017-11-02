@@ -30,6 +30,7 @@ package com.github.jonathanxd.iutils.type;
 import com.github.jonathanxd.iutils.reflection.ClassUtil;
 
 import java.util.Comparator;
+import java.util.List;
 
 /**
  * Comparator that compares {@link TypeInfo} by inheritance level.
@@ -65,15 +66,15 @@ public class TypeInfoSortComparator implements Comparator<TypeInfo<?>> {
         final Class<?> o1TypeClass = o1.getTypeClass();
         final Class<?> o2TypeClass = o2.getTypeClass();
 
-        final TypeInfo[] o1Related = o1.getRelated();
-        final TypeInfo[] o2Related = o2.getRelated();
+        final List<TypeInfo<?>> o1TypeParameters = o1.getTypeParameters();
+        final List<TypeInfo<?>> o2TypeParameters = o2.getTypeParameters();
 
-        if (o1Related.length == o2Related.length) {
+        if (o1TypeParameters.size() == o2TypeParameters.size()) {
             int comp = 0;
 
-            if (o1TypeClass.equals(o2TypeClass) && o1Related.length > 0) {
-                for (int x = 0; x < o1Related.length; ++x) {
-                    comp += this.compare(o1Related[x], o2Related[x]);
+            if (o1TypeClass.equals(o2TypeClass) && o1TypeParameters.size() > 0) {
+                for (int x = 0; x < o1TypeParameters.size(); ++x) {
+                    comp += this.compare(o1TypeParameters.get(x), o2TypeParameters.get(x));
                 }
 
                 if (comp > 0)

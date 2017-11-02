@@ -32,6 +32,7 @@ import com.github.jonathanxd.iutils.optional.RequiredCall;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -42,9 +43,8 @@ import java.util.List;
 public final class TypeInfoBuilder<T> {
 
     private String classLiteral = null;
-    private Class<? extends T> type = null;
-    private List<TypeInfoBuilder<?>> related = new ArrayList<>();
-    private boolean isUnique = false;
+    private Class<T> type = null;
+    private List<TypeInfoBuilder<?>> typeParameters = new ArrayList<>();
 
     TypeInfoBuilder() {
     }
@@ -64,8 +64,8 @@ public final class TypeInfoBuilder<T> {
         if (typeInfo.isResolved())
             typeInfoBuilder.type = typeInfo.getTypeClass();
 
-        for (TypeInfo<?> otherTypeInfo : typeInfo.getRelated()) {
-            typeInfoBuilder.related.add(TypeInfoBuilder.from(otherTypeInfo));
+        for (TypeInfo<?> otherTypeInfo : typeInfo.getTypeParameters()) {
+            typeInfoBuilder.typeParameters.add(TypeInfoBuilder.from(otherTypeInfo));
         }
 
         return typeInfoBuilder;
@@ -83,15 +83,15 @@ public final class TypeInfoBuilder<T> {
         DynamicTypeInfo<T> dynamicReference;
 
         if (typeInfoBuilder.type == null)
-            dynamicReference = new DynamicTypeInfo<>(typeInfoBuilder.classLiteral, new TypeInfo[]{}, typeInfoBuilder.isUnique());
+            dynamicReference = new DynamicTypeInfo<>(typeInfoBuilder.classLiteral, Collections.emptyList());
         else
-            dynamicReference = new DynamicTypeInfo<>(typeInfoBuilder.type, new TypeInfo[]{}, typeInfoBuilder.isUnique());
+            dynamicReference = new DynamicTypeInfo<>(typeInfoBuilder.type, Collections.emptyList());
 
-        if (typeInfoBuilder.related.size() > 0) {
+        if (typeInfoBuilder.typeParameters.size() > 0) {
 
             List<TypeInfo<?>> typeInfoList = new ArrayList<>();
 
-            for (TypeInfoBuilder<?> otherTypeInfoBuilder : typeInfoBuilder.related) {
+            for (TypeInfoBuilder<?> otherTypeInfoBuilder : typeInfoBuilder.typeParameters) {
                 typeInfoList.add(TypeInfoBuilder.build(otherTypeInfoBuilder));
             }
 
@@ -100,7 +100,7 @@ public final class TypeInfoBuilder<T> {
             }
         }
 
-        return dynamicReference.toReference();
+        return dynamicReference.toTypeInfo();
     }
 
     /**
@@ -122,28 +122,10 @@ public final class TypeInfoBuilder<T> {
     }
 
     /**
-     * @see TypeInfo#getRelated()
+     * @see TypeInfo#getTypeParameters()
      */
-    public List<TypeInfoBuilder<?>> getRelated() {
-        return this.related;
-    }
-
-    /**
-     * @see TypeInfo#isUnique()
-     */
-    public boolean isUnique() {
-        return this.isUnique;
-    }
-
-    /**
-     * Marks {@link TypeInfoBuilder} to create a unique {@link TypeInfo} or not.
-     *
-     * @param unique Is unique.
-     * @return {@code this}.
-     */
-    public TypeInfoBuilder<T> setUnique(boolean unique) {
-        this.isUnique = unique;
-        return this;
+    public List<TypeInfoBuilder<?>> getTypeParameters() {
+        return this.typeParameters;
     }
 
     /**
@@ -153,7 +135,7 @@ public final class TypeInfoBuilder<T> {
      * @return {@code this}.
      */
     @RequiredCall
-    public TypeInfoBuilder<T> a(Class<? extends T> aClass) {
+    public TypeInfoBuilder<T> a(Class<T> aClass) {
         this.classLiteral = aClass.getName();
         this.type = aClass;
         return this;
@@ -183,24 +165,7 @@ public final class TypeInfoBuilder<T> {
     public TypeInfoBuilder<T> of(List<TypeInfo<?>> related) {
 
         for (TypeInfo<?> typeInfo : related) {
-            this.related.add(from(typeInfo));
-        }
-
-        return this;
-    }
-
-    /**
-     * Adds related types of the type {@link E}.
-     *
-     * @param related Related types.
-     * @param <E>     Type.
-     * @return {@code this}.
-     */
-    @OptionalCall
-    public <E> TypeInfoBuilder<T> ofE(List<TypeInfo<E>> related) {
-
-        for (TypeInfo<E> typeInfo : related) {
-            this.related.add(from(typeInfo));
+            this.typeParameters.add(from(typeInfo));
         }
 
         return this;
@@ -237,11 +202,8 @@ public final class TypeInfoBuilder<T> {
      * @return {@code this}.
      */
     @OptionalCall
-    public TypeInfoBuilder<T> of(TypeInfoBuilder... builders) {
-
-        for (TypeInfoBuilder builder : builders) {
-            this.related.add(builder);
-        }
+    public TypeInfoBuilder<T> of(TypeInfoBuilder<?>... builders) {
+        Collections.addAll(this.typeParameters, builders);
         return this;
     }
 
@@ -251,17 +213,17 @@ public final class TypeInfoBuilder<T> {
      * @param classes Related types classes.
      * @return {@code this}.
      */
-    @SafeVarargs
+    @SuppressWarnings("unchecked")
     @OptionalCall
-    public final <E> TypeInfoBuilder<T> of(Class<? extends E>... classes) {
+    public final TypeInfoBuilder<T> of(Class<?>... classes) {
 
-        List<TypeInfo<E>> typeInfos = new ArrayList<>();
+        List<TypeInfo<?>> typeInfos = new ArrayList<>();
 
-        for (Class<? extends E> classz : classes) {
-            typeInfos.add(new TypeInfoBuilder<E>().a(classz).build());
+        for (Class<?> classz : classes) {
+            typeInfos.add(new TypeInfoBuilder<>().a((Class) classz).build());
         }
 
-        ofE(typeInfos);
+        this.of(typeInfos);
 
         return this;
     }
@@ -273,15 +235,15 @@ public final class TypeInfoBuilder<T> {
      * @return {@code this}.
      */
     @OptionalCall
-    public final <E> TypeInfoBuilder<T> of(String... classes) {
+    public final TypeInfoBuilder<T> of(String... classes) {
 
-        List<TypeInfo<E>> typeInfos = new ArrayList<>();
+        List<TypeInfo<?>> typeInfos = new ArrayList<>();
 
         for (String classz : classes) {
-            typeInfos.add(new TypeInfoBuilder<E>().a(classz).build());
+            typeInfos.add(new TypeInfoBuilder().a(classz).build());
         }
 
-        ofE(typeInfos);
+        this.of(typeInfos);
 
         return this;
     }

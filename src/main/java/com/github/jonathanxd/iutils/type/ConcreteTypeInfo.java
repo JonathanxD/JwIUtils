@@ -38,14 +38,12 @@ import java.lang.reflect.ParameterizedType;
 public abstract class ConcreteTypeInfo<T> extends TypeInfo<T> {
 
     private final TypeInfo<T> wrapped;
-    private final boolean isUnique;
 
     @SuppressWarnings("unchecked")
     public ConcreteTypeInfo(boolean isUnique) {
         super();
 
         this.wrapped = (TypeInfo<T>) TypeUtil.toTypeInfo(((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0]);
-        this.isUnique = isUnique;
     }
 
     public ConcreteTypeInfo() {
@@ -53,33 +51,8 @@ public abstract class ConcreteTypeInfo<T> extends TypeInfo<T> {
     }
 
     @Override
-    public TypeInfo[] getRelated() {
-        return this.getWrapped().getRelated();
-    }
-
-    @Override
-    protected TypeInfo[] fastGetRelated() {
-        return this.getWrapped().fastGetRelated();
-    }
-
-    @Override
     public String getClassLiteral() {
         return this.getWrapped().getClassLiteral();
-    }
-
-    @Override
-    public TypeInfo<?>[] getSubTypeInfos() {
-        return this.getWrapped().getSubTypeInfos();
-    }
-
-    @Override
-    protected TypeInfo<?>[] fastGetSubTypeInfos() {
-        return this.getWrapped().fastGetSubTypeInfos();
-    }
-
-    @Override
-    public boolean isUnique() {
-        return this.isUnique;
     }
 
     protected TypeInfo<T> getWrapped() {

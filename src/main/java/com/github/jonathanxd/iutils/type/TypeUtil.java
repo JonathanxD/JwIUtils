@@ -489,11 +489,11 @@ public class TypeUtil {
      * @throws TypeResolutionException if class cannot be found.
      */
     @SuppressWarnings("unchecked")
-    public static <V> Class<? extends V> resolveClass(String classLiteral) throws TypeResolutionException {
+    public static <V> Class<V> resolveClass(String classLiteral) throws TypeResolutionException {
 
         String fixed = fixName(classLiteral);
         try {
-            return (Class<? extends V>) TypeUtil.classForName(fixed);
+            return (Class<V>) TypeUtil.classForName(fixed);
         } catch (ClassNotFoundException e) {
             throw new TypeResolutionException("Failed to resolve class literal: '" + classLiteral + "' fixed: '" + fixed + "'!", e);
         }

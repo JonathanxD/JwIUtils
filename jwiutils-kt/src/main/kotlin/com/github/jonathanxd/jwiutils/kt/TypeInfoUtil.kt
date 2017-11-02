@@ -27,11 +27,11 @@
  */
 package com.github.jonathanxd.jwiutils.kt
 
-import com.github.jonathanxd.iutils.type.AbstractTypeInfo
 import com.github.jonathanxd.iutils.type.TypeInfo
+import com.github.jonathanxd.iutils.type.TypeParameterProvider
 
 /**
  * Creates a [TypeInfo] of type [T].
  */
 inline fun <reified T> typeInfo(): TypeInfo<T> =
-        object : AbstractTypeInfo<T>() {}
+        object : TypeParameterProvider<T>() {}.createTypeInfo()

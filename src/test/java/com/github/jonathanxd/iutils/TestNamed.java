@@ -28,8 +28,8 @@
 package com.github.jonathanxd.iutils;
 
 import com.github.jonathanxd.iutils.object.Named;
-import com.github.jonathanxd.iutils.type.AbstractTypeInfo;
 import com.github.jonathanxd.iutils.type.TypeInfo;
+import com.github.jonathanxd.iutils.type.TypeParameterProvider;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -48,13 +48,13 @@ public class TestNamed {
     @Test
     public void testData() {
 
-        namedList.add(new Named<>("Player", new AbstractTypeInfo<Player>() {
-        }));
-        namedList.add(new Named<>("boot", new AbstractTypeInfo<String>() {
-        }));
+        namedList.add(new Named<>("Player", new TypeParameterProvider<Player>() {
+        }.createTypeInfo()));
+        namedList.add(new Named<>("boot", new TypeParameterProvider<String>() {
+        }.createTypeInfo()));
 
-        Named<TypeInfo<Player>> named = new Named<>(null, new AbstractTypeInfo<Player>() {
-        });
+        Named<TypeInfo<Player>> named = new Named<>(null, new TypeParameterProvider<Player>() {
+        }.createTypeInfo());
 
         Assert.assertTrue(named.get(namedList).isPresent());
     }

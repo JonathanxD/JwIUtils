@@ -68,11 +68,11 @@ public final class TypeInfoUtil {
             sb.append(typeInfo.getClassLiteral());
         }
 
-        if (typeInfo.fastGetRelated().length != 0) {
+        if (typeInfo.getTypeParameters().size() != 0) {
             sb.append("<");
             StringJoiner sj = new StringJoiner(", ");
 
-            for (TypeInfo loopRef : typeInfo.fastGetRelated()) {
+            for (TypeInfo<?> loopRef : ((TypeInfo<?>) typeInfo).getTypeParameters()) {
                 sj.add(TypeInfoUtil.toString(loopRef, classToString));
             }
 
@@ -160,7 +160,7 @@ public final class TypeInfoUtil {
                 if (!builders.isEmpty()) {
                     TypeInfoBuilder<?> typeInfoBuilder = builders.peekLast();
 
-                    if (!typeInfoBuilder.getRelated().contains(poll)) {
+                    if (!typeInfoBuilder.getTypeParameters().contains(poll)) {
                         typeInfoList.add(poll.build());
                     }
                 } else {
@@ -179,7 +179,7 @@ public final class TypeInfoUtil {
                 if (!builders.isEmpty()) {
                     TypeInfoBuilder<?> typeInfoBuilder = builders.peekLast();
 
-                    if (!typeInfoBuilder.getRelated().contains(poll)) {
+                    if (!typeInfoBuilder.getTypeParameters().contains(poll)) {
                         typeInfoList.add(poll.build());
                     }
                 } else {
@@ -197,10 +197,11 @@ public final class TypeInfoUtil {
         return typeInfoList;
     }
 
+    @SuppressWarnings("unchecked")
     private static TypeInfoBuilder<?> createBuilder(String classLiteral, Function<String, Class<?>> resolver) {
         Class<?> r;
         if ((r = resolver.apply(classLiteral)) != null)
-            return new TypeInfoBuilder<>().a(r);
+            return new TypeInfoBuilder<>().a((Class) r);
 
         return new TypeInfoBuilder<>().a(classLiteral);
     }
@@ -248,15 +249,15 @@ public final class TypeInfoUtil {
     public static void insertTypes(TypeInfo<?> resolvedType, Map<String, TypeInfo<?>> typeMap) {
 
         Class<?> aClass = resolvedType.getTypeClass();
-        TypeInfo[] related = resolvedType.fastGetRelated();
+        List<TypeInfo<?>> infoTypeParameters = resolvedType.getTypeParameters();
         TypeVariable<? extends Class<?>>[] typeParameters = aClass.getTypeParameters();
 
-        if (related.length != typeParameters.length)
+        if (infoTypeParameters.size() != typeParameters.length)
             throw new IllegalArgumentException("Types not fully resolved!");
 
         for (int i = 0; i < typeParameters.length; i++) {
             TypeVariable<? extends Class<?>> typeParameter = typeParameters[i];
-            TypeInfo typeInfo = related[i];
+            TypeInfo typeInfo = infoTypeParameters.get(i);
 
             String name = typeParameter.getName();
 
@@ -272,15 +273,15 @@ public final class TypeInfoUtil {
      * @param <T>      Type.
      * @return Sub types information of {@code receiver}.
      */
-    static <T> TypeInfo<?>[] createSubTypeInfos(TypeInfo<T> receiver) {
+    static <T> List<TypeInfo<?>> createSubTypeInfos(TypeInfo<T> receiver) {
         return TypeInfoUtil.getSubTypeInfos(receiver, new HashMap<>());
     }
 
-    private static <T> TypeInfo<?>[] getSubTypeInfos(TypeInfo<T> receiver, Map<String, TypeInfo<?>> names) {
+    private static <T> List<TypeInfo<?>> getSubTypeInfos(TypeInfo<T> receiver, Map<String, TypeInfo<?>> names) {
         Class<? extends T> aClass = receiver.getTypeClass();
 
         if (aClass == null)
-            return new TypeInfo[0];
+            return Collections.emptyList();
 
         List<TypeInfo<?>> subInfos = new ArrayList<>();
 
@@ -302,18 +303,18 @@ public final class TypeInfoUtil {
         }
 
 
-        TypeInfo[] typeInfos = subInfos.stream().toArray(TypeInfo[]::new);
+        List<TypeInfo<?>> typeInfos = new ArrayList<>(subInfos);
 
         for (TypeInfo info : typeInfos) {
-            @SuppressWarnings("unchecked") TypeInfo<?>[] subTypeInfos = TypeInfoUtil.getSubTypeInfos(info, names);
+            @SuppressWarnings("unchecked") List<TypeInfo<?>> subTypeInfos = TypeInfoUtil.getSubTypeInfos(info, names);
 
-            if (subTypeInfos.length > 0) {
-                Collections.addAll(subInfos, subTypeInfos);
+            if (!subTypeInfos.isEmpty()) {
+                subInfos.addAll(subTypeInfos);
             }
         }
 
         // bump
-        return subInfos.toArray(new TypeInfo[subInfos.size()]);
+        return subInfos;
     }
 
     /**
