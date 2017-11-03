@@ -1,5 +1,5 @@
 /*
- *      JwIUtils - Utility Library for Java <https://github.com/JonathanxD/>
+ *      JwIUtils - Java utilities library <https://github.com/JonathanxD/JwIUtils>
  *
  *         The MIT License (MIT)
  *
