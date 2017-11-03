@@ -1,7 +1,6 @@
 plugins {
     id 'com.github.hierynomus.license' version '0.13.1'
     id 'org.ajoberstar.git-publish' version '0.3.2'
-    id 'net.researchgate.release' version '2.6.0'
 }
 
 group 'com.github.jonathanxd'
@@ -86,16 +85,3 @@ gitPublish {
     commitMessage = 'Documentation'
 }
 
-release {
-    preTagCommitMessage = 'Pre commit: '
-    tagCommitMessage = 'Tag: '
-    newVersionCommitMessage = 'New version: '
-    tagTemplate = '${version}'
-    versionPropertyFile = 'gradle.properties'
-    buildTasks = ['build']
-
-    git {
-        requireBranch = 'master'
-        pushToRemote = 'origin'
-    }
-}
