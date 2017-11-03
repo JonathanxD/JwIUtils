@@ -348,8 +348,9 @@ public interface Opt<O extends Opt<O, V>, V extends ValueHolder> {
     /**
      * Gets object value.
      *
+     * Note Boxing should be made in the method implementation and not cached.
+     *
      * @return Object value.
-     * @implNote Boxing should be made in the method implementation and not cached.
      */
     Object getObjectValue();
 }

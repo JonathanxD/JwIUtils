@@ -70,28 +70,28 @@ public interface TypedMap<K, V> extends Map<K, V> {
     <B extends V> Pair<? extends V, TypeInfo<? extends V>> putTyped(K key, B value, TypeInfo<B> type);
 
     /**
-     * Gets the {@link Pair pair} of {@link V value} and {@link TypeInfo<V> reified type} associated
+     * Gets the {@link Pair pair} of {@link V value} and {@link TypeInfo reified type} associated
      * to {@code key}.
      *
      * @param key Key to get associated value and type.
-     * @return {@link Pair pair} of {@link V value} and {@link TypeInfo<V> reified type} associated
+     * @return {@link Pair pair} of {@link V value} and {@link TypeInfo reified type} associated
      * to {@code key}, or {@link Pair#nullPair()} if no one value is associated to {@code key}.
      */
     Pair<? extends V, TypeInfo<? extends V>> getTyped(K key);
 
     /**
      * Gets a {@link List list} of {@link Pair pairs} of {@code value} {@link K key} and {@link
-     * TypeInfo<B> reified type}.
+     * TypeInfo reified type}.
      *
      * @param value Value.
      * @param <B>   Type of value.
      * @return {@link List list} of {@link Pair pairs} of {@code value} {@link K key} and {@link
-     * TypeInfo<B> reified type}.
+     * TypeInfo reified type}.
      */
     <B extends V> List<Pair<? extends K, TypeInfo<? extends B>>> getValueTyped(B value);
 
     /**
-     * Gets the {@link B value} associated to {@link K key} and {@link TypeInfo<B> reified type}.
+     * Gets the {@link B value} associated to {@link K key} and {@link TypeInfo reified type}.
      *
      * @param key  Key to get associated value.
      * @param type Reified type of value.

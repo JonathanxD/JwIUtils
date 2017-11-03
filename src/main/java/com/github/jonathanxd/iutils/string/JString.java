@@ -39,7 +39,7 @@ import java.util.Map;
  * <pre>${</pre>
  * and
  * <br>
- * </pre>}</pre>.
+ * <pre>}</pre>.
  *
  * A map with available instances must be provided.
  */
