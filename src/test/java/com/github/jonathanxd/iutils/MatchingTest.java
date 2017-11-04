@@ -55,7 +55,7 @@ public class MatchingTest {
                     System.out.println("2");
                     return "N";
                 })
-        );
+        ).evaluate();
 
         Assert.assertEquals("N", object.orElse(""));
 
@@ -69,7 +69,7 @@ public class MatchingTest {
                 input,
                 Matches(k -> k % 2 == 0, k -> "Even"),
                 Else(k -> "Odd")
-        );
+        ).evaluate();
 
         Assert.assertEquals("Even", opt.getValue());
     }
@@ -93,7 +93,7 @@ public class MatchingTest {
                     return o.contains("s");
                 }, o -> "contains(s)"),
                 Else(o -> "X")
-        );
+        ).evaluate();
 
         Assert.assertEquals(">1", object.orElse(""));
         Assert.assertArrayEquals(new String[]{"a", "b", "c"}, str);
@@ -119,10 +119,30 @@ public class MatchingTest {
                     return o.contains("s");
                 }, o -> "contains(s)"),
                 Else(o -> "X")
-        );
+        ).evaluate();
 
         Assert.assertEquals("contains(s)", object.orElse(""));
         Assert.assertArrayEquals(new String[]{"a", "b", "c"}, str);
+
+    }
+
+    @Test
+    public void orTest() {
+        String name = "lower case";
+
+        When<String, String> when = When(name,
+                Matches(v -> Character.isUpperCase(v.charAt(0)), f -> "First character is upper case"),
+                Matches(v -> Character.isDigit(v.charAt(0)), f -> "First character is a digit"),
+                Else(f -> "No matches")
+        );
+
+        When<String, String> or = When.Or(when,
+                Matches(v -> Character.isLowerCase(v.charAt(0)), f -> "First character is lower case")
+        );
+
+        OptObject<String> evaluate = or.evaluate();
+
+        Assert.assertEquals(evaluate.getValue(), "First character is lower case");
 
     }
 }

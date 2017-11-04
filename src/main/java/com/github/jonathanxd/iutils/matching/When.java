@@ -29,10 +29,12 @@ package com.github.jonathanxd.iutils.matching;
 
 import com.github.jonathanxd.iutils.opt.specialized.OptObject;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
@@ -40,7 +42,7 @@ import java.util.stream.Collectors;
  *
  * @param <K> Type of input value.
  */
-public interface When<K> {
+public interface When<K, R> {
     /**
      * Short circuit case evaluation.
      */
@@ -57,83 +59,152 @@ public interface When<K> {
     int LAST = 2;
 
     /**
-     * Tests {@code cases} against {@code value} and return first result.
+     * Creates a {@link When pattern matching instance} that test {@code value} against {@code
+     * cases}.
      *
-     * @param value Value to test against case clauses.
+     * @param value Value to test.
      * @param cases Case clauses.
      * @param <K>   Value type.
      * @param <R>   Result type.
-     * @return First result of first matching {@code case} clause.
+     * @return {@link When pattern matching instance} that test {@code value} against {@code cases}
      */
     @SafeVarargs
-    static <K, R> OptObject<R> When(K value, Case<K, R>... cases) {
-        return new Impl<>(value, cases).evaluate();
+    static <K, R> When<K, R> When(K value, Case<K, R>... cases) {
+        return new Impl<>(() -> value, cases);
     }
 
     /**
-     * Tests {@code cases} against {@code value} and return first result.
+     * Creates a {@link When pattern matching instance} that test {@code value} against {@code
+     * cases}.
      *
      * @param mode  Mode of matching.
-     * @param value Value to test against case clauses.
+     * @param value Value to test.
      * @param cases Case clauses.
      * @param <K>   Value type.
      * @param <R>   Result type.
-     * @return First result of first matching {@code case} clause.
+     * @return {@link When pattern matching instance} that test {@code value} against {@code cases}
      */
     @SafeVarargs
-    static <K, R> OptObject<R> When(int mode, K value, Case<K, R>... cases) {
-        return new Impl<>(value, cases, mode).evaluate();
+    static <K, R> When<K, R> When(int mode, K value, Case<K, R>... cases) {
+        return new Impl<>(() -> value, cases, mode);
     }
 
     /**
-     * Calls {@code ifMatches} with {@code receiver} as parameter if {@code receiver} matches
-     * {@code predicate}.
+     * Creates a {@link When pattern matching instance} that test value supplied by {@code
+     * valueSupplier} against {@code cases}.
      *
-     * @param predicate Predicate to call.
-     * @param ifMatches Function to call with receiver.
+     * @param valueSupplier Supplier of value to test.
+     * @param cases         Case clauses.
+     * @param <K>           Value type.
+     * @param <R>           Result type.
+     * @return {@link When pattern matching instance} that test value supplied by {@code
+     * valueSupplier} against {@code cases}.
+     */
+    @SafeVarargs
+    static <K, R> When<K, R> WhenSupplied(Supplier<K> valueSupplier, Case<K, R>... cases) {
+        return new Impl<>(valueSupplier, cases);
+    }
+
+    /**
+     * Creates a {@link When pattern matching instance} that test value supplied by {@code
+     * valueSupplier} against {@code cases}.
+     *
+     * @param mode          Mode of matching.
+     * @param valueSupplier Supplier of value to test.
+     * @param cases         Case clauses.
+     * @param <K>           Value type.
+     * @param <R>           Result type.
+     * @return {@link When pattern matching instance} that test value supplied by {@code
+     * valueSupplier} against {@code cases}.
+     */
+    @SafeVarargs
+    static <K, R> When<K, R> WhenSupplied(int mode, Supplier<K> valueSupplier, Case<K, R>... cases) {
+        return new Impl<>(valueSupplier, cases, mode);
+    }
+
+    /**
+     * Static version of {@link When#or(Case[])} to avoid {@code unchecked generics array creation
+     * for varargs} warning.
+     *
+     * @param when  Pattern matching instance.
+     * @param cases Conditions.
+     * @param <K>   Receiver value type.
+     * @param <R>   Result value type.
+     * @return New pattern matching instance, see {@link When#or(Case[])}.
+     */
+    @SafeVarargs
+    static <K, R> When<K, R> Or(When<K, R> when, Case<K, R>... cases) {
+        return when.or(cases);
+    }
+
+    /**
+     * Checks if pattern matching receiver matches the {@code predicate}.
+     *
+     * @param predicate Predicate to test pattern matching receiver.
+     * @param ifMatches Function to call if pattern matching receiver matches the {@code
+     *                  predicate}.
      */
     static <K, R> Case<K, R> Matches(Predicate<K> predicate, Function<K, R> ifMatches) {
         return new MatchesCase<>(predicate, ifMatches);
     }
 
     /**
-     * Calls {@code ifMatches} with {@code receiver} as parameter if {@code receiver} matches
-     * {@code obj}.
+     * Checks if {@code obj} is equal to pattern matching receiver.
      *
      * @param obj       Object to compare.
-     * @param ifMatches Function to call with receiver.
+     * @param ifMatches Function to call if {@code obj} is equal to pattern matching receiver.
      */
     static <K, R> Case<K, R> EqualsTo(K obj, Function<K, R> ifMatches) {
         return new EqualsCase<>(obj, ifMatches);
     }
 
     /**
-     * Calls {@code ifMatches} with {@code receiver} as parameter if {@code receiver} is
-     * instance of {@code type}.
+     * Checks if pattern matching receiver is instance of {@code type}.
      *
-     * @param type      Type to check instance.
-     * @param ifMatches Function to call with receiver.
+     * @param type      Type to check if value is instance.
+     * @param ifMatches Function to be called if pattern matching receiver is instance of {@code
+     *                  type}.
      */
     static <K, R> Case<K, R> InstanceOf(Class<?> type, Function<K, R> ifMatches) {
         return new InstanceOfCase<>(type, ifMatches);
     }
 
     /**
-     * Calls {@code ifMatches} with {@code receiver} as parameter if no one case was matched in
-     * {@link When} context.
+     * Checks if pattern matching receiver does not matches any other case.
      *
-     * @param caseElse Function to call with receiver.
+     * @param caseElse Function to be called if pattern matching receiver does not matches any other
+     *                 case.
      */
     static <K, R> Case<K, R> Else(Function<K, R> caseElse) {
         return new ElseCase<>(caseElse);
     }
 
     /**
-     * Gets the value to check if matches predicates.
+     * Gets the supplier of value to check if matches cases.
      *
-     * @return value to check if matches predicates.
+     * @return Supplier of value to check if matches cases..
      */
-    K getValue();
+    Supplier<K> getValueSupplier();
+
+    /**
+     * Evaluates the pattern matching and returns the result.
+     *
+     * @return The result of matched pattern case.
+     */
+    OptObject<R> evaluate();
+
+    /**
+     * Returns a new pattern matching with merged {@link Case cases} of current instance and
+     * provided {@code cases}.
+     *
+     * The matching mode still the same, and if an {@link ElseCase else case} is provided, the old
+     * will be replaced with the provided.
+     *
+     * @param cases Cases to merge with {@code this} {@link Case cases}.
+     * @return New pattern matching with merged {@link Case cases} of current instance and provided
+     * {@code cases}.
+     */
+    When<K, R> or(Case<K, R>... cases);
 
     interface Case<K, R> {
         OptObject<R> evaluate(K value);
@@ -211,21 +282,23 @@ public interface When<K> {
         }
     }
 
-    final class Impl<K, R> implements When<K> {
-
-
-        private final K value;
+    final class Impl<K, R> implements When<K, R> {
+        private final Supplier<K> valueSupplier;
         private final List<Case<K, R>> cases;
         private final int mode;
         private Case<K, R> elseCase;
 
-        Impl(K value, Case<K, R>[] cases) {
-            this(value, cases, SHORT_CIRCUIT);
+        Impl(Supplier<K> valueSupplier, Case<K, R>[] cases) {
+            this(valueSupplier, cases, SHORT_CIRCUIT);
         }
 
-        Impl(K value, Case<K, R>[] cases, int mode) {
-            this.value = value;
-            this.cases = Arrays.stream(cases)
+        Impl(Supplier<K> valueSupplier, Case<K, R>[] cases, int mode) {
+            this(valueSupplier, Arrays.asList(cases), mode);
+        }
+
+        Impl(Supplier<K> valueSupplier, List<Case<K, R>> cases, int mode) {
+            this.valueSupplier = valueSupplier;
+            this.cases = cases.stream()
                     .filter(krCase -> !(krCase instanceof ElseCase))
                     .collect(Collectors.toList());
 
@@ -239,16 +312,31 @@ public interface When<K> {
             this.mode = mode;
         }
 
+        @SafeVarargs
         @Override
-        public K getValue() {
-            return this.value;
+        public final When<K, R> or(Case<K, R>... cases) {
+            List<Case<K, R>> source = new ArrayList<>(this.cases);
+            List<Case<K, R>> toMerge = new ArrayList<>(Arrays.asList(cases));
+            List<Case<K, R>> merged = new ArrayList<>();
+
+            merged.addAll(source);
+            merged.addAll(toMerge);
+
+            return new Impl<>(this.getValueSupplier(), merged, this.mode);
         }
 
+        @Override
+        public Supplier<K> getValueSupplier() {
+            return this.valueSupplier;
+        }
+
+        @Override
         public OptObject<R> evaluate() {
+            K value = this.getValueSupplier().get();
             OptObject<R> result = OptObject.none();
 
             for (Case<K, R> aCase : this.cases) {
-                OptObject<R> evaluate = aCase.evaluate(this.value);
+                OptObject<R> evaluate = aCase.evaluate(value);
                 if (evaluate.isPresent()
                         && (!result.isPresent() || this.mode == LAST)) {
                     result = evaluate;
@@ -259,7 +347,7 @@ public interface When<K> {
             }
 
             if (!result.isPresent() && this.elseCase != null)
-                return this.elseCase.evaluate(this.value);
+                return this.elseCase.evaluate(value);
 
             return result;
         }
