@@ -35,6 +35,8 @@ import com.github.jonathanxd.iutils.function.checked.function.EFunction;
 import com.github.jonathanxd.iutils.function.checked.supplier.CSupplier;
 import com.github.jonathanxd.iutils.function.checked.supplier.ESupplier;
 
+import java.util.function.Function;
+
 /**
  * Try utility.
  */
@@ -125,6 +127,23 @@ public final class Try {
     }
 
     /**
+     * Try to run function {@code f} on {@code value}.
+     *
+     * @param value Value to apply.
+     * @param f     Function.
+     * @param <R>   Return type.
+     * @return {@link Either} of thrown {@link Exception} or {@link Either} of result if {@code f}
+     * succeed without exceptions.
+     */
+    public static <T, R> Either<Exception, R> TryExOn(T value, EFunction<T, R> f) {
+        try {
+            return Either.right(f.applyChecked(value));
+        } catch (Exception t) {
+            return Either.left(t);
+        }
+    }
+
+    /**
      * Try to run function {@code f}.
      *
      * @param f Function.
@@ -141,7 +160,8 @@ public final class Try {
 
 
     /**
-     * Try all suppliers and return first successful, or either left with all exceptions (suppressed).
+     * Try all suppliers and return first successful, or either left with all exceptions
+     * (suppressed).
      *
      * @param suppliers Suppliers.
      * @param <R>       Return type.
@@ -166,4 +186,40 @@ public final class Try {
 
         return Either.left(e);
     }
+
+    /**
+     * Try to run function {@code f} and flat maps the result.
+     *
+     * @param f   Function.
+     * @param <R> Return type.
+     * @return {@link Either} of thrown {@link Exception} or {@link Either} of result if {@code f}
+     * succeed without exceptions.
+     */
+    public static <R> Either<Exception, R> TryFlat(ESupplier<Either<Exception, R>> f) {
+        try {
+            return Either.<Exception, Either<Exception, R>>right(f.getChecked())
+                    .flatMap(Either::left, Function.identity());
+        } catch (Exception t) {
+            return Either.left(t);
+        }
+    }
+
+    /**
+     * Try to run function {@code f} on {@code value} and flat maps the result.
+     *
+     * @param value Value to apply.
+     * @param f     Function.
+     * @param <R>   Return type.
+     * @return {@link Either} of thrown {@link Exception} or {@link Either} of result if {@code f}
+     * succeed without exceptions.
+     */
+    public static <T, R> Either<Exception, R> TryFlatOn(T value, EFunction<T, Either<Exception, R>> f) {
+        try {
+            return Either.<Exception, Either<Exception, R>>right(f.applyChecked(value))
+                    .flatMap(Either::left, Function.identity());
+        } catch (Exception t) {
+            return Either.left(t);
+        }
+    }
+
 }
