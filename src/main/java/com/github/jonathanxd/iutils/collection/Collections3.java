@@ -27,6 +27,9 @@
  */
 package com.github.jonathanxd.iutils.collection;
 
+import com.github.jonathanxd.iutils.collection.immutable.ImmutableList;
+import com.github.jonathanxd.iutils.collection.immutable.ImmutableSet;
+import com.github.jonathanxd.iutils.collection.wrapper.WrapperCollections;
 import com.github.jonathanxd.iutils.exception.LimitExceededException;
 import com.github.jonathanxd.iutils.list.PredicateList;
 import com.github.jonathanxd.iutils.list.PredicateWrappedFailingList;
@@ -105,6 +108,40 @@ public class Collections3 {
         Collections.addAll(list, elements);
 
         return list;
+    }
+
+    /**
+     * Creates a {@link ImmutableList} of {@link E} and add {@code elements} to the {@link
+     * ImmutableList}.
+     *
+     * @param elements Elements to add to list.
+     * @param <E>      Element type.
+     * @return {@link ImmutableList} of {@link E} with {@code elements}.
+     */
+    @SafeVarargs
+    public static <E> ImmutableList<E> immutableListOf(E... elements) {
+        List<E> list = new ArrayList<>();
+
+        Collections.addAll(list, elements);
+
+        return WrapperCollections.immutableList(list);
+    }
+
+    /**
+     * Creates a {@link ImmutableSet} of {@link E} and add {@code elements} to the {@link
+     * ImmutableSet}.
+     *
+     * @param elements Elements to add to list.
+     * @param <E>      Element type.
+     * @return {@link ImmutableSet} of {@link E} with {@code elements}.
+     */
+    @SafeVarargs
+    public static <E> ImmutableSet<E> immutableSetOf(E... elements) {
+        Set<E> set = new HashSet<>();
+
+        Collections.addAll(set, elements);
+
+        return WrapperCollections.immutableSet(set);
     }
 
     /**

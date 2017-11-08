@@ -300,6 +300,29 @@ public class IteratorUtil {
     }
 
     /**
+     * Creates an immutable instance of {@link Iterator} that wraps the {@code original} iterator.
+     *
+     * @param original Original iterator to wrap.
+     * @param <E>      Element type.
+     * @return Immutable iterator wrapping {@code original}.
+     */
+    public static <E> Iterator<E> immutableIterator(Iterator<E> original) {
+        return new ImmutableIterator<>(original);
+    }
+
+    /**
+     * Creates an immutable instance of {@link ListIterator} that wraps the {@code original}
+     * iterator.
+     *
+     * @param original Original iterator to wrap.
+     * @param <E>      Element type.
+     * @return Immutable list iterator wrapping {@code original}.
+     */
+    public static <E> ListIterator<E> immutableListIterator(ListIterator<E> original) {
+        return new ImmutableListIterator<>(original);
+    }
+
+    /**
      * Returns an {@link Iterator} which does not iterate over any element.
      *
      * @return {@link Iterator} which does not iterate over any element.
@@ -447,7 +470,7 @@ public class IteratorUtil {
 
             this.hasNext = false;
 
-            if(this.element != null)
+            if (this.element != null)
                 return this.element;
 
             return this.element = e.get();
@@ -1141,6 +1164,82 @@ public class IteratorUtil {
         public void add(E e) {
             addCheck.run();
             listIterator.add(e);
+        }
+    }
+
+    private static class ImmutableIterator<E> implements Iterator<E> {
+        private final Iterator<E> wrapped;
+
+        public ImmutableIterator(Iterator<E> wrapped) {
+            this.wrapped = wrapped;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return this.wrapped.hasNext();
+        }
+
+        @Override
+        public E next() {
+            return this.wrapped.next();
+        }
+
+        @Override
+        public void remove() {
+            throw new UnsupportedOperationException("Immutable iterator");
+        }
+    }
+
+    private static class ImmutableListIterator<E> implements ListIterator<E> {
+        private final ListIterator<E> wrapped;
+
+        public ImmutableListIterator(ListIterator<E> wrapped) {
+            this.wrapped = wrapped;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return this.wrapped.hasNext();
+        }
+
+        @Override
+        public E next() {
+            return this.wrapped.next();
+        }
+
+        @Override
+        public int nextIndex() {
+            return this.wrapped.nextIndex();
+        }
+
+        @Override
+        public boolean hasPrevious() {
+            return this.wrapped.hasPrevious();
+        }
+
+        @Override
+        public E previous() {
+            return this.wrapped.previous();
+        }
+
+        @Override
+        public int previousIndex() {
+            return this.wrapped.previousIndex();
+        }
+
+        @Override
+        public void add(E e) {
+            throw new UnsupportedOperationException("Immutable iterator");
+        }
+
+        @Override
+        public void set(E e) {
+            throw new UnsupportedOperationException("Immutable iterator");
+        }
+
+        @Override
+        public void remove() {
+            throw new UnsupportedOperationException("Immutable iterator");
         }
     }
 

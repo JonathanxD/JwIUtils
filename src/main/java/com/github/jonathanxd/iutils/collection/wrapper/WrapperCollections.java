@@ -27,9 +27,14 @@
  */
 package com.github.jonathanxd.iutils.collection.wrapper;
 
+import com.github.jonathanxd.iutils.collection.immutable.ImmutableList;
+import com.github.jonathanxd.iutils.collection.immutable.ImmutableSet;
+import com.github.jonathanxd.iutils.collection.wrapper.impl.ImmutableWrapperList;
+import com.github.jonathanxd.iutils.collection.wrapper.impl.ImmutableWrapperSet;
 import com.github.jonathanxd.iutils.collection.wrapper.impl.SuppliedWrapperList;
 
 import java.util.List;
+import java.util.Set;
 import java.util.function.Supplier;
 
 public class WrapperCollections {
@@ -48,4 +53,25 @@ public class WrapperCollections {
         return new SuppliedWrapperList<>(supplier);
     }
 
+    /**
+     * Creates an immutable list wrapping {@code list}.
+     *
+     * @param list List to wrap.
+     * @param <E>  Element type.
+     * @return Immutable list wrapping {@code list}.
+     */
+    public static <E> ImmutableList<E> immutableList(List<E> list) {
+        return new ImmutableWrapperList<>(list);
+    }
+
+    /**
+     * Creates an immutable set wrapping {@code set}.
+     *
+     * @param set Set to wrap.
+     * @param <E> Element type.
+     * @return Immutable set wrapping {@code set}.
+     */
+    public static <E> ImmutableSet<E> immutableSet(Set<E> set) {
+        return new ImmutableWrapperSet<>(set);
+    }
 }
