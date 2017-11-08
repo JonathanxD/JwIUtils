@@ -72,7 +72,7 @@ public final class Predicates {
      * @return Predicate that accepts non-null values.
      */
     @SuppressWarnings("unchecked")
-    public static <T> Predicate<T> notNull() {
+    public static <T> Predicate<T> isNotNull() {
         return Objects::nonNull;
     }
 
@@ -83,7 +83,7 @@ public final class Predicates {
      * @return Predicate that accepts null values.
      */
     @SuppressWarnings("unchecked")
-    public static <T> Predicate<T> onlyNull() {
+    public static <T> Predicate<T> isNull() {
         return Objects::isNull;
     }
 
