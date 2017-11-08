@@ -48,7 +48,7 @@ import java.util.stream.IntStream;
  */
 public final class OptShort extends AbstractOpt<OptShort, ValueHolder.ShortValueHolder> {
 
-    private static final OptShort NONE = new OptShort(new ValueHolder.ShortValueHolder.None());
+    private static final OptShort NONE = new OptShort(ValueHolder.ShortValueHolder.None.getInstance());
     private final ValueHolder.ShortValueHolder holder;
 
     private OptShort(ValueHolder.ShortValueHolder holder) {

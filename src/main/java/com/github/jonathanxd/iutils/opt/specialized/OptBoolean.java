@@ -48,7 +48,7 @@ import java.util.stream.IntStream;
  */
 public final class OptBoolean extends AbstractOpt<OptBoolean, ValueHolder.BooleanValueHolder> {
 
-    private static final OptBoolean NONE = new OptBoolean(new ValueHolder.BooleanValueHolder.None());
+    private static final OptBoolean NONE = new OptBoolean(ValueHolder.BooleanValueHolder.None.getInstance());
     private static final OptBoolean TRUE = new OptBoolean(true);
     private static final OptBoolean FALSE = new OptBoolean(false);
     private final ValueHolder.BooleanValueHolder holder;

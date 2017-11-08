@@ -48,7 +48,7 @@ import java.util.stream.IntStream;
  */
 public final class OptByte extends AbstractOpt<OptByte, ValueHolder.ByteValueHolder> {
 
-    private static final OptByte NONE = new OptByte(new ValueHolder.ByteValueHolder.None());
+    private static final OptByte NONE = new OptByte(ValueHolder.ByteValueHolder.None.getInstance());
     private final ValueHolder.ByteValueHolder holder;
 
     private OptByte(ValueHolder.ByteValueHolder holder) {

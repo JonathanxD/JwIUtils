@@ -48,7 +48,7 @@ import java.util.stream.LongStream;
  */
 public final class OptLong extends AbstractOpt<OptLong, ValueHolder.LongValueHolder> {
 
-    private static final OptLong NONE = new OptLong(new ValueHolder.LongValueHolder.None());
+    private static final OptLong NONE = new OptLong(ValueHolder.LongValueHolder.None.getInstance());
     private final ValueHolder.LongValueHolder holder;
 
     private OptLong(ValueHolder.LongValueHolder holder) {

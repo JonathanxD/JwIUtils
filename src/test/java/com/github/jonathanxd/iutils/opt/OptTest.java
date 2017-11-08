@@ -27,16 +27,17 @@
  */
 package com.github.jonathanxd.iutils.opt;
 
+import com.github.jonathanxd.iutils.collection.Collections3;
 import com.github.jonathanxd.iutils.object.Lazy;
 import com.github.jonathanxd.iutils.opt.specialized.OptBoolean;
+import com.github.jonathanxd.iutils.opt.specialized.OptByte;
+import com.github.jonathanxd.iutils.opt.specialized.OptDouble;
 import com.github.jonathanxd.iutils.opt.specialized.OptLazy;
 import com.github.jonathanxd.iutils.opt.specialized.OptObject;
-import com.github.jonathanxd.iutils.web.WebUtils;
 
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.net.MalformedURLException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Collections;
@@ -95,6 +96,21 @@ public class OptTest {
     }
 
     @Test
+    public void optTest5() {
+        OptDouble test = testDouble(16.9)
+                .or(() -> testDouble(50.0))
+                .or(() -> testDouble(99.9999999999)
+                .or(() -> testDouble(100.0)));
+
+        Assert.assertTrue(test.equals(OptDouble.optDouble(100.0)));
+        Assert.assertEquals(100.0, test.getValue(), 0D);
+    }
+
+    private OptDouble testDouble(double doub) {
+        return doub >= 100.0 ? OptDouble.optDouble(doub) : OptDouble.none();
+    }
+
+    @Test
     public void optTestLazy() {
 
         OptLazy<List<String>> laz = measure("Lazie", () -> OptLazy.optLazy(this.getText(1))
@@ -125,24 +141,41 @@ public class OptTest {
     }
 
     public Lazy<List<String>> getText(int v) {
-        try {
-            switch (v) {
-                case 1: {
-                    return WebUtils.getWebLazy("https://github.com/JonathanxD/JwIUtils");
-                }
-                case 2: {
-                    return WebUtils.getWebLazy("https://github.com/JonathanxD/CodeAPI");
-                }
-                case 3: {
-                    return WebUtils.getWebLazy("https://github.com/ProjectSandstone/SandstoneAPI");
-                }
-                default:
-                    return Lazy.evaluated(Collections.emptyList());
-            }
+        switch (v) {
+            case 1: {
+                return Lazy.lazy(() -> {
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                    }
 
-        } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
+                    return Collections3.listOf("0", "1");
+                });
+            }
+            case 2: {
+                return Lazy.lazy(() -> {
+                    try {
+                        Thread.sleep(200);
+                    } catch (InterruptedException e) {
+                    }
+
+                    return Collections3.listOf("0", "1", "2");
+                });
+            }
+            case 3: {
+                return Lazy.lazy(() -> {
+                    try {
+                        Thread.sleep(300);
+                    } catch (InterruptedException e) {
+                    }
+
+                    return Collections3.listOf("0", "1", "2", "3");
+                });
+            }
+            default:
+                return Lazy.evaluated(Collections.emptyList());
         }
+
     }
 
 

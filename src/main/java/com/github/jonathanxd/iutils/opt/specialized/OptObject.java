@@ -41,7 +41,7 @@ import java.util.function.Function;
  */
 public final class OptObject<T> extends AbstractOptObject<T, ValueHolder.ObjectValueHolder<T>, OptObject<T>> {
 
-    private static final OptObject<?> NONE = new OptObject<>(new ValueHolder.ObjectValueHolder.None<>());
+    private static final OptObject<?> NONE = new OptObject<>(ValueHolder.ObjectValueHolder.None.getInstance());
     private final ValueHolder.ObjectValueHolder<T> holder;
 
     private OptObject(ValueHolder.ObjectValueHolder<T> holder) {

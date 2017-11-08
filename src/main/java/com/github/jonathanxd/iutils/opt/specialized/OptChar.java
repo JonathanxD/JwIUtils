@@ -48,7 +48,7 @@ import java.util.stream.IntStream;
  */
 public final class OptChar extends AbstractOpt<OptChar, ValueHolder.CharValueHolder> {
 
-    private static final OptChar NONE = new OptChar(new ValueHolder.CharValueHolder.None());
+    private static final OptChar NONE = new OptChar(ValueHolder.CharValueHolder.None.getInstance());
 
     private final ValueHolder.CharValueHolder holder;
 

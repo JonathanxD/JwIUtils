@@ -38,11 +38,14 @@ import java.util.function.Function;
  * This class implements the same logic as {@link OptObject}, but change some functions to work
  * better with lazy value.
  *
+ * Note that {@link #hashCode()} and {@link #equals(Object)} requires evaluation of the value, so if
+ * the value is not evaluated, these operations will trigger the evaluation.
+ *
  * @param <T> Type of value.
  */
 public final class OptLazy<T> extends AbstractOptObject<T, ValueHolder.LazyValueHolder<T>, OptLazy<T>> {
 
-    private static final OptLazy<?> NONE = new OptLazy<>(new ValueHolder.LazyValueHolder.None<>());
+    private static final OptLazy<?> NONE = new OptLazy<>(ValueHolder.LazyValueHolder.None.getInstance());
     private final ValueHolder.LazyValueHolder<T> holder;
 
     private OptLazy(ValueHolder.LazyValueHolder<T> holder) {

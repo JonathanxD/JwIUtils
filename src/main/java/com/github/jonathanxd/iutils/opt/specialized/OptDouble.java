@@ -48,11 +48,11 @@ import java.util.stream.DoubleStream;
  */
 public final class OptDouble extends AbstractOpt<OptDouble, ValueHolder.DoubleValueHolder> {
 
-    private static final OptDouble NONE = new OptDouble(new ValueHolder.DoubleValueHolder.None());
+    private static final OptDouble NONE = new OptDouble(ValueHolder.DoubleValueHolder.None.getInstance());
     private final ValueHolder.DoubleValueHolder holder;
 
     private OptDouble(ValueHolder.DoubleValueHolder holder) {
-        this.holder = new ValueHolder.DoubleValueHolder.None();
+        this.holder = holder;
     }
 
     private OptDouble(double value) {

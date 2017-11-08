@@ -29,6 +29,8 @@ package com.github.jonathanxd.iutils.opt;
 
 import com.github.jonathanxd.iutils.object.Lazy;
 
+import java.util.Objects;
+
 /**
  * Base class of specialized {@code None} and {@code Some} holders.
  *
@@ -81,13 +83,44 @@ public interface ValueHolder {
             public T getValue() {
                 return this.value;
             }
+
+            @Override
+            public int hashCode() {
+                return this.getValue().hashCode();
+            }
+
+            @Override
+            public boolean equals(Object obj) {
+                return (obj instanceof Some<?> && Objects.equals(this.getValue(), ((Some) obj).getValue()))
+                        || super.equals(obj);
+            }
         }
 
         final class None<T> implements ObjectValueHolder<T>, NoneValueHolder {
 
+            private static final None<?> INSTANCE = new None<>();
+
+            private None() {
+            }
+
+            @SuppressWarnings("unchecked")
+            public static <T> None<T> getInstance() {
+                return (None<T>) INSTANCE;
+            }
+
             @Override
             public T getValue() {
                 throw new UnsupportedOperationException("No value present");
+            }
+
+            @Override
+            public int hashCode() {
+                return super.hashCode();
+            }
+
+            @Override
+            public boolean equals(Object obj) {
+                return obj instanceof None<?> || super.equals(obj);
             }
         }
     }
@@ -117,9 +150,31 @@ public interface ValueHolder {
             public Lazy<T> getLazy() {
                 return this.lazy;
             }
+
+            @Override
+            public int hashCode() {
+                return Objects.hash(this.getValue());
+            }
+
+            @Override
+            public boolean equals(Object obj) {
+                return (obj instanceof LazyValueHolder.Some<?>
+                        && Objects.equals(this.getValue(), ((LazyValueHolder.Some) obj).getValue()))
+                        || super.equals(obj);
+            }
         }
 
         final class None<T> implements LazyValueHolder<T>, NoneValueHolder {
+
+            private static final LazyValueHolder.None<?> INSTANCE = new LazyValueHolder.None<>();
+
+            private None() {
+            }
+
+            @SuppressWarnings("unchecked")
+            public static <T> LazyValueHolder.None<T> getInstance() {
+                return (LazyValueHolder.None<T>) INSTANCE;
+            }
 
             @Override
             public T getValue() {
@@ -129,6 +184,16 @@ public interface ValueHolder {
             @Override
             public Lazy<T> getLazy() {
                 throw new UnsupportedOperationException("No value present");
+            }
+
+            @Override
+            public int hashCode() {
+                return super.hashCode();
+            }
+
+            @Override
+            public boolean equals(Object obj) {
+                return obj instanceof LazyValueHolder.None<?> && super.equals(obj);
             }
         }
     }
@@ -153,12 +218,42 @@ public interface ValueHolder {
             public boolean getValue() {
                 return this.value;
             }
+
+            @Override
+            public int hashCode() {
+                return Boolean.hashCode(this.getValue());
+            }
+
+            @Override
+            public boolean equals(Object obj) {
+                return (obj instanceof Some && this.getValue() == ((Some) obj).getValue()) || super.equals(obj);
+            }
         }
 
         final class None implements BooleanValueHolder, NoneValueHolder {
+
+            private static final None INSTANCE = new None();
+
+            private None() {
+            }
+
+            public static None getInstance() {
+                return INSTANCE;
+            }
+
             @Override
             public boolean getValue() {
                 throw new UnsupportedOperationException("No value present");
+            }
+
+            @Override
+            public int hashCode() {
+                return super.hashCode();
+            }
+
+            @Override
+            public boolean equals(Object obj) {
+                return obj instanceof None || super.equals(obj);
             }
         }
     }
@@ -184,12 +279,42 @@ public interface ValueHolder {
             public byte getValue() {
                 return this.value;
             }
+
+            @Override
+            public int hashCode() {
+                return Byte.hashCode(this.getValue());
+            }
+
+            @Override
+            public boolean equals(Object obj) {
+                return (obj instanceof Some && this.getValue() == ((Some) obj).getValue())
+                        || super.equals(obj);
+            }
         }
 
         final class None implements ByteValueHolder, NoneValueHolder {
+            private static final None INSTANCE = new None();
+
+            private None() {
+            }
+
+            public static None getInstance() {
+                return INSTANCE;
+            }
+
             @Override
             public byte getValue() {
                 throw new UnsupportedOperationException("No value present");
+            }
+
+            @Override
+            public int hashCode() {
+                return super.hashCode();
+            }
+
+            @Override
+            public boolean equals(Object obj) {
+                return obj instanceof None || super.equals(obj);
             }
         }
     }
@@ -215,12 +340,42 @@ public interface ValueHolder {
             public char getValue() {
                 return this.value;
             }
+
+            @Override
+            public int hashCode() {
+                return Character.hashCode(this.getValue());
+            }
+
+            @Override
+            public boolean equals(Object obj) {
+                return (obj instanceof Some && this.getValue() == ((Some) obj).getValue())
+                        || super.equals(obj);
+            }
         }
 
         final class None implements CharValueHolder, NoneValueHolder {
+            private static final None INSTANCE = new None();
+
+            private None() {
+            }
+
+            public static None getInstance() {
+                return INSTANCE;
+            }
+
             @Override
             public char getValue() {
                 throw new UnsupportedOperationException("No value present");
+            }
+
+            @Override
+            public int hashCode() {
+                return super.hashCode();
+            }
+
+            @Override
+            public boolean equals(Object obj) {
+                return obj instanceof None || super.equals(obj);
             }
         }
     }
@@ -246,12 +401,42 @@ public interface ValueHolder {
             public double getValue() {
                 return this.value;
             }
+
+            @Override
+            public int hashCode() {
+                return Double.hashCode(this.getValue());
+            }
+
+            @Override
+            public boolean equals(Object obj) {
+                return (obj instanceof Some && this.getValue() == ((Some) obj).getValue())
+                        || super.equals(obj);
+            }
         }
 
         final class None implements DoubleValueHolder, NoneValueHolder {
+            private static final None INSTANCE = new None();
+
+            private None() {
+            }
+
+            public static None getInstance() {
+                return INSTANCE;
+            }
+
             @Override
             public double getValue() {
                 throw new UnsupportedOperationException("No value present");
+            }
+
+            @Override
+            public int hashCode() {
+                return super.hashCode();
+            }
+
+            @Override
+            public boolean equals(Object obj) {
+                return obj instanceof None || super.equals(obj);
             }
         }
     }
@@ -276,12 +461,42 @@ public interface ValueHolder {
             public float getValue() {
                 return this.value;
             }
+
+            @Override
+            public int hashCode() {
+                return Float.hashCode(this.getValue());
+            }
+
+            @Override
+            public boolean equals(Object obj) {
+                return (obj instanceof Some && this.getValue() == ((Some) obj).getValue())
+                        || super.equals(obj);
+            }
         }
 
         final class None implements FloatValueHolder, NoneValueHolder {
+            private static final None INSTANCE = new None();
+
+            private None() {
+            }
+
+            public static None getInstance() {
+                return INSTANCE;
+            }
+
             @Override
             public float getValue() {
                 throw new UnsupportedOperationException("No value present");
+            }
+
+            @Override
+            public int hashCode() {
+                return super.hashCode();
+            }
+
+            @Override
+            public boolean equals(Object obj) {
+                return obj instanceof None || super.equals(obj);
             }
         }
     }
@@ -311,12 +526,44 @@ public interface ValueHolder {
             public boolean hasSome() {
                 return true;
             }
+
+            @Override
+            public int hashCode() {
+                return Integer.hashCode(this.getValue());
+            }
+
+            @Override
+            public boolean equals(Object obj) {
+                return (obj instanceof Some && this.getValue() == ((Some) obj).getValue())
+                        || super.equals(obj);
+            }
+
         }
 
         final class None implements IntValueHolder, NoneValueHolder {
+            private static final None INSTANCE = new None();
+
+            private None() {
+            }
+
+            public static None getInstance() {
+                return INSTANCE;
+            }
+
+
             @Override
             public int getValue() {
                 throw new UnsupportedOperationException("No value present");
+            }
+
+            @Override
+            public int hashCode() {
+                return super.hashCode();
+            }
+
+            @Override
+            public boolean equals(Object obj) {
+                return obj instanceof None || super.equals(obj);
             }
         }
     }
@@ -341,12 +588,42 @@ public interface ValueHolder {
             public long getValue() {
                 return this.value;
             }
+
+            @Override
+            public int hashCode() {
+                return Long.hashCode(this.getValue());
+            }
+
+            @Override
+            public boolean equals(Object obj) {
+                return (obj instanceof Some && this.getValue() == ((Some) obj).getValue())
+                        || super.equals(obj);
+            }
         }
 
         final class None implements LongValueHolder, NoneValueHolder {
+            private static final None INSTANCE = new None();
+
+            private None() {
+            }
+
+            public static None getInstance() {
+                return INSTANCE;
+            }
+
             @Override
             public long getValue() {
                 throw new UnsupportedOperationException("No value present");
+            }
+
+            @Override
+            public int hashCode() {
+                return super.hashCode();
+            }
+
+            @Override
+            public boolean equals(Object obj) {
+                return obj instanceof None || super.equals(obj);
             }
         }
     }
@@ -371,12 +648,42 @@ public interface ValueHolder {
             public short getValue() {
                 return this.value;
             }
+
+            @Override
+            public int hashCode() {
+                return Short.hashCode(this.getValue());
+            }
+
+            @Override
+            public boolean equals(Object obj) {
+                return (obj instanceof Some && this.getValue() == ((Some) obj).getValue())
+                        || super.equals(obj);
+            }
         }
 
         final class None implements ShortValueHolder, NoneValueHolder {
+            private static final None INSTANCE = new None();
+
+            private None() {
+            }
+
+            public static None getInstance() {
+                return INSTANCE;
+            }
+
             @Override
             public short getValue() {
                 throw new UnsupportedOperationException("No value present");
+            }
+
+            @Override
+            public int hashCode() {
+                return super.hashCode();
+            }
+
+            @Override
+            public boolean equals(Object obj) {
+                return obj instanceof None || super.equals(obj);
             }
         }
     }

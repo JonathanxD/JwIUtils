@@ -48,7 +48,7 @@ import java.util.stream.DoubleStream;
  */
 public final class OptFloat extends AbstractOpt<OptFloat, ValueHolder.FloatValueHolder> {
 
-    private static final OptFloat NONE = new OptFloat(new ValueHolder.FloatValueHolder.None());
+    private static final OptFloat NONE = new OptFloat(ValueHolder.FloatValueHolder.None.getInstance());
     private final ValueHolder.FloatValueHolder holder;
 
     private OptFloat(ValueHolder.FloatValueHolder holder) {
