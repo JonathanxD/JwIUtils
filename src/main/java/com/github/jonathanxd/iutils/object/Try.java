@@ -116,7 +116,7 @@ public final class Try {
      * @return {@link Either} of thrown {@link Exception} or {@link Either} of result if {@code f}
      * succeed without exceptions.
      */
-    public static <T, R> Either<Throwable, R> TryOn(T value, EFunction<T, R> f) {
+    public static <T, R> Either<Exception, R> TryOn(T value, EFunction<T, R> f) {
         try {
             return Either.right(f.applyChecked(value));
         } catch (Exception t) {
