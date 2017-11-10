@@ -29,6 +29,7 @@ package com.github.jonathanxd.iutils.box;
 
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 /**
  * A box which the value which the box hold can be changed.
@@ -36,6 +37,15 @@ import java.util.function.Function;
  * @param <T> Type of value.
  */
 public interface IMutableBox<T> extends BaseBox<T> {
+
+    /**
+     * Applies operator on value of this box and set value to result of operator.
+     *
+     * @param operator Operator to apply to value.
+     */
+    default void apply(UnaryOperator<T> operator) {
+        this.set(operator.apply(this.get()));
+    }
 
     /**
      * Value mapper.

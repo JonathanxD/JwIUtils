@@ -84,6 +84,15 @@ public interface BaseBox<T> extends Comparable<BaseBox<T>>, UnknownBox<T> {
     }
 
     /**
+     * Maps this box value to a box of another value.
+     *
+     * @param function Mapper.
+     * @param <R>      Other type.
+     * @return Mapped value.
+     */
+    <R> BaseBox<R> mapBox(Function<T, R> function);
+
+    /**
      * Gets the current value.
      *
      * @return Current value.

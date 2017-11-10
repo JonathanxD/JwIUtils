@@ -30,6 +30,7 @@ package com.github.jonathanxd.iutils.box;
 import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
@@ -41,19 +42,9 @@ import java.util.function.Supplier;
 public class MutableBox<T> implements IMutableBox<T> {
 
     /**
-     * Empty container instance.
-     */
-    private static BaseBox<?> empty = new MutableBox<>();
-
-    /**
      * Current value.
      */
     private T value;
-
-    /**
-     * Is the value history enabled.
-     */
-    private boolean historyEnabled = false;
 
     /**
      * Applier
@@ -76,8 +67,6 @@ public class MutableBox<T> implements IMutableBox<T> {
      * @return Mutable box with default {@code value}.
      */
     public static <T> MutableBox<T> of(T value) {
-        Objects.requireNonNull(value);
-
         return new MutableBox<>(value);
     }
 
@@ -88,8 +77,13 @@ public class MutableBox<T> implements IMutableBox<T> {
      * @return Empty box.
      */
     @SuppressWarnings("unchecked")
-    public static <T> T empty() {
-        return (T) MutableBox.empty;
+    public static <T> MutableBox<T> empty() {
+        return new MutableBox<>();
+    }
+
+    @Override
+    public <R> MutableBox<R> mapBox(Function<T, R> function) {
+        return new MutableBox<>(this.map(function));
     }
 
     @Override

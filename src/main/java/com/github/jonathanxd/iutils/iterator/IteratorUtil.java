@@ -28,6 +28,7 @@
 package com.github.jonathanxd.iutils.iterator;
 
 import com.github.jonathanxd.iutils.function.checked.CRunnable;
+import com.github.jonathanxd.iutils.opt.specialized.OptObject;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -36,6 +37,7 @@ import java.util.ListIterator;
 import java.util.NoSuchElementException;
 import java.util.function.BooleanSupplier;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 /**
@@ -171,14 +173,28 @@ public class IteratorUtil {
 
     /**
      * Creates an wrapper which wraps a {@link Iterator} into a {@link ListIterator}, returned list
-     * iterator does not support back-iterating, an back iterating is only possible via .
+     * iterator does not support back-iterating, an back iterating is only possible via {@link
+     * #biDiListIterator(Iterator)}.
      *
-     * @param iterator Iterator to back.
+     * @param iterator Iterator to wrap.
      * @param <E>      Element type.
      * @return Wrapper {@link ListIterator}.
      */
     public static <E> ListIterator<E> listIterator(final Iterator<E> iterator) {
         return new BackedListIterator<>(iterator);
+    }
+
+    /**
+     * Creates an wrapper which wraps a {@link Iterator} into a {@link ListIterator}. The returned
+     * iterator can go back, but element cannot be removed if iterator is pointing previous element,
+     * set and add operations are not supported.
+     *
+     * @param iterator Iterator to wrap.
+     * @param <E>      Element type.
+     * @return Wrapper {@link ListIterator}.
+     */
+    public static <E> ListIterator<E> biDiListIterator(final Iterator<E> iterator) {
+        return new BackedBiDiListIterator<>(iterator);
     }
 
     /**
@@ -323,6 +339,36 @@ public class IteratorUtil {
     }
 
     /**
+     * Creates an {@link Iterator} that iterator elements while {@code predicate} returns {@code
+     * true}, and stops iteration when {@code predicate} returns {@code false}.
+     *
+     * The {@code predicate} may be called more than one time with same element.
+     *
+     * @param predicate Predicate to test elements.
+     * @param iterator  Original iterator to wrap.
+     * @param <E>       Element type.
+     * @return Iterator that iterator elements while {@code predicate} returns {@code true}.
+     */
+    public static <E> Iterator<E> iterateWhile(Predicate<E> predicate, Iterator<E> iterator) {
+        return new WhileIterator<>(predicate, iterator);
+    }
+
+    /**
+     * Creates an {@link ListIterator} that iterator elements while {@code predicate} returns {@code
+     * true}, and stops iteration when {@code predicate} returns {@code false}.
+     *
+     * This uses {@link IteratorUtil#biDiListIterator(Iterator)} wrapper.
+     *
+     * @param predicate Predicate to test elements.
+     * @param original  Original iterator to wrap.
+     * @param <E>       Element type.
+     * @return Iterator that iterator elements while {@code predicate} returns {@code true}.
+     */
+    public static <E> ListIterator<E> listIterateWhile(Predicate<E> predicate, ListIterator<E> original) {
+        return IteratorUtil.biDiListIterator(IteratorUtil.iterateWhile(predicate, original));
+    }
+
+    /**
      * Returns an {@link Iterator} which does not iterate over any element.
      *
      * @return {@link Iterator} which does not iterate over any element.
@@ -382,6 +428,76 @@ public class IteratorUtil {
         @Override
         public void remove() {
             iterator.remove();
+        }
+
+        @Override
+        public void set(E e) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void add(E e) {
+            throw new UnsupportedOperationException();
+        }
+    }
+
+    private static class BackedBiDiListIterator<E> implements ListIterator<E> {
+        private final List<E> list = new ArrayList<>();
+        private final Iterator<E> iterator;
+        private int index = -1;
+
+        public BackedBiDiListIterator(Iterator<E> iterator) {
+            this.iterator = iterator;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return this.index + 1 < this.list.size() || this.iterator.hasNext();
+        }
+
+        @Override
+        public E next() {
+            if (this.index + 1 < this.list.size()) {
+                this.index++;
+                return this.list.get(this.index);
+            } else {
+                E next = this.iterator.next();
+                this.index++;
+                if (this.index == this.list.size()) list.add(next);
+                return next;
+            }
+        }
+
+        @Override
+        public boolean hasPrevious() {
+            return this.index > -1;
+        }
+
+        @Override
+        public E previous() {
+            if (!this.hasPrevious())
+                throw new NoSuchElementException();
+
+            E element = this.list.get(this.index);
+            this.index--;
+            return element;
+        }
+
+        @Override
+        public int nextIndex() {
+            return this.index - 1;
+        }
+
+        @Override
+        public int previousIndex() {
+            return this.index;
+        }
+
+        @Override
+        public void remove() {
+            if (this.index != this.list.size() - 1)
+                throw new IllegalStateException("Cannot delete element when the iterator is pointing to previous element.");
+            this.iterator.remove();
         }
 
         @Override
@@ -1240,6 +1356,45 @@ public class IteratorUtil {
         @Override
         public void remove() {
             throw new UnsupportedOperationException("Immutable iterator");
+        }
+    }
+
+    private static class WhileIterator<E> implements Iterator<E> {
+        private final Predicate<E> predicate;
+        private final Iterator<E> original;
+        private boolean continue_ = true;
+        private OptObject<E> current = OptObject.none();
+
+        private WhileIterator(Predicate<E> predicate, Iterator<E> original) {
+            this.predicate = predicate;
+            this.original = original;
+        }
+
+        @Override
+        public boolean hasNext() {
+            if (!this.original.hasNext() || !this.continue_)
+                return false;
+
+            if (!this.current.isPresent())
+                this.current = OptObject.optObject(this.original.next());
+
+            return this.continue_ = this.predicate.test(this.current.getValue());
+        }
+
+        @Override
+        public E next() {
+            if (!this.hasNext())
+                throw new NoSuchElementException();
+
+            E value = this.current.getValue();
+            this.current = OptObject.none();
+            this.hasNext();
+            return value;
+        }
+
+        @Override
+        public void remove() {
+            throw new UnsupportedOperationException();
         }
     }
 

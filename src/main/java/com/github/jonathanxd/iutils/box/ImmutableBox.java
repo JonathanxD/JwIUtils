@@ -29,6 +29,7 @@ package com.github.jonathanxd.iutils.box;
 
 import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
@@ -90,6 +91,11 @@ public final class ImmutableBox<T> implements BaseBox<T> {
     @SuppressWarnings("unchecked")
     public static <T> T empty() {
         return (T) ImmutableBox.empty;
+    }
+
+    @Override
+    public <R> ImmutableBox<R> mapBox(Function<T, R> function) {
+        return new ImmutableBox<>(this.map(function));
     }
 
     @Override
