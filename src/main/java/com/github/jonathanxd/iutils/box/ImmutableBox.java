@@ -110,8 +110,6 @@ public final class ImmutableBox<T> implements BaseBox<T> {
 
     @Override
     public T getOrElse(T another) {
-        Objects.requireNonNull(another);
-
         return (this.isPresent() ? this.getValue() : another);
     }
 
@@ -145,7 +143,7 @@ public final class ImmutableBox<T> implements BaseBox<T> {
     }
 
     public <X extends Throwable> T orElseThrow(Supplier<? extends X> exceptionSupplier) throws X {
-        if (this.getValue() != null) {
+        if (this.isPresent()) {
             return this.getValue();
         } else {
             throw exceptionSupplier.get();

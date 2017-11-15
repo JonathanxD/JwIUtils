@@ -73,7 +73,7 @@ public interface Opt<O extends Opt<O, V>, V extends ValueHolder> {
      * @return Opt of {@code Some} if value is not null, or opt of {@code None} if value is null.
      */
     static <T> OptObject<T> someNullable(T value) {
-        return OptObject.optObjectNotNull(value);
+        return OptObject.optObjectNullable(value);
     }
 
     /**

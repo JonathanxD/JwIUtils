@@ -41,8 +41,11 @@ import com.github.jonathanxd.iutils.list.UniqueList;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.function.BiConsumer;
@@ -53,6 +56,107 @@ import java.util.function.Supplier;
  * Collection utilities.
  */
 public class Collections3 {
+
+    /**
+     * Gets first element of {@code iterable}.
+     *
+     * @param iterable Iterable to get first element.
+     * @param <E>      Type of element.
+     * @return First element of {@code iterable}, or {@code null} if {@code iterable} is empty.
+     */
+    public static <E> E first(Iterable<E> iterable) {
+        Iterator<E> iterator = iterable.iterator();
+
+        if (iterator.hasNext())
+            return iterator.next();
+
+        return null;
+    }
+
+    /**
+     * Gets first element of {@code list}.
+     *
+     * @param list Iterable to get first element.
+     * @param <E>  Type of element.
+     * @return First element of {@code list}, or {@code null} if {@code list} is empty.
+     */
+    public static <E> E first(List<E> list) {
+        return list.isEmpty() ? null : list.get(0);
+    }
+
+    /**
+     * Gets first element of {@code deque}.
+     *
+     * @param deque Iterable to get first element.
+     * @param <E>   Type of element.
+     * @return First element of {@code deque}, or {@code null} if {@code deque} is empty.
+     */
+    public static <E> E first(Deque<E> deque) {
+        return deque.isEmpty() ? null : deque.getFirst();
+    }
+
+    /**
+     * Gets first element of {@code list}.
+     *
+     * @param list Iterable to get first element.
+     * @param <E>  Type of element.
+     * @return First element of {@code list}, or {@code null} if {@code list} is empty.
+     */
+    public static <E> E first(LinkedList<E> list) {
+        return list.isEmpty() ? null : list.getFirst();
+    }
+
+    /**
+     * Gets last element of {@code iterable}.
+     *
+     * @param iterable Iterable to get last element.
+     * @param <E>      Type of element.
+     * @return Last element of {@code iterable}, or {@code null} if {@code iterable} is empty.
+     */
+    public static <E> E last(Iterable<E> iterable) {
+        Iterator<E> iterator = iterable.iterator();
+
+        while (iterator.hasNext()) {
+            E e = iterator.next();
+            if (!iterator.hasNext())
+                return e;
+        }
+
+        return null;
+    }
+
+    /**
+     * Gets last element of {@code list}.
+     *
+     * @param list Iterable to get last element.
+     * @param <E>  Type of element.
+     * @return Last element of {@code list}, or {@code null} if {@code list} is empty.
+     */
+    public static <E> E last(List<E> list) {
+        return list.isEmpty() ? null : list.get(list.size() - 1);
+    }
+
+    /**
+     * Gets last element of {@code deque}.
+     *
+     * @param deque Iterable to get last element.
+     * @param <E>   Type of element.
+     * @return Last element of {@code deque}, or {@code null} if {@code deque} is empty.
+     */
+    public static <E> E last(Deque<E> deque) {
+        return deque.isEmpty() ? null : deque.getLast();
+    }
+
+    /**
+     * Gets last element of {@code list}.
+     *
+     * @param list Iterable to get last element.
+     * @param <E>  Type of element.
+     * @return Last element of {@code list}, or {@code null} if {@code list} is empty.
+     */
+    public static <E> E last(LinkedList<E> list) {
+        return list.isEmpty() ? null : list.getLast();
+    }
 
     /**
      * Creates a {@link T Sequence} of {@link E}.

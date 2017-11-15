@@ -113,8 +113,6 @@ public class MutableBox<T> implements IMutableBox<T> {
 
     @Override
     public T getOrElse(T another) {
-        Objects.requireNonNull(another);
-
         return (this.isPresent() ? this.getValue() : another);
     }
 
@@ -133,7 +131,7 @@ public class MutableBox<T> implements IMutableBox<T> {
         Objects.requireNonNull(consumer);
 
         if (this.isPresent()) {
-            consumer.accept(getValue());
+            consumer.accept(this.getValue());
         }
     }
 
@@ -150,9 +148,8 @@ public class MutableBox<T> implements IMutableBox<T> {
 
     @Override
     public <X extends Throwable> T orElseThrow(Supplier<? extends X> exceptionSupplier) throws X {
-        T value = this.getValue();
-        if (value != null) {
-            return value;
+        if (this.isPresent()) {
+            return this.getValue();
         } else {
             throw exceptionSupplier.get();
         }
