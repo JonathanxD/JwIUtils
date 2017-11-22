@@ -1,0 +1,3 @@
+kill=mate
+players=jogadores
+message=Jogador $killer matou $killed.

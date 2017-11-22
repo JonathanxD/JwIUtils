@@ -1,0 +1,3 @@
+kill=kill
+players=players
+message=Player $killer killed $killed.
