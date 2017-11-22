@@ -57,6 +57,7 @@ public class TextTest {
 
         enUs.load(Paths.get("text_test"), null, this.getClass().getClassLoader());
         ptBr.load(Paths.get("text_test"), null, this.getClass().getClassLoader());
+        ptBr.loadMap(Paths.get("text_test"), "map", this.getClass().getClassLoader());
 
         localeManager.registerLocale(enUs);
         localeManager.registerLocale(ptBr);
@@ -93,6 +94,26 @@ public class TextTest {
 
         Assert.assertEquals("Notify Moo please.", stub1);
         Assert.assertEquals("Notifique o Moo por favor.", stub2);
+
+        TextComponent helloMessage = Text.localizable("hello_message").apply(
+                MapUtils.mapOf("name", Text.of("unknown"))
+        );
+
+        TextComponent helloMessages = Text.localizable("hello_messages");
+
+        Assert.assertEquals("Hello unknown", localize.getString(helloMessage, ptBr));
+        Assert.assertEquals("Hello,\n" +
+                "parser\n" +
+                "don't\n" +
+                "care\n" +
+                "about\n" +
+                "commas\n" +
+                "in\n" +
+                "lang\n" +
+                "neither\n" +
+                "about\n" +
+                "empty\n" +
+                "lines", localize.getString(helloMessages, ptBr));
     }
 
     private static class EnUsLocale implements Locale {

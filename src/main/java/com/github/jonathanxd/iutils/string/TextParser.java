@@ -31,12 +31,64 @@ import com.github.jonathanxd.iutils.text.Text;
 import com.github.jonathanxd.iutils.text.TextComponent;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Parsers localization value into {@link TextComponent}.
  */
 public class TextParser {
+
+    public static Map<String, TextComponent> parseMap(String receiver) {
+        receiver = receiver.replace("\n", ",");
+
+        Map<String, TextComponent> componentMap = new HashMap<>();
+        Map<Object, Object> map = TextHelper.parseStringMap(receiver, false);
+
+        for (Map.Entry<Object, Object> entry : map.entrySet()) {
+            Object key = entry.getKey();
+            Object value = entry.getValue();
+
+            if (!(key instanceof String))
+                throw new IllegalArgumentException("Only strings are supported as lang keys. Key: " + key + ".");
+
+            TextComponent current = componentMap.get(key);
+            TextComponent newComponent = null;
+
+            if (value instanceof String) {
+                newComponent = TextParser.parse((String) value);
+            } else if (value instanceof List<?>) {
+                List<?> list = (List<?>) value;
+                Iterator<?> iterator = list.iterator();
+
+                while(iterator.hasNext()) {
+                    Object o = iterator.next();
+                    if (!(o instanceof String))
+                        throw new IllegalArgumentException("Only strings are supported" +
+                                " as element of lang lists. Element: " + o + ".");
+
+                    String s = o + (iterator.hasNext() ? "\n" : "");
+
+                    if (newComponent == null)
+                        newComponent = TextParser.parse(s);
+                    else
+                        newComponent = newComponent.append(TextParser.parse(s));
+                }
+
+            } else {
+                throw new IllegalArgumentException("Value '" + value + "' is not supported as lang value.");
+            }
+
+            if (current != null)
+                newComponent = current.append(newComponent);
+
+            componentMap.put((String) key, newComponent);
+        }
+
+        return componentMap;
+    }
 
     public static TextComponent parse(String receiver) {
         List<TextComponent> components = new ArrayList<>();

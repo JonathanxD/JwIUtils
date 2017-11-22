@@ -28,9 +28,18 @@
 package com.github.jonathanxd.iutils.array;
 
 import com.github.jonathanxd.iutils.annotation.Generated;
+import com.github.jonathanxd.iutils.function.predicate.BooleanPredicate;
+import com.github.jonathanxd.iutils.function.predicate.BytePredicate;
+import com.github.jonathanxd.iutils.function.predicate.CharPredicate;
+import com.github.jonathanxd.iutils.function.predicate.FloatPredicate;
+import com.github.jonathanxd.iutils.function.predicate.ShortPredicate;
 
 import java.lang.reflect.Array;
 import java.util.Objects;
+import java.util.function.DoublePredicate;
+import java.util.function.IntPredicate;
+import java.util.function.LongPredicate;
+import java.util.function.Predicate;
 
 /**
  * Array utilities.
@@ -320,6 +329,46 @@ public class ArrayUtils {
         }
 
         return objectArray;
+    }
+
+    /**
+     * Returns true if all elements of {@code array} matches {@code predicate}. (or if array is
+     * empty).
+     *
+     * @param array     Array to test.
+     * @param predicate Predicate.
+     * @param <T>       Type.
+     * @return True if all elements of {@code array} matches {@code predicate}. (or if array is
+     * empty).
+     * @since 4.9.17
+     */
+    public static <T> boolean all(T[] array, Predicate<T> predicate) {
+        for (T t : array) {
+            if (!predicate.test(t))
+                return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Returns true if any element of {@code array} matches {@code predicate}. (false for empty
+     * array).
+     *
+     * @param array     Array to test.
+     * @param predicate Predicate.
+     * @param <T>       Type.
+     * @return True if any element of {@code array} matches {@code predicate}. (false for empty
+     * array).
+     * @since 4.9.17
+     */
+    public static <T> boolean any(T[] array, Predicate<T> predicate) {
+        for (T t : array) {
+            if (predicate.test(t))
+                return true;
+        }
+
+        return false;
     }
 
     @SuppressWarnings("Duplicates")
@@ -1795,6 +1844,342 @@ public class ArrayUtils {
             final int len = array.length;
             array = java.util.Arrays.copyOf(array, len + size);
             return array;
+        }
+
+        /**
+         * Returns true if all elements of {@code array} matches {@code predicate}. (or if array is
+         * empty).
+         *
+         * Hand written :P
+         *
+         * @param array     Array to test.
+         * @param predicate Predicate.
+         * @return True if all elements of {@code array} matches {@code predicate}. (or if array is
+         * empty).
+         * @since 4.9.17
+         */
+        public static boolean all(char[] array, CharPredicate predicate) {
+            for (char t : array) {
+                if (!predicate.test(t))
+                    return false;
+            }
+
+            return true;
+        }
+
+        /**
+         * Returns true if all elements of {@code array} matches {@code predicate}. (or if array is
+         * empty).
+         *
+         * Hand written :P
+         *
+         * @param array     Array to test.
+         * @param predicate Predicate.
+         * @return True if all elements of {@code array} matches {@code predicate}. (or if array is
+         * empty).
+         * @since 4.9.17
+         */
+        public static boolean all(byte[] array, BytePredicate predicate) {
+            for (byte t : array) {
+                if (!predicate.test(t))
+                    return false;
+            }
+
+            return true;
+        }
+
+        /**
+         * Returns true if all elements of {@code array} matches {@code predicate}. (or if array is
+         * empty).
+         *
+         * Hand written :P
+         *
+         * @param array     Array to test.
+         * @param predicate Predicate.
+         * @return True if all elements of {@code array} matches {@code predicate}. (or if array is
+         * empty).
+         * @since 4.9.17
+         */
+        public static boolean all(short[] array, ShortPredicate predicate) {
+            for (short t : array) {
+                if (!predicate.test(t))
+                    return false;
+            }
+
+            return true;
+        }
+
+        /**
+         * Returns true if all elements of {@code array} matches {@code predicate}. (or if array is
+         * empty).
+         *
+         * Hand written :P
+         *
+         * @param array     Array to test.
+         * @param predicate Predicate.
+         * @return True if all elements of {@code array} matches {@code predicate}. (or if array is
+         * empty).
+         * @since 4.9.17
+         */
+        public static boolean all(int[] array, IntPredicate predicate) {
+            for (int t : array) {
+                if (!predicate.test(t))
+                    return false;
+            }
+
+            return true;
+        }
+
+        /**
+         * Returns true if all elements of {@code array} matches {@code predicate}. (or if array is
+         * empty).
+         *
+         * Hand written :P
+         *
+         * @param array     Array to test.
+         * @param predicate Predicate.
+         * @return True if all elements of {@code array} matches {@code predicate}. (or if array is
+         * empty).
+         * @since 4.9.17
+         */
+        public static boolean all(long[] array, LongPredicate predicate) {
+            for (long t : array) {
+                if (!predicate.test(t))
+                    return false;
+            }
+
+            return true;
+        }
+
+        /**
+         * Returns true if all elements of {@code array} matches {@code predicate}. (or if array is
+         * empty).
+         *
+         * Hand written :P
+         *
+         * @param array     Array to test.
+         * @param predicate Predicate.
+         * @return True if all elements of {@code array} matches {@code predicate}. (or if array is
+         * empty).
+         * @since 4.9.17
+         */
+        public static boolean all(float[] array, FloatPredicate predicate) {
+            for (float t : array) {
+                if (!predicate.test(t))
+                    return false;
+            }
+
+            return true;
+        }
+
+        /**
+         * Returns true if all elements of {@code array} matches {@code predicate}. (or if array is
+         * empty).
+         *
+         * Hand written :P
+         *
+         * @param array     Array to test.
+         * @param predicate Predicate.
+         * @return True if all elements of {@code array} matches {@code predicate}. (or if array is
+         * empty).
+         * @since 4.9.17
+         */
+        public static boolean all(double[] array, DoublePredicate predicate) {
+            for (double t : array) {
+                if (!predicate.test(t))
+                    return false;
+            }
+
+            return true;
+        }
+
+        /**
+         * Returns true if all elements of {@code array} matches {@code predicate}. (or if array is
+         * empty).
+         *
+         * Hand written :P
+         *
+         * @param array     Array to test.
+         * @param predicate Predicate.
+         * @return True if all elements of {@code array} matches {@code predicate}. (or if array is
+         * empty).
+         * @since 4.9.17
+         */
+        public static boolean all(boolean[] array, BooleanPredicate predicate) {
+            for (boolean t : array) {
+                if (!predicate.test(t))
+                    return false;
+            }
+
+            return true;
+        }
+
+        /**
+         * Returns true if any element of {@code array} matches {@code predicate}. (false for empty
+         * array).
+         *
+         * Hand written :P
+         *
+         * @param array     Array to test.
+         * @param predicate Predicate.
+         * @return True if any element of {@code array} matches {@code predicate}. (false for empty
+         * array).
+         * @since 4.9.17
+         */
+        public static boolean any(char[] array, CharPredicate predicate) {
+            for (char t : array) {
+                if (predicate.test(t))
+                    return true;
+            }
+
+            return false;
+        }
+
+        /**
+         * Returns true if any element of {@code array} matches {@code predicate}. (false for empty
+         * array).
+         *
+         * Hand written :P
+         *
+         * @param array     Array to test.
+         * @param predicate Predicate.
+         * @return True if any element of {@code array} matches {@code predicate}. (false for empty
+         * array).
+         * @since 4.9.17
+         */
+        public static boolean any(byte[] array, BytePredicate predicate) {
+            for (byte t : array) {
+                if (predicate.test(t))
+                    return true;
+            }
+
+            return false;
+        }
+
+        /**
+         * Returns true if any element of {@code array} matches {@code predicate}. (false for empty
+         * array).
+         *
+         * Hand written :P
+         *
+         * @param array     Array to test.
+         * @param predicate Predicate.
+         * @return True if any element of {@code array} matches {@code predicate}. (false for empty
+         * array).
+         * @since 4.9.17
+         */
+        public static boolean any(short[] array, ShortPredicate predicate) {
+            for (short t : array) {
+                if (predicate.test(t))
+                    return true;
+            }
+
+            return false;
+        }
+
+        /**
+         * Returns true if any element of {@code array} matches {@code predicate}. (false for empty
+         * array).
+         *
+         * Hand written :P
+         *
+         * @param array     Array to test.
+         * @param predicate Predicate.
+         * @return True if any element of {@code array} matches {@code predicate}. (false for empty
+         * array).
+         * @since 4.9.17
+         */
+        public static boolean any(int[] array, IntPredicate predicate) {
+            for (int t : array) {
+                if (predicate.test(t))
+                    return true;
+            }
+
+            return false;
+        }
+
+        /**
+         * Returns true if any element of {@code array} matches {@code predicate}. (false for empty
+         * array).
+         *
+         * Hand written :P
+         *
+         * @param array     Array to test.
+         * @param predicate Predicate.
+         * @return True if any element of {@code array} matches {@code predicate}. (false for empty
+         * array).
+         * @since 4.9.17
+         */
+        public static boolean any(long[] array, LongPredicate predicate) {
+            for (long t : array) {
+                if (predicate.test(t))
+                    return true;
+            }
+
+            return false;
+        }
+
+        /**
+         * Returns true if any element of {@code array} matches {@code predicate}. (false for empty
+         * array).
+         *
+         * Hand written :P
+         *
+         * @param array     Array to test.
+         * @param predicate Predicate.
+         * @return True if any element of {@code array} matches {@code predicate}. (false for empty
+         * array).
+         * @since 4.9.17
+         */
+        public static boolean any(float[] array, FloatPredicate predicate) {
+            for (float t : array) {
+                if (predicate.test(t))
+                    return true;
+            }
+
+            return false;
+        }
+
+        /**
+         * Returns true if any element of {@code array} matches {@code predicate}. (false for empty
+         * array).
+         *
+         * Hand written :P
+         *
+         * @param array     Array to test.
+         * @param predicate Predicate.
+         * @return True if any element of {@code array} matches {@code predicate}. (false for empty
+         * array).
+         * @since 4.9.17
+         */
+        public static boolean any(double[] array, DoublePredicate predicate) {
+            for (double t : array) {
+                if (predicate.test(t))
+                    return true;
+            }
+
+            return false;
+        }
+
+        /**
+         * Returns true if any element of {@code array} matches {@code predicate}. (false for empty
+         * array).
+         *
+         * Hand written :P
+         *
+         * @param array     Array to test.
+         * @param predicate Predicate.
+         * @return True if any element of {@code array} matches {@code predicate}. (false for empty
+         * array).
+         * @since 4.9.17
+         */
+        public static boolean any(boolean[] array, BooleanPredicate predicate) {
+            for (boolean t : array) {
+                if (predicate.test(t))
+                    return true;
+            }
+
+            return false;
         }
     }
 }

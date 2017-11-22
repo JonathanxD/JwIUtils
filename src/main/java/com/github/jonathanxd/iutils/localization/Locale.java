@@ -27,16 +27,20 @@
  */
 package com.github.jonathanxd.iutils.localization;
 
+import com.github.jonathanxd.iutils.string.TextHelper;
 import com.github.jonathanxd.iutils.string.TextParser;
-import com.github.jonathanxd.iutils.text.Text;
+import com.github.jonathanxd.iutils.text.TextComponent;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 /**
  * Locale represents a language.
@@ -86,6 +90,45 @@ public interface Locale {
                         (String) objectObjectEntry.getKey(),
                         TextParser.parse((String) objectObjectEntry.getValue())
                 );
+            }
+
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
+
+    }
+
+    /**
+     * Loads localizations from resource. The resource should follow the name template: {@code
+     * baseName_localeName.lang} and map template specified in {@link TextHelper#parseStringMap(String)}.
+     * Newline are converted into {@code ,}, so, it is not necessary when newline is present.
+     * without initial tags ({@code {}}).
+     *
+     * @param path        Path to resource directory.
+     * @param baseName    Base name of resource.
+     * @param classLoader Class loader.
+     * @return True if loaded with success.
+     */
+    default boolean loadMap(Path path, String baseName, ClassLoader classLoader) {
+        String name = (baseName == null ? "" : baseName + "_") + this.getName() + ".lang";
+
+        Path rPath = (path == null ? Paths.get(name) : path.resolve(name));
+        URL resource = classLoader.getResource(rPath.toString());
+
+        if (resource == null)
+            return false;
+
+        try (BufferedReader stream = new BufferedReader(new InputStreamReader(resource.openStream()))) {
+
+            String s = stream.lines()
+                    .filter(c -> !c.isEmpty())
+                    .collect(Collectors.joining("\n"));
+
+            Map<String, TextComponent> map = TextParser.parseMap(s);
+
+            for (Map.Entry<String, TextComponent> entry : map.entrySet()) {
+                this.getLocalizationManager().registerLocalization(entry.getKey(), entry.getValue());
             }
 
             return true;
