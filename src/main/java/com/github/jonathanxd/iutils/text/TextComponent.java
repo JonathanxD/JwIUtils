@@ -34,8 +34,14 @@ public interface TextComponent {
     default TextComponent capitalize() {
         return CapitalizeComponent.of(this);
     }
+    default TextComponent decapitalize() {
+        return DecapitalizeComponent.of(this);
+    }
 
     default TextComponent and(TextComponent textComponent) {
+        return Text.of(this, textComponent);
+    }
+    default TextComponent append(TextComponent textComponent) {
         return Text.of(this, textComponent);
     }
 

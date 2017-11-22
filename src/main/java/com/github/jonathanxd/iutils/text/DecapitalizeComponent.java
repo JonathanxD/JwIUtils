@@ -1,5 +1,5 @@
 /*
- *      JwIUtils-kt - Extension of JwIUtils for Kotlin <https://github.com/JonathanxD/JwIUtils/>
+ *      JwIUtils - Java utilities library <https://github.com/JonathanxD/JwIUtils>
  *
  *         The MIT License (MIT)
  *
@@ -25,17 +25,27 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.jwiutils.kt
+package com.github.jonathanxd.iutils.text;
 
-import com.github.jonathanxd.iutils.text.Text
-import com.github.jonathanxd.iutils.text.TextComponent
+import java.util.Map;
 
-fun String.asText() = Text.of(this)
-fun String.asLocalizableText() = Text.localizable(this)
-fun String.asTextVariable() = Text.variable(this)
+public final class DecapitalizeComponent implements TextComponent {
+    private final TextComponent textComponent;
 
-fun textOf(str: String) = Text.of(str)
-fun localizableText(localization: String) = Text.localizable(localization)
-fun textVariable(variable: String) = Text.variable(variable)
+    private DecapitalizeComponent(TextComponent textComponent) {
+        this.textComponent = textComponent;
+    }
 
-operator fun TextComponent.plus(other: TextComponent): TextComponent = this.append(other)
+    public static DecapitalizeComponent of(TextComponent textComponent) {
+        return new DecapitalizeComponent(textComponent);
+    }
+
+    public TextComponent getTextComponent() {
+        return this.textComponent;
+    }
+
+    @Override
+    public TextComponent apply(Map<String, TextComponent> args) {
+        return DecapitalizeComponent.of(this.textComponent.apply(args));
+    }
+}

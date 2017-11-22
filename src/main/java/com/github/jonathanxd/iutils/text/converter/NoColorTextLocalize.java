@@ -32,6 +32,7 @@ import com.github.jonathanxd.iutils.localization.LocaleManager;
 import com.github.jonathanxd.iutils.text.ArgsAppliedText;
 import com.github.jonathanxd.iutils.text.CapitalizeComponent;
 import com.github.jonathanxd.iutils.text.Color;
+import com.github.jonathanxd.iutils.text.DecapitalizeComponent;
 import com.github.jonathanxd.iutils.text.LocalizableComponent;
 import com.github.jonathanxd.iutils.text.StringComponent;
 import com.github.jonathanxd.iutils.text.Style;
@@ -87,6 +88,12 @@ public class NoColorTextLocalize implements TextLocalize {
                 return "";
 
             return Character.toUpperCase(s.charAt(0)) + s.substring(1, s.length());
+        } else if (textComponent instanceof DecapitalizeComponent) {
+            String s = this.getString(((DecapitalizeComponent) textComponent).getTextComponent(), args, locale);
+            if (s.length() == 0)
+                return "";
+
+            return Character.toLowerCase(s.charAt(0)) + s.substring(1, s.length());
         } else if (textComponent instanceof VariableComponent) {
             String variable = ((VariableComponent) textComponent).getVariable();
             TextComponent component = args.get(variable);
