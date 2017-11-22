@@ -43,11 +43,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-public class NoColorConverter implements TextConverter {
+public class NoColorTextLocalize implements TextLocalize {
     private final LocaleManager localeManager;
     private Locale defaultLocale;
 
-    public NoColorConverter(LocaleManager localeManager, Locale defaultLocale) {
+    public NoColorTextLocalize(LocaleManager localeManager, Locale defaultLocale) {
         this.localeManager = Objects.requireNonNull(localeManager, "Locale manager cannot be null.");
         this.defaultLocale = Objects.requireNonNull(defaultLocale, "Default locale cannot be null.");
     }

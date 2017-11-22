@@ -37,7 +37,7 @@ import java.util.Map;
 /**
  * Converts text into string.
  */
-public interface TextConverter {
+public interface TextLocalize {
 
     /**
      * Gets the locale manager.

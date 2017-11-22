@@ -35,8 +35,8 @@ import com.github.jonathanxd.iutils.localization.MapLocalizationManager;
 import com.github.jonathanxd.iutils.map.MapUtils;
 import com.github.jonathanxd.iutils.text.Text;
 import com.github.jonathanxd.iutils.text.TextComponent;
-import com.github.jonathanxd.iutils.text.converter.NoColorConverter;
-import com.github.jonathanxd.iutils.text.converter.TextConverter;
+import com.github.jonathanxd.iutils.text.converter.NoColorTextLocalize;
+import com.github.jonathanxd.iutils.text.converter.TextLocalize;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -66,7 +66,7 @@ public class TextTest {
                 Text.localizable("players")
         );
 
-        TextConverter converter = new NoColorConverter(localeManager, enUs);
+        TextLocalize converter = new NoColorTextLocalize(localeManager, enUs);
 
         TextComponent kill = Text.localizable("message").apply(MapUtils.mapOf(
                 "killer", Text.of("ProPlayer"),
