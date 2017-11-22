@@ -31,9 +31,26 @@ import java.util.Map;
 
 public interface TextComponent {
 
+    /**
+     * True if component is empty.
+     *
+     * @return True if component is empty.
+     */
+    boolean isEmpty();
+
+    /**
+     * True if component is not empty.
+     *
+     * @return True if component is not empty.
+     */
+    default boolean isNotEmpty() {
+        return !this.isEmpty();
+    }
+
     default TextComponent capitalize() {
         return CapitalizeComponent.of(this);
     }
+
     default TextComponent decapitalize() {
         return DecapitalizeComponent.of(this);
     }
@@ -41,6 +58,7 @@ public interface TextComponent {
     default TextComponent and(TextComponent textComponent) {
         return Text.of(this, textComponent);
     }
+
     default TextComponent append(TextComponent textComponent) {
         return Text.of(this, textComponent);
     }

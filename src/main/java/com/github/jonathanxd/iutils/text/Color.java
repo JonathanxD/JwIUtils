@@ -48,6 +48,10 @@ public enum Color implements TextComponent {
     RED,
     LIGHT_PURPLE,
     YELLOW,
-    WHITE,
+    WHITE;
 
+    @Override
+    public boolean isEmpty() {
+        return false;
+    }
 }

@@ -63,7 +63,8 @@ public final class LocalizableComponent implements Localizable<LocalizableCompon
         return this.locale;
     }
 
-    class AppliedLocalizable implements TextComponent {
-
+    @Override
+    public boolean isEmpty() {
+        return false;
     }
 }

@@ -41,4 +41,9 @@ public final class StringComponent implements TextComponent {
     public String getText() {
         return this.text;
     }
+
+    @Override
+    public boolean isEmpty() {
+        return this.getText().isEmpty();
+    }
 }

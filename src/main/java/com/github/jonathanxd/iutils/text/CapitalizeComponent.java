@@ -48,4 +48,9 @@ public final class CapitalizeComponent implements TextComponent {
     public TextComponent apply(Map<String, TextComponent> args) {
         return CapitalizeComponent.of(this.textComponent.apply(args));
     }
+
+    @Override
+    public boolean isEmpty() {
+        return this.getTextComponent().isEmpty();
+    }
 }

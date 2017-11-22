@@ -42,4 +42,8 @@ public final class VariableComponent implements TextComponent {
         return this.variable;
     }
 
+    @Override
+    public boolean isEmpty() {
+        return false;
+    }
 }

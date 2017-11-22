@@ -42,5 +42,10 @@ public enum Style implements TextComponent {
     /**
      * Resets the style
      */
-    RESET
+    RESET;
+
+    @Override
+    public boolean isEmpty() {
+        return false;
+    }
 }

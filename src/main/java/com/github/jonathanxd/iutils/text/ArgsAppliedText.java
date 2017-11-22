@@ -45,4 +45,9 @@ public final class ArgsAppliedText implements TextComponent {
     public Map<String, TextComponent> getArgs() {
         return this.args;
     }
+
+    @Override
+    public boolean isEmpty() {
+        return this.getComponent().isEmpty();
+    }
 }

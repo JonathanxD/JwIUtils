@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Spliterator;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Text class, represents the text.
@@ -94,4 +95,17 @@ public final class Text implements Iterable<TextComponent>, TextComponent {
         return this.components.spliterator();
     }
 
+    public Stream<TextComponent> stream() {
+        return this.components.stream();
+    }
+
+    public Stream<TextComponent> parallelStream() {
+        return this.components.parallelStream();
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return this.components.isEmpty()
+                || this.stream().allMatch(TextComponent::isEmpty);
+    }
 }
