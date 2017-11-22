@@ -39,3 +39,4 @@ fun localizableText(localization: String) = Text.localizable(localization)
 fun textVariable(variable: String) = Text.variable(variable)
 
 operator fun TextComponent.plus(other: TextComponent): TextComponent = this.append(other)
+operator fun TextComponent.plus(other: String): TextComponent = this.append(Text.single(other))

@@ -51,15 +51,16 @@ public final class Text implements Iterable<TextComponent>, TextComponent {
     }
 
     public static Text of(Object... objects) {
-        return new Text(Arrays.stream(objects).map(o -> {
-            if (o instanceof String
-                    || o instanceof Number)
-                return StringComponent.of(o.toString());
-            if (o instanceof TextComponent)
-                return (TextComponent) o;
+        return new Text(Arrays.stream(objects).map(Text::single).collect(Collectors.toList()));
+    }
 
-            throw new IllegalArgumentException("Illegal input component '" + o + "'!");
-        }).collect(Collectors.toList()));
+    public static TextComponent single(Object o) {
+        if (o instanceof TextComponent)
+            return (TextComponent) o;
+        if (o instanceof String || o instanceof Number)
+            return StringComponent.of(o.toString());
+
+        throw new IllegalArgumentException("Illegal input component '" + o + "'!");
     }
 
     public static CapitalizeComponent capitalize(TextComponent textComponent) {
