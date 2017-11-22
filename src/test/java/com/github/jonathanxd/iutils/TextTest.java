@@ -27,6 +27,7 @@
  */
 package com.github.jonathanxd.iutils;
 
+import com.github.jonathanxd.iutils.annotation.Named;
 import com.github.jonathanxd.iutils.localization.Locale;
 import com.github.jonathanxd.iutils.localization.LocaleManager;
 import com.github.jonathanxd.iutils.localization.LocalizationManager;
@@ -37,6 +38,8 @@ import com.github.jonathanxd.iutils.text.Text;
 import com.github.jonathanxd.iutils.text.TextComponent;
 import com.github.jonathanxd.iutils.text.converter.NoColorTextLocalize;
 import com.github.jonathanxd.iutils.text.converter.TextLocalize;
+import com.github.jonathanxd.iutils.text.dynamic.DynamicGenerator;
+import com.github.jonathanxd.iutils.text.dynamic.Section;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -66,22 +69,30 @@ public class TextTest {
                 Text.localizable("players")
         );
 
-        TextLocalize converter = new NoColorTextLocalize(localeManager, enUs);
+        TextLocalize localize = new NoColorTextLocalize(localeManager, enUs);
 
         TextComponent kill = Text.localizable("message").apply(MapUtils.mapOf(
                 "killer", Text.of("ProPlayer"),
                 "killed", Text.of("Noob")
         ));
 
-        String s = converter.getString(text, MapUtils.mapOf("amount", Text.of(5)));
-        String s2 = converter.getString(text, MapUtils.mapOf("amount", Text.of(5)), ptBr);
-        String x1 = converter.getString(kill);
-        String x2 = converter.getString(kill, ptBr);
+        String s = localize.getString(text, MapUtils.mapOf("amount", Text.of(5)));
+        String s2 = localize.getString(text, MapUtils.mapOf("amount", Text.of(5)), ptBr);
+        String x1 = localize.getString(kill);
+        String x2 = localize.getString(kill, ptBr);
 
         Assert.assertEquals("Kill 5 players", s);
         Assert.assertEquals("Mate 5 jogadores", s2);
         Assert.assertEquals("Player ProPlayer killed Noob.", x1);
         Assert.assertEquals("Jogador ProPlayer matou Noob.", x2);
+
+        Stub generate = DynamicGenerator.generate(Stub.class);
+
+        String stub1 = localize.getString(generate.getNotify("Moo"));
+        String stub2 = localize.getString(generate.getNotify("Moo"), ptBr);
+
+        Assert.assertEquals("Notify Moo please.", stub1);
+        Assert.assertEquals("Notifique o Moo por favor.", stub2);
     }
 
     private static class EnUsLocale implements Locale {
@@ -112,5 +123,10 @@ public class TextTest {
         public LocalizationManager getLocalizationManager() {
             return this.manager;
         }
+    }
+
+    public interface Stub {
+        @Section({"message", "notify"})
+        TextComponent getNotify(@Named("user") String user);
     }
 }

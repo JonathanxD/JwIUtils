@@ -1,3 +1,4 @@
 kill=kill
 players=players
 message=Player $killer killed $killed.
+message.notify=Notify $user please.

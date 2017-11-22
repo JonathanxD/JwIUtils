@@ -1,3 +1,4 @@
 kill=mate
 players=jogadores
 message=Jogador $killer matou $killed.
+message.notify=Notifique o $user por favor.
