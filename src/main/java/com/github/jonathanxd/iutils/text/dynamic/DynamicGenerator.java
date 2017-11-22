@@ -70,8 +70,6 @@ public final class DynamicGenerator {
 
                 String section = defaultSection + getSection(method.getDeclaredAnnotation(Section.class).value());
 
-                //String desc = DescriptionUtil.from(method).getPlainDescription();
-
                 texts.put(method, new MethodText(Text.localizable(section), args));
             }
         }
@@ -87,6 +85,7 @@ public final class DynamicGenerator {
         private final Class<?> itf;
         private final String defaultSection;
         private final Map<Method, MethodText> methodTexts;
+        private static final Object[] EMPTY_ARGS = new Object[0];
 
         private Handler(Class<?> itf) {
             this.itf = itf;
@@ -99,6 +98,10 @@ public final class DynamicGenerator {
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 
             MethodText methodText = this.methodTexts.get(method);
+
+            if (args == null) {
+                args = EMPTY_ARGS;
+            }
 
             if (methodText != null) {
                 String[] argNames = methodText.getArgs();
