@@ -32,6 +32,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Objects;
 import java.util.Spliterator;
 import java.util.function.Consumer;
@@ -81,24 +82,6 @@ public final class Text implements Iterable<TextComponent>, TextComponent {
      * @return Compressed text, or {@code text} if cannot be compressed.
      */
     public static Text compress(Text text) {
-        /*List<TextComponent> toCompress = text.getComponents();
-
-        while (toCompress.size() == 1 && toCompress.get(0) instanceof Text) {
-            text = (Text) toCompress.get(0);
-            toCompress = text.getComponents();
-        }
-
-        List<TextComponent> compressed = new ArrayList<>();
-
-        compressed = Text.compress(toCompress, compressed);
-
-        if (toCompress.size() == compressed.size())
-            return text;
-
-        if (compressed.size() == 1 && compressed.get(0) instanceof Text)
-            return (Text) compressed.get(0);
-
-        return new Text(compressed);*/
         return Text.compress(text, new ArrayList<>());
     }
 
@@ -136,7 +119,11 @@ public final class Text implements Iterable<TextComponent>, TextComponent {
     }
 
     private static List<TextComponent> compress(List<TextComponent> toCompressList, List<TextComponent> compressedList) {
-        for (TextComponent compress : toCompressList) {
+        ListIterator<TextComponent> iterator = toCompressList.listIterator();
+
+        while (iterator.hasNext()) {
+            TextComponent compress = iterator.next();
+
             if (compress instanceof Text) {
                 Text.compress(((Text) compress).getComponents(), compressedList);
             } else {
@@ -149,6 +136,23 @@ public final class Text implements Iterable<TextComponent>, TextComponent {
                 } else if (compress instanceof ArgsAppliedText) {
                     add = Text.compressComponent(((ArgsAppliedText) compress).getComponent(), compressedList)
                             .apply(((ArgsAppliedText) compress).getArgs());
+                } else if (compress instanceof StringComponent && iterator.hasNext()) {
+                    StringBuilder sb = new StringBuilder();
+
+                    sb.append(((StringComponent) compress).getText());
+
+                    while (iterator.hasNext()) {
+                        TextComponent next = iterator.next();
+
+                        if (next instanceof StringComponent) {
+                            sb.append(((StringComponent) next).getText());
+                        } else {
+                            iterator.previous();
+                            break;
+                        }
+                    }
+
+                    add = Text.compressComponent(Text.single(sb.toString()), compressedList);
                 } else {
                     add = Text.compressComponent(compress, compressedList);
                 }

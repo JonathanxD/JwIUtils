@@ -131,13 +131,7 @@ public class TextTest {
 
         Assert.assertNotEquals(Text.ofUncompressed(Text.ofUncompressed("A", "B")), firstUncompressed);
         Assert.assertEquals(Text.of(Text.of("A", "B")), firstCompressed);
-
-        TextComponent variable = Text.variable("a");
-
-        Text of = Text.of(variable, Text.of(Text.variable("a").capitalize()));
-
-        System.out.println(of);
-    }
+        }
 
     @Test
     public void testCompress2() {
@@ -148,6 +142,15 @@ public class TextTest {
         Assert.assertTrue(variable == of.getComponents().get(0));
         Assert.assertTrue(of.getComponents().get(1) instanceof CapitalizeComponent);
         Assert.assertTrue(variable == ((CapitalizeComponent) of.getComponents().get(1)).getTextComponent());
+    }
+
+    @Test
+    public void testCompress3() {
+        TextComponent variable = Text.variable("a");
+
+        Text of = Text.of("A", "B", variable, "C");
+
+        Assert.assertEquals(Text.of("AB", variable, "C"), of);
     }
 
     private static class EnUsLocale implements Locale {
