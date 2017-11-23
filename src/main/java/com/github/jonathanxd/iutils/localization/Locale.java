@@ -81,7 +81,7 @@ public interface Locale {
         if (resource == null)
             return false;
 
-        try (InputStream resourceAsStream = resource.openStream()) {
+        try (InputStreamReader resourceAsStream = new InputStreamReader(resource.openStream(), "UTF-8")) {
             Properties properties = new Properties();
             properties.load(resourceAsStream);
 
@@ -119,7 +119,7 @@ public interface Locale {
         if (resource == null)
             return false;
 
-        try (BufferedReader stream = new BufferedReader(new InputStreamReader(resource.openStream()))) {
+        try (BufferedReader stream = new BufferedReader(new InputStreamReader(resource.openStream(), "UTF-8"))) {
 
             String s = stream.lines()
                     .filter(c -> !c.isEmpty())
