@@ -34,10 +34,11 @@ import com.github.jonathanxd.iutils.localization.LocalizationManager;
 import com.github.jonathanxd.iutils.localization.MapLocaleManager;
 import com.github.jonathanxd.iutils.localization.MapLocalizationManager;
 import com.github.jonathanxd.iutils.map.MapUtils;
+import com.github.jonathanxd.iutils.text.CapitalizeComponent;
 import com.github.jonathanxd.iutils.text.Text;
 import com.github.jonathanxd.iutils.text.TextComponent;
-import com.github.jonathanxd.iutils.text.converter.NoColorTextLocalize;
-import com.github.jonathanxd.iutils.text.converter.TextLocalize;
+import com.github.jonathanxd.iutils.text.converter.NoColorTextLocalizer;
+import com.github.jonathanxd.iutils.text.converter.TextLocalizer;
 import com.github.jonathanxd.iutils.text.dynamic.DynamicGenerator;
 import com.github.jonathanxd.iutils.text.dynamic.Section;
 
@@ -70,17 +71,17 @@ public class TextTest {
                 Text.localizable("players")
         );
 
-        TextLocalize localize = new NoColorTextLocalize(localeManager, enUs);
+        TextLocalizer localize = new NoColorTextLocalizer(localeManager, enUs);
 
         TextComponent kill = Text.localizable("message").apply(MapUtils.mapOf(
                 "killer", Text.of("ProPlayer"),
                 "killed", Text.of("Noob")
         ));
 
-        String s = localize.getString(text, MapUtils.mapOf("amount", Text.of(5)));
-        String s2 = localize.getString(text, MapUtils.mapOf("amount", Text.of(5)), ptBr);
-        String x1 = localize.getString(kill);
-        String x2 = localize.getString(kill, ptBr);
+        String s = localize.localize(text, MapUtils.mapOf("amount", Text.of(5)));
+        String s2 = localize.localize(text, MapUtils.mapOf("amount", Text.of(5)), ptBr);
+        String x1 = localize.localize(kill);
+        String x2 = localize.localize(kill, ptBr);
 
         Assert.assertEquals("Kill 5 players", s);
         Assert.assertEquals("Mate 5 jogadores", s2);
@@ -89,8 +90,8 @@ public class TextTest {
 
         Stub generate = DynamicGenerator.generate(Stub.class);
 
-        String stub1 = localize.getString(generate.getNotify("Moo"));
-        String stub2 = localize.getString(generate.getNotify("Moo"), ptBr);
+        String stub1 = localize.localize(generate.getNotify("Moo"));
+        String stub2 = localize.localize(generate.getNotify("Moo"), ptBr);
 
         Assert.assertEquals("Notify Moo please.", stub1);
         Assert.assertEquals("Notifique o Moo por favor.", stub2);
@@ -101,7 +102,7 @@ public class TextTest {
 
         TextComponent helloMessages = Text.localizable("hello_messages");
 
-        Assert.assertEquals("Hello unknown", localize.getString(helloMessage, ptBr));
+        Assert.assertEquals("Hello unknown", localize.localize(helloMessage, ptBr));
         Assert.assertEquals("Hello,\n" +
                 "parser\n" +
                 "don't\n" +
@@ -113,7 +114,40 @@ public class TextTest {
                 "neither\n" +
                 "about\n" +
                 "empty\n" +
-                "lines", localize.getString(helloMessages, ptBr));
+                "lines", localize.localize(helloMessages, ptBr));
+    }
+
+    @Test
+    public void testCompress() {
+        Text firstUncompressed = Text.ofUncompressed("A", "B");
+        Text secondUncompressed = Text.ofUncompressed(firstUncompressed);
+
+        Assert.assertFalse(firstUncompressed == secondUncompressed);
+
+        Text firstCompressed = Text.of("A", "B");
+        Text secondCompressed = Text.of(firstCompressed);
+
+        Assert.assertTrue(firstCompressed == secondCompressed);
+
+        Assert.assertNotEquals(Text.ofUncompressed(Text.ofUncompressed("A", "B")), firstUncompressed);
+        Assert.assertEquals(Text.of(Text.of("A", "B")), firstCompressed);
+
+        TextComponent variable = Text.variable("a");
+
+        Text of = Text.of(variable, Text.of(Text.variable("a").capitalize()));
+
+        System.out.println(of);
+    }
+
+    @Test
+    public void testCompress2() {
+        TextComponent variable = Text.variable("a");
+
+        Text of = Text.of(variable, Text.of(Text.variable("a").capitalize()));
+
+        Assert.assertTrue(variable == of.getComponents().get(0));
+        Assert.assertTrue(of.getComponents().get(1) instanceof CapitalizeComponent);
+        Assert.assertTrue(variable == ((CapitalizeComponent) of.getComponents().get(1)).getTextComponent());
     }
 
     private static class EnUsLocale implements Locale {

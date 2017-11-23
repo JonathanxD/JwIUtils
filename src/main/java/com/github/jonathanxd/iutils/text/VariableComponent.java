@@ -27,6 +27,8 @@
  */
 package com.github.jonathanxd.iutils.text;
 
+import java.util.Objects;
+
 public final class VariableComponent implements TextComponent {
     private final String variable;
 
@@ -45,5 +47,23 @@ public final class VariableComponent implements TextComponent {
     @Override
     public boolean isEmpty() {
         return false;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof VariableComponent)
+            return Objects.equals(((VariableComponent) obj).getVariable(), this.getVariable());
+
+        return super.equals(obj);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.getVariable());
+    }
+
+    @Override
+    public String toString() {
+        return "Variable[" + this.getVariable() + "]";
     }
 }

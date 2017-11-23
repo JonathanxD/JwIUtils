@@ -27,7 +27,7 @@
  */
 package com.github.jonathanxd.iutils.text;
 
-import java.util.Map;
+import java.util.Objects;
 
 /**
  * Component with localization and locale to be used to localize the text,
@@ -66,5 +66,24 @@ public final class LocalizableComponent implements Localizable<LocalizableCompon
     @Override
     public boolean isEmpty() {
         return false;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof LocalizableComponent)
+            return Objects.equals(((LocalizableComponent) obj).getLocalization(), this.getLocalization())
+                    && Objects.equals(((LocalizableComponent) obj).getLocale(), this.getLocale());
+
+        return super.equals(obj);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.getLocale(), this.getLocalization());
+    }
+
+    @Override
+    public String toString() {
+        return "Localizable[" + this.getLocalization() + (this.getLocale() != null ? ", locale=" + this.getLocale() : "") + "]";
     }
 }

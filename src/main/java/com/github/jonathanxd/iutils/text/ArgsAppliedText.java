@@ -28,6 +28,7 @@
 package com.github.jonathanxd.iutils.text;
 
 import java.util.Map;
+import java.util.Objects;
 
 public final class ArgsAppliedText implements TextComponent {
     private final TextComponent component;
@@ -49,5 +50,24 @@ public final class ArgsAppliedText implements TextComponent {
     @Override
     public boolean isEmpty() {
         return this.getComponent().isEmpty();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof ArgsAppliedText)
+            return Objects.equals(((ArgsAppliedText) obj).getComponent(), this.getComponent())
+                    && Objects.equals(((ArgsAppliedText) obj).getArgs(), this.getArgs());
+
+        return super.equals(obj);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.getComponent(), this.getArgs());
+    }
+
+    @Override
+    public String toString() {
+        return "ArgsApply[" + this.getComponent() + ", args=" + this.getArgs() + "]";
     }
 }

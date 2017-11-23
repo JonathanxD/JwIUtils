@@ -63,6 +63,14 @@ public interface TextComponent {
         return Text.of(this, textComponent);
     }
 
+    default TextComponent appendComponent(TextComponent textComponent) {
+        return Text.of(this, textComponent);
+    }
+
+    default TextComponent append(Object... objects) {
+        return Text.of(this, Text.of(objects));
+    }
+
     /**
      * Applies component arguments.
      *

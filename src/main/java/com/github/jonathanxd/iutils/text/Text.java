@@ -27,10 +27,12 @@
  */
 package com.github.jonathanxd.iutils.text;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Spliterator;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -47,12 +49,115 @@ public final class Text implements Iterable<TextComponent>, TextComponent {
         this.components = Collections.unmodifiableList(components);
     }
 
-    public static Text of(List<TextComponent> components) {
+    public static Text ofUncompressed(List<TextComponent> components) {
         return new Text(components);
     }
 
+    public static Text ofUncompressed(Object... objects) {
+        return new Text(Arrays.stream(objects)
+                .map(Text::single)
+                .collect(Collectors.toList()));
+    }
+
+    public static Text of(List<TextComponent> components) {
+        return Text.compress(Text.ofUncompressed(components));
+    }
+
     public static Text of(Object... objects) {
-        return new Text(Arrays.stream(objects).map(Text::single).collect(Collectors.toList()));
+        return Text.compress(Text.ofUncompressed(objects));
+    }
+
+    /**
+     * Tries to compress {@code text}, for example, a text {@code Text(Text(String("A")),
+     * Text(String("B")))}, will be compressed into a single sequence of text: {@code
+     * Text(String("A"), String("B"), String("C")}, allowing Garbage collector to collect
+     * unnecessary instances, this is automatically applied to inputs comping from {@link
+     * #of(Object...)} and {@link #of(List)}, also other components may be compressed, because
+     * {@link TextComponent} is (and must be) immutable, instances can be reused instead of using a
+     * new one, complex texts are not compressed (example: {@code Text(Variable("A"),
+     * Capitalize(Variable("A")))}.
+     *
+     * @param text Text to compress.
+     * @return Compressed text, or {@code text} if cannot be compressed.
+     */
+    public static Text compress(Text text) {
+        /*List<TextComponent> toCompress = text.getComponents();
+
+        while (toCompress.size() == 1 && toCompress.get(0) instanceof Text) {
+            text = (Text) toCompress.get(0);
+            toCompress = text.getComponents();
+        }
+
+        List<TextComponent> compressed = new ArrayList<>();
+
+        compressed = Text.compress(toCompress, compressed);
+
+        if (toCompress.size() == compressed.size())
+            return text;
+
+        if (compressed.size() == 1 && compressed.get(0) instanceof Text)
+            return (Text) compressed.get(0);
+
+        return new Text(compressed);*/
+        return Text.compress(text, new ArrayList<>());
+    }
+
+    private static Text compress(Text text, List<TextComponent> compressed) {
+        List<TextComponent> toCompress = text.getComponents();
+
+        while (toCompress.size() == 1 && toCompress.get(0) instanceof Text) {
+            text = (Text) toCompress.get(0);
+            toCompress = text.getComponents();
+        }
+
+        compressed = Text.compress(toCompress, compressed);
+
+        if (Objects.equals(toCompress, compressed))
+            return text;
+
+        if (compressed.size() == 1 && compressed.get(0) instanceof Text)
+            return (Text) compressed.get(0);
+
+        return new Text(compressed);
+    }
+
+    private static TextComponent compressComponent(TextComponent toCompress, List<TextComponent> compressedList) {
+        for (TextComponent compressedComponent : compressedList) {
+            if (compressedComponent.equals(toCompress) && toCompress != compressedComponent) {
+                return compressedComponent;
+            }
+        }
+
+        if (toCompress instanceof Text) {
+            return Text.compress((Text) toCompress, compressedList);
+        }
+
+        return toCompress;
+    }
+
+    private static List<TextComponent> compress(List<TextComponent> toCompressList, List<TextComponent> compressedList) {
+        for (TextComponent compress : toCompressList) {
+            if (compress instanceof Text) {
+                Text.compress(((Text) compress).getComponents(), compressedList);
+            } else {
+                TextComponent add;
+
+                if (compress instanceof CapitalizeComponent) {
+                    add = Text.compressComponent(((CapitalizeComponent) compress).getTextComponent(), compressedList).capitalize();
+                } else if (compress instanceof DecapitalizeComponent) {
+                    add = Text.compressComponent(((DecapitalizeComponent) compress).getTextComponent(), compressedList).decapitalize();
+                } else if (compress instanceof ArgsAppliedText) {
+                    add = Text.compressComponent(((ArgsAppliedText) compress).getComponent(), compressedList)
+                            .apply(((ArgsAppliedText) compress).getArgs());
+                } else {
+                    add = Text.compressComponent(compress, compressedList);
+                }
+
+                compressedList.add(add);
+            }
+        }
+
+        return compressedList;
     }
 
     public static TextComponent single(Object o) {
@@ -107,5 +212,27 @@ public final class Text implements Iterable<TextComponent>, TextComponent {
     public boolean isEmpty() {
         return this.components.isEmpty()
                 || this.stream().allMatch(TextComponent::isEmpty);
+    }
+
+    public List<TextComponent> getComponents() {
+        return this.components;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Text)
+            return Objects.equals(((Text) obj).getComponents(), this.getComponents());
+
+        return super.equals(obj);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.getComponents());
+    }
+
+    @Override
+    public String toString() {
+        return "Text[" + this.getComponents().stream().map(Objects::toString).collect(Collectors.joining(",")) + "]";
     }
 }

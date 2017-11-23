@@ -27,16 +27,26 @@
  */
 package com.github.jonathanxd.jwiutils.kt
 
+import com.github.jonathanxd.iutils.localization.Locale
 import com.github.jonathanxd.iutils.text.Text
 import com.github.jonathanxd.iutils.text.TextComponent
+import com.github.jonathanxd.iutils.text.converter.TextLocalizer
 
 fun String.asText() = Text.of(this)
+fun String.asSingleText() = Text.single(this)
 fun String.asLocalizableText() = Text.localizable(this)
 fun String.asTextVariable() = Text.variable(this)
 
 fun textOf(str: String) = Text.of(str)
+fun singleTextOf(str: String) = Text.single(str)
 fun localizableText(localization: String) = Text.localizable(localization)
 fun textVariable(variable: String) = Text.variable(variable)
 
 operator fun TextComponent.plus(other: TextComponent): TextComponent = this.append(other)
 operator fun TextComponent.plus(other: String): TextComponent = this.append(Text.single(other))
+
+operator fun TextLocalizer.get(component: TextComponent): String =
+        this.localize(component)
+
+operator fun TextLocalizer.get(component: TextComponent, locale: Locale): String =
+        this.localize(component, locale)

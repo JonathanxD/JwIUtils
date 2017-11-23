@@ -28,6 +28,7 @@
 package com.github.jonathanxd.iutils.text;
 
 import java.util.Map;
+import java.util.Objects;
 
 public final class DecapitalizeComponent implements TextComponent {
     private final TextComponent textComponent;
@@ -52,5 +53,24 @@ public final class DecapitalizeComponent implements TextComponent {
     @Override
     public boolean isEmpty() {
         return this.getTextComponent().isEmpty();
+    }
+
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof DecapitalizeComponent)
+            return Objects.equals(((DecapitalizeComponent) obj).getTextComponent(), this.getTextComponent());
+
+        return super.equals(obj);
+    }
+
+    @Override
+    public int hashCode() {
+        return this.getTextComponent().hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return "Decapitalize[" + this.getTextComponent() + "]";
     }
 }

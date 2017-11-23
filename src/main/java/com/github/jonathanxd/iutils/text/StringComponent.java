@@ -27,6 +27,8 @@
  */
 package com.github.jonathanxd.iutils.text;
 
+import java.util.Objects;
+
 public final class StringComponent implements TextComponent {
     private final String text;
 
@@ -45,5 +47,23 @@ public final class StringComponent implements TextComponent {
     @Override
     public boolean isEmpty() {
         return this.getText().isEmpty();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof StringComponent)
+            return Objects.equals(((StringComponent) obj).getText(), this.getText());
+
+        return super.equals(obj);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.getText());
+    }
+
+    @Override
+    public String toString() {
+        return "String["+this.getText()+"]";
     }
 }

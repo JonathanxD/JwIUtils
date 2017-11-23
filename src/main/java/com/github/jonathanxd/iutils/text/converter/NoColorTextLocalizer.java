@@ -44,11 +44,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-public class NoColorTextLocalize implements TextLocalize {
+public class NoColorTextLocalizer implements TextLocalizer {
     private final LocaleManager localeManager;
     private Locale defaultLocale;
 
-    public NoColorTextLocalize(LocaleManager localeManager, Locale defaultLocale) {
+    public NoColorTextLocalizer(LocaleManager localeManager, Locale defaultLocale) {
         this.localeManager = Objects.requireNonNull(localeManager, "Locale manager cannot be null.");
         this.defaultLocale = Objects.requireNonNull(defaultLocale, "Default locale cannot be null.");
     }
@@ -73,7 +73,7 @@ public class NoColorTextLocalize implements TextLocalize {
 
 
     @Override
-    public String getString(TextComponent textComponent, Map<String, TextComponent> args, Locale locale) {
+    public String localize(TextComponent textComponent, Map<String, TextComponent> args, Locale locale) {
 
         if (textComponent instanceof Color
                 || textComponent instanceof Style)
@@ -83,13 +83,13 @@ public class NoColorTextLocalize implements TextLocalize {
         } else if (textComponent instanceof StringComponent) {
             return ((StringComponent) textComponent).getText();
         } else if (textComponent instanceof CapitalizeComponent) {
-            String s = this.getString(((CapitalizeComponent) textComponent).getTextComponent(), args, locale);
+            String s = this.localize(((CapitalizeComponent) textComponent).getTextComponent(), args, locale);
             if (s.length() == 0)
                 return "";
 
             return Character.toUpperCase(s.charAt(0)) + s.substring(1, s.length());
         } else if (textComponent instanceof DecapitalizeComponent) {
-            String s = this.getString(((DecapitalizeComponent) textComponent).getTextComponent(), args, locale);
+            String s = this.localize(((DecapitalizeComponent) textComponent).getTextComponent(), args, locale);
             if (s.length() == 0)
                 return "";
 
@@ -99,7 +99,7 @@ public class NoColorTextLocalize implements TextLocalize {
             TextComponent component = args.get(variable);
 
             if (component != null)
-                return this.getString(component, args, locale);
+                return this.localize(component, args, locale);
 
             return "$" + ((VariableComponent) textComponent).getVariable();
         } else if (textComponent instanceof LocalizableComponent) {
@@ -122,13 +122,13 @@ public class NoColorTextLocalize implements TextLocalize {
                 localization = this.defaultLocale.getLocalizationManager()
                         .getRequiredLocalization(componentLocalization);
 
-            return this.getString(localization, args, locale);
+            return this.localize(localization, args, locale);
         } else if (textComponent instanceof ArgsAppliedText) {
             ArgsAppliedText argsAppliedText = (ArgsAppliedText) textComponent;
             Map<String, TextComponent> arguments = new HashMap<>(argsAppliedText.getArgs());
             arguments.putAll(args);
 
-            return this.getString(argsAppliedText.getComponent(), arguments, locale);
+            return this.localize(argsAppliedText.getComponent(), arguments, locale);
         }
 
         throw new IllegalArgumentException("Invalid component '" + textComponent + "'!");
@@ -138,7 +138,7 @@ public class NoColorTextLocalize implements TextLocalize {
         StringBuilder builder = new StringBuilder();
 
         for (TextComponent textComponent : text) {
-            builder.append(this.getString(textComponent, variableValues, locale));
+            builder.append(this.localize(textComponent, variableValues, locale));
         }
 
         return builder.toString();
