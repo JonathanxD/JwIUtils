@@ -165,3 +165,106 @@ inline fun <L, R> Either<L, R>.ifRightSide(consumer: (R) -> Unit) =
 inline fun <L, R> Either<L, R>.ifLeftSide(consumer: (L) -> Unit) =
         if (this.isLeft) consumer(this.left)
         else Unit
+
+
+// Specialized
+
+// Boolean
+
+/**
+ * Creates a [EitherObjBoolean] with left side with value.
+ */
+fun <L> leftBooleanObj(left: L): EitherObjBoolean<L> = EitherObjBoolean.left(left)
+
+/**
+ * Creates a [EitherObjBoolean] with right side with value.
+ */
+fun <L> right(right: Boolean): EitherObjBoolean<L> = EitherObjBoolean.right(right)
+
+// Byte
+
+/**
+ * Creates a [EitherObjByte] with left side with value.
+ */
+fun <L> leftByteObj(left: L): EitherObjByte<L> = EitherObjByte.left(left)
+
+/**
+ * Creates a [EitherObjByte] with right side with value.
+ */
+fun <L> right(right: Byte): EitherObjByte<L> = EitherObjByte.right(right)
+
+// Char
+
+/**
+ * Creates a [EitherObjChar] with left side with value.
+ */
+fun <L> leftCharObj(left: L): EitherObjChar<L> = EitherObjChar.left(left)
+
+/**
+ * Creates a [EitherObjChar] with right side with value.
+ */
+fun <L> right(right: Char): EitherObjChar<L> = EitherObjChar.right(right)
+
+// Double
+
+/**
+ * Creates a [EitherObjDouble] with left side with value.
+ */
+fun <L> leftDoubleObj(left: L): EitherObjDouble<L> = EitherObjDouble.left(left)
+
+/**
+ * Creates a [EitherObjDouble] with right side with value.
+ */
+fun <L> right(right: Double): EitherObjDouble<L> = EitherObjDouble.right(right)
+
+// Float
+
+/**
+ * Creates a [EitherObjFloat] with left side with value.
+ */
+fun <L> leftFloatObj(left: L): EitherObjFloat<L> = EitherObjFloat.left(left)
+
+/**
+ * Creates a [EitherObjFloat] with right side with value.
+ */
+fun <L> right(right: Float): EitherObjFloat<L> = EitherObjFloat.right(right)
+
+// Int
+
+/**
+ * Creates a [EitherObjInt] with left side with value.
+ */
+fun <L> leftIntObj(left: L): EitherObjInt<L> = EitherObjInt.left(left)
+
+/**
+ * Creates a [EitherObjInt] with right side with value.
+ */
+fun <L> right(right: Int): EitherObjInt<L> = EitherObjInt.right(right)
+
+// Long
+
+/**
+ * Creates a [EitherObjLong] with left side with value.
+ */
+fun <L> leftLongObj(left: L): EitherObjLong<L> = EitherObjLong.left(left)
+
+/**
+ * Creates a [EitherObjLong] with right side with value.
+ */
+fun <L> right(right: Long): EitherObjLong<L> = EitherObjLong.right(right)
+
+// Short
+
+/**
+ * Creates a [EitherObjShort] with left side with value.
+ */
+fun <L> leftShortObj(left: L): EitherObjShort<L> = EitherObjShort.left(left)
+
+/**
+ * Creates a [EitherObjShort] with right side with value.
+ */
+fun <L> right(right: Short): EitherObjShort<L> = EitherObjShort.right(right)
+
+// All Specialized
+
+// ..Later..
