@@ -94,6 +94,11 @@ public interface ValueHolder {
                 return (obj instanceof Some<?> && Objects.equals(this.getValue(), ((Some) obj).getValue()))
                         || super.equals(obj);
             }
+
+            @Override
+            public String toString() {
+                return "Some[\"" + this.getValue() + "\"]";
+            }
         }
 
         final class None<T> implements ObjectValueHolder<T>, NoneValueHolder {
@@ -121,6 +126,11 @@ public interface ValueHolder {
             @Override
             public boolean equals(Object obj) {
                 return obj instanceof None<?> || super.equals(obj);
+            }
+
+            @Override
+            public String toString() {
+                return "None[]";
             }
         }
     }
@@ -162,6 +172,12 @@ public interface ValueHolder {
                         && Objects.equals(this.getValue(), ((LazyValueHolder.Some) obj).getValue()))
                         || super.equals(obj);
             }
+
+
+            @Override
+            public String toString() {
+                return "SomeLazy[\"" + this.getValue() + "\"]";
+            }
         }
 
         final class None<T> implements LazyValueHolder<T>, NoneValueHolder {
@@ -194,6 +210,11 @@ public interface ValueHolder {
             @Override
             public boolean equals(Object obj) {
                 return obj instanceof LazyValueHolder.None<?> && super.equals(obj);
+            }
+
+            @Override
+            public String toString() {
+                return "NoneLazy[]";
             }
         }
     }
@@ -228,6 +249,11 @@ public interface ValueHolder {
             public boolean equals(Object obj) {
                 return (obj instanceof Some && this.getValue() == ((Some) obj).getValue()) || super.equals(obj);
             }
+
+            @Override
+            public String toString() {
+                return "SomeBoolean[\"" + this.getValue() + "\"]";
+            }
         }
 
         final class None implements BooleanValueHolder, NoneValueHolder {
@@ -254,6 +280,11 @@ public interface ValueHolder {
             @Override
             public boolean equals(Object obj) {
                 return obj instanceof None || super.equals(obj);
+            }
+
+            @Override
+            public String toString() {
+                return "NoneBoolean[]";
             }
         }
     }
@@ -290,6 +321,11 @@ public interface ValueHolder {
                 return (obj instanceof Some && this.getValue() == ((Some) obj).getValue())
                         || super.equals(obj);
             }
+
+            @Override
+            public String toString() {
+                return "SomeByte[\"" + this.getValue() + "\"]";
+            }
         }
 
         final class None implements ByteValueHolder, NoneValueHolder {
@@ -315,6 +351,11 @@ public interface ValueHolder {
             @Override
             public boolean equals(Object obj) {
                 return obj instanceof None || super.equals(obj);
+            }
+
+            @Override
+            public String toString() {
+                return "NoneByte[]";
             }
         }
     }
@@ -351,6 +392,11 @@ public interface ValueHolder {
                 return (obj instanceof Some && this.getValue() == ((Some) obj).getValue())
                         || super.equals(obj);
             }
+
+            @Override
+            public String toString() {
+                return "SomeChar[\"" + this.getValue() + "\"]";
+            }
         }
 
         final class None implements CharValueHolder, NoneValueHolder {
@@ -376,6 +422,11 @@ public interface ValueHolder {
             @Override
             public boolean equals(Object obj) {
                 return obj instanceof None || super.equals(obj);
+            }
+
+            @Override
+            public String toString() {
+                return "NoneChar[]";
             }
         }
     }
@@ -412,6 +463,11 @@ public interface ValueHolder {
                 return (obj instanceof Some && this.getValue() == ((Some) obj).getValue())
                         || super.equals(obj);
             }
+
+            @Override
+            public String toString() {
+                return "SomeDouble[\"" + this.getValue() + "\"]";
+            }
         }
 
         final class None implements DoubleValueHolder, NoneValueHolder {
@@ -437,6 +493,11 @@ public interface ValueHolder {
             @Override
             public boolean equals(Object obj) {
                 return obj instanceof None || super.equals(obj);
+            }
+
+            @Override
+            public String toString() {
+                return "NoneDouble[]";
             }
         }
     }
@@ -472,6 +533,11 @@ public interface ValueHolder {
                 return (obj instanceof Some && this.getValue() == ((Some) obj).getValue())
                         || super.equals(obj);
             }
+
+            @Override
+            public String toString() {
+                return "SomeFloat[\"" + this.getValue() + "\"]";
+            }
         }
 
         final class None implements FloatValueHolder, NoneValueHolder {
@@ -497,6 +563,11 @@ public interface ValueHolder {
             @Override
             public boolean equals(Object obj) {
                 return obj instanceof None || super.equals(obj);
+            }
+
+            @Override
+            public String toString() {
+                return "NoneFloat[]";
             }
         }
     }
@@ -538,6 +609,10 @@ public interface ValueHolder {
                         || super.equals(obj);
             }
 
+            @Override
+            public String toString() {
+                return "SomeInt[\"" + this.getValue() + "\"]";
+            }
         }
 
         final class None implements IntValueHolder, NoneValueHolder {
@@ -564,6 +639,11 @@ public interface ValueHolder {
             @Override
             public boolean equals(Object obj) {
                 return obj instanceof None || super.equals(obj);
+            }
+
+            @Override
+            public String toString() {
+                return "NoneInt[]";
             }
         }
     }
@@ -599,6 +679,11 @@ public interface ValueHolder {
                 return (obj instanceof Some && this.getValue() == ((Some) obj).getValue())
                         || super.equals(obj);
             }
+
+            @Override
+            public String toString() {
+                return "SomeLong[\"" + this.getValue() + "\"]";
+            }
         }
 
         final class None implements LongValueHolder, NoneValueHolder {
@@ -624,6 +709,11 @@ public interface ValueHolder {
             @Override
             public boolean equals(Object obj) {
                 return obj instanceof None || super.equals(obj);
+            }
+
+            @Override
+            public String toString() {
+                return "NoneLong[]";
             }
         }
     }
@@ -659,6 +749,11 @@ public interface ValueHolder {
                 return (obj instanceof Some && this.getValue() == ((Some) obj).getValue())
                         || super.equals(obj);
             }
+
+            @Override
+            public String toString() {
+                return "SomeShort[\"" + this.getValue() + "\"]";
+            }
         }
 
         final class None implements ShortValueHolder, NoneValueHolder {
@@ -684,6 +779,11 @@ public interface ValueHolder {
             @Override
             public boolean equals(Object obj) {
                 return obj instanceof None || super.equals(obj);
+            }
+
+            @Override
+            public String toString() {
+                return "NoneShort[]";
             }
         }
     }
