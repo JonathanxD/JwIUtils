@@ -321,7 +321,7 @@ public final class TypeInfoUtil {
      * Checks if normalized primitive {@code typeInfo} is equal normalized primitive {@code other}. This is used
      * to compare primitive {@link TypeInfo} with a primitive boxed {@link TypeInfo}. Example, this returns {@code true} for
      * {@code isNormalizedEquals(TypeInfo<Boolean>, TypeInfo<boolean>)} (and vice-versa, or with both primitives) but returns false for
-     * {@code isNormalizedEquals(TypeInfo<boolean>, TypeInfo<int>)}. If neither {@code typeInfo} nor {@code other} is primitive, this
+     * {@code isNormalizedEquals(TypeInfo<boolean>, TypeInfo<int>)}. If {@code typeInfo} and {@code other} is not primitive, this
      * method fallback to default equals logic. ({@link TypeInfo#equals(Object)}).
      *
      * This method uses {@link Primitive#typeEquals(Class, Class)} to compare primitive type and boxed primitive type.
@@ -342,7 +342,7 @@ public final class TypeInfoUtil {
         Class<?> typeClass = typeInfo.getTypeClass();
         Class<?> otherTypeClass = other.getTypeClass();
 
-        if (!typeClass.isPrimitive() || !otherTypeClass.isPrimitive())
+        if (!typeClass.isPrimitive() && !otherTypeClass.isPrimitive())
             return typeInfo.equals(other);
 
         return Primitive.typeEquals(typeClass, otherTypeClass);
