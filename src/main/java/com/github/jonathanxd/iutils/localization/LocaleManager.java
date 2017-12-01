@@ -27,6 +27,8 @@
  */
 package com.github.jonathanxd.iutils.localization;
 
+import java.util.Collection;
+
 /**
  * Manages locales.
  */
@@ -48,6 +50,13 @@ public interface LocaleManager {
      * with {@code key}.
      */
     Locale getLocale(String key);
+
+    /**
+     * Gets a unmodifiable view of all registered locales.
+     *
+     * @return Unmodifiable view of all registered locales.
+     */
+    Collection<Locale> getLocales();
 
     /**
      * Gets a required locale, never returns null.

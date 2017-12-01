@@ -27,12 +27,16 @@
  */
 package com.github.jonathanxd.iutils.localization;
 
+import com.github.jonathanxd.iutils.collection.view.ViewCollections;
+
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 public final class MapLocaleManager implements LocaleManager {
 
     private final Map<String, Locale> localeMap = new HashMap<>();
+    private final Collection<Locale> registeredLocale = ViewCollections.readOnlyCollection(this.localeMap.values());
 
     @Override
     public boolean registerLocale(Locale locale) {
@@ -43,5 +47,10 @@ public final class MapLocaleManager implements LocaleManager {
     @Override
     public Locale getLocale(String key) {
         return this.localeMap.get(key);
+    }
+
+    @Override
+    public Collection<Locale> getLocales() {
+        return this.registeredLocale;
     }
 }
