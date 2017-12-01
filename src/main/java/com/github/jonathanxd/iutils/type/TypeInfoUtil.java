@@ -318,6 +318,37 @@ public final class TypeInfoUtil {
     }
 
     /**
+     * Checks if normalized primitive {@code typeInfo} is equal normalized primitive {@code other}. This is used
+     * to compare primitive {@link TypeInfo} with a primitive boxed {@link TypeInfo}. Example, this returns {@code true} for
+     * {@code isNormalizedEquals(TypeInfo<Boolean>, TypeInfo<boolean>)} (and vice-versa, or with both primitives) but returns false for
+     * {@code isNormalizedEquals(TypeInfo<boolean>, TypeInfo<int>)}. If neither {@code typeInfo} nor {@code other} is primitive, this
+     * method fallback to default equals logic. ({@link TypeInfo#equals(Object)}).
+     *
+     * This method uses {@link Primitive#typeEquals(Class, Class)} to compare primitive type and boxed primitive type.
+     *
+     * This method also requires both {@code typeInfo} and {@code other} to be resolved.
+     *
+     * @param typeInfo Primitive type info.
+     * @param other    Other primitive type info.
+     * @return Whether normalized primitive {@code typeInfo} is equal to normalized primitive {@code other}.
+     */
+    public static boolean isNormalizedEquals(TypeInfo<?> typeInfo, TypeInfo<?> other) {
+        if (typeInfo == null || other == null)
+            return typeInfo == other;
+
+        if (!typeInfo.getTypeParameters().isEmpty() || !other.getTypeParameters().isEmpty())
+            return typeInfo.equals(other);
+
+        Class<?> typeClass = typeInfo.getTypeClass();
+        Class<?> otherTypeClass = other.getTypeClass();
+
+        if (!typeClass.isPrimitive() || !otherTypeClass.isPrimitive())
+            return typeInfo.equals(other);
+
+        return Primitive.typeEquals(typeClass, otherTypeClass);
+    }
+
+    /**
      * A class resolver that use a list of class loaders to resolve classes. Resolution operation
      * always return {@code null} when none class loader resolves the class.
      */
