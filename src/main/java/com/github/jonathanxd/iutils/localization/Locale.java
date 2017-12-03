@@ -27,13 +27,12 @@
  */
 package com.github.jonathanxd.iutils.localization;
 
-import com.github.jonathanxd.iutils.string.TextHelper;
-import com.github.jonathanxd.iutils.string.TextParser;
+import com.github.jonathanxd.iutils.string.StringObjHelper;
+import com.github.jonathanxd.iutils.text.TextParser;
 import com.github.jonathanxd.iutils.text.TextComponent;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.file.Path;
@@ -101,7 +100,7 @@ public interface Locale {
 
     /**
      * Loads localizations from resource. The resource should follow the name template: {@code
-     * baseName_localeName.lang} and map template specified in {@link TextHelper#parseStringMap(String)}.
+     * baseName_localeName.lang} and map template specified in {@link StringObjHelper#parseStringMap(String)}.
      * Newline are converted into {@code ,}, so, it is not necessary when newline is present.
      * without initial tags ({@code {}}).
      *

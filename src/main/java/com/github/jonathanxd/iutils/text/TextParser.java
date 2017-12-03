@@ -25,16 +25,9 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.string;
+package com.github.jonathanxd.iutils.text;
 
-import com.github.jonathanxd.iutils.text.ArgsAppliedText;
-import com.github.jonathanxd.iutils.text.CapitalizeComponent;
-import com.github.jonathanxd.iutils.text.DecapitalizeComponent;
-import com.github.jonathanxd.iutils.text.LocalizableComponent;
-import com.github.jonathanxd.iutils.text.StringComponent;
-import com.github.jonathanxd.iutils.text.Text;
-import com.github.jonathanxd.iutils.text.TextComponent;
-import com.github.jonathanxd.iutils.text.VariableComponent;
+import com.github.jonathanxd.iutils.string.StringObjHelper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -56,7 +49,7 @@ public class TextParser {
         receiver = receiver.replace("\n", ",");
 
         Map<String, TextComponent> componentMap = new HashMap<>();
-        Map<Object, Object> map = TextHelper.parseStringMap(receiver, false);
+        Map<Object, Object> map = StringObjHelper.parseStringMap(receiver, false);
 
         for (Map.Entry<Object, Object> entry : map.entrySet()) {
             Object key = entry.getKey();

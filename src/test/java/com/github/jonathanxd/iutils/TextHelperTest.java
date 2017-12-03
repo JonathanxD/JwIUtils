@@ -29,7 +29,7 @@ package com.github.jonathanxd.iutils;
 
 import com.github.jonathanxd.iutils.collection.Collections3;
 import com.github.jonathanxd.iutils.map.MapUtils;
-import com.github.jonathanxd.iutils.string.TextHelper;
+import com.github.jonathanxd.iutils.string.StringObjHelper;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -41,7 +41,7 @@ public class TextHelperTest {
 
     @Test
     public void listTextHelper() {
-        List<Object> objects = TextHelper.parseStringList("[Hello, read, {p=This}, {p=may}, {p=be}, {p=useful}]");
+        List<Object> objects = StringObjHelper.parseStringList("[Hello, read, {p=This}, {p=may}, {p=be}, {p=useful}]");
 
         Assert.assertEquals("Hello", objects.get(0));
         Assert.assertEquals("read", objects.get(1));
@@ -53,7 +53,7 @@ public class TextHelperTest {
 
     @Test
     public void mapTextHelper() {
-        Map<Object, Object> objects = TextHelper.parseStringMap("{Hello=read, v=[This, may, be, useful], y={h=a}}");
+        Map<Object, Object> objects = StringObjHelper.parseStringMap("{Hello=read, v=[This, may, be, useful], y={h=a}}");
 
         Assert.assertEquals("read", objects.get("Hello"));
         Assert.assertEquals(Collections3.listOf("This", "may", "be", "useful"), objects.get("v"));

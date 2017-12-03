@@ -44,7 +44,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.IntStream;
 
-public class TextHelper {
+public class StringObjHelper {
 
     private static final Character MAP_OPEN = '{';
     private static final Character MAP_CLOSE = '}';
@@ -72,7 +72,7 @@ public class TextHelper {
      * @return List with parsed values.
      */
     public static List<Object> parseStringList(String stringList) {
-        return TextHelper.parseStringList(stringList, true);
+        return StringObjHelper.parseStringList(stringList, true);
     }
 
     /**
@@ -92,7 +92,7 @@ public class TextHelper {
      * @return Map with parsed values.
      */
     public static Map<Object, Object> parseStringMap(String stringMap) {
-        return TextHelper.parseStringMap(stringMap, true);
+        return StringObjHelper.parseStringMap(stringMap, true);
     }
 
     /**

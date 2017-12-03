@@ -71,6 +71,20 @@ public interface TextComponent {
         return Text.of(this, Text.of(objects));
     }
 
+    // Prepend
+
+    default TextComponent prepend(TextComponent textComponent) {
+        return Text.of(textComponent, this);
+    }
+
+    default TextComponent prepend(Object o) {
+        return Text.of(o, this);
+    }
+
+    default TextComponent prepend(Object... o) {
+        return Text.of(Text.of(o), this);
+    }
+
     /**
      * Applies component arguments.
      *

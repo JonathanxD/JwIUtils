@@ -27,6 +27,8 @@
  */
 package com.github.jonathanxd.iutils.text;
 
+import com.github.jonathanxd.iutils.collection.Collections3;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -66,6 +68,66 @@ public final class Text implements Iterable<TextComponent>, TextComponent {
 
     public static Text of(Object... objects) {
         return Text.compress(Text.ofUncompressed(objects));
+    }
+
+    public static Text of(Object first) {
+        List<TextComponent> componentList = new ArrayList<>();
+        componentList.add(Text.single(first));
+        return Text.compress(Text.ofUncompressed(componentList));
+    }
+
+    public static Text of(Object first, Object second) {
+        List<TextComponent> componentList = new ArrayList<>();
+        componentList.add(Text.single(first));
+        componentList.add(Text.single(second));
+        return Text.compress(Text.ofUncompressed(componentList));
+    }
+
+    public static Text of(Object first, Object second, Object third) {
+        List<TextComponent> componentList = new ArrayList<>();
+        componentList.add(Text.single(first));
+        componentList.add(Text.single(second));
+        componentList.add(Text.single(third));
+        return Text.compress(Text.ofUncompressed(componentList));
+    }
+
+    public static Text of(Object first, Object second, Object third, Object fourth) {
+        List<TextComponent> componentList = new ArrayList<>();
+        componentList.add(Text.single(first));
+        componentList.add(Text.single(second));
+        componentList.add(Text.single(third));
+        componentList.add(Text.single(fourth));
+        return Text.compress(Text.ofUncompressed(componentList));
+    }
+
+    public static Text of(TextComponent first) {
+        List<TextComponent> componentList = new ArrayList<>();
+        componentList.add(first);
+        return Text.compress(Text.ofUncompressed(componentList));
+    }
+
+    public static Text of(TextComponent first, TextComponent second) {
+        List<TextComponent> componentList = new ArrayList<>();
+        componentList.add(first);
+        componentList.add(second);
+        return Text.compress(Text.ofUncompressed(componentList));
+    }
+
+    public static Text of(TextComponent first, TextComponent second, TextComponent third) {
+        List<TextComponent> componentList = new ArrayList<>();
+        componentList.add(first);
+        componentList.add(second);
+        componentList.add(third);
+        return Text.compress(Text.ofUncompressed(componentList));
+    }
+
+    public static Text of(TextComponent first, TextComponent second, TextComponent third, TextComponent fourth) {
+        List<TextComponent> componentList = new ArrayList<>();
+        componentList.add(first);
+        componentList.add(second);
+        componentList.add(third);
+        componentList.add(fourth);
+        return Text.compress(Text.ofUncompressed(componentList));
     }
 
     /**

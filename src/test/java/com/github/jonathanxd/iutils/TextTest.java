@@ -34,7 +34,7 @@ import com.github.jonathanxd.iutils.localization.LocalizationManager;
 import com.github.jonathanxd.iutils.localization.MapLocaleManager;
 import com.github.jonathanxd.iutils.localization.MapLocalizationManager;
 import com.github.jonathanxd.iutils.map.MapUtils;
-import com.github.jonathanxd.iutils.string.TextParser;
+import com.github.jonathanxd.iutils.text.TextParser;
 import com.github.jonathanxd.iutils.text.CapitalizeComponent;
 import com.github.jonathanxd.iutils.text.Text;
 import com.github.jonathanxd.iutils.text.TextComponent;
