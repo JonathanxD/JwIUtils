@@ -27,19 +27,30 @@
  */
 package com.github.jonathanxd.iutils.string;
 
+import com.github.jonathanxd.iutils.text.ArgsAppliedText;
+import com.github.jonathanxd.iutils.text.CapitalizeComponent;
+import com.github.jonathanxd.iutils.text.DecapitalizeComponent;
+import com.github.jonathanxd.iutils.text.LocalizableComponent;
+import com.github.jonathanxd.iutils.text.StringComponent;
 import com.github.jonathanxd.iutils.text.Text;
 import com.github.jonathanxd.iutils.text.TextComponent;
+import com.github.jonathanxd.iutils.text.VariableComponent;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 /**
  * Parsers localization value into {@link TextComponent}.
  */
 public class TextParser {
+
+    private static final int SINGLE = -1;
+    private static final int VARIABLE = 0;
+    private static final int LOCALIZABLE = 1;
 
     public static Map<String, TextComponent> parseMap(String receiver) {
         receiver = receiver.replace("\n", ",");
@@ -63,7 +74,7 @@ public class TextParser {
                 List<?> list = (List<?>) value;
                 Iterator<?> iterator = list.iterator();
 
-                while(iterator.hasNext()) {
+                while (iterator.hasNext()) {
                     Object o = iterator.next();
                     if (!(o instanceof String))
                         throw new IllegalArgumentException("Only strings are supported" +
@@ -90,13 +101,32 @@ public class TextParser {
         return componentMap;
     }
 
+    /**
+     * Parses {@link TextComponent} from string. Input string should be a Text in form of string ({@link #toString(TextComponent)}).
+     * Variables must start with {@code $} and variable name can only contains valid identifier characters
+     * ({@link Character#isUnicodeIdentifierPart(char)}) (but not {@code $} or {@code #}, using one of them will create a new component).
+     * Localizable text must start with {@code #}, and have same rules as the variable, but can have {@code .} (dot) as part of
+     * localization name.
+     *
+     * Example: {@code Welcome $user_name, #messages.welcome}.
+     *
+     * Localizable texts can be used as global variables, but are not recommended.
+     *
+     * You can also escape the text using {@code \}.
+     *
+     * @param receiver String to parse.
+     * @return Component.
+     */
     public static TextComponent parse(String receiver) {
         List<TextComponent> components = new ArrayList<>();
         char[] chars = receiver.toCharArray();
         boolean lastIsEscape = false;
         boolean isVar = false;
+        boolean isLocalizable = false;
         StringBuilder stringBuilder = new StringBuilder();
-        int index = 0;
+        Consumer<String> addVar = s -> components.add(Text.variable(s));
+        Consumer<String> addLocalizable = s -> components.add(Text.localizable(s));
+        Consumer<String> addSingle = s -> components.add(Text.single(s));
 
         for (char aChar : chars) {
             if (aChar == '\\') {
@@ -106,43 +136,139 @@ public class TextParser {
                 } else {
                     lastIsEscape = true;
                 }
-            } else if (!Character.isUnicodeIdentifierPart(aChar)
-                    && isVar
-                    && !lastIsEscape) {
-                String text = stringBuilder.toString();
-                stringBuilder.setLength(0);
-                components.add(Text.variable(text));
-                isVar = false;
-                stringBuilder.append(aChar);
-            } else if (aChar == '$' && !lastIsEscape) {
-                String text = stringBuilder.toString();
-                stringBuilder.setLength(0);
-
-                if (isVar) {
-                    isVar = false;
-                    components.add(Text.variable(text));
-                } else {
-                    isVar = true;
-                    components.add(Text.of(text));
-                }
             } else {
-                stringBuilder.append(aChar);
+                int component = !lastIsEscape
+                        ? (aChar == '$' ? VARIABLE : aChar == '#' ? LOCALIZABLE : SINGLE)
+                        : SINGLE;
+
+                int currentType = isVar ? VARIABLE : isLocalizable ? LOCALIZABLE : SINGLE;
+
+                if (component != SINGLE || (!TextParser.isIdentifier(aChar, currentType) && !lastIsEscape)) {
+                    String text = stringBuilder.toString();
+                    stringBuilder.setLength(0);
+
+                    if (isLocalizable) {
+                        addLocalizable.accept(text);
+                        isLocalizable = false;
+                    } else if (isVar) {
+                        addVar.accept(text);
+                        isVar = false;
+                    } else {
+                        addSingle.accept(text);
+                    }
+                }
+
+                switch (component) {
+                    case LOCALIZABLE: {
+                        isLocalizable = true;
+                        break;
+                    }
+                    case VARIABLE: {
+                        isVar = true;
+                        break;
+                    }
+                    default: {
+                        stringBuilder.append(aChar);
+                        break;
+                    }
+                }
             }
-            ++index;
         }
 
         if (stringBuilder.length() != 0) {
             String text = stringBuilder.toString();
             stringBuilder.setLength(0);
             if (isVar) {
-                components.add(Text.variable(text));
+                addVar.accept(text);
+            } else if (isLocalizable) {
+                addLocalizable.accept(text);
             } else {
-                components.add(Text.of(text));
+                addSingle.accept(text);
             }
         }
 
         return Text.of(components);
     }
 
+    /**
+     * Creates a plain string from {@code textComponent}. Variables starts with {@code $} and localizable component to {@code #}.
+     * {@link CapitalizeComponent}, {@link DecapitalizeComponent} and {@link ArgsAppliedText} are
+     * not convertible, so this method will simple unbox and convert them.
+     *
+     * @param textComponent Component to convert to plain string.
+     * @return Plain serialized string of component.
+     */
+    public static String toString(TextComponent textComponent) {
+        StringBuilder sb = new StringBuilder();
+        TextParser.toString(textComponent, sb);
+        return sb.toString();
+    }
+
+    /**
+     * Creates a plain string from {@code textComponent}. Variables starts with {@code $} and localizable component to {@code #}.
+     * {@link CapitalizeComponent}, {@link DecapitalizeComponent} and {@link ArgsAppliedText} are
+     * not convertible, so this method will simple unbox and convert them.
+     *
+     * @param textComponent Component to convert to plain string.
+     * @param sb            String buffer to put result characters.
+     * @return Plain serialized string of component.
+     */
+    public static void toString(TextComponent textComponent, StringBuilder sb) {
+
+        if (textComponent instanceof Text) {
+            Text text = (Text) textComponent;
+            for (TextComponent component : text.getComponents()) {
+                TextParser.toString(component, sb);
+            }
+        } else if (textComponent instanceof CapitalizeComponent) {
+            TextParser.toString(((CapitalizeComponent) textComponent).getTextComponent(), sb);
+        } else if (textComponent instanceof DecapitalizeComponent) {
+            TextParser.toString(((DecapitalizeComponent) textComponent).getTextComponent(), sb);
+        } else if (textComponent instanceof ArgsAppliedText) {
+            TextParser.toString(((ArgsAppliedText) textComponent).getComponent(), sb);
+        } else if (textComponent instanceof StringComponent) {
+            appendEscaped(((StringComponent) textComponent).getText(), sb);
+        } else if (textComponent instanceof VariableComponent) {
+            appendVariableEscaped(((VariableComponent) textComponent).getVariable(), sb);
+        } else if (textComponent instanceof LocalizableComponent) {
+            appendLocalizableEscaped(((LocalizableComponent) textComponent).getLocalization(), sb);
+        } else {
+            throw new UnsupportedOperationException("Cannot convert component: '" + textComponent + "'!");
+        }
+
+    }
+
+    private static void appendEscaped(String s, StringBuilder sb) {
+        for (char c : s.toCharArray()) {
+            if (c == '$' || c == '#')
+                sb.append('\\');
+
+            sb.append(c);
+        }
+    }
+
+    private static void appendVariableEscaped(String s, StringBuilder sb) {
+        for (char c : s.toCharArray()) {
+            if (c == '#')
+                sb.append('\\');
+
+            sb.append(c);
+        }
+    }
+
+    private static void appendLocalizableEscaped(String s, StringBuilder sb) {
+        for (char c : s.toCharArray()) {
+            if (c == '$')
+                sb.append('\\');
+
+            sb.append(c);
+        }
+    }
+
+    private static boolean isIdentifier(char ch, int type) {
+        return (Character.isUnicodeIdentifierPart(ch)
+                || (ch == '.' && type == LOCALIZABLE))
+                && (ch != '$' && ch != '#');
+    }
 
 }

@@ -34,6 +34,7 @@ import com.github.jonathanxd.iutils.localization.LocalizationManager;
 import com.github.jonathanxd.iutils.localization.MapLocaleManager;
 import com.github.jonathanxd.iutils.localization.MapLocalizationManager;
 import com.github.jonathanxd.iutils.map.MapUtils;
+import com.github.jonathanxd.iutils.string.TextParser;
 import com.github.jonathanxd.iutils.text.CapitalizeComponent;
 import com.github.jonathanxd.iutils.text.Text;
 import com.github.jonathanxd.iutils.text.TextComponent;
@@ -48,6 +49,22 @@ import org.junit.Test;
 import java.nio.file.Paths;
 
 public class TextTest {
+
+    @Test
+    public void parseText() {
+        String txt = "Hello $player, #message.welcome$a#b";
+
+        TextComponent parse = TextParser.parse(txt);
+
+        Assert.assertEquals(
+                Text.of("Hello ",
+                        Text.variable("player"), ", ",
+                        Text.localizable("message.welcome"),
+                        Text.variable("a"),
+                        Text.localizable("b")),
+                parse
+        );
+    }
 
     @Test
     public void textTest() {
