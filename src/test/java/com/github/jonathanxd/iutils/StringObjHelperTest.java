@@ -37,7 +37,7 @@ import org.junit.Test;
 import java.util.List;
 import java.util.Map;
 
-public class TextHelperTest {
+public class StringObjHelperTest {
 
     @Test
     public void listTextHelper() {

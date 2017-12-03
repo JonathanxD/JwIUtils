@@ -71,6 +71,10 @@ public interface TextComponent {
         return Text.of(this, Text.of(objects));
     }
 
+    default TextComponent append(Object o) {
+        return Text.of(this, o);
+    }
+
     // Prepend
 
     default TextComponent prepend(TextComponent textComponent) {

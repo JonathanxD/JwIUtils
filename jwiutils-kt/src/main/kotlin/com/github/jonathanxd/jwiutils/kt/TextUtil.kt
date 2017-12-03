@@ -30,20 +30,56 @@ package com.github.jonathanxd.jwiutils.kt
 import com.github.jonathanxd.iutils.localization.Locale
 import com.github.jonathanxd.iutils.text.Text
 import com.github.jonathanxd.iutils.text.TextComponent
+import com.github.jonathanxd.iutils.text.TextUtil
 import com.github.jonathanxd.iutils.text.converter.TextLocalizer
 
-fun String.asText() = Text.of(this)
-fun String.asSingleText() = Text.single(this)
+/**
+ * Creates a string text component.
+ */
+fun String.asText() = Text.single(this)
+
+/**
+ * Parses to text representation using [TextUtil.parse].
+ */
+fun String.toText() = TextUtil.parse(this)
+
+/**
+ * Creates a localizable component.
+ */
 fun String.asLocalizableText() = Text.localizable(this)
+
+/**
+ * Creates a variable component.
+ */
 fun String.asTextVariable() = Text.variable(this)
 
-fun textOf(str: String) = Text.of(str)
-fun singleTextOf(str: String) = Text.single(str)
+/**
+ * Creates a text representation and apply [args] to it.
+ */
+fun String.applyTextArgs(args: Map<String, TextComponent>) = this.toText().apply(args)
+
+/**
+ * Creates a string text component.
+ */
+fun textOf(str: String) = Text.single(str)
+
+/**
+ * Creates a text component from string representation.
+ */
+fun parseText(str: String) = TextUtil.parse(str)
+
+/**
+ * Creates a localizable component.
+ */
 fun localizableText(localization: String) = Text.localizable(localization)
-fun textVariable(variable: String) = Text.variable(variable)
+
+/**
+ * Creates a variable component.
+ */
+fun variableText(variable: String) = Text.variable(variable)
 
 operator fun TextComponent.plus(other: TextComponent): TextComponent = this.append(other)
-operator fun TextComponent.plus(other: String): TextComponent = this.append(Text.single(other))
+operator fun TextComponent.plus(other: Any): TextComponent = this.append(other)
 
 operator fun TextLocalizer.get(component: TextComponent): String =
         this.localize(component)

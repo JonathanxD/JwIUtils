@@ -39,7 +39,7 @@ import java.util.function.Consumer;
 /**
  * Parsers localization value into {@link TextComponent}.
  */
-public class TextParser {
+public class TextUtil {
 
     private static final int SINGLE = -1;
     private static final int VARIABLE = 0;
@@ -62,7 +62,7 @@ public class TextParser {
             TextComponent newComponent = null;
 
             if (value instanceof String) {
-                newComponent = TextParser.parse((String) value);
+                newComponent = TextUtil.parse((String) value);
             } else if (value instanceof List<?>) {
                 List<?> list = (List<?>) value;
                 Iterator<?> iterator = list.iterator();
@@ -76,9 +76,9 @@ public class TextParser {
                     String s = o + (iterator.hasNext() ? "\n" : "");
 
                     if (newComponent == null)
-                        newComponent = TextParser.parse(s);
+                        newComponent = TextUtil.parse(s);
                     else
-                        newComponent = newComponent.append(TextParser.parse(s));
+                        newComponent = newComponent.append(TextUtil.parse(s));
                 }
 
             } else {
@@ -136,7 +136,7 @@ public class TextParser {
 
                 int currentType = isVar ? VARIABLE : isLocalizable ? LOCALIZABLE : SINGLE;
 
-                if (component != SINGLE || (!TextParser.isIdentifier(aChar, currentType) && !lastIsEscape)) {
+                if (component != SINGLE || (!TextUtil.isIdentifier(aChar, currentType) && !lastIsEscape)) {
                     String text = stringBuilder.toString();
                     stringBuilder.setLength(0);
 
@@ -193,7 +193,7 @@ public class TextParser {
      */
     public static String toString(TextComponent textComponent) {
         StringBuilder sb = new StringBuilder();
-        TextParser.toString(textComponent, sb);
+        TextUtil.toString(textComponent, sb);
         return sb.toString();
     }
 
@@ -211,14 +211,14 @@ public class TextParser {
         if (textComponent instanceof Text) {
             Text text = (Text) textComponent;
             for (TextComponent component : text.getComponents()) {
-                TextParser.toString(component, sb);
+                TextUtil.toString(component, sb);
             }
         } else if (textComponent instanceof CapitalizeComponent) {
-            TextParser.toString(((CapitalizeComponent) textComponent).getTextComponent(), sb);
+            TextUtil.toString(((CapitalizeComponent) textComponent).getTextComponent(), sb);
         } else if (textComponent instanceof DecapitalizeComponent) {
-            TextParser.toString(((DecapitalizeComponent) textComponent).getTextComponent(), sb);
+            TextUtil.toString(((DecapitalizeComponent) textComponent).getTextComponent(), sb);
         } else if (textComponent instanceof ArgsAppliedText) {
-            TextParser.toString(((ArgsAppliedText) textComponent).getComponent(), sb);
+            TextUtil.toString(((ArgsAppliedText) textComponent).getComponent(), sb);
         } else if (textComponent instanceof StringComponent) {
             appendEscaped(((StringComponent) textComponent).getText(), sb);
         } else if (textComponent instanceof VariableComponent) {
@@ -241,6 +241,7 @@ public class TextParser {
     }
 
     private static void appendVariableEscaped(String s, StringBuilder sb) {
+        sb.append('$');
         for (char c : s.toCharArray()) {
             if (c == '#')
                 sb.append('\\');
@@ -250,6 +251,7 @@ public class TextParser {
     }
 
     private static void appendLocalizableEscaped(String s, StringBuilder sb) {
+        sb.append('#');
         for (char c : s.toCharArray()) {
             if (c == '$')
                 sb.append('\\');

@@ -34,7 +34,7 @@ import com.github.jonathanxd.iutils.localization.LocalizationManager;
 import com.github.jonathanxd.iutils.localization.MapLocaleManager;
 import com.github.jonathanxd.iutils.localization.MapLocalizationManager;
 import com.github.jonathanxd.iutils.map.MapUtils;
-import com.github.jonathanxd.iutils.text.TextParser;
+import com.github.jonathanxd.iutils.text.TextUtil;
 import com.github.jonathanxd.iutils.text.CapitalizeComponent;
 import com.github.jonathanxd.iutils.text.Text;
 import com.github.jonathanxd.iutils.text.TextComponent;
@@ -51,10 +51,26 @@ import java.nio.file.Paths;
 public class TextTest {
 
     @Test
+    public void textAsString() {
+        Text text = Text.of("Hello ", Text.variable("player"), ", ",
+                Text.localizable("message.welcome"), Text.variable("a"),
+                Text.localizable("b"));
+
+        String gen = TextUtil.toString(text);
+
+        String txt = "Hello $player, #message.welcome$a#b";
+
+        TextComponent parse = TextUtil.parse(txt);
+
+        Assert.assertEquals(txt, gen);
+        Assert.assertEquals(text, parse);
+    }
+
+    @Test
     public void parseText() {
         String txt = "Hello $player, #message.welcome$a#b";
 
-        TextComponent parse = TextParser.parse(txt);
+        TextComponent parse = TextUtil.parse(txt);
 
         Assert.assertEquals(
                 Text.of("Hello ",

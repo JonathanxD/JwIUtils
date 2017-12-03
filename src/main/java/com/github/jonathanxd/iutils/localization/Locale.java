@@ -28,7 +28,7 @@
 package com.github.jonathanxd.iutils.localization;
 
 import com.github.jonathanxd.iutils.string.StringObjHelper;
-import com.github.jonathanxd.iutils.text.TextParser;
+import com.github.jonathanxd.iutils.text.TextUtil;
 import com.github.jonathanxd.iutils.text.TextComponent;
 
 import java.io.BufferedReader;
@@ -87,7 +87,7 @@ public interface Locale {
             for (Map.Entry<Object, Object> objectObjectEntry : properties.entrySet()) {
                 this.getLocalizationManager().registerLocalization(
                         (String) objectObjectEntry.getKey(),
-                        TextParser.parse((String) objectObjectEntry.getValue())
+                        TextUtil.parse((String) objectObjectEntry.getValue())
                 );
             }
 
@@ -124,7 +124,7 @@ public interface Locale {
                     .filter(c -> !c.isEmpty())
                     .collect(Collectors.joining("\n"));
 
-            Map<String, TextComponent> map = TextParser.parseMap(s);
+            Map<String, TextComponent> map = TextUtil.parseMap(s);
 
             for (Map.Entry<String, TextComponent> entry : map.entrySet()) {
                 this.getLocalizationManager().registerLocalization(entry.getKey(), entry.getValue());
