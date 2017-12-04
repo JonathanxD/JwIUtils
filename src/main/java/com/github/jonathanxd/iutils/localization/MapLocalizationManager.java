@@ -35,7 +35,6 @@ import java.util.Map;
 public final class MapLocalizationManager implements LocalizationManager {
     private final Map<String, TextComponent> componentMap = new HashMap<>();
 
-
     @Override
     public boolean registerLocalization(String key, TextComponent text) {
         this.componentMap.put(key, text);

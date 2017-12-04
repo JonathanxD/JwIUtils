@@ -34,11 +34,11 @@ import com.github.jonathanxd.iutils.localization.LocalizationManager;
 import com.github.jonathanxd.iutils.localization.MapLocaleManager;
 import com.github.jonathanxd.iutils.localization.MapLocalizationManager;
 import com.github.jonathanxd.iutils.map.MapUtils;
-import com.github.jonathanxd.iutils.text.TextUtil;
 import com.github.jonathanxd.iutils.text.CapitalizeComponent;
 import com.github.jonathanxd.iutils.text.Text;
 import com.github.jonathanxd.iutils.text.TextComponent;
-import com.github.jonathanxd.iutils.text.converter.NoColorTextLocalizer;
+import com.github.jonathanxd.iutils.text.TextUtil;
+import com.github.jonathanxd.iutils.text.converter.DefaultTextLocalizer;
 import com.github.jonathanxd.iutils.text.converter.TextLocalizer;
 import com.github.jonathanxd.iutils.text.dynamic.DynamicGenerator;
 import com.github.jonathanxd.iutils.text.dynamic.Section;
@@ -104,7 +104,7 @@ public class TextTest {
                 Text.localizable("players")
         );
 
-        TextLocalizer localize = new NoColorTextLocalizer(localeManager, enUs);
+        TextLocalizer localize = new DefaultTextLocalizer(localeManager, enUs);
 
         TextComponent kill = Text.localizable("message").apply(MapUtils.mapOf(
                 "killer", Text.of("ProPlayer"),
@@ -164,7 +164,7 @@ public class TextTest {
 
         Assert.assertNotEquals(Text.ofUncompressed(Text.ofUncompressed("A", "B")), firstUncompressed);
         Assert.assertEquals(Text.of(Text.of("A", "B")), firstCompressed);
-        }
+    }
 
     @Test
     public void testCompress2() {
@@ -184,6 +184,11 @@ public class TextTest {
         Text of = Text.of("A", "B", variable, "C");
 
         Assert.assertEquals(Text.of("AB", variable, "C"), of);
+    }
+
+    public interface Stub {
+        @Section({"message", "notify"})
+        TextComponent getNotify(@Named("user") String user);
     }
 
     private static class EnUsLocale implements Locale {
@@ -214,10 +219,5 @@ public class TextTest {
         public LocalizationManager getLocalizationManager() {
             return this.manager;
         }
-    }
-
-    public interface Stub {
-        @Section({"message", "notify"})
-        TextComponent getNotify(@Named("user") String user);
     }
 }

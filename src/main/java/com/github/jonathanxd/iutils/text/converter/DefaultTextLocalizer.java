@@ -44,33 +44,25 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-public class NoColorTextLocalizer implements TextLocalizer {
-    private final LocaleManager localeManager;
-    private Locale defaultLocale;
-
-    public NoColorTextLocalizer(LocaleManager localeManager, Locale defaultLocale) {
-        this.localeManager = Objects.requireNonNull(localeManager, "Locale manager cannot be null.");
-        this.defaultLocale = Objects.requireNonNull(defaultLocale, "Default locale cannot be null.");
+/**
+ * Default text localizer.
+ *
+ * This localizer does not support colors, but can be safely extended, the localizer function is
+ * {@link #localize(TextComponent, Map, Locale)}, so you can override it and handle color components, falling
+ * back to {@code super} implementation when a non-color component is found. The function use recursion, then
+ * color parsing through function override is safe.
+ */
+public class DefaultTextLocalizer extends AbstractTextLocalizer {
+    public DefaultTextLocalizer(LocaleManager localeManager,
+                                Locale defaultLocale,
+                                Locale locale) {
+        super(localeManager, defaultLocale, locale);
     }
 
-    @Override
-    public Locale getDefaultLocale() {
-        return this.defaultLocale;
+    public DefaultTextLocalizer(LocaleManager localeManager,
+                                Locale defaultLocale) {
+        this(localeManager, defaultLocale, defaultLocale);
     }
-
-    @Override
-    public LocaleManager getLocaleManager() {
-        return this.localeManager;
-    }
-
-    @Override
-    public Locale setDefaultLocale(Locale locale) {
-        Objects.requireNonNull(locale, "Default locale cannot be null.");
-        Locale old = this.defaultLocale;
-        this.defaultLocale = locale;
-        return old;
-    }
-
 
     @Override
     public String localize(TextComponent textComponent, Map<String, TextComponent> args, Locale locale) {
@@ -107,19 +99,21 @@ public class NoColorTextLocalizer implements TextLocalizer {
             String componentLocalization = localizableComponent.getLocalization();
 
             String localeStr = localizableComponent.getLocale();
-            Locale localLocale = localeStr == null
-                    ? this.defaultLocale
-                    : this.localeManager.getRequiredLocale(localeStr);
+            Locale localLocale = localeStr != null
+                    ? this.getLocaleManager().getRequiredLocale(localeStr)
+                    : null;
+
+            Locale toUse = locale != null ? locale : localLocale != null ? localLocale : this.getLocale();
 
             TextComponent localization =
-                    locale.getLocalizationManager().getLocalization(componentLocalization);
+                    toUse.getLocalizationManager().getLocalization(componentLocalization);
+
+            Locale current = this.getLocale();
+            if (localization == null && toUse != current)
+                current.getLocalizationManager().getLocalization(componentLocalization);
 
             if (localization == null)
-                localLocale.getLocalizationManager()
-                        .getLocalization(componentLocalization);
-
-            if (localization == null)
-                localization = this.defaultLocale.getLocalizationManager()
+                localization = this.getDefaultLocale().getLocalizationManager()
                         .getRequiredLocalization(componentLocalization);
 
             return this.localize(localization, args, locale);

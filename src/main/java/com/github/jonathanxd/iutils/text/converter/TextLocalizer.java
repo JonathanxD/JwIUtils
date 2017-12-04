@@ -54,7 +54,8 @@ public interface TextLocalizer {
     Locale getDefaultLocale();
 
     /**
-     * Sets default locale to be used in translation.
+     * Sets default locale to be used in translation, this locale is also used as a fallback when text cannot
+     * be localized with {@link #getLocale() current locale}.
      *
      * @param locale New default locale.
      * @return Old locale.
@@ -62,36 +63,51 @@ public interface TextLocalizer {
     Locale setDefaultLocale(Locale locale);
 
     /**
-     * Localizes {@code textComponent} to {@link #getDefaultLocale() default locale}.
+     * Gets current locale.
      *
-     * Uses default locale.
+     * @return Current locale.
+     */
+    Locale getLocale();
+
+    /**
+     * Sets current locale to be used in translation.
+     *
+     * @param locale New locale.
+     * @return Old locale.
+     */
+    Locale setLocale(Locale locale);
+
+    /**
+     * Localizes {@code textComponent} to {@link #getLocale() current locale}.
+     *
+     * Uses current locale.
      *
      * @param textComponent Text component.
      * @return String of text component.
      */
     default String localize(TextComponent textComponent) {
-        return this.localize(textComponent, this.getDefaultLocale());
+        return this.localize(textComponent, (Locale) null);
     }
 
     /**
-     * Localizes {@code textComponent} to {@link #getDefaultLocale() default locale}.
+     * Localizes {@code textComponent} to {@link #getLocale() current locale}.
      *
-     * Uses default locale.
+     * Uses current locale.
      *
      * @param textComponent Text component.
      * @param args          Values of text variables.
      * @return String of text component.
      */
     default String localize(TextComponent textComponent, Map<String, TextComponent> args) {
-        return this.localize(textComponent, args, this.getDefaultLocale());
+        return this.localize(textComponent, args, null);
     }
 
     /**
      * Localizes {@code textComponent} to {@code locale}.
      *
-     * If text cannot be localized using {@code locale}, default locale will be used, or the locale
-     * defined by component, if component defined a locale, but text cannot be localized, default
-     * locale is used.
+     * If text cannot be localized using {@code locale}, current locale will be used, or the locale
+     * defined by component. If component defined a locale, but text cannot be localized, current
+     * locale is used, if current locale does localize the text, default locale is used.
      *
      * @param textComponent Text component.
      * @param locale        Locale to be used to localize text.
@@ -104,9 +120,9 @@ public interface TextLocalizer {
     /**
      * Localizes {@code textComponent} to {@code locale}.
      *
-     * If text cannot be localized using {@code locale}, default locale will be used, or the locale
-     * defined by component, if component defined a locale, but text cannot be localized, default
-     * locale is used.
+     * If text cannot be localized using {@code locale}, current locale will be used, or the locale
+     * defined by component. If component defined a locale, but text cannot be localized, current
+     * locale is used, if current locale does localize the text, default locale is used.
      *
      * @param textComponent Text component.
      * @param args          Values of text variables.
