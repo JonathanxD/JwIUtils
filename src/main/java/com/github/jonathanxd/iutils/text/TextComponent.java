@@ -93,7 +93,7 @@ public interface TextComponent {
      * Applies component arguments.
      *
      * @param args Arguments to apply.
-     * @return New text component with applied arguments, or same if this compónent does not have
+     * @return New text component with applied arguments, or same if this component does not have
      * arguments.
      */
     default TextComponent apply(Map<String, TextComponent> args) {

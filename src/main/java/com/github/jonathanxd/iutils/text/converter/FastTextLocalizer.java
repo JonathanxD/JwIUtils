@@ -29,6 +29,8 @@ package com.github.jonathanxd.iutils.text.converter;
 
 import com.github.jonathanxd.iutils.localization.Locale;
 import com.github.jonathanxd.iutils.localization.LocaleManager;
+import com.github.jonathanxd.iutils.recursion.Element;
+import com.github.jonathanxd.iutils.recursion.Elements;
 import com.github.jonathanxd.iutils.text.ArgsAppliedText;
 import com.github.jonathanxd.iutils.text.CapitalizeComponent;
 import com.github.jonathanxd.iutils.text.Color;
@@ -40,7 +42,6 @@ import com.github.jonathanxd.iutils.text.Text;
 import com.github.jonathanxd.iutils.text.TextComponent;
 import com.github.jonathanxd.iutils.text.VariableComponent;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
@@ -51,29 +52,29 @@ import java.util.function.Function;
  * This localizer does not use recursion and is final because is not intended for inheritance. Color
  * support is available through function.
  */
-public final class FastColoredTextLocalizer extends AbstractTextLocalizer {
+public final class FastTextLocalizer extends AbstractTextLocalizer {
 
     private final Function<Color, TextComponent> colorTransformer;
     private final Function<Style, TextComponent> styleTransformer;
 
-    public FastColoredTextLocalizer(LocaleManager localeManager,
-                                    Locale defaultLocale,
-                                    Locale locale,
-                                    Function<Color, TextComponent> colorTransformer,
-                                    Function<Style, TextComponent> styleTransformer) {
+    public FastTextLocalizer(LocaleManager localeManager,
+                             Locale defaultLocale,
+                             Locale locale,
+                             Function<Color, TextComponent> colorTransformer,
+                             Function<Style, TextComponent> styleTransformer) {
         super(localeManager, defaultLocale, locale);
         this.colorTransformer = colorTransformer;
         this.styleTransformer = styleTransformer;
     }
 
-    public FastColoredTextLocalizer(LocaleManager localeManager,
-                                    Locale defaultLocale,
-                                    Locale locale) {
+    public FastTextLocalizer(LocaleManager localeManager,
+                             Locale defaultLocale,
+                             Locale locale) {
         this(localeManager, defaultLocale, locale, c -> Text.single(""), s -> Text.single(""));
     }
 
-    public FastColoredTextLocalizer(LocaleManager localeManager,
-                                    Locale defaultLocale) {
+    public FastTextLocalizer(LocaleManager localeManager,
+                             Locale defaultLocale) {
         this(localeManager, defaultLocale, defaultLocale);
     }
 
@@ -99,6 +100,7 @@ public final class FastColoredTextLocalizer extends AbstractTextLocalizer {
         Elements<TextComponent> components = new Elements<>();
         components.first = new Element<>(textComponent);
         int nextMode = NORMAL;
+        Map<TextComponent, Map<String, TextComponent>> privateArgs = new HashMap<>();
 
         Element<TextComponent> elem;
         while ((elem = components.nextElement()) != null) {
@@ -126,16 +128,32 @@ public final class FastColoredTextLocalizer extends AbstractTextLocalizer {
                 }
                 result.append(s);
             } else if (next instanceof CapitalizeComponent) {
-                components.insert(new Element<>(((CapitalizeComponent) next).getTextComponent()));
+                TextComponent component = ((CapitalizeComponent) next).getTextComponent();
+
+                if (privateArgs.containsKey(next))
+                    privateArgs.put(component, privateArgs.get(next));
+
+                components.insert(new Element<>(component));
                 nextMode = UPPER;
             } else if (next instanceof DecapitalizeComponent) {
-                components.insert(new Element<>(((DecapitalizeComponent) next).getTextComponent()));
+                TextComponent component = ((DecapitalizeComponent) next).getTextComponent();
+
+                if (privateArgs.containsKey(next))
+                    privateArgs.put(component, privateArgs.get(next));
+
+                components.insert(new Element<>(component));
                 nextMode = LOWER;
             } else if (next instanceof VariableComponent) {
                 String variable = ((VariableComponent) next).getVariable();
                 TextComponent component = args.get(variable);
 
+                if (component == null && privateArgs.containsKey(next))
+                    component = privateArgs.get(next).get(variable);
+
                 if (component != null) {
+                    if (privateArgs.containsKey(next))
+                        privateArgs.put(component, privateArgs.get(next));
+
                     components.insert(new Element<>(component)); // Capitalize or decapitalize normally
                 } else {
                     components.insert(new Element<>(Text.single("$" + variable)));
@@ -162,17 +180,34 @@ public final class FastColoredTextLocalizer extends AbstractTextLocalizer {
                     localization = this.getDefaultLocale().getLocalizationManager()
                             .getRequiredLocalization(componentLocalization);
 
+                if (privateArgs.containsKey(next))
+                    privateArgs.put(localization, privateArgs.get(next));
+
                 components.insert(new Element<>(localization));
             } else if (next instanceof ArgsAppliedText) {
                 ArgsAppliedText argsAppliedText = (ArgsAppliedText) next;
-                Map<String, TextComponent> tc = new HashMap<>(argsAppliedText.getArgs());
-                tc.putAll(args);
                 TextComponent component = argsAppliedText.getComponent();
-                this.localize(component, tc, locale, result);
+                Map<String, TextComponent> textArgs = new HashMap<>();
+
+                if (privateArgs.containsKey(next))
+                    textArgs.putAll(privateArgs.get(next));
+
+                textArgs.putAll(argsAppliedText.getArgs());
+
+                privateArgs.put(component, textArgs);
+                components.insert(new Element<>(component));
             } else if (next instanceof Text) {
                 Element<TextComponent> element = null;
                 Element<TextComponent> last = null;
+                Map<String, TextComponent> privateArgsF = null;
+
+                if (privateArgs.containsKey(next))
+                    privateArgsF = privateArgs.get(next);
+
                 for (TextComponent component : ((Text) next).getComponents()) {
+                    if (privateArgsF != null)
+                        privateArgs.put(component, privateArgsF);
+
                     Element<TextComponent> toSet = new Element<>(component);
                     if (element == null) {
                         element = toSet;
@@ -189,53 +224,14 @@ public final class FastColoredTextLocalizer extends AbstractTextLocalizer {
             } else {
                 throw new IllegalArgumentException("Invalid component: '"+next+"'!");
             }
-        }
 
+            privateArgs.remove(next);
+        }
 
     }
 
     static final int NORMAL = 0;
     static final int UPPER = 1;
     static final int LOWER = 2;
-
-    final static class Element<E> {
-        final E value;
-        Element<E> next;
-
-        Element(E value) {
-            this.value = value;
-        }
-
-    }
-
-    final static class Elements<E> {
-        Element<E> first;
-
-        void insert(Element<E> eElement) {
-            this.insert(eElement, eElement);
-        }
-
-        void insert(Element<E> eElement, Element<E> end) {
-            if (end.next != null)
-                throw new IllegalArgumentException("Element to insert has a next element");
-
-            if (first == null) {
-                first = eElement;
-            } else {
-                Element<E> f = first;
-                first = end;
-                end.next = f;
-            }
-        }
-
-        Element<E> nextElement() {
-            if (first != null) {
-                Element<E> elem = first;
-                this.first = first.next;
-                return elem;
-            }
-            return null;
-        }
-    }
 
 }

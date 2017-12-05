@@ -27,17 +27,21 @@
  */
 package com.github.jonathanxd.iutils.text;
 
-import com.github.jonathanxd.iutils.collection.Collections3;
+import com.github.jonathanxd.iutils.function.UnaryOperators;
+import com.github.jonathanxd.iutils.recursion.Element;
+import com.github.jonathanxd.iutils.recursion.Elements;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Spliterator;
 import java.util.function.Consumer;
+import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -133,7 +137,7 @@ public final class Text implements Iterable<TextComponent>, TextComponent {
     /**
      * Tries to compress {@code text}, for example, a text {@code Text(Text(String("A")),
      * Text(String("B")))}, will be compressed into a single sequence of text: {@code
-     * Text(String("A"), String("B"), String("C")}, allowing Garbage collector to collect
+     * Text(String("A"), String("B"))}, allowing Garbage collector to collect
      * unnecessary instances, this is automatically applied to inputs comping from {@link
      * #of(Object...)} and {@link #of(List)}, also other components may be compressed, because
      * {@link TextComponent} is (and must be) immutable, instances can be reused instead of using a
@@ -144,86 +148,132 @@ public final class Text implements Iterable<TextComponent>, TextComponent {
      * @return Compressed text, or {@code text} if cannot be compressed.
      */
     public static Text compress(Text text) {
-        return Text.compress(text, new ArrayList<>());
+        return Text.compress0(text);
     }
 
-    private static Text compress(Text text, List<TextComponent> compressed) {
-        List<TextComponent> toCompress = text.getComponents();
+    private static Text compress0(Text text) {
+        List<TextComponent> compressed = new ArrayList<>();
 
-        while (toCompress.size() == 1 && toCompress.get(0) instanceof Text) {
-            text = (Text) toCompress.get(0);
-            toCompress = text.getComponents();
+        while (text.getComponents().size() == 1 && text.getComponents().get(0) instanceof Text) {
+            text = (Text) text.getComponents().get(0);
         }
 
-        compressed = Text.compress(toCompress, compressed);
+        Elements<TextComponent> components = new Elements<>();
+        components.first = new Element<>(text);
+        Map<TextComponent, UnaryOperator<TextComponent>> funcs = new HashMap<>();
 
-        if (Objects.equals(toCompress, compressed))
-            return text;
+        Element<TextComponent> elem;
+        StringBuilder buffer = new StringBuilder();
+
+        while ((elem = components.nextElement()) != null) {
+            TextComponent component = elem.value;
+
+            boolean cnt_ = false;
+            for (TextComponent textComponent : compressed) {
+                if (textComponent.equals(component) && textComponent != component) {
+                    compressed.add(apply(funcs, component, textComponent));
+                    cnt_ = true;
+                    break;
+                }
+            }
+
+            if (cnt_)
+                continue;
+
+            if (component instanceof Text) {
+                List<TextComponent> componentList = ((Text) component).getComponents();
+                Element<TextComponent> celem = null;
+                Element<TextComponent> clast = null;
+                UnaryOperator<TextComponent> func = funcs.get(component);
+
+                for (TextComponent textComponent : componentList) {
+                    if (func != null)
+                        funcs.put(textComponent, func);
+
+                    Element<TextComponent> toSet = new Element<>(textComponent);
+                    if (celem == null) {
+                        celem = toSet;
+                    } else {
+                        clast.next = toSet;
+                    }
+
+                    clast = toSet;
+                }
+
+                if (celem != null)
+                    components.insert(celem, clast);
+            } else if (component instanceof StringComponent) {
+                buffer.append(((StringComponent) component).getText());
+
+                while (components.first != null && components.first.value instanceof StringComponent) {
+                    TextComponent cp = components.nextElement().value;
+
+                    buffer.append(((StringComponent) cp).getText());
+                }
+
+                compressed.add(apply(funcs, component, Text.single(buffer.toString())));
+
+                buffer.setLength(0);
+            } else if (component instanceof CapitalizeComponent) {
+                CapitalizeComponent capitalizeComponent = (CapitalizeComponent) component;
+                TextComponent cp = capitalizeComponent.getTextComponent();
+                components.insert(new Element<>(cp));
+                UnaryOperator<TextComponent> func = TextComponent::capitalize;
+                if (funcs.containsKey(component)) {
+                    func = UnaryOperators.andThen(funcs.get(component), func);
+                }
+                funcs.put(cp, func);
+            } else if (component instanceof DecapitalizeComponent) {
+                DecapitalizeComponent decapitalizeComponent = (DecapitalizeComponent) component;
+                TextComponent cp = decapitalizeComponent.getTextComponent();
+                components.insert(new Element<>(cp));
+                UnaryOperator<TextComponent> func = TextComponent::decapitalize;
+                if (funcs.containsKey(component)) {
+                    func = UnaryOperators.andThen(funcs.get(component), func);
+                }
+                funcs.put(cp, func);
+            } else if (component instanceof ArgsAppliedText) {
+                ArgsAppliedText argsAppliedText = (ArgsAppliedText) component;
+                TextComponent cp = argsAppliedText.getComponent();
+                components.insert(new Element<>(cp));
+                UnaryOperator<TextComponent> func = f -> f.apply(argsAppliedText.getArgs());
+                if (funcs.containsKey(component)) {
+                    func = UnaryOperators.andThen(funcs.get(component), func);
+                }
+                funcs.put(cp, func);
+            } else {
+                compressed.add(apply(funcs, component, component));
+            }
+
+            funcs.remove(component);
+        }
+
+        if (buffer.length() > 0) {
+            compressed.add(Text.single(buffer.toString()));
+            buffer.setLength(0);
+        }
 
         if (compressed.size() == 1 && compressed.get(0) instanceof Text)
             return (Text) compressed.get(0);
 
-        return new Text(compressed);
+        Text compressedText = new Text(compressed);
+
+        if (Objects.equals(compressedText, text))
+            return text;
+
+        return compressedText;
     }
 
-    private static TextComponent compressComponent(TextComponent toCompress, List<TextComponent> compressedList) {
-        for (TextComponent compressedComponent : compressedList) {
-            if (compressedComponent.equals(toCompress) && toCompress != compressedComponent) {
-                return compressedComponent;
-            }
+    private static TextComponent apply(Map<TextComponent, UnaryOperator<TextComponent>> funcs,
+                                       TextComponent origin,
+                                       TextComponent new_) {
+        if (funcs.containsKey(origin)) {
+            TextComponent apply = funcs.get(origin).apply(new_);
+            funcs.remove(origin);
+            return apply;
         }
 
-        if (toCompress instanceof Text) {
-            return Text.compress((Text) toCompress, compressedList);
-        }
-
-        return toCompress;
-    }
-
-    private static List<TextComponent> compress(List<TextComponent> toCompressList, List<TextComponent> compressedList) {
-        ListIterator<TextComponent> iterator = toCompressList.listIterator();
-
-        while (iterator.hasNext()) {
-            TextComponent compress = iterator.next();
-
-            if (compress instanceof Text) {
-                Text.compress(((Text) compress).getComponents(), compressedList);
-            } else {
-                TextComponent add;
-
-                if (compress instanceof CapitalizeComponent) {
-                    add = Text.compressComponent(((CapitalizeComponent) compress).getTextComponent(), compressedList).capitalize();
-                } else if (compress instanceof DecapitalizeComponent) {
-                    add = Text.compressComponent(((DecapitalizeComponent) compress).getTextComponent(), compressedList).decapitalize();
-                } else if (compress instanceof ArgsAppliedText) {
-                    add = Text.compressComponent(((ArgsAppliedText) compress).getComponent(), compressedList)
-                            .apply(((ArgsAppliedText) compress).getArgs());
-                } else if (compress instanceof StringComponent && iterator.hasNext()) {
-                    StringBuilder sb = new StringBuilder();
-
-                    sb.append(((StringComponent) compress).getText());
-
-                    while (iterator.hasNext()) {
-                        TextComponent next = iterator.next();
-
-                        if (next instanceof StringComponent) {
-                            sb.append(((StringComponent) next).getText());
-                        } else {
-                            iterator.previous();
-                            break;
-                        }
-                    }
-
-                    add = Text.compressComponent(Text.single(sb.toString()), compressedList);
-                } else {
-                    add = Text.compressComponent(compress, compressedList);
-                }
-
-                compressedList.add(add);
-            }
-        }
-
-        return compressedList;
+        return new_;
     }
 
     public static TextComponent single(Object o) {
