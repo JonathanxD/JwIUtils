@@ -30,6 +30,7 @@ package com.github.jonathanxd.iutils.text;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 
 /**
  * Color, this may or may not be supported by the receiver of the text, unsupported colors are
@@ -71,6 +72,27 @@ public final class Color implements TextComponent {
     }
 
     // Public API
+
+    /**
+     * Gets a color by name in cache, returning null if cannot be found.
+     *
+     * @param name Name of color.
+     * @return Color by name.
+     */
+    public static Color getByName(String name) {
+        return Color.CACHED_COLORS.get(name);
+    }
+
+    /**
+     * Gets a color by name in cache or compute with {@code factory} if not found and cache it.
+     *
+     * @param name    Name of color.
+     * @param factory Factory to create new color and cache.
+     * @return Color by name or computed one.
+     */
+    public static Color getByNameOrCompute(String name, Function<? super String, ? extends Color> factory) {
+        return Color.CACHED_COLORS.computeIfAbsent(name, factory);
+    }
 
     /**
      * Creates a color with {@code name} or returns a cached one. Color is cached by color name, if
