@@ -53,6 +53,7 @@ public class StringObjHelper {
     private static final Character LIST_CLOSE = ']';
     private static final Character[] SEPARATORS = new Character[]{',', ' '};
     private static final Character[] OPEN_CLOSE_CHAR = new Character[]{'"', '\''};
+    private static final Character[] PROP_SEPARATORS = new Character[]{'\n'};
     private static final char ESCAPE = '\\';
 
     /**
@@ -370,6 +371,105 @@ public class StringObjHelper {
 
         if (req)
             throw new MapParseException("Expected map close '" + MAP_CLOSE + "' at end of string.");
+
+        return map;
+    }
+
+    /**
+     * Parse a simple properties map (like Java properties).
+     *
+     * @param propertyString String with properties.
+     * @return Property map
+     */
+    public static Map<String, String> parsePropertyMap(String propertyString) {
+        Iterator<Character> charIter = IteratorUtil.ofArray(PrimitiveArrayConverter.fromPrimitive(propertyString.toCharArray()));
+
+        if (!charIter.hasNext())
+            return new HashMap<>();
+
+        return StringObjHelper.parsePropertyMap(charIter);
+    }
+
+    /**
+     * Parse a simple properties map (like Java properties).
+     *
+     * @param charIter Iterator
+     * @return Property map
+     */
+    public static Map<String, String> parsePropertyMap(Iterator<Character> charIter) {
+        StringBuilder stringBuilder = new StringBuilder();
+        boolean lastIsEscape = false;
+        boolean[] openCount = new boolean[OPEN_CLOSE_CHAR.length];
+
+        final Map<String, String> map = new HashMap<>();
+        final IMutableBox<OptObject<String>> key = new MutableBox<>(Opt.none());
+        final IMutableBox<OptObject<String>> value = new MutableBox<>(Opt.none());
+
+        BiConsumer<String, Token> set = (input, token) -> {
+            if (token != Token.DEFINE && !key.isPresent())
+                throw new MapParseException("Expected map define character, but found token: " + token + ".");
+
+            if (token != Token.SEPARATOR && token != Token.CLOSE && key.get().isPresent() && !value.get().isPresent())
+                throw new MapParseException("Expected key ('" + key + "') value but found token: " + token + ".");
+
+            if (!key.get().isPresent())
+                key.set(Opt.some(input));
+            else if (!value.get().isPresent())
+                value.set(Opt.some(input));
+
+            if (key.get().isPresent() && value.get().isPresent()) {
+                map.put(key.get().getValue(), value.get().getValue());
+                key.set(Opt.none());
+                value.set(Opt.none());
+            }
+        };
+
+        Consumer<Character> append = stringBuilder::append;
+        Consumer<Token> build = token -> {
+            if (stringBuilder.length() != 0) {
+                set.accept(stringBuilder.toString(), token);
+                stringBuilder.setLength(0);
+            }
+        };
+
+        while (charIter.hasNext()) {
+            Character c = charIter.next();
+
+            int indexOfOpenClose0 = -1;
+
+            for (int i = 0; i < OPEN_CLOSE_CHAR.length; i++) {
+                if (OPEN_CLOSE_CHAR[i] == c) {
+                    indexOfOpenClose0 = i;
+                    break;
+                }
+            }
+
+            final int indexOfOpenClose = indexOfOpenClose0;
+
+            if (lastIsEscape) {
+                lastIsEscape = false;
+                append.accept(c);
+            } else if (c == ESCAPE) {
+                lastIsEscape = true;
+            } else if (IntStream.rangeClosed(0, OPEN_CLOSE_CHAR.length - 1)
+                    .anyMatch(it -> it != indexOfOpenClose && openCount[it])) {
+                append.accept(c);
+            } else if (indexOfOpenClose != -1) {
+                boolean bValue = openCount[indexOfOpenClose];
+                openCount[indexOfOpenClose] = !bValue;
+            } else if (ArrayUtils.any(PROP_SEPARATORS, t -> t == c)) {
+                build.accept(Token.SEPARATOR);
+            } else if (c == MAP_DEFINE) {
+                build.accept(Token.DEFINE);
+            } else {
+                append.accept(c);
+            }
+
+        }
+
+        if (stringBuilder.length() != 0) {
+            build.accept(Token.CLOSE);
+        }
 
         return map;
     }

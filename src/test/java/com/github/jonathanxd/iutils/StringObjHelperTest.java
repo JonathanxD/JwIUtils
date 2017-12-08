@@ -59,4 +59,14 @@ public class StringObjHelperTest {
         Assert.assertEquals(Collections3.listOf("This", "may", "be", "useful"), objects.get("v"));
         Assert.assertEquals(MapUtils.mapOf("h", "a"), objects.get("y"));
     }
+
+    @Test
+    public void propertyHelper() {
+        Map<String, String> objects = StringObjHelper.parsePropertyMap("a.b.c= ada\na=b\n  h.e=b");
+
+        Assert.assertEquals(" ada", objects.get("a.b.c"));
+        Assert.assertEquals("b", objects.get("a"));
+        Assert.assertEquals("b", objects.get("  h.e"));
+        Assert.assertNull(objects.get("  "));
+    }
 }

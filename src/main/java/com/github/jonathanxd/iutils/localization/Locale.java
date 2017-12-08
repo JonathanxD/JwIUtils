@@ -27,6 +27,8 @@
  */
 package com.github.jonathanxd.iutils.localization;
 
+import com.github.jonathanxd.iutils.array.PrimitiveArrayConverter;
+import com.github.jonathanxd.iutils.iterator.IteratorUtil;
 import com.github.jonathanxd.iutils.string.StringObjHelper;
 import com.github.jonathanxd.iutils.text.TextUtil;
 import com.github.jonathanxd.iutils.text.TextComponent;
@@ -80,14 +82,18 @@ public interface Locale {
         if (resource == null)
             return false;
 
-        try (InputStreamReader resourceAsStream = new InputStreamReader(resource.openStream(), "UTF-8")) {
-            Properties properties = new Properties();
-            properties.load(resourceAsStream);
+        try (BufferedReader stream = new BufferedReader(new InputStreamReader(resource.openStream(), "UTF-8"))) {
 
-            for (Map.Entry<Object, Object> objectObjectEntry : properties.entrySet()) {
+            String s = stream.lines()
+                    .filter(c -> !c.isEmpty())
+                    .collect(Collectors.joining("\n"));
+
+            Map<String, String> properties = StringObjHelper.parsePropertyMap(s);
+
+            for (Map.Entry<String, String> objectObjectEntry : properties.entrySet()) {
                 this.getLocalizationManager().registerLocalization(
-                        (String) objectObjectEntry.getKey(),
-                        TextUtil.parse((String) objectObjectEntry.getValue())
+                        objectObjectEntry.getKey(),
+                        TextUtil.parse(objectObjectEntry.getValue())
                 );
             }
 
