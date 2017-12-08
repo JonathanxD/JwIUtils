@@ -426,10 +426,8 @@ public class StringObjHelper {
 
         Consumer<Character> append = stringBuilder::append;
         Consumer<Token> build = token -> {
-            if (stringBuilder.length() != 0) {
-                set.accept(stringBuilder.toString(), token);
-                stringBuilder.setLength(0);
-            }
+            set.accept(stringBuilder.toString(), token);
+            stringBuilder.setLength(0);
         };
 
         while (charIter.hasNext()) {
