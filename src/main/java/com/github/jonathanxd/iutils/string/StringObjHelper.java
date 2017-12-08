@@ -459,7 +459,7 @@ public class StringObjHelper {
                 openCount[indexOfOpenClose] = !bValue;
             } else if (ArrayUtils.any(PROP_SEPARATORS, t -> t == c)) {
                 build.accept(Token.SEPARATOR);
-            } else if (c == MAP_DEFINE) {
+            } else if (c == MAP_DEFINE && (!key.isPresent() || !key.get().isPresent())) {
                 build.accept(Token.DEFINE);
             } else {
                 append.accept(c);
