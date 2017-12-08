@@ -56,7 +56,7 @@ public class Style implements TextComponent {
     // Public API
     public static Style createStyle(boolean obfuscated, boolean bold, boolean strikeThrough, boolean underline, boolean italic) {
         if (obfuscated && !(bold || strikeThrough || underline || italic))
-            return Styles.BOLD;
+            return Styles.OBFUSCATED;
 
         if (bold && !(obfuscated || strikeThrough || underline || italic))
             return Styles.BOLD;
@@ -146,5 +146,29 @@ public class Style implements TextComponent {
                 && this.isStrikeThrough() == ((Style) obj).isStrikeThrough()
                 && this.isBold() == ((Style) obj).isBold()
                 && this.isUnderline() == ((Style) obj).isUnderline();
+    }
+
+    @Override
+    public String toString() {
+        if (obfuscated && !(bold || strikeThrough || underline || italic))
+            return "Style[obfuscated]";
+
+        if (bold && !(obfuscated || strikeThrough || underline || italic))
+            return "Style[bold]";
+
+        if (strikeThrough && !(bold || obfuscated || underline || italic))
+            return "Style[strikeThrough]";
+
+        if (underline && !(bold || obfuscated || strikeThrough || italic))
+            return "Style[underline]";
+
+        if (italic && !(bold || obfuscated || strikeThrough || underline))
+            return "Style[italic]";
+
+        if (!(bold || obfuscated || strikeThrough || underline))
+            return "Style[reset]";
+
+        return "Style[obfuscated=" + this.isObfuscated() + ", bold=" + this.isBold() + ", strikeThrough=" +
+                this.isStrikeThrough() + ", underline=" + this.isUnderline() + ", italic=" + this.isItalic() + "]";
     }
 }

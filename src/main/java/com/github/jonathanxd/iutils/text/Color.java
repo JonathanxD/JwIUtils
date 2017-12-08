@@ -187,6 +187,11 @@ public final class Color implements TextComponent {
     }
 
     @Override
+    public String toString() {
+        return "Color[" + this.getName() + ", rgba=" + this.getR() + " " + this.getG() + " " + this.getB() + " " + this.getA() + "]";
+    }
+
+    @Override
     public boolean isEmpty() {
         return false;
     }
