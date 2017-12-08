@@ -28,7 +28,7 @@
 package com.github.jonathanxd.iutils.text;
 
 public class Styles {
-    public static final Style NORMAL = new Style();
+    public static final Style NORMAL = Style.createReset();
     public static final Style RESET = NORMAL;
     public static final Style BOLD = Style.createBold();
     public static final Style ITALIC = Style.createItalic();

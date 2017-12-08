@@ -27,6 +27,8 @@
  */
 package com.github.jonathanxd.iutils.text;
 
+import java.util.Objects;
+
 /**
  * Style, this may or may not be supported by the receiver of the text, unsupported styles are
  * commonly translated to default style, which is determined by the receiver.
@@ -39,16 +41,49 @@ public class Style implements TextComponent {
     private final boolean underline;
     private final boolean italic;
 
-    public Style() {
+    private Style() {
         this(false, false, false, false, false);
     }
 
-    public Style(boolean obfuscated, boolean bold, boolean strikeThrough, boolean underline, boolean italic) {
+    private Style(boolean obfuscated, boolean bold, boolean strikeThrough, boolean underline, boolean italic) {
         this.obfuscated = obfuscated;
         this.bold = bold;
         this.strikeThrough = strikeThrough;
         this.underline = underline;
         this.italic = italic;
+    }
+
+    // Public API
+    public static Style createStyle(boolean obfuscated, boolean bold, boolean strikeThrough, boolean underline, boolean italic) {
+        if (obfuscated && !(bold || strikeThrough || underline || italic))
+            return Styles.BOLD;
+
+        if (bold && !(obfuscated || strikeThrough || underline || italic))
+            return Styles.BOLD;
+
+        if (strikeThrough && !(bold || obfuscated || underline || italic))
+            return Styles.STRIKE_THROUGH;
+
+        if (underline && !(bold || obfuscated || strikeThrough || italic))
+            return Styles.UNDERLINE;
+
+        if (italic && !(bold || obfuscated || strikeThrough || underline))
+            return Styles.ITALIC;
+
+        if (!(bold || obfuscated || strikeThrough || underline))
+            return Styles.RESET;
+
+        return new Style(obfuscated, bold, strikeThrough, underline, italic);
+    }
+
+    public static Style getBold() {
+        return Styles.BOLD;
+    }
+
+    // Private API
+
+    static Style createReset() {
+        return new Style();
     }
 
     static Style createObfuscated() {
@@ -94,5 +129,22 @@ public class Style implements TextComponent {
     @Override
     public boolean isEmpty() {
         return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.isItalic(), this.isObfuscated(), this.isStrikeThrough(), this.isBold(), this.isUnderline());
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Style))
+            return super.equals(obj);
+
+        return this.isItalic() == ((Style) obj).isItalic()
+                && this.isObfuscated() == ((Style) obj).isObfuscated()
+                && this.isStrikeThrough() == ((Style) obj).isStrikeThrough()
+                && this.isBold() == ((Style) obj).isBold()
+                && this.isUnderline() == ((Style) obj).isUnderline();
     }
 }

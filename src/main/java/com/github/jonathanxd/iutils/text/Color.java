@@ -27,11 +27,20 @@
  */
 package com.github.jonathanxd.iutils.text;
 
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
  * Color, this may or may not be supported by the receiver of the text, unsupported colors are
  * commonly translated to default color, which is determined by the receiver.
+ *
+ * Note that equality of two colors depends on {@code rgba} and the {@code name} does not matter,
+ * name is only used for easy identification (like in UIs).
  */
 public final class Color implements TextComponent {
+
+    private static final Map<String, Color> CACHED_COLORS = new ConcurrentHashMap<>();
 
     private final String name;
     private final int r;
@@ -48,7 +57,8 @@ public final class Color implements TextComponent {
      * @param b    Blue color. (0-255)
      * @param a    Alpha. (0.0-1.0)
      */
-    public Color(String name, int r, int g, int b, float a) {
+    private Color(String name, int r, int g, int b, float a) {
+        Objects.requireNonNull(name, "Name cannot be null");
         checkRange("Red color", r);
         checkRange("Green color", g);
         checkRange("Blue color", b);
@@ -60,16 +70,49 @@ public final class Color implements TextComponent {
         this.a = a;
     }
 
+    // Public API
+
     /**
-     * Creates a RGBA color.
+     * Creates a color with {@code name} or returns a cached one. Color is cached by color name, if
+     * the color have the same {@code name} as the cached one but does not have same {@code rgba}
+     * values, then a new one is returned, but not cached.
      *
-     * @param name Name of the color.
-     * @param r    Red color. (0-255)
-     * @param g    Green color. (0-255)
-     * @param b    Blue color. (0-255)
+     * @param name Name of color.
+     * @param r    Red color.
+     * @param g    Green color.
+     * @param b    Blue color.
+     * @return New color or a cached one.
      */
-    public Color(String name, int r, int g, int b) {
-        this(name, r, g, b, 1.0F);
+    public static Color createColor(String name, int r, int g, int b) {
+        return Color.createColor(name, r, g, b, 1.0F);
+    }
+
+    /**
+     * Creates a color with {@code name} or returns a cached one. Color is cached by color name, if
+     * the color have the same {@code name} as the cached one but does not have same {@code rgba}
+     * values, then a new one is returned, but not cached.
+     *
+     * @param name Name of color.
+     * @param r    Red color.
+     * @param g    Green color.
+     * @param b    Blue color.
+     * @param a    Alpha.
+     * @return New color or a cached one.
+     */
+    public static Color createColor(String name, int r, int g, int b, float a) {
+        Color cached = CACHED_COLORS.get(name);
+
+        if (cached != null && cached.getR() == r && cached.getG() == g && cached.getB() == b && cached.getA() == a) {
+            return cached;
+        }
+
+        Color color = new Color(name, r, g, b, a);
+
+        if (cached == null) {
+            CACHED_COLORS.put(name, color);
+        }
+
+        return color;
     }
 
     private static void checkRange(String name, int value) {
@@ -125,6 +168,22 @@ public final class Color implements TextComponent {
      */
     public float getA() {
         return this.a;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.getR(), this.getG(), this.getB(), this.getA());
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Color))
+            return super.equals(obj);
+
+        return this.getR() == ((Color) obj).getR()
+                && this.getG() == ((Color) obj).getG()
+                && this.getB() == ((Color) obj).getB()
+                && this.getA() == ((Color) obj).getA();
     }
 
     @Override

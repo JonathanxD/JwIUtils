@@ -28,22 +28,22 @@
 package com.github.jonathanxd.iutils.text;
 
 public class Colors {
-    public static final Color WHITE = new Color("white", 255, 255, 255);
-    public static final Color BLACK = new Color("black", 0, 0, 0);
-    public static final Color DARK_BLUE = new Color("dark_blue", 0, 0, 170);
-    public static final Color DARK_GREEN = new Color("dark_green", 0, 170, 0);
-    public static final Color DARK_AQUA = new Color("dark_aqua", 0, 170, 170);
-    public static final Color DARK_RED = new Color("dark_red", 170, 0, 0);
-    public static final Color DARK_PURPLE = new Color("dark_purple", 170, 0, 170);
-    public static final Color GOLD = new Color("gold", 255, 170, 0);
-    public static final Color GRAY = new Color("gray", 170, 170, 170);
-    public static final Color DARK_GRAY = new Color("dark_gray", 85, 85, 85);
-    public static final Color BLUE = new Color("blue", 85, 85, 255);
-    public static final Color GREEN = new Color("green", 85, 255, 85);
-    public static final Color AQUA = new Color("aqua", 85, 255, 255);
-    public static final Color RED = new Color("red", 255, 85, 85);
-    public static final Color LIGHT_PURPLE = new Color("light_purple", 255, 85, 255);
-    public static final Color YELLOW = new Color("yellow", 255, 255, 85);
+    public static final Color WHITE = Color.createColor("white", 255, 255, 255);
+    public static final Color BLACK = Color.createColor("black", 0, 0, 0);
+    public static final Color DARK_BLUE = Color.createColor("dark_blue", 0, 0, 170);
+    public static final Color DARK_GREEN = Color.createColor("dark_green", 0, 170, 0);
+    public static final Color DARK_AQUA = Color.createColor("dark_aqua", 0, 170, 170);
+    public static final Color DARK_RED = Color.createColor("dark_red", 170, 0, 0);
+    public static final Color DARK_PURPLE = Color.createColor("dark_purple", 170, 0, 170);
+    public static final Color GOLD = Color.createColor("gold", 255, 170, 0);
+    public static final Color GRAY = Color.createColor("gray", 170, 170, 170);
+    public static final Color DARK_GRAY = Color.createColor("dark_gray", 85, 85, 85);
+    public static final Color BLUE = Color.createColor("blue", 85, 85, 255);
+    public static final Color GREEN = Color.createColor("green", 85, 255, 85);
+    public static final Color AQUA = Color.createColor("aqua", 85, 255, 255);
+    public static final Color RED = Color.createColor("red", 255, 85, 85);
+    public static final Color LIGHT_PURPLE = Color.createColor("light_purple", 255, 85, 255);
+    public static final Color YELLOW = Color.createColor("yellow", 255, 255, 85);
     public static final Color NORMAL = WHITE;
-    public static final Color RESET = WHITE;
+    public static final Color RESET = Color.createColor("reset", 255, 255, 255);
 }
