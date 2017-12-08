@@ -31,18 +31,65 @@ package com.github.jonathanxd.iutils.text;
  * Style, this may or may not be supported by the receiver of the text, unsupported styles are
  * commonly translated to default style, which is determined by the receiver.
  */
-public enum Style implements TextComponent {
+public class Style implements TextComponent {
 
-    OBFUSCATED,
-    BOLD,
-    STRIKETHROUGH,
-    UNDERLINE,
-    ITALIC,
+    private final boolean obfuscated;
+    private final boolean bold;
+    private final boolean strikeThrough;
+    private final boolean underline;
+    private final boolean italic;
 
-    /**
-     * Resets the style
-     */
-    RESET;
+    public Style() {
+        this(false, false, false, false, false);
+    }
+
+    public Style(boolean obfuscated, boolean bold, boolean strikeThrough, boolean underline, boolean italic) {
+        this.obfuscated = obfuscated;
+        this.bold = bold;
+        this.strikeThrough = strikeThrough;
+        this.underline = underline;
+        this.italic = italic;
+    }
+
+    static Style createObfuscated() {
+        return new Style(true, false, false, false, false);
+    }
+
+    static Style createBold() {
+        return new Style(false, true, false, false, false);
+    }
+
+    static Style createStrikeThrough() {
+        return new Style(false, false, true, false, false);
+    }
+
+    static Style createUnderline() {
+        return new Style(false, false, false, true, false);
+    }
+
+    static Style createItalic() {
+        return new Style(false, false, false, false, true);
+    }
+
+    public boolean isObfuscated() {
+        return this.obfuscated;
+    }
+
+    public boolean isBold() {
+        return this.bold;
+    }
+
+    public boolean isStrikeThrough() {
+        return this.strikeThrough;
+    }
+
+    public boolean isUnderline() {
+        return this.underline;
+    }
+
+    public boolean isItalic() {
+        return this.italic;
+    }
 
     @Override
     public boolean isEmpty() {

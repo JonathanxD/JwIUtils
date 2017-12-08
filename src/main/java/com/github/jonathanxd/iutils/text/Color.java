@@ -31,24 +31,101 @@ package com.github.jonathanxd.iutils.text;
  * Color, this may or may not be supported by the receiver of the text, unsupported colors are
  * commonly translated to default color, which is determined by the receiver.
  */
-public enum Color implements TextComponent {
+public final class Color implements TextComponent {
 
-    BLACK,
-    DARK_BLUE,
-    DARK_GREEN,
-    DARK_AQUA,
-    DARK_RED,
-    DARK_PURPLE,
-    GOLD,
-    GRAY,
-    DARK_GRAY,
-    BLUE,
-    GREEN,
-    AQUA,
-    RED,
-    LIGHT_PURPLE,
-    YELLOW,
-    WHITE;
+    private final String name;
+    private final int r;
+    private final int g;
+    private final int b;
+    private final float a;
+
+    /**
+     * Creates a RGBA color.
+     *
+     * @param name Name of the color.
+     * @param r    Red color. (0-255)
+     * @param g    Green color. (0-255)
+     * @param b    Blue color. (0-255)
+     * @param a    Alpha. (0.0-1.0)
+     */
+    public Color(String name, int r, int g, int b, float a) {
+        checkRange("Red color", r);
+        checkRange("Green color", g);
+        checkRange("Blue color", b);
+        checkAlphaRange(a);
+        this.name = name;
+        this.r = r;
+        this.g = g;
+        this.b = b;
+        this.a = a;
+    }
+
+    /**
+     * Creates a RGBA color.
+     *
+     * @param name Name of the color.
+     * @param r    Red color. (0-255)
+     * @param g    Green color. (0-255)
+     * @param b    Blue color. (0-255)
+     */
+    public Color(String name, int r, int g, int b) {
+        this(name, r, g, b, 1.0F);
+    }
+
+    private static void checkRange(String name, int value) {
+        if (value < 0 || value > 255)
+            throw new IllegalArgumentException(name + " value must be between 0-255");
+    }
+
+    private static void checkAlphaRange(float value) {
+        if (value < 0.0F || value > 1.0F)
+            throw new IllegalArgumentException("Alpha value must be between 0.0-1.0");
+    }
+
+    /**
+     * Gets the color name.
+     *
+     * @return Color name.
+     */
+    public String getName() {
+        return this.name;
+    }
+
+    /**
+     * Gets the red color, range between 0-255.
+     *
+     * @return Red color.
+     */
+    public int getR() {
+        return this.r;
+    }
+
+    /**
+     * Gets the green color, range between 0-255.
+     *
+     * @return Green color.
+     */
+    public int getG() {
+        return this.g;
+    }
+
+    /**
+     * Gets the blue color, range between 0-255.
+     *
+     * @return Blue color.
+     */
+    public int getB() {
+        return this.b;
+    }
+
+    /**
+     * Gets the alpha, range between 0.0-1.0.
+     *
+     * @return Alpha.
+     */
+    public float getA() {
+        return this.a;
+    }
 
     @Override
     public boolean isEmpty() {
