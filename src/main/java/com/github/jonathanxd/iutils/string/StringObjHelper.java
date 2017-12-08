@@ -426,35 +426,20 @@ public class StringObjHelper {
 
         Consumer<Character> append = stringBuilder::append;
         Consumer<Token> build = token -> {
-            set.accept(stringBuilder.toString(), token);
-            stringBuilder.setLength(0);
+            if (stringBuilder.length() != 0 || key.get().isPresent()) {
+                set.accept(stringBuilder.toString(), token);
+                stringBuilder.setLength(0);
+            }
         };
 
         while (charIter.hasNext()) {
             Character c = charIter.next();
-
-            int indexOfOpenClose0 = -1;
-
-            for (int i = 0; i < OPEN_CLOSE_CHAR.length; i++) {
-                if (OPEN_CLOSE_CHAR[i] == c) {
-                    indexOfOpenClose0 = i;
-                    break;
-                }
-            }
-
-            final int indexOfOpenClose = indexOfOpenClose0;
 
             if (lastIsEscape) {
                 lastIsEscape = false;
                 append.accept(c);
             } else if (c == ESCAPE) {
                 lastIsEscape = true;
-            } else if (IntStream.rangeClosed(0, OPEN_CLOSE_CHAR.length - 1)
-                    .anyMatch(it -> it != indexOfOpenClose && openCount[it])) {
-                append.accept(c);
-            } else if (indexOfOpenClose != -1) {
-                boolean bValue = openCount[indexOfOpenClose];
-                openCount[indexOfOpenClose] = !bValue;
             } else if (ArrayUtils.any(PROP_SEPARATORS, t -> t == c)) {
                 build.accept(Token.SEPARATOR);
             } else if (c == MAP_DEFINE && (!key.isPresent() || !key.get().isPresent())) {
