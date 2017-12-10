@@ -159,6 +159,88 @@ public class Collections3 {
     }
 
     /**
+     * Returns a new list with both {@code element} and {@code list} elements.
+     *
+     * @param element First element to add to new list.
+     * @param list    List with elements to add after {@code element}.
+     * @param <E>     Element type.
+     * @return A new list with both {@code element} and {@code list} elements.
+     */
+    public static <E> List<E> prepend(E element, List<E> list) {
+        return Collections3.prepend(element, list, ArrayList::new);
+    }
+
+    /**
+     * Returns a new list with elements of both {@code first} and {@code second} list.
+     *
+     * @param first  List with element to add before {@code second}.
+     * @param second List with elements to add after {@code first}.
+     * @param <E>    Element type.
+     * @return A new list with elements of both {@code first} and {@code second} list.
+     */
+    public static <E> List<E> prepend(List<E> first, List<E> second) {
+        return Collections3.prepend(first, second, ArrayList::new);
+    }
+
+    /**
+     * Returns a new list with both {@code element} and {@code list} elements.
+     *
+     * @param element First element to add to new list.
+     * @param list    List with elements to add after {@code element}.
+     * @param factory Factory of new list (must be mutable).
+     * @param <E>     Element type.
+     * @return A new list with both {@code element} and {@code list} elements.
+     */
+    public static <E> List<E> prepend(E element, List<E> list,
+                                      Supplier<? extends List<E>> factory) {
+        List<E> newList = factory.get();
+        newList.add(element);
+        newList.addAll(list);
+        return newList;
+    }
+
+    /**
+     * Returns a new list with elements of both {@code first} and {@code second} list.
+     *
+     * @param first   List with element to add before {@code second}.
+     * @param second  List with elements to add after {@code first}.
+     * @param factory Factory of new list (must be mutable).
+     * @param <E>     Element type.
+     * @return A new list with elements of both {@code first} and {@code second} list.
+     */
+    public static <E> List<E> prepend(List<E> first, List<E> second,
+                                      Supplier<? extends List<E>> factory) {
+        List<E> newList = factory.get();
+        newList.addAll(first);
+        newList.addAll(second);
+        return newList;
+    }
+
+    /**
+     * Returns {@code target} list with {@code element} prepended to it.
+     *
+     * @param element Element to prepend to {@code target} list.
+     * @param <E>     Element type.
+     * @return {@code target} list with {@code element} prepended to it.
+     */
+    public static <E> List<E> prependTo(List<E> target, E element) {
+        target.add(0, element);
+        return target;
+    }
+
+    /**
+     * Returns {@code target} list with {@code elements} prepended to it.
+     *
+     * @param elements Elements to prepend to {@code target} list.
+     * @param <E>      Element type.
+     * @return {@code target} list with {@code elements} prepended to it.
+     */
+    public static <E> List<E> prependTo(List<E> target, List<E> elements) {
+        target.addAll(0, elements);
+        return target;
+    }
+
+    /**
      * Creates a {@link T Sequence} of {@link E}.
      *
      * @param factory  Factory method to create sequence.

@@ -339,7 +339,7 @@ public class IteratorUtil {
     }
 
     /**
-     * Creates an {@link Iterator} that iterator elements while {@code predicate} returns {@code
+     * Creates an {@link Iterator} that iterate elements while {@code predicate} returns {@code
      * true}, and stops iteration when {@code predicate} returns {@code false}.
      *
      * The {@code predicate} may be called more than one time with same element.
@@ -354,7 +354,7 @@ public class IteratorUtil {
     }
 
     /**
-     * Creates an {@link ListIterator} that iterator elements while {@code predicate} returns {@code
+     * Creates an {@link ListIterator} that iterate elements while {@code predicate} returns {@code
      * true}, and stops iteration when {@code predicate} returns {@code false}.
      *
      * This uses {@link IteratorUtil#biDiListIterator(Iterator)} wrapper.
@@ -366,6 +366,41 @@ public class IteratorUtil {
      */
     public static <E> ListIterator<E> listIterateWhile(Predicate<E> predicate, ListIterator<E> original) {
         return IteratorUtil.biDiListIterator(IteratorUtil.iterateWhile(predicate, original));
+    }
+
+    /**
+     * Creates an {@link Iterator} that iterate elements of {@code first}, and when {@code first}
+     * has no more elements, starts iterating elements of {@code second}. If any element is added to
+     * {@code first} while iterating {@code second}, the iteration will continue in {@code first}
+     * iterator from the last state. Removing element is backed directly to current iterator.
+     *
+     * @param first  First iterator to merge.
+     * @param second Second iterator to merge.
+     * @return A iterator with represents the merge of {@code first} and {@code second}.
+     */
+    public static <E> Iterator<E> mergeIterator(Iterator<E> first, Iterator<E> second) {
+        return new MergeIterator<>(first, second);
+    }
+
+    /**
+     * Creates a {@link ListIterator} that iterate elements of {@code first}, and when {@code first}
+     * has no more elements, starts iterating elements of {@code second}. If any element is added to
+     * {@code first} while iterating {@code second}, the iteration will continue in {@code first}
+     * iterator from the last state. Modify operations is backed directly to current iterator. Also,
+     * back-iterating it will not respect the order of forward iterating, this means that if you add
+     * an element to {@code first} while iterating on {@code second}, and then, call {@link
+     * ListIterator#previous()}, this will not return the last element returned by {@link
+     * ListIterator#next()} (except if the {@code second} has no more previous elements).
+     *
+     * The implementation of {@link ListIterator} returns a sum of {@code first} and {@code second}
+     * index for {@link ListIterator#nextIndex()} and {@link ListIterator#previousIndex()} methods.
+     *
+     * @param first  First iterator to merge.
+     * @param second Second iterator to merge.
+     * @return A iterator with represents the merge of {@code first} and {@code second}.
+     */
+    public static <E> ListIterator<E> mergeListIterator(ListIterator<E> first, ListIterator<E> second) {
+        return new MergeListIterator<>(first, second);
     }
 
     /**
@@ -1395,6 +1430,114 @@ public class IteratorUtil {
         @Override
         public void remove() {
             throw new UnsupportedOperationException();
+        }
+    }
+
+    private static class MergeIterator<E> implements Iterator<E> {
+
+        private final Iterator<E> first;
+        private final Iterator<E> second;
+        private Iterator<E> current;
+
+        private MergeIterator(Iterator<E> first, Iterator<E> second) {
+            this.first = first;
+            this.second = second;
+            this.current = first;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return this.first.hasNext() || this.second.hasNext();
+        }
+
+        @Override
+        public E next() {
+            if (this.first.hasNext()) {
+                this.current = this.first;
+                return this.first.next();
+            }
+
+            this.current = this.second;
+            return this.second.next();
+        }
+
+        @Override
+        public void remove() {
+            this.current.remove();
+        }
+    }
+
+    private static class MergeListIterator<E> implements ListIterator<E> {
+
+        private final ListIterator<E> first;
+        private final ListIterator<E> second;
+        private ListIterator<E> current;
+
+        private MergeListIterator(ListIterator<E> first, ListIterator<E> second) {
+            this.first = first;
+            this.second = second;
+            this.current = first;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return this.first.hasNext() || this.second.hasNext();
+        }
+
+        @Override
+        public int nextIndex() {
+            return this.first.nextIndex() + this.second.nextIndex();
+        }
+
+        @Override
+        public int previousIndex() {
+            if (!this.first.hasNext())
+                return this.first.nextIndex() + this.second.previousIndex();
+
+            return this.first.previousIndex();
+        }
+
+        @Override
+        public E next() {
+            if (this.first.hasNext()) {
+                this.current = this.first;
+                return this.first.next();
+            }
+
+            this.current = this.second;
+            return this.second.next();
+        }
+
+        @Override
+        public boolean hasPrevious() {
+            return this.first.hasPrevious() || this.second.hasPrevious();
+        }
+
+        @Override
+        public E previous() {
+            if (this.second.hasPrevious()) {
+                this.current = this.second;
+                return this.second.previous();
+            }
+
+            this.current = this.first;
+            return this.first.previous();
+        }
+
+        @Override
+        public void remove() {
+            this.current.remove();
+        }
+
+        @Override
+        public void add(E e) {
+            this.current.add(e);
+        }
+
+        @Override
+        public void set(E e) {
+            this.current.set(e);
+            ;
         }
     }
 
