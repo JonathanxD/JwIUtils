@@ -69,6 +69,18 @@ public final class OptObject<T> extends AbstractOptObject<T, ValueHolder.ObjectV
      *
      * @param value Value to create {@link Opt}.
      * @param <T>   Type of value.
+     * @return An {@link Opt} of {@code Some} {@code value}.
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> OptObject<T> some(T value) {
+        return new OptObject<>(value);
+    }
+
+    /**
+     * Creates an {@link Opt} from {@code value}.
+     *
+     * @param value Value to create {@link Opt}.
+     * @param <T>   Type of value.
      * @return An {@link Opt} of {@code Some} if value is not null, or an {@link Opt} of {@code
      * None} if value is null.
      */

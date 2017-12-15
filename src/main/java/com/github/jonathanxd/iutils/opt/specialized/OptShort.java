@@ -71,6 +71,17 @@ public final class OptShort extends AbstractOpt<OptShort, ValueHolder.ShortValue
     }
 
     /**
+     * Creates an {@link Opt} from {@code value}.
+     *
+     * @param value Value to create {@link Opt}.
+     * @return An {@link Opt} of {@code Some} {@code value}.
+     */
+    @SuppressWarnings("unchecked")
+    public static OptShort some(short value) {
+        return new OptShort(value);
+    }
+
+    /**
      * Creates a {@link Opt} with {@code None} value.
      *
      * @return {@link Opt} with {@code None} value.

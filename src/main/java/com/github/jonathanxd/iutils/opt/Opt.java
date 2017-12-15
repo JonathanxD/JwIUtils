@@ -171,7 +171,7 @@ public interface Opt<O extends Opt<O, V>, V extends ValueHolder> {
      * @param value Value.
      * @return {@link Opt} of {@code Some} {@code value}
      */
-    static OptDouble someDouble(char value) {
+    static OptDouble someDouble(double value) {
         return OptDouble.optDouble(value);
     }
 
@@ -190,7 +190,7 @@ public interface Opt<O extends Opt<O, V>, V extends ValueHolder> {
      * @param value Value.
      * @return {@link Opt} of {@code Some} {@code value}
      */
-    static OptFloat someFloat(char value) {
+    static OptFloat someFloat(float value) {
         return OptFloat.optFloat(value);
     }
 

@@ -73,6 +73,17 @@ public final class OptBoolean extends AbstractOpt<OptBoolean, ValueHolder.Boolea
     }
 
     /**
+     * Creates an {@link Opt} from {@code value}.
+     *
+     * @param value Value to create {@link Opt}.
+     * @return An {@link Opt} of {@code Some} {@code value}.
+     */
+    @SuppressWarnings("unchecked")
+    public static OptBoolean some(boolean value) {
+        return value ? TRUE : FALSE;
+    }
+
+    /**
      * Creates an {@link Opt} with {@code true} value.
      *
      * @return An {@link Opt} with {@code true} value.

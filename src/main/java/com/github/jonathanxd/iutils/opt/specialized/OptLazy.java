@@ -74,6 +74,17 @@ public final class OptLazy<T> extends AbstractOptObject<T, ValueHolder.LazyValue
      * @param <T>  Type of value.
      * @return Lazy {@link com.github.jonathanxd.iutils.opt.Opt}.
      */
+    public static <T> OptLazy<T> some(Lazy<T> lazy) {
+        return new OptLazy<>(Objects.requireNonNull(lazy));
+    }
+
+    /**
+     * Creates an lazy {@link com.github.jonathanxd.iutils.opt.Opt}.
+     *
+     * @param lazy Lazy instance.
+     * @param <T>  Type of value.
+     * @return Lazy {@link com.github.jonathanxd.iutils.opt.Opt}.
+     */
     public static <T> OptLazy<T> optLazyNullable(Lazy<T> lazy) {
         return lazy == null ? none() : new OptLazy<>(lazy);
     }

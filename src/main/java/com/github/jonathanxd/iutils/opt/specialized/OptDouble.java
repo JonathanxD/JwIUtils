@@ -71,6 +71,17 @@ public final class OptDouble extends AbstractOpt<OptDouble, ValueHolder.DoubleVa
     }
 
     /**
+     * Creates an {@link Opt} from {@code value}.
+     *
+     * @param value Value to create {@link Opt}.
+     * @return An {@link Opt} of {@code Some} {@code value}.
+     */
+    @SuppressWarnings("unchecked")
+    public static OptDouble some(double value) {
+        return new OptDouble(value);
+    }
+
+    /**
      * Creates a {@link Opt} with {@code None} value.
      *
      * @return {@link Opt} with {@code None} value.

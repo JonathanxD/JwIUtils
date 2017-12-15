@@ -72,6 +72,17 @@ public final class OptChar extends AbstractOpt<OptChar, ValueHolder.CharValueHol
     }
 
     /**
+     * Creates an {@link Opt} from {@code value}.
+     *
+     * @param value Value to create {@link Opt}.
+     * @return An {@link Opt} of {@code Some} {@code value}.
+     */
+    @SuppressWarnings("unchecked")
+    public static OptChar some(char value) {
+        return new OptChar(value);
+    }
+
+    /**
      * Creates a {@link Opt} with {@code None} value.
      *
      * @return {@link Opt} with {@code None} value.
