@@ -42,8 +42,17 @@ public final class Options {
     /**
      * Map to stores values defined for options.
      */
-    private final Map<Option<?>, Object> optionMap = new HashMap<>();
-    private final Map<Option<?>, Object> immutableOptionMap = Collections.unmodifiableMap(this.optionMap);
+    private final Map<Option<?>, Object> optionMap;
+    private final Map<Option<?>, Object> immutableOptionMap;
+
+    public Options() {
+        this(new HashMap<>());
+    }
+
+    public Options(Map<Option<?>, Object> map) {
+        this.optionMap = map;
+        this.immutableOptionMap = Collections.unmodifiableMap(this.optionMap);
+    }
 
     /**
      * Sets a {@link Option} value.
@@ -83,7 +92,6 @@ public final class Options {
      * defined.
      */
     public <T> T getOrElse(Option<T> option, T value) {
-
         if (!this.optionMap.containsKey(option))
             return value;
 
@@ -117,7 +125,7 @@ public final class Options {
      * @return {@link BiStream} of all options and their values.
      */
     public BiStream<Option<?>, Object> stream() {
-        return BiStreams.mapStream(this.optionMap);
+        return BiStreams.mapStream(new HashMap<>(this.optionMap));
     }
 
     /**
