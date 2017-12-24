@@ -100,6 +100,20 @@ public class TextTest {
                 parse
         );
     }
+    @Test
+    public void parseTextTag() {
+        String txt = "Hello ${player}ish, #{message.welcome}ish";
+
+        TextComponent parse = TextUtil.parse(txt);
+
+        Assert.assertEquals(
+                Text.of("Hello ",
+                        Text.variable("player"), "ish, ",
+                        Text.localizable("message.welcome"),
+                        Text.single("ish")),
+                parse
+        );
+    }
 
     @Test
     public void parseText2() {

@@ -41,6 +41,7 @@ import java.util.function.Consumer;
  */
 public class TextUtil {
 
+    private static final int TAG_CLOSE = -2;
     private static final int SINGLE = -1;
     private static final int VARIABLE = 0;
     private static final int LOCALIZABLE = 1;
@@ -125,6 +126,7 @@ public class TextUtil {
         boolean isVar = false;
         boolean isLocalizable = false;
         boolean isColorOrStyle = false;
+        boolean isOpenTag = false;
         StringBuilder stringBuilder = new StringBuilder();
         Consumer<String> addVar = s -> components.add(Text.variable(s));
         Consumer<String> addLocalizable = s -> components.add(Text.localizable(s));
@@ -140,15 +142,31 @@ public class TextUtil {
                     lastIsEscape = true;
                 }
             } else {
-                int component = !lastIsEscape
-                        ? (aChar == '$' ? VARIABLE : aChar == '#' ? LOCALIZABLE : aChar == '&' ? COLOR_OR_STYLE : SINGLE)
-                        : SINGLE;
+                int component = !lastIsEscape ? (
+                        aChar == '$' ? VARIABLE : aChar == '#' ? LOCALIZABLE : aChar == '&' ? COLOR_OR_STYLE
+                                : (aChar == '}' && isOpenTag) ? TAG_CLOSE : SINGLE
+                ) : SINGLE;
 
                 int currentType = isVar ? VARIABLE : isLocalizable ? LOCALIZABLE : isColorOrStyle ? COLOR_OR_STYLE : SINGLE;
 
+                // Process tag open
+                if (!lastIsEscape && currentType != SINGLE) {
+                    if (aChar == '{' && !isOpenTag) {
+                        isOpenTag = true;
+                        continue;
+                    }
+                }
+
+                // If component is tag close, set openTag boolean to salfe
+                if (component == TAG_CLOSE) {
+                    isOpenTag = false;
+                }
+
+                // Process last char component
                 if (component != SINGLE
                         || ((!TextUtil.isIdentifier(aChar, currentType) && !lastIsEscape)
-                        || (currentType == COLOR_OR_STYLE && stringBuilder.length() > 0))) {
+                        || (currentType == COLOR_OR_STYLE && stringBuilder.length() > 0))
+                        || component == TAG_CLOSE) {
                     String text = stringBuilder.toString();
                     stringBuilder.setLength(0);
 
@@ -165,7 +183,7 @@ public class TextUtil {
                         addSingle.accept(text);
                     }
                 }
-
+                // Set current char component
                 switch (component) {
                     case LOCALIZABLE: {
                         isLocalizable = true;
@@ -177,6 +195,9 @@ public class TextUtil {
                     }
                     case COLOR_OR_STYLE: {
                         isColorOrStyle = true;
+                        break;
+                    }
+                    case TAG_CLOSE: {
                         break;
                     }
                     default: {
