@@ -31,7 +31,7 @@ import com.github.jonathanxd.iutils.localization.Locale
 import com.github.jonathanxd.iutils.text.Text
 import com.github.jonathanxd.iutils.text.TextComponent
 import com.github.jonathanxd.iutils.text.TextUtil
-import com.github.jonathanxd.iutils.text.converter.TextLocalizer
+import com.github.jonathanxd.iutils.text.localizer.TextLocalizer
 
 /**
  * Creates a string text component.

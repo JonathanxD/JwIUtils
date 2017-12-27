@@ -40,8 +40,8 @@ import com.github.jonathanxd.iutils.text.Styles;
 import com.github.jonathanxd.iutils.text.Text;
 import com.github.jonathanxd.iutils.text.TextComponent;
 import com.github.jonathanxd.iutils.text.TextUtil;
-import com.github.jonathanxd.iutils.text.converter.DefaultTextLocalizer;
-import com.github.jonathanxd.iutils.text.converter.TextLocalizer;
+import com.github.jonathanxd.iutils.text.localizer.DefaultTextLocalizer;
+import com.github.jonathanxd.iutils.text.localizer.TextLocalizer;
 import com.github.jonathanxd.iutils.text.dynamic.DynamicGenerator;
 import com.github.jonathanxd.iutils.text.dynamic.Section;
 

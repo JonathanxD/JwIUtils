@@ -25,7 +25,7 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.text.converter;
+package com.github.jonathanxd.iutils.text.localizer;
 
 import com.github.jonathanxd.iutils.localization.Locale;
 import com.github.jonathanxd.iutils.localization.LocaleManager;
@@ -56,15 +56,26 @@ public final class FastTextLocalizer extends AbstractTextLocalizer {
 
     private final Function<Color, TextComponent> colorTransformer;
     private final Function<Style, TextComponent> styleTransformer;
+    private final Function<TextComponent, TextComponent> additionalTransformer;
 
     public FastTextLocalizer(LocaleManager localeManager,
                              Locale defaultLocale,
                              Locale locale,
                              Function<Color, TextComponent> colorTransformer,
                              Function<Style, TextComponent> styleTransformer) {
+        this(localeManager, defaultLocale, locale, colorTransformer, styleTransformer, Function.identity());
+    }
+
+    public FastTextLocalizer(LocaleManager localeManager,
+                             Locale defaultLocale,
+                             Locale locale,
+                             Function<Color, TextComponent> colorTransformer,
+                             Function<Style, TextComponent> styleTransformer,
+                             Function<TextComponent, TextComponent> additionalTransformer) {
         super(localeManager, defaultLocale, locale);
         this.colorTransformer = colorTransformer;
         this.styleTransformer = styleTransformer;
+        this.additionalTransformer = additionalTransformer;
     }
 
     public FastTextLocalizer(LocaleManager localeManager,
@@ -84,6 +95,10 @@ public final class FastTextLocalizer extends AbstractTextLocalizer {
 
     public Function<Style, TextComponent> getStyleTransformer() {
         return this.styleTransformer;
+    }
+
+    public Function<TextComponent, TextComponent> getAdditionalTransformer() {
+        return this.additionalTransformer;
     }
 
     @Override
@@ -178,7 +193,10 @@ public final class FastTextLocalizer extends AbstractTextLocalizer {
 
                 if (localization == null)
                     localization = this.getDefaultLocale().getLocalizationManager()
-                            .getRequiredLocalization(componentLocalization);
+                            .getLocalization(componentLocalization);
+
+                if (localization == null)
+                    localization = Text.single(componentLocalization);
 
                 if (privateArgs.containsKey(next))
                     privateArgs.put(localization, privateArgs.get(next));
@@ -222,7 +240,13 @@ public final class FastTextLocalizer extends AbstractTextLocalizer {
                     components.insert(element, last);
                 }
             } else {
-                throw new IllegalArgumentException("Invalid component: '"+next+"'!");
+                TextComponent apply = this.getAdditionalTransformer().apply(next);
+
+                if (apply == next) { // Identity
+                    components.insert(new Element<>(Text.single(apply.toString())));
+                } else {
+                    components.insert(new Element<>(apply));
+                }
             }
 
             privateArgs.remove(next);
