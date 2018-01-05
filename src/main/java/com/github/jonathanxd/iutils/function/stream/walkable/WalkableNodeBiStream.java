@@ -31,7 +31,7 @@ import com.github.jonathanxd.iutils.collection.Walkable;
 import com.github.jonathanxd.iutils.container.IMutableContainer;
 import com.github.jonathanxd.iutils.container.MutableContainer;
 import com.github.jonathanxd.iutils.function.binary.BiBinaryOperator;
-import com.github.jonathanxd.iutils.function.binary.NodeBiBinaryOperator;
+import com.github.jonathanxd.iutils.function.binary.PairBiBinaryOperator;
 import com.github.jonathanxd.iutils.function.binary.StackBiBinaryOperator;
 import com.github.jonathanxd.iutils.function.collector.BiCollector;
 import com.github.jonathanxd.iutils.function.comparators.BiComparator;
@@ -39,11 +39,12 @@ import com.github.jonathanxd.iutils.function.consumer.TriConsumer;
 import com.github.jonathanxd.iutils.function.function.BiToDoubleFunction;
 import com.github.jonathanxd.iutils.function.function.BiToIntFunction;
 import com.github.jonathanxd.iutils.function.function.BiToLongFunction;
-import com.github.jonathanxd.iutils.function.function.NodeArrayIntFunction;
-import com.github.jonathanxd.iutils.function.function.NodeFunction;
+import com.github.jonathanxd.iutils.function.function.PairArrayIntFunction;
+import com.github.jonathanxd.iutils.function.function.PairFunction;
 import com.github.jonathanxd.iutils.function.function.TriFunction;
 import com.github.jonathanxd.iutils.function.stream.BiStream;
-import com.github.jonathanxd.iutils.object.Node;
+import com.github.jonathanxd.iutils.object.Pair;
+import com.github.jonathanxd.iutils.object.Pairs;
 import com.github.jonathanxd.iutils.sort.SortingResult;
 
 import java.util.ArrayList;
@@ -67,28 +68,28 @@ import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
 /**
- * A {@link BiStream} backed by a {@link Walkable} of {@link Node}.
+ * A {@link BiStream} backed by a {@link Walkable} of {@link Pair}.
  *
  * Obs: This implementation is not a real implementation of a Stream, the name is only for
- * convention, this implementation is nether lazy nor parallel-capable. This implementation is eager,
- * sequential and backed by a {@link Walkable}.
+ * convention, this implementation is nether lazy nor parallel-capable. This implementation is
+ * eager, sequential and backed by a {@link Walkable}.
  *
- * @see Walkable
  * @param <T> First value type.
  * @param <U> Second value type.
+ * @see Walkable
  */
-public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<Node<T, U>>> {
+public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<Pair<T, U>>> {
 
-    public WalkableNodeBiStream(Walkable<Node<T, U>> entries) {
+    public WalkableNodeBiStream(Walkable<Pair<T, U>> entries) {
         super(entries);
     }
 
-    protected WalkableNodeBiStream(List<Node<T, U>> entries) {
+    protected WalkableNodeBiStream(List<Pair<T, U>> entries) {
         super(Walkable.fromList(entries));
     }
 
 
-    protected WalkableNodeBiStream(Walkable<Node<T, U>> walkable, Runnable closeRunnable) {
+    protected WalkableNodeBiStream(Walkable<Pair<T, U>> walkable, Runnable closeRunnable) {
         super(walkable, closeRunnable);
     }
 
@@ -97,12 +98,12 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
 
         WalkableNodeBiStream<T, U> biStream = newBi();
 
-        Walkable<Node<T, U>> iterator = biStream.unsafeIter();
+        Walkable<Pair<T, U>> iterator = biStream.unsafeIter();
 
         while (iterator.hasNext()) {
-            Node<T, U> entry = iterator.next();
+            Pair<T, U> entry = iterator.next();
 
-            if (!predicate.test(entry.getKey(), entry.getValue()))
+            if (!predicate.test(entry.getFirst(), entry.getSecond()))
                 iterator.remove();
         }
 
@@ -125,13 +126,13 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
     }
 
     @Override
-    public <RK, RV> BiStream<RK, RV> map(NodeFunction<? super T, ? super U, ? extends RK, ? extends RV> mapper) {
+    public <RK, RV> BiStream<RK, RV> map(PairFunction<? super T, ? super U, ? extends RK, ? extends RV> mapper) {
 
         Map<RK, RV> newMap = new HashMap<>();
 
         loop(entry -> {
-            Node<? extends RK, ? extends RV> node = mapper.apply(entry.getKey(), entry.getValue());
-            newMap.put(node.getKey(), node.getValue());
+            Pair<? extends RK, ? extends RV> node = mapper.apply(entry.getFirst(), entry.getSecond());
+            newMap.put(node.getFirst(), node.getSecond());
         });
 
         return new WalkableNodeBiStream<>(Walkable.fromList(newMap));
@@ -142,7 +143,7 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
         List<R> rList = new ArrayList<>();
 
         loop(entry -> {
-            R ret = mapper.apply(entry.getKey(), entry.getValue());
+            R ret = mapper.apply(entry.getFirst(), entry.getSecond());
             rList.add(ret);
         });
 
@@ -154,7 +155,7 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
         List<R> rList = new ArrayList<>();
 
         loop(entry -> {
-            R ret = mapper.apply(entry.getKey());
+            R ret = mapper.apply(entry.getFirst());
             rList.add(ret);
         });
 
@@ -166,7 +167,7 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
         List<R> rList = new ArrayList<>();
 
         loop(entry -> {
-            R ret = mapper.apply(entry.getValue());
+            R ret = mapper.apply(entry.getSecond());
             rList.add(ret);
         });
 
@@ -178,7 +179,7 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
 
         IntStream.Builder builder = IntStream.builder();
 
-        loop(entry -> builder.add(mapper.applyAsInt(entry.getKey(), entry.getValue())));
+        loop(entry -> builder.add(mapper.applyAsInt(entry.getFirst(), entry.getSecond())));
 
         return builder.build();
     }
@@ -188,7 +189,7 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
 
         LongStream.Builder builder = LongStream.builder();
 
-        loop(entry -> builder.add(mapper.applyAsLong(entry.getKey(), entry.getValue())));
+        loop(entry -> builder.add(mapper.applyAsLong(entry.getFirst(), entry.getSecond())));
 
         return builder.build();
     }
@@ -197,7 +198,7 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
     public DoubleStream mapToDouble(BiToDoubleFunction<? super T, ? super U> mapper) {
         DoubleStream.Builder builder = DoubleStream.builder();
 
-        loop(entry -> builder.add(mapper.applyAsDouble(entry.getKey(), entry.getValue())));
+        loop(entry -> builder.add(mapper.applyAsDouble(entry.getFirst(), entry.getSecond())));
 
         return builder.build();
     }
@@ -206,17 +207,17 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
     @Override
     public <R, V> BiStream<R, V> flatMap(BiFunction<? super T, ? super U, ? extends BiStream<? extends R, ? extends V>> mapper) {
 
-        List<Node<R, V>> nodes = new ArrayList<>();
+        List<Pair<R, V>> nodes = new ArrayList<>();
 
         loop(e -> {
-            BiStream<? extends R, ? extends V> bi = mapper.apply(e.getKey(), e.getValue());
+            BiStream<? extends R, ? extends V> bi = mapper.apply(e.getFirst(), e.getSecond());
 
-            Iterator<? extends Node<? extends R, ? extends V>> iterator = bi.iterator();
+            Iterator<? extends Pair<? extends R, ? extends V>> iterator = bi.iterator();
 
             while (iterator.hasNext()) {
-                Node<? extends R, ? extends V> next = iterator.next();
+                Pair<? extends R, ? extends V> next = iterator.next();
 
-                nodes.add((Node<R, V>) next);
+                nodes.add((Pair<R, V>) next);
             }
         });
 
@@ -231,7 +232,7 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
 
         loop(e -> {
 
-            Stream<? extends R> streamA = mapper.apply(e.getKey(), e.getValue());
+            Stream<? extends R> streamA = mapper.apply(e.getFirst(), e.getSecond());
             streamA.forEach(rList::add);
 
         });
@@ -245,7 +246,7 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
 
         loop(e -> {
 
-            Stream<? extends R> streamA = mapper.apply(e.getKey());
+            Stream<? extends R> streamA = mapper.apply(e.getFirst());
             streamA.forEach(rList::add);
 
         });
@@ -259,7 +260,7 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
 
         loop(e -> {
 
-            Stream<? extends R> streamA = mapper.apply(e.getValue());
+            Stream<? extends R> streamA = mapper.apply(e.getSecond());
             streamA.forEach(rList::add);
 
         });
@@ -273,7 +274,7 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
 
         loop(e -> {
 
-            IntStream is = mapper.apply(e.getKey(), e.getValue());
+            IntStream is = mapper.apply(e.getFirst(), e.getSecond());
             is.forEach(builder::add);
 
         });
@@ -287,7 +288,7 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
 
         loop(e -> {
 
-            LongStream ls = mapper.apply(e.getKey(), e.getValue());
+            LongStream ls = mapper.apply(e.getFirst(), e.getSecond());
             ls.forEach(builder::add);
 
         });
@@ -301,7 +302,7 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
 
         loop(e -> {
 
-            DoubleStream ds = mapper.apply(e.getKey(), e.getValue());
+            DoubleStream ds = mapper.apply(e.getFirst(), e.getSecond());
             ds.forEach(builder::add);
 
         });
@@ -314,7 +315,7 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
     public BiStream<T, U> distinctTwo() {
         WalkableNodeBiStream<T, U> biStream = newBi();
 
-        Walkable<Node<T, U>> iterator = biStream.unsafeIter();
+        Walkable<Pair<T, U>> iterator = biStream.unsafeIter();
 
         iterator.distinctInternal();
 
@@ -330,9 +331,9 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
 
         List<Integer> hashCodes = new ArrayList<>();
 
-        Walkable<Node<T, U>> iterator = biStream.unsafeIter();
+        Walkable<Pair<T, U>> iterator = biStream.unsafeIter();
 
-        iterator.distinctInternal(Node::getKey);
+        iterator.distinctInternal(Pair::getFirst);
 
         iterator.resetIndex();
 
@@ -346,9 +347,9 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
 
         List<Integer> hashCodes = new ArrayList<>();
 
-        Walkable<Node<T, U>> iterator = biStream.unsafeIter();
+        Walkable<Pair<T, U>> iterator = biStream.unsafeIter();
 
-        iterator.distinctInternal(Node::getValue);
+        iterator.distinctInternal(Pair::getSecond);
 
         iterator.resetIndex();
 
@@ -361,11 +362,11 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
         WalkableNodeBiStream<T, U> biStream = newBi();
         biStream.getWalkable().sort((e, e2) -> {
 
-            Comparable<T> comparableE1T = (Comparable<T>) e.getKey();
-            Comparable<U> comparableE1U = (Comparable<U>) e.getValue();
+            Comparable<T> comparableE1T = (Comparable<T>) e.getFirst();
+            Comparable<U> comparableE1U = (Comparable<U>) e.getSecond();
 
-            T e2T = e2.getKey();
-            U e2U = e2.getValue();
+            T e2T = e2.getFirst();
+            U e2U = e2.getSecond();
 
             int compare;
 
@@ -389,9 +390,9 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
 
         biStream.getWalkable().sort((e, e2) -> {
 
-            Comparable<T> comparableE1T = (Comparable<T>) e.getKey();
+            Comparable<T> comparableE1T = (Comparable<T>) e.getFirst();
 
-            T e2T = e2.getKey();
+            T e2T = e2.getFirst();
 
             return comparableE1T.compareTo(e2T);
         });
@@ -406,9 +407,9 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
 
         biStream.getWalkable().sort((e, e2) -> {
 
-            Comparable<U> comparableE1U = (Comparable<U>) e.getValue();
+            Comparable<U> comparableE1U = (Comparable<U>) e.getSecond();
 
-            U e2U = e2.getValue();
+            U e2U = e2.getSecond();
 
             return comparableE1U.compareTo(e2U);
         });
@@ -419,14 +420,14 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
     @Override
     public BiStream<T, U> sorted(BiComparator<? super T, ? super U> comparator) {
         WalkableNodeBiStream<T, U> biStream = newBi();
-        biStream.getWalkable().sort((e, e2) -> comparator.compare(e.getKey(), e.getValue(), e2.getKey(), e2.getValue()));
+        biStream.getWalkable().sort((e, e2) -> comparator.compare(e.getFirst(), e.getSecond(), e2.getFirst(), e2.getSecond()));
         return biStream;
     }
 
     @Override
     public BiStream<T, U> peek(BiConsumer<? super T, ? super U> action) {
         WalkableNodeBiStream<T, U> biStream = newBi();
-        biStream.consume(e -> action.accept(e.getKey(), e.getValue()));
+        biStream.consume(e -> action.accept(e.getFirst(), e.getSecond()));
         return biStream;
     }
 
@@ -453,7 +454,7 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
         if (!getWalkable().hasNext())
             return;
 
-        consume(e -> e.consume(action));
+        consume(e -> action.accept(e.getFirst(), e.getSecond()));
     }
 
     @Override
@@ -461,43 +462,43 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
         if (!getWalkable().hasNext())
             return;
 
-        consume(e -> e.consume(action));
+        consume(e -> action.accept(e.getFirst(), e.getSecond()));
     }
 
     @Override
-    public Node<T, U>[] toArray() {
+    public Pair<T, U>[] toArray() {
         return this.getWalkable().toArray();
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public <A, V> Node<A, V>[] toArray(IntFunction<Node<A, V>[]> generator) {
+    public <A, V> Pair<A, V>[] toArray(IntFunction<Pair<A, V>[]> generator) {
         return toArray(new BackPortIntFunc<>(generator));
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public <A, V> Node<A, V>[] toArray(NodeArrayIntFunction<A, V> generator) {
-        Node<T, U>[] nodeArray = toArray();
+    public <A, V> Pair<A, V>[] toArray(PairArrayIntFunction<A, V> generator) {
+        Pair<T, U>[] pairArray = toArray();
 
-        Node<A, V>[] avNode = generator.apply(nodeArray.length);
+        Pair<A, V>[] avPair = generator.apply(pairArray.length);
 
-        for (int x = 0; x < nodeArray.length; ++x) {
-            Node<T, U> node = nodeArray[x];
-            avNode[x] = new Node<>((A) node.getKey(), (V) node.getValue());
+        for (int x = 0; x < pairArray.length; ++x) {
+            Pair<T, U> pair = pairArray[x];
+            avPair[x] = Pairs.of((A) pair.getFirst(), (V) pair.getSecond());
         }
 
-        return avNode;
+        return avPair;
     }
 
     @Override
-    public Node<T, U> reduceTwo(T identity, U identify2, NodeBiBinaryOperator<T, U> accumulator) {
+    public Pair<T, U> reduceTwo(T identity, U identify2, PairBiBinaryOperator<T, U> accumulator) {
 
-        IMutableContainer<Node<T, U>> nodeContainer = new MutableContainer<>(new Node<>(identity, identify2));
+        IMutableContainer<Pair<T, U>> nodeContainer = new MutableContainer<>(Pairs.of(identity, identify2));
 
         consume(n -> nodeContainer.set(
-                accumulator.apply(nodeContainer.get().getKey(), nodeContainer.get().getValue(),
-                        n.getKey(), n.getValue())
+                accumulator.apply(nodeContainer.get().getFirst(), nodeContainer.get().getSecond(),
+                        n.getFirst(), n.getSecond())
                 )
         );
 
@@ -505,13 +506,14 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
     }
 
     @Override
-    public Node<List<T>, U> reduceMixed(List<T> init, U identify, StackBiBinaryOperator<List<T>, T, U> accumulator) {
+    public Pair<List<T>, U> reduceMixed(List<T> init, U identify, StackBiBinaryOperator<List<T>, T, U> accumulator) {
 
-        IMutableContainer<Node<List<T>, U>> nodeContainer = new MutableContainer<>(new Node<>(init, identify));
+        IMutableContainer<Pair<List<T>, U>> nodeContainer = new MutableContainer<>(Pairs.of(init, identify));
 
         consume(n -> nodeContainer.mapThisValue(
-                current -> current.withNewValue(
-                        accumulator.apply(nodeContainer.get().getKey(), nodeContainer.get().getValue(), n.getKey(), n.getValue())
+                current -> Pairs.of(current.getFirst(),
+                        accumulator.apply(nodeContainer.get().getFirst(), nodeContainer.get().getSecond(),
+                                n.getFirst(), n.getSecond())
                 ))
         );
 
@@ -521,40 +523,41 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
     @Override
     public T reduceFirst(T identify, U identify2, BiBinaryOperator<T, U> accumulator) {
 
-        IMutableContainer<Node<T, U>> nodeContainer = new MutableContainer<>(new Node<>(identify, identify2));
+        IMutableContainer<Pair<T, U>> nodeContainer = new MutableContainer<>(Pairs.of(identify, identify2));
 
         consume(n -> nodeContainer.mapThisValue(
-                (current) -> current.withNewKey(
-                        accumulator.apply(current.getKey(), current.getValue(), n.getKey(), n.getValue())
-                )
+                (current) -> Pairs.of(
+                        accumulator.apply(current.getFirst(), current.getSecond(), n.getFirst(), n.getSecond()),
+                        current.getSecond())
                 )
         );
-        return nodeContainer.get().getKey();
+        return nodeContainer.get().getFirst();
     }
 
     @Override
     public U reduceSecond(T identify, U identify2, BiBinaryOperator<U, T> accumulator) {
-        IMutableContainer<Node<T, U>> nodeContainer = new MutableContainer<>(new Node<>(identify, identify2));
+        IMutableContainer<Pair<T, U>> nodeContainer = new MutableContainer<>(Pairs.of(identify, identify2));
 
         consume(n -> nodeContainer.mapThisValue(
-                (current) -> current.withNewValue(
-                        accumulator.apply(current.getValue(), current.getKey(), n.getValue(), n.getKey())
+                (current) -> Pairs.of(current.getFirst(),
+                        accumulator.apply(current.getSecond(), current.getFirst(), n.getSecond(), n.getFirst())
                 )
                 )
         );
 
-        return nodeContainer.get().getValue();
+        return nodeContainer.get().getSecond();
     }
 
     @Override
-    public Optional<Node<T, U>> reduceTwo(NodeBiBinaryOperator<T, U> accumulator) {
-        IMutableContainer<Node<T, U>> nodeContainer = new MutableContainer<>(null);
+    public Optional<Pair<T, U>> reduceTwo(PairBiBinaryOperator<T, U> accumulator) {
+        IMutableContainer<Pair<T, U>> nodeContainer = new MutableContainer<>(null);
 
         consume(n -> {
             if (!nodeContainer.isPresent())
                 nodeContainer.set(n);
             else
-                nodeContainer.mapThisValue(current -> accumulator.apply(current.getKey(), current.getValue(), n.getKey(), n.getValue()));
+                nodeContainer.mapThisValue(current -> accumulator.apply(current.getFirst(), current.getSecond(),
+                        n.getFirst(), n.getSecond()));
         });
 
         return !nodeContainer.isPresent() ? Optional.empty() : Optional.of(nodeContainer.get());
@@ -562,38 +565,40 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
 
     @Override
     public Optional<T> reduceFirst(BiBinaryOperator<T, U> accumulator) {
-        IMutableContainer<Node<T, U>> nodeContainer = new MutableContainer<>(null);
+        IMutableContainer<Pair<T, U>> pairContainer = new MutableContainer<>(null);
 
         consume(n -> {
-                    if (!nodeContainer.isPresent())
-                        nodeContainer.set(n);
+                    if (!pairContainer.isPresent())
+                        pairContainer.set(n);
                     else
-                        nodeContainer.mapThisValue(
-                                (current) -> current.withNewKey(
-                                        accumulator.apply(current.getKey(), current.getValue(), n.getKey(), n.getValue())
+                        pairContainer.mapThisValue(
+                                (current) -> Pairs.of(
+                                        accumulator.apply(current.getFirst(), current.getSecond(), n.getFirst(), n.getSecond()),
+                                        current.getSecond()
                                 )
                         );
                 }
         );
 
-        return !nodeContainer.isPresent() ? Optional.empty() : Optional.of(nodeContainer.get().getKey());
+        return !pairContainer.isPresent() ? Optional.empty() : Optional.of(pairContainer.get().getFirst());
     }
 
     @Override
     public Optional<U> reduceSecond(BiBinaryOperator<U, T> accumulator) {
-        IMutableContainer<Node<T, U>> nodeContainer = new MutableContainer<>(null);
+        IMutableContainer<Pair<T, U>> pairContainer = new MutableContainer<>(null);
 
         consume(n -> {
-                    if (!nodeContainer.isPresent())
-                        nodeContainer.set(n);
+                    if (!pairContainer.isPresent())
+                        pairContainer.set(n);
                     else
-                        nodeContainer.mapThisValue((current) -> current.withNewValue(
-                                accumulator.apply(current.getValue(), current.getKey(), n.getValue(), n.getKey())
-                        ));
+                        pairContainer.mapThisValue((current) ->
+                                Pairs.of(current.getFirst(),
+                                        accumulator.apply(current.getSecond(), current.getFirst(), n.getSecond(), n.getFirst()))
+                        );
                 }
         );
 
-        return !nodeContainer.isPresent() ? Optional.empty() : Optional.of(nodeContainer.get().getValue());
+        return !pairContainer.isPresent() ? Optional.empty() : Optional.of(pairContainer.get().getSecond());
     }
 
     @Override
@@ -601,7 +606,7 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
 
         IMutableContainer<R> ret = new MutableContainer<>(identity);
 
-        consume(n -> ret.mapThisValue(current -> accumulator.apply(current, n.getKey(), n.getValue())));
+        consume(n -> ret.mapThisValue(current -> accumulator.apply(current, n.getFirst(), n.getSecond())));
 
         return ret.get();
     }
@@ -618,7 +623,7 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
 
         final A retVal = supplier.get();
 
-        consume(n -> accumulator.accept(retVal, n.getKey()));
+        consume(n -> accumulator.accept(retVal, n.getFirst()));
 
         return finisher.apply(retVal);
 
@@ -635,7 +640,7 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
 
         final A retVal = supplier.get();
 
-        consume(n -> accumulator.accept(retVal, n.getValue()));
+        consume(n -> accumulator.accept(retVal, n.getSecond()));
 
         return finisher.apply(retVal);
     }
@@ -658,7 +663,7 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
 
         final R retVal = supplier.get();
 
-        consume(n -> accumulator.accept(retVal, n.getKey(), n.getValue()));
+        consume(n -> accumulator.accept(retVal, n.getFirst(), n.getSecond()));
 
         return retVal;
     }
@@ -676,9 +681,7 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
         final A retVal = supplier.get();
 
         consume(n -> {
-
-            accumulator.accept(retVal, n.getKey(), n.getValue());
-
+            accumulator.accept(retVal, n.getFirst(), n.getSecond());
         });
 
         return finisher.apply(retVal);
@@ -692,8 +695,9 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
      * @return t
      */
     @Override
-    public Optional<Node<T, U>> min(BiComparator<? super T, ? super U> comparator) {
-        SortingResult<Node<T, U>> sortingResult = getWalkable().compareToComparison((c, c2) -> comparator.compare(c.getKey(), c.getValue(), c2.getKey(), c2.getValue()));
+    public Optional<Pair<T, U>> min(BiComparator<? super T, ? super U> comparator) {
+        SortingResult<Pair<T, U>> sortingResult = this.getWalkable()
+                .compareToComparison((c, c2) -> comparator.compare(c.getFirst(), c.getSecond(), c2.getFirst(), c2.getSecond()));
 
         return sortingResult.min();
     }
@@ -705,8 +709,10 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
      * @return t
      */
     @Override
-    public Optional<Node<T, U>> max(BiComparator<? super T, ? super U> comparator) {
-        SortingResult<Node<T, U>> sortingResult = getWalkable().compareToComparison((c, c2) -> comparator.compare(c.getKey(), c.getValue(), c2.getKey(), c2.getValue()));
+    public Optional<Pair<T, U>> max(BiComparator<? super T, ? super U> comparator) {
+        SortingResult<Pair<T, U>> sortingResult =
+                this.getWalkable()
+                        .compareToComparison((c, c2) -> comparator.compare(c.getFirst(), c.getSecond(), c2.getFirst(), c2.getSecond()));
 
         return sortingResult.max();
     }
@@ -719,12 +725,12 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
     @Override
     public boolean anyMatch(BiPredicate<? super T, ? super U> predicate) {
 
-        Walkable<Node<T, U>> iter = unsafeIter();
+        Walkable<Pair<T, U>> iter = unsafeIter();
 
         while (iter.hasNext()) {
-            Node<T, U> node = iter.next();
+            Pair<T, U> node = iter.next();
 
-            if (predicate.test(node.getKey(), node.getValue())) {
+            if (predicate.test(node.getFirst(), node.getSecond())) {
                 return true;
             }
         }
@@ -735,12 +741,12 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
     @Override
     public boolean allMatch(BiPredicate<? super T, ? super U> predicate) {
 
-        Walkable<Node<T, U>> iter = unsafeIter();
+        Walkable<Pair<T, U>> iter = unsafeIter();
 
         while (iter.hasNext()) {
-            Node<T, U> node = iter.next();
+            Pair<T, U> node = iter.next();
 
-            if (!predicate.test(node.getKey(), node.getValue())) {
+            if (!predicate.test(node.getFirst(), node.getSecond())) {
                 return false;
             }
         }
@@ -754,26 +760,26 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
     }
 
     @Override
-    public Optional<Node<T, U>> findFirst() {
+    public Optional<Pair<T, U>> findFirst() {
 
-        List<Node<T, U>> currentList = getWalkable().toList();
+        List<Pair<T, U>> currentList = getWalkable().toList();
 
         return currentList == null || currentList.isEmpty() ? Optional.empty() : Optional.of(currentList.get(0));
     }
 
     @Override
-    public Optional<Node<T, U>> findAny() {
+    public Optional<Pair<T, U>> findAny() {
         return !getWalkable().hasCurrent() ? Optional.empty() : Optional.of(getWalkable().getCurrent());
     }
 
     @Override
-    public Iterator<Node<T, U>> iterator() {
+    public Iterator<Pair<T, U>> iterator() {
 
         return nodeList().iterator();
     }
 
     @Override
-    public Spliterator<Node<T, U>> spliterator() {
+    public Spliterator<Pair<T, U>> spliterator() {
         return nodeList().spliterator();
     }
 
@@ -799,15 +805,15 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
     }
 
     @Deprecated
-    private Walkable<Node<T, U>> iter() {
+    private Walkable<Pair<T, U>> iter() {
         return getWalkable().newWithoutState();
     }
 
-    private Walkable<Node<T, U>> safeIter() {
+    private Walkable<Pair<T, U>> safeIter() {
         return getWalkable().newWithoutState();
     }
 
-    private Walkable<Node<T, U>> unsafeIter() {
+    private Walkable<Pair<T, U>> unsafeIter() {
 
         if (!this.getWalkable().hasNext())
             //throw new NoSuchElementException("End of stream!");
@@ -816,12 +822,12 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
         return getWalkable();
     }
 
-    private void loop(Consumer<Node<T, U>> consumer) {
+    private void loop(Consumer<Pair<T, U>> consumer) {
         getWalkable().forEach(consumer::accept);
         updateState();
     }
 
-    private void consume(Consumer<Node<T, U>> consumer) {
+    private void consume(Consumer<Pair<T, U>> consumer) {
 
         /*if (!this.getWalkable().hasNext())
             throw new NoSuchElementException("End of stream!");*/
@@ -845,9 +851,9 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
     }
 
     private WalkableNodeBiStream<T, U> limitTo(long n) {
-        Walkable<Node<T, U>> iter = safeIter();
+        Walkable<Pair<T, U>> iter = safeIter();
 
-        List<Node<T, U>> entries = new ArrayList<>();
+        List<Pair<T, U>> entries = new ArrayList<>();
 
         long current = 0;
         while (iter.hasNext() && current < n) {
@@ -862,8 +868,8 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
         return walkableNodeBiStream;
     }
 
-    private List<Node<T, U>> nodeList() {
-        List<Node<T, U>> nodeList = new ArrayList<>();
+    private List<Pair<T, U>> nodeList() {
+        List<Pair<T, U>> nodeList = new ArrayList<>();
 
         loop(nodeList::add);
 
@@ -871,16 +877,16 @@ public class WalkableNodeBiStream<T, U> extends WalkableBiStream<T, U, Walkable<
     }
 
 
-    private static class BackPortIntFunc<T, E> implements NodeArrayIntFunction<T, E> {
+    private static class BackPortIntFunc<T, E> implements PairArrayIntFunction<T, E> {
 
-        private final IntFunction<Node<T, E>[]> intFunction;
+        private final IntFunction<Pair<T, E>[]> intFunction;
 
-        private BackPortIntFunc(IntFunction<Node<T, E>[]> intFunction) {
+        private BackPortIntFunc(IntFunction<Pair<T, E>[]> intFunction) {
             this.intFunction = intFunction;
         }
 
         @Override
-        public Node<T, E>[] apply(int i) {
+        public Pair<T, E>[] apply(int i) {
             return intFunction.apply(i);
         }
     }

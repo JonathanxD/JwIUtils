@@ -25,30 +25,18 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.jwiutils.kt
+package com.github.jonathanxd.iutils.kt
 
-import com.github.jonathanxd.iutils.`object`.Either
+import com.github.jonathanxd.iutils.`object`.Pairs
 
-/**
- * Tries to run function [f]. Returns an [Either] of [Exception] occurred inside
- * [f], or returns value of type [R] returned by function [f].
- */
-inline fun <R> Try(f: () -> R): Either<Exception, R> =
-        try {
-            right(f())
-        } catch (e: Exception) {
-            left(e)
-        }
+@Suppress("NOTHING_TO_INLINE")
+inline fun <A, B> Pair<A, B>.toJw(): com.github.jonathanxd.iutils.`object`.Pair<A, B> =
+        this.first toJw this.second
 
-/**
- * Tries to run function [f]. Returns an [Either] of [Throwable] occurred inside
- * [f], or returns value of type [R] returned by function [f].
- *
- * Not recommended. Use [Try] instead.
- */
-inline fun <R> TryThrowable(f: () -> R): Either<Throwable, R> =
-        try {
-            right(f())
-        } catch (e: Throwable) {
-            left(e)
-        }
+@Suppress("NOTHING_TO_INLINE")
+inline fun <A, B> com.github.jonathanxd.iutils.`object`.Pair<A, B>.toKt(): Pair<A, B> =
+        this.first to this.second
+
+@Suppress("NOTHING_TO_INLINE")
+inline infix fun <A, B> A.toJw(b: B): com.github.jonathanxd.iutils.`object`.Pair<A, B> =
+        Pairs.of(this, b)

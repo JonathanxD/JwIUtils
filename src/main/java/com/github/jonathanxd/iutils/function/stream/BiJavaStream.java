@@ -28,7 +28,7 @@
 package com.github.jonathanxd.iutils.function.stream;
 
 import com.github.jonathanxd.iutils.function.binary.BiBinaryOperator;
-import com.github.jonathanxd.iutils.function.binary.NodeBiBinaryOperator;
+import com.github.jonathanxd.iutils.function.binary.PairBiBinaryOperator;
 import com.github.jonathanxd.iutils.function.binary.StackBiBinaryOperator;
 import com.github.jonathanxd.iutils.function.collector.BiCollector;
 import com.github.jonathanxd.iutils.function.comparators.BiComparator;
@@ -36,11 +36,13 @@ import com.github.jonathanxd.iutils.function.consumer.TriConsumer;
 import com.github.jonathanxd.iutils.function.function.BiToDoubleFunction;
 import com.github.jonathanxd.iutils.function.function.BiToIntFunction;
 import com.github.jonathanxd.iutils.function.function.BiToLongFunction;
-import com.github.jonathanxd.iutils.function.function.NodeArrayIntFunction;
-import com.github.jonathanxd.iutils.function.function.NodeFunction;
+import com.github.jonathanxd.iutils.function.function.PairArrayIntFunction;
+import com.github.jonathanxd.iutils.function.function.PairFunction;
 import com.github.jonathanxd.iutils.function.function.TriFunction;
-import com.github.jonathanxd.iutils.object.Node;
 import com.github.jonathanxd.iutils.object.Pair;
+import com.github.jonathanxd.iutils.object.Pairs;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -92,11 +94,11 @@ public final class BiJavaStream<T, U> implements BiStream<T, U> {
 
     @SuppressWarnings("unchecked")
     @Override
-    public <RK, RV> BiStream<RK, RV> map(NodeFunction<? super T, ? super U, ? extends RK, ? extends RV> mapper) {
+    public <RK, RV> BiStream<RK, RV> map(PairFunction<? super T, ? super U, ? extends RK, ? extends RV> mapper) {
         return stream(this.wrapped.map(o -> {
-            Node<? extends RK, ? extends RV> apply = mapper.apply(o.getKey(), o.getValue());
+            Pair<? extends RK, ? extends RV> apply = mapper.apply(o.getKey(), o.getValue());
 
-            return new AbstractMap.SimpleEntry(apply.getKey(), apply.getValue());
+            return (Map.Entry) this.entryFromPair(apply);
         }));
     }
 
@@ -258,14 +260,14 @@ public final class BiJavaStream<T, U> implements BiStream<T, U> {
 
     @SuppressWarnings("unchecked")
     @Override
-    public Node<T, U>[] toArray() {
+    public Pair<T, U>[] toArray() {
         Object[] objects = this.wrapped.toArray();
-        Node<T, U>[] nodes = new Node[objects.length];
+        Pair<T, U>[] nodes = new Pair[objects.length];
 
         for (int i = 0; i < objects.length; i++) {
             Map.Entry<T, U> entry = (Map.Entry<T, U>) objects[i];
 
-            nodes[i] = Node.fromEntry(entry);
+            nodes[i] = this.pairFromEntry((Map.Entry<T, U>) entry);
         }
 
         return nodes;
@@ -273,12 +275,13 @@ public final class BiJavaStream<T, U> implements BiStream<T, U> {
 
     @SuppressWarnings("unchecked")
     @Override
-    public <A, V> Node<A, V>[] toArray(IntFunction<Node<A, V>[]> generator) {
+    public <A, V> Pair<A, V>[] toArray(IntFunction<Pair<A, V>[]> generator) {
         Map.Entry[] entries = this.wrapped.toArray(Map.Entry[]::new);
-        Node<A, V>[] nodes = generator.apply(entries.length);
+        Pair<A, V>[] nodes = generator.apply(entries.length);
 
         for (int i = 0; i < entries.length; i++) {
-            nodes[i] = Node.fromEntry(entries[i]);
+            Map.Entry entry = entries[i];
+            nodes[i] = this.pairFromEntry((Map.Entry<A, V>) entry);
         }
 
         return nodes;
@@ -286,12 +289,13 @@ public final class BiJavaStream<T, U> implements BiStream<T, U> {
 
     @SuppressWarnings("unchecked")
     @Override
-    public <A, V> Node<A, V>[] toArray(NodeArrayIntFunction<A, V> generator) {
+    public <A, V> Pair<A, V>[] toArray(PairArrayIntFunction<A, V> generator) {
         Map.Entry[] entries = this.wrapped.toArray(Map.Entry[]::new);
-        Node<A, V>[] nodes = generator.apply(entries.length);
+        Pair<A, V>[] nodes = generator.apply(entries.length);
 
         for (int i = 0; i < entries.length; i++) {
-            nodes[i] = Node.fromEntry(entries[i]);
+            Map.Entry entry = entries[i];
+            nodes[i] = this.pairFromEntry((Map.Entry<A, V>) entry);
         }
 
         return nodes;
@@ -299,113 +303,115 @@ public final class BiJavaStream<T, U> implements BiStream<T, U> {
 
     @SuppressWarnings("unchecked")
     @Override
-    public Node<T, U> reduceTwo(T identity, U identity2, NodeBiBinaryOperator<T, U> accumulator) {
+    public Pair<T, U> reduceTwo(T identity, U identity2, PairBiBinaryOperator<T, U> accumulator) {
 
         return BiStreams
-                .mapJavaToBiStream(this.wrapped, o -> Pair.of(o.getKey(), o.getValue()))
+                .mapJavaToBiStream(this.wrapped, this::pairFromEntry)
                 .reduceTwo(identity, identity2, accumulator);
     }
 
     @Override
-    public Node<List<T>, U> reduceMixed(List<T> init, U identity2, StackBiBinaryOperator<List<T>, T, U> accumulator) {
-        return BiStreams.mapJavaToBiStream(this.wrapped, o -> Pair.of(o.getKey(), o.getValue())).reduceMixed(init, identity2, accumulator);
+    public Pair<List<T>, U> reduceMixed(List<T> init, U identity2, StackBiBinaryOperator<List<T>, T, U> accumulator) {
+        return BiStreams.mapJavaToBiStream(this.wrapped, this::pairFromEntry)
+                .reduceMixed(init, identity2, accumulator);
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public T reduceFirst(T identity, U identity2, BiBinaryOperator<T, U> accumulator) {
         return BiStreams
-                .mapJavaToBiStream(this.wrapped, o -> Pair.of(o.getKey(), o.getValue()))
+                .mapJavaToBiStream(this.wrapped, this::pairFromEntry)
                 .reduceFirst(identity, identity2, accumulator);
     }
 
     @Override
     public U reduceSecond(T identity, U identity2, BiBinaryOperator<U, T> accumulator) {
         return BiStreams
-                .mapJavaToBiStream(this.wrapped, o -> Pair.of(o.getKey(), o.getValue()))
+                .mapJavaToBiStream(this.wrapped, this::pairFromEntry)
                 .reduceSecond(identity, identity2, accumulator);
     }
 
     @Override
-    public Optional<Node<T, U>> reduceTwo(NodeBiBinaryOperator<T, U> accumulator) {
+    public Optional<Pair<T, U>> reduceTwo(PairBiBinaryOperator<T, U> accumulator) {
         return BiStreams
-                .mapJavaToBiStream(this.wrapped, o -> Pair.of(o.getKey(), o.getValue()))
+                .mapJavaToBiStream(this.wrapped, this::pairFromEntry)
                 .reduceTwo(accumulator);
     }
 
     @Override
     public Optional<T> reduceFirst(BiBinaryOperator<T, U> accumulator) {
         return BiStreams
-                .mapJavaToBiStream(this.wrapped, o -> Pair.of(o.getKey(), o.getValue()))
+                .mapJavaToBiStream(this.wrapped, this::pairFromEntry)
                 .reduceFirst(accumulator);
     }
 
     @Override
     public Optional<U> reduceSecond(BiBinaryOperator<U, T> accumulator) {
         return BiStreams
-                .mapJavaToBiStream(this.wrapped, o -> Pair.of(o.getKey(), o.getValue()))
+                .mapJavaToBiStream(this.wrapped, this::pairFromEntry)
                 .reduceSecond(accumulator);
     }
 
     @Override
     public <R> R reduce(R identity, TriFunction<R, ? super T, ? super U, R> accumulator) {
         return BiStreams
-                .mapJavaToBiStream(this.wrapped, o -> Pair.of(o.getKey(), o.getValue()))
+                .mapJavaToBiStream(this.wrapped, this::pairFromEntry)
                 .reduce(identity, accumulator);
     }
 
     @Override
     public <R, A> R collectKey(Collector<? super T, A, R> collector) {
         return BiStreams
-                .mapJavaToBiStream(this.wrapped, o -> Pair.of(o.getKey(), o.getValue()))
+                .mapJavaToBiStream(this.wrapped, this::pairFromEntry)
                 .collectKey(collector);
     }
 
     @Override
     public <R, A> R collectValue(Collector<? super U, A, R> collector) {
         return BiStreams
-                .mapJavaToBiStream(this.wrapped, o -> Pair.of(o.getKey(), o.getValue()))
+                .mapJavaToBiStream(this.wrapped, this::pairFromEntry)
                 .collectValue(collector);
     }
 
     @Override
     public <R> R collectKey(Supplier<R> supplier, BiConsumer<R, ? super T> accumulator) {
         return BiStreams
-                .mapJavaToBiStream(this.wrapped, o -> Pair.of(o.getKey(), o.getValue()))
+                .mapJavaToBiStream(this.wrapped, this::pairFromEntry)
                 .collectKey(supplier, accumulator);
     }
 
     @Override
     public <R> R collectValue(Supplier<R> supplier, BiConsumer<R, ? super U> accumulator) {
         return BiStreams
-                .mapJavaToBiStream(this.wrapped, o -> Pair.of(o.getKey(), o.getValue()))
+                .mapJavaToBiStream(this.wrapped, this::pairFromEntry)
                 .collectValue(supplier, accumulator);
     }
 
     @Override
     public <R> R collectOne(Supplier<R> supplier, TriConsumer<R, ? super T, ? super U> accumulator) {
         return BiStreams
-                .mapJavaToBiStream(this.wrapped, o -> Pair.of(o.getKey(), o.getValue()))
+                .mapJavaToBiStream(this.wrapped, this::pairFromEntry)
                 .collectOne(supplier, accumulator);
     }
 
     @Override
     public <R, A> R collect(BiCollector<? super T, ? super U, A, R> collector) {
         return BiStreams
-                .mapJavaToBiStream(this.wrapped, o -> Pair.of(o.getKey(), o.getValue()))
+                .mapJavaToBiStream(this.wrapped, this::pairFromEntry)
                 .collect(collector);
     }
 
     @Override
-    public Optional<Node<T, U>> min(BiComparator<? super T, ? super U> comparator) {
-        return this.wrapped.min((o1, o2) -> comparator.compare(o1.getKey(), o1.getValue(), o2.getKey(), o2.getValue()))
-                .map(Node::fromEntry);
+    public Optional<Pair<T, U>> min(BiComparator<? super T, ? super U> comparator) {
+        return this.wrapped.min((o1, o2) -> comparator
+                .compare(o1.getKey(), o1.getValue(), o2.getKey(), o2.getValue()))
+                .map(this::pairFromEntry);
     }
 
     @Override
-    public Optional<Node<T, U>> max(BiComparator<? super T, ? super U> comparator) {
+    public Optional<Pair<T, U>> max(BiComparator<? super T, ? super U> comparator) {
         return this.wrapped.max((o1, o2) -> comparator.compare(o1.getKey(), o1.getValue(), o2.getKey(), o2.getValue()))
-                .map(Node::fromEntry);
+                .map(this::pairFromEntry);
     }
 
     @Override
@@ -429,48 +435,63 @@ public final class BiJavaStream<T, U> implements BiStream<T, U> {
     }
 
     @Override
-    public Optional<Node<T, U>> findFirst() {
-        return this.wrapped.findFirst().map(Node::fromEntry);
+    public Optional<Pair<T, U>> findFirst() {
+        return this.wrapped.findFirst().map(this::pairFromEntry);
     }
 
     @Override
-    public Optional<Node<T, U>> findAny() {
-        return this.wrapped.findAny().map(Node::fromEntry);
+    public Optional<Pair<T, U>> findAny() {
+        return this.wrapped.findAny().map(this::pairFromEntry);
     }
 
     @Override
-    public Iterator<Node<T, U>> iterator() {
-        return new BackingIterator<>(this.wrapped.iterator(), Node::fromEntry);
+    public Iterator<Pair<T, U>> iterator() {
+        return new BackingIterator<>(this.wrapped.iterator(), this::pairFromEntry);
     }
 
     @Override
-    public Spliterator<Node<T, U>> spliterator() {
-        return new BackingSpliterator<>(this.wrapped.spliterator(), Node::fromEntry, tuNode -> new AbstractMap.SimpleEntry<>(tuNode.getKey(), tuNode.getValue()));
+    public Spliterator<Pair<T, U>> spliterator() {
+        return new BackingSpliterator<>(this.wrapped.spliterator(),
+                this::pairFromEntry,
+                this::entryFromPair
+        );
     }
 
     @Override
     public boolean isParallel() {
-        return this.isParallel();
+        return this.wrapped.isParallel();
     }
 
+    @NotNull
     @Override
     public BiStream<T, U> sequential() {
         return stream(this.wrapped.sequential());
     }
 
+    @NotNull
     @Override
     public BiStream<T, U> parallel() {
         return stream(this.wrapped.parallel());
     }
 
+    @NotNull
     @Override
     public BiStream<T, U> unordered() {
         return stream(this.wrapped.unordered());
     }
 
+    @NotNull
     @Override
     public BiStream<T, U> onClose(Runnable closeHandler) {
         return stream(this.wrapped.onClose(closeHandler));
+    }
+
+    private <X, Y> Pair<X, Y> pairFromEntry(Map.Entry<X, Y> entry) {
+        return Pairs.of(entry.getKey(), entry.getValue());
+    }
+
+    private <X, Y> Map.Entry<X, Y> entryFromPair(Pair<X, Y> pair) {
+        return new AbstractMap.SimpleImmutableEntry<>(pair.getFirst(), pair.getSecond());
     }
 
     @Override

@@ -121,8 +121,8 @@ public enum Pairs {
 
     private static final class SupplierPair<A, B> extends Pair<A, B> {
 
-        private final Supplier<A> aSupplier;
-        private final Supplier<B> bSupplier;
+        final Supplier<A> aSupplier;
+        final Supplier<B> bSupplier;
 
         SupplierPair(Supplier<A> aSupplier, Supplier<B> bSupplier) {
             this.aSupplier = aSupplier;
@@ -142,8 +142,8 @@ public enum Pairs {
 
     private static final class LazyPair<A, B> extends Pair<A, B> {
 
-        private final Lazy<A> firstLazy;
-        private final Lazy<B> secondLazy;
+        final Lazy<A> firstLazy;
+        final Lazy<B> secondLazy;
 
         LazyPair(Lazy<A> firstLazy, Lazy<B> secondLazy) {
             this.firstLazy = firstLazy;

@@ -1,5 +1,5 @@
 /*
- *      JwIUtils-kt - Extension of JwIUtils for Kotlin <https://github.com/JonathanxD/JwIUtils/>
+ *      JwIUtils - Java utilities library <https://github.com/JonathanxD/JwIUtils>
  *
  *         The MIT License (MIT)
  *
@@ -25,27 +25,40 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.jwiutils.kt.test
+package com.github.jonathanxd.iutils.function.checked.binary;
 
-import com.github.jonathanxd.jwiutils.kt.*
-import org.junit.Assert
-import org.junit.Test
+import com.github.jonathanxd.iutils.exception.RethrowException;
+import com.github.jonathanxd.iutils.function.binary.PairBinaryOperator;
+import com.github.jonathanxd.iutils.object.Pair;
 
-class Tests {
+/**
+ * {@link PairBinaryOperator}
+ *
+ * @see com.github.jonathanxd.iutils.function.checked
+ */
+@FunctionalInterface
+public interface CPairBinaryOperator<T, U> extends PairBinaryOperator<T, U> {
 
-    @Test
-    fun testOpt() {
-        val value = some(9)
-
-        Assert.assertTrue(value.isPresent)
+    @Override
+    default Pair<T, U> apply(T t, U u) {
+        try {
+            return this.applyChecked(t, u);
+        } catch (Throwable th) {
+            throw RethrowException.rethrow(th);
+        }
     }
 
-    @Test
-    fun testEither() {
-        val value = left<Int, String>(9)
-        val value2 = right<Int, String>("9")
+    /**
+     * {@link CPairBinaryOperator#apply} equivalent which declares a {@code throws} clauses,
+     * allowing exceptions to be caught outside of lambda context.
+     *
+     * Like other interfaces of this package, this interface implements a java corresponding
+     * interface. All exceptions which occurs inside the lambda is rethrown in the implemented
+     * method using {@link RethrowException#rethrow(Throwable)}.
+     *
+     * @return See {@link CPairBinaryOperator#apply}.
+     * @throws Throwable Exception occurred inside of function.
+     */
+    Pair<T, U> applyChecked(T t, U u) throws Throwable;
 
-        Assert.assertTrue(value.isLeft)
-        Assert.assertTrue(value2.isRight)
-    }
 }

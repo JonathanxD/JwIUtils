@@ -28,7 +28,8 @@
 package com.github.jonathanxd.iutils.function.collector;
 
 import com.github.jonathanxd.iutils.function.consumer.TriConsumer;
-import com.github.jonathanxd.iutils.object.Node;
+import com.github.jonathanxd.iutils.object.Pair;
+import com.github.jonathanxd.iutils.object.Pairs;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -79,38 +80,38 @@ public enum BiCollectors {
     }
 
     /**
-     * {@link Node} {@link List} collector.
+     * {@link Pair} {@link List} collector.
      *
      * @param listSupplier List supplier.
      * @param <K>          Key type.
      * @param <V>          Value type.
      * @param <LIST>       List type.
-     * @return {@link Node} {@link List} collector.
+     * @return {@link Pair} {@link List} collector.
      */
-    public static <K, V, LIST extends List<Node<K, V>>> BiCollector<K, V, LIST, LIST> toNodeList(Supplier<LIST> listSupplier) {
-        return new CommonBiCollector<>(listSupplier, (list, key, value) -> list.add(new Node<>(key, value)), list -> list);
+    public static <K, V, LIST extends List<Pair<K, V>>> BiCollector<K, V, LIST, LIST> toPairList(Supplier<LIST> listSupplier) {
+        return new CommonBiCollector<>(listSupplier, (list, key, value) -> list.add(Pairs.of(key, value)),list -> list);
     }
 
     /**
-     * {@link Node} {@link List} collector.
+     * {@link Pair} {@link List} collector.
      *
      * @param <K> Key type.
      * @param <V> Value type.
-     * @return {@link Node} {@link List} collector.
+     * @return {@link Pair} {@link List} collector.
      */
-    public static <K, V> BiCollector<K, V, List<Node<K, V>>, List<Node<K, V>>> toNodeList() {
-        return new CommonBiCollector<>(ArrayList::new, (list, key, value) -> list.add(new Node<>(key, value)), list -> list);
+    public static <K, V> BiCollector<K, V, List<Pair<K, V>>, List<Pair<K, V>>> toPairList() {
+        return new CommonBiCollector<>(ArrayList::new, (list, key, value) -> list.add(Pairs.of(key, value)), list -> list);
     }
 
     /**
-     * {@link Node} {@link ArrayList} collector.
+     * {@link Pair} {@link ArrayList} collector.
      *
      * @param <K> Key type.
      * @param <V> Value type.
-     * @return {@link Node} {@link ArrayList} collector.
+     * @return {@link Pair} {@link ArrayList} collector.
      */
-    public static <K, V> BiCollector<K, V, ArrayList<Node<K, V>>, ArrayList<Node<K, V>>> toNodeArrayList() {
-        return new CommonBiCollector<>(ArrayList::new, (list, key, value) -> list.add(new Node<>(key, value)), list -> list);
+    public static <K, V> BiCollector<K, V, ArrayList<Pair<K, V>>, ArrayList<Pair<K, V>>> toPairArrayList() {
+        return new CommonBiCollector<>(ArrayList::new, (list, key, value) -> list.add(Pairs.of(key, value)), list -> list);
     }
 
     static class CommonBiCollector<T, U, A, R> implements BiCollector<T, U, A, R> {

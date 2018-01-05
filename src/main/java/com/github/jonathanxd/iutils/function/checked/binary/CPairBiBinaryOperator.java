@@ -28,20 +28,20 @@
 package com.github.jonathanxd.iutils.function.checked.binary;
 
 import com.github.jonathanxd.iutils.exception.RethrowException;
-import com.github.jonathanxd.iutils.function.binary.NodeBiBinaryOperator;
-import com.github.jonathanxd.iutils.object.Node;
+import com.github.jonathanxd.iutils.function.binary.PairBiBinaryOperator;
+import com.github.jonathanxd.iutils.object.Pair;
 
 /**
- * {@link NodeBiBinaryOperator}
+ * {@link PairBiBinaryOperator}
  *
  * @see com.github.jonathanxd.iutils.function.checked
  */
 @FunctionalInterface
-public interface CNodeBiBinaryOperator<T, U> extends NodeBiBinaryOperator<T, U> {
+public interface CPairBiBinaryOperator<T, U> extends PairBiBinaryOperator<T, U> {
 
 
     @Override
-    default Node<T, U> apply(T t, U u, T t2, U u2) {
+    default Pair<T, U> apply(T t, U u, T t2, U u2) {
         try {
             return this.applyChecked(t, u, t2, u2);
         } catch (Throwable th) {
@@ -50,16 +50,16 @@ public interface CNodeBiBinaryOperator<T, U> extends NodeBiBinaryOperator<T, U> 
     }
 
     /**
-     * {@link NodeBiBinaryOperator#apply} equivalent which declares a {@code throws} clauses,
+     * {@link PairBiBinaryOperator#apply} equivalent which declares a {@code throws} clauses,
      * allowing exceptions to be caught outside of lambda context.
      *
      * Like other interfaces of this package, this interface implements a java corresponding
      * interface. All exceptions which occurs inside the lambda is rethrown in the implemented
      * method using {@link RethrowException#rethrow(Throwable)}.
      *
-     * @return See {@link NodeBiBinaryOperator#apply}.
+     * @return See {@link PairBiBinaryOperator#apply}.
      * @throws Throwable Exception occurred inside of function.
      */
-    Node<T, U> applyChecked(T t, U u, T t2, U u2) throws Throwable;
+    Pair<T, U> applyChecked(T t, U u, T t2, U u2) throws Throwable;
 
 }

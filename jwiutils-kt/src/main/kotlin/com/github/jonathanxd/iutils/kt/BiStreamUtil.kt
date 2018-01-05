@@ -1,5 +1,5 @@
 /*
- *      JwIUtils - Java utilities library <https://github.com/JonathanxD/JwIUtils>
+ *      JwIUtils-kt - Extension of JwIUtils for Kotlin <https://github.com/JonathanxD/JwIUtils/>
  *
  *         The MIT License (MIT)
  *
@@ -25,19 +25,17 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.function.function;
+package com.github.jonathanxd.iutils.kt
 
-import com.github.jonathanxd.iutils.object.Node;
+import com.github.jonathanxd.iutils.function.stream.BiStream
+import com.github.jonathanxd.iutils.function.stream.BiStreams
 
-/**
- * Takes two parameters and return a node array.
- *
- * @param <K> Node key type.
- * @param <V> Node value type.
- */
-@FunctionalInterface
-public interface NodeArrayIntFunction<K, V> {
+fun <K, V> Map<K, V>.biStream(): BiStream<K, V> =
+        BiStreams.mapStream(this)
 
-    Node<K, V>[] apply(int i);
+fun <K, V> Map<K, V>.biStreamJavaBacked(): BiStream<K, V> =
+        BiStreams.fromJavaStream(this.entries.stream())
 
-}
+inline fun <E, K, V> Collection<E>.biStream(crossinline mapper: (E) -> Pair<K, V>): BiStream<K, V> =
+        BiStreams.mapJavaToBiStream(this.stream()) { mapper(it).toJw() }
+

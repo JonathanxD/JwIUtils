@@ -28,7 +28,7 @@
 package com.github.jonathanxd.iutils.function.stream;
 
 import com.github.jonathanxd.iutils.function.binary.BiBinaryOperator;
-import com.github.jonathanxd.iutils.function.binary.NodeBiBinaryOperator;
+import com.github.jonathanxd.iutils.function.binary.PairBiBinaryOperator;
 import com.github.jonathanxd.iutils.function.binary.StackBiBinaryOperator;
 import com.github.jonathanxd.iutils.function.collector.BiCollector;
 import com.github.jonathanxd.iutils.function.comparators.BiComparator;
@@ -36,10 +36,10 @@ import com.github.jonathanxd.iutils.function.consumer.TriConsumer;
 import com.github.jonathanxd.iutils.function.function.BiToDoubleFunction;
 import com.github.jonathanxd.iutils.function.function.BiToIntFunction;
 import com.github.jonathanxd.iutils.function.function.BiToLongFunction;
-import com.github.jonathanxd.iutils.function.function.NodeArrayIntFunction;
-import com.github.jonathanxd.iutils.function.function.NodeFunction;
+import com.github.jonathanxd.iutils.function.function.PairArrayIntFunction;
+import com.github.jonathanxd.iutils.function.function.PairFunction;
 import com.github.jonathanxd.iutils.function.function.TriFunction;
-import com.github.jonathanxd.iutils.object.Node;
+import com.github.jonathanxd.iutils.object.Pair;
 
 import java.util.Comparator;
 import java.util.List;
@@ -83,7 +83,7 @@ import java.util.stream.Stream;
  * @param <U> Second value type.
  * @see com.github.jonathanxd.iutils.function.stream.walkable.WalkableNodeBiStream
  */
-public interface BiStream<T, U> extends BaseStream<Node<T, U>, BiStream<T, U>> {
+public interface BiStream<T, U> extends BaseStream<Pair<T, U>, BiStream<T, U>> {
 
     /**
      * @see Stream#filter(Predicate)
@@ -93,7 +93,7 @@ public interface BiStream<T, U> extends BaseStream<Node<T, U>, BiStream<T, U>> {
     /**
      * @see Stream#map(Function)
      */
-    <RK, RV> BiStream<RK, RV> map(NodeFunction<? super T, ? super U, ? extends RK, ? extends RV> mapper);
+    <RK, RV> BiStream<RK, RV> map(PairFunction<? super T, ? super U, ? extends RK, ? extends RV> mapper);
 
     /**
      * Maps keys and values to Java stream.
@@ -256,29 +256,29 @@ public interface BiStream<T, U> extends BaseStream<Node<T, U>, BiStream<T, U>> {
     /**
      * @see Stream#toArray()
      */
-    Node<T, U>[] toArray();
+    Pair<T, U>[] toArray();
 
     /**
      * @see Stream#toArray(IntFunction)
      */
-    <A, V> Node<A, V>[] toArray(IntFunction<Node<A, V>[]> generator);
+    <A, V> Pair<A, V>[] toArray(IntFunction<Pair<A, V>[]> generator);
 
     /**
      * @see Stream#toArray(IntFunction)
      */
-    <A, V> Node<A, V>[] toArray(NodeArrayIntFunction<A, V> generator);
+    <A, V> Pair<A, V>[] toArray(PairArrayIntFunction<A, V> generator);
 
     /**
      * @see Stream#reduce(Object, BinaryOperator)
      */
-    Node<T, U> reduceTwo(T identity, U identity2, NodeBiBinaryOperator<T, U> accumulator);
+    Pair<T, U> reduceTwo(T identity, U identity2, PairBiBinaryOperator<T, U> accumulator);
 
     /**
      * A mixed reduce (accumulate keys).
      *
      * @see Stream#reduce(Object, BinaryOperator)
      */
-    Node<List<T>, U> reduceMixed(List<T> init, U identity2, StackBiBinaryOperator<List<T>, T, U> accumulator);
+    Pair<List<T>, U> reduceMixed(List<T> init, U identity2, StackBiBinaryOperator<List<T>, T, U> accumulator);
 
     /**
      * Reduce keys.
@@ -297,7 +297,7 @@ public interface BiStream<T, U> extends BaseStream<Node<T, U>, BiStream<T, U>> {
     /**
      * @see Stream#reduce(BinaryOperator)
      */
-    Optional<Node<T, U>> reduceTwo(NodeBiBinaryOperator<T, U> accumulator);
+    Optional<Pair<T, U>> reduceTwo(PairBiBinaryOperator<T, U> accumulator);
 
     /**
      * Reduce keys.
@@ -367,12 +367,12 @@ public interface BiStream<T, U> extends BaseStream<Node<T, U>, BiStream<T, U>> {
     /**
      * @see Stream#min(Comparator)
      */
-    Optional<Node<T, U>> min(BiComparator<? super T, ? super U> comparator);
+    Optional<Pair<T, U>> min(BiComparator<? super T, ? super U> comparator);
 
     /**
      * @see Stream#max(Comparator)
      */
-    Optional<Node<T, U>> max(BiComparator<? super T, ? super U> comparator);
+    Optional<Pair<T, U>> max(BiComparator<? super T, ? super U> comparator);
 
     /**
      * @see Stream#count()
@@ -397,11 +397,11 @@ public interface BiStream<T, U> extends BaseStream<Node<T, U>, BiStream<T, U>> {
     /**
      * @see Stream#findFirst()
      */
-    Optional<Node<T, U>> findFirst();
+    Optional<Pair<T, U>> findFirst();
 
     /**
      * @see Stream#findAny()
      */
-    Optional<Node<T, U>> findAny();
+    Optional<Pair<T, U>> findAny();
 
 }

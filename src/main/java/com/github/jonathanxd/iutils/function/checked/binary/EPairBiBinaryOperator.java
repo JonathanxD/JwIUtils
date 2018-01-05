@@ -28,37 +28,38 @@
 package com.github.jonathanxd.iutils.function.checked.binary;
 
 import com.github.jonathanxd.iutils.exception.RethrowException;
-import com.github.jonathanxd.iutils.function.binary.NodeBinaryOperator;
-import com.github.jonathanxd.iutils.object.Node;
+import com.github.jonathanxd.iutils.function.binary.PairBiBinaryOperator;
+import com.github.jonathanxd.iutils.object.Pair;
 
 /**
- * {@link NodeBinaryOperator}
+ * {@link PairBiBinaryOperator}
  *
  * @see com.github.jonathanxd.iutils.function.checked
  */
 @FunctionalInterface
-public interface CNodeBinaryOperator<T, U> extends NodeBinaryOperator<T, U> {
+public interface EPairBiBinaryOperator<T, U> extends PairBiBinaryOperator<T, U> {
+
 
     @Override
-    default Node<T, U> apply(T t, U u) {
+    default Pair<T, U> apply(T t, U u, T t2, U u2) {
         try {
-            return this.applyChecked(t, u);
-        } catch (Throwable th) {
+            return this.applyChecked(t, u, t2, u2);
+        } catch (Exception th) {
             throw RethrowException.rethrow(th);
         }
     }
 
     /**
-     * {@link NodeBinaryOperator#apply} equivalent which declares a {@code throws} clauses, allowing
-     * exceptions to be caught outside of lambda context.
+     * {@link PairBiBinaryOperator#apply} equivalent which declares a {@code throws} clauses,
+     * allowing exceptions to be caught outside of lambda context.
      *
      * Like other interfaces of this package, this interface implements a java corresponding
      * interface. All exceptions which occurs inside the lambda is rethrown in the implemented
      * method using {@link RethrowException#rethrow(Throwable)}.
      *
-     * @return See {@link NodeBinaryOperator#apply}.
-     * @throws Throwable Exception occurred inside of function.
+     * @return See {@link PairBiBinaryOperator#apply}.
+     * @throws Exception Exception occurred inside of function.
      */
-    Node<T, U> applyChecked(T t, U u) throws Throwable;
+    Pair<T, U> applyChecked(T t, U u, T t2, U u2) throws Exception;
 
 }

@@ -25,14 +25,30 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.jwiutils.kt
+package com.github.jonathanxd.iutils.kt.test
 
-import com.github.jonathanxd.iutils.`object`.Pairs
+import com.github.jonathanxd.iutils.kt.left
+import com.github.jonathanxd.iutils.kt.right
+import com.github.jonathanxd.iutils.kt.some
+import com.github.jonathanxd.jwiutils.kt.*
+import org.junit.Assert
+import org.junit.Test
 
-@Suppress("NOTHING_TO_INLINE")
-inline fun <A, B> Pair<A, B>.toJw(): com.github.jonathanxd.iutils.`object`.Pair<A, B> =
-        Pairs.of(this.first, this.second)
+class Tests {
 
-@Suppress("NOTHING_TO_INLINE")
-inline fun <A, B> com.github.jonathanxd.iutils.`object`.Pair<A, B>.toKt(): Pair<A, B> =
-        this.first to this.second
+    @Test
+    fun testOpt() {
+        val value = some(9)
+
+        Assert.assertTrue(value.isPresent)
+    }
+
+    @Test
+    fun testEither() {
+        val value = left<Int, String>(9)
+        val value2 = right<Int, String>("9")
+
+        Assert.assertTrue(value.isLeft)
+        Assert.assertTrue(value2.isRight)
+    }
+}

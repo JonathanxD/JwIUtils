@@ -25,7 +25,7 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.jwiutils.kt
+package com.github.jonathanxd.iutils.kt
 
 import com.github.jonathanxd.iutils.localization.Locale
 import com.github.jonathanxd.iutils.text.Text

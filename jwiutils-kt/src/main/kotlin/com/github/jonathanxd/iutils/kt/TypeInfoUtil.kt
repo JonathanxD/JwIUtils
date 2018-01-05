@@ -1,5 +1,5 @@
 /*
- *      JwIUtils - Java utilities library <https://github.com/JonathanxD/JwIUtils>
+ *      JwIUtils-kt - Extension of JwIUtils for Kotlin <https://github.com/JonathanxD/JwIUtils/>
  *
  *         The MIT License (MIT)
  *
@@ -25,21 +25,13 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.function.function;
+package com.github.jonathanxd.iutils.kt
 
-import com.github.jonathanxd.iutils.object.Node;
+import com.github.jonathanxd.iutils.type.TypeInfo
+import com.github.jonathanxd.iutils.type.TypeParameterProvider
 
 /**
- * Takes key and value of two nodes and returns a new node.
- *
- * @param <FK> First node key type.
- * @param <FV> First node value type.
- * @param <SK> Second node key type.
- * @param <SV> Second node value type.
- * @param <RK> Result node key type.
- * @param <RV> Result node value type.
+ * Creates a [TypeInfo] of type [T].
  */
-@FunctionalInterface
-public interface NodeBiFunction<FK, FV, SK, SV, RK, RV> {
-    Node<RK, RV> apply(FK key1, FV value1, SK key2, SV value2);
-}
+inline fun <reified T> typeInfo(): TypeInfo<T> =
+        object : TypeParameterProvider<T>() {}.createTypeInfo()

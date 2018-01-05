@@ -30,8 +30,8 @@ package com.github.jonathanxd.iutils.function.stream;
 import com.github.jonathanxd.iutils.collection.Walkable;
 import com.github.jonathanxd.iutils.function.function.ToPairFunction;
 import com.github.jonathanxd.iutils.function.stream.walkable.WalkableNodeBiStream;
-import com.github.jonathanxd.iutils.object.Node;
 import com.github.jonathanxd.iutils.object.Pair;
+import com.github.jonathanxd.iutils.object.Pairs;
 
 import java.util.Map;
 import java.util.stream.Stream;
@@ -78,7 +78,7 @@ public class BiStreams {
         return new WalkableNodeBiStream<>(Walkable.fromStream(stream).map(o -> {
             Pair<K, V> apply = toPairFunction.apply(o);
 
-            return new Node<>(apply.getFirst(), apply.getSecond());
+            return Pairs.of(apply.getFirst(), apply.getSecond());
         }));
     }
 

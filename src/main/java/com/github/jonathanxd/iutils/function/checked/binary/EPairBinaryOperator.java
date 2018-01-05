@@ -1,5 +1,5 @@
 /*
- *      JwIUtils-kt - Extension of JwIUtils for Kotlin <https://github.com/JonathanxD/JwIUtils/>
+ *      JwIUtils - Java utilities library <https://github.com/JonathanxD/JwIUtils>
  *
  *         The MIT License (MIT)
  *
@@ -25,17 +25,40 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.jwiutils.kt
+package com.github.jonathanxd.iutils.function.checked.binary;
 
-import com.github.jonathanxd.iutils.function.stream.BiStream
-import com.github.jonathanxd.iutils.function.stream.BiStreams
+import com.github.jonathanxd.iutils.exception.RethrowException;
+import com.github.jonathanxd.iutils.function.binary.PairBinaryOperator;
+import com.github.jonathanxd.iutils.object.Pair;
 
-fun <K, V> Map<K, V>.biStream(): BiStream<K, V> =
-        BiStreams.mapStream(this)
+/**
+ * {@link PairBinaryOperator}
+ *
+ * @see com.github.jonathanxd.iutils.function.checked
+ */
+@FunctionalInterface
+public interface EPairBinaryOperator<T, U> extends PairBinaryOperator<T, U> {
 
-fun <K, V> Map<K, V>.biStreamJavaBacked(): BiStream<K, V> =
-        BiStreams.fromJavaStream(this.entries.stream())
+    @Override
+    default Pair<T, U> apply(T t, U u) {
+        try {
+            return this.applyChecked(t, u);
+        } catch (Exception th) {
+            throw RethrowException.rethrow(th);
+        }
+    }
 
-inline fun <E, K, V> Collection<E>.biStream(crossinline mapper: (E) -> Pair<K, V>): BiStream<K, V> =
-        BiStreams.mapJavaToBiStream(this.stream()) { mapper(it).toJw() }
+    /**
+     * {@link PairBinaryOperator#apply} equivalent which declares a {@code throws} clauses, allowing
+     * exceptions to be caught outside of lambda context.
+     *
+     * Like other interfaces of this package, this interface implements a java corresponding
+     * interface. All exceptions which occurs inside the lambda is rethrown in the implemented
+     * method using {@link RethrowException#rethrow(Throwable)}.
+     *
+     * @return See {@link PairBinaryOperator#apply}.
+     * @throws Exception Exception occurred inside of function.
+     */
+    Pair<T, U> applyChecked(T t, U u) throws Exception;
 
+}

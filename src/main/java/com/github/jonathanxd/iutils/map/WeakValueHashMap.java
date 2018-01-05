@@ -29,7 +29,8 @@ package com.github.jonathanxd.iutils.map;
 
 import com.github.jonathanxd.iutils.function.collector.BiCollectors;
 import com.github.jonathanxd.iutils.function.stream.BiStreams;
-import com.github.jonathanxd.iutils.object.Node;
+import com.github.jonathanxd.iutils.object.Pair;
+import com.github.jonathanxd.iutils.object.Pairs;
 
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
@@ -106,7 +107,7 @@ public class WeakValueHashMap<K, V> extends AbstractMap<K, V> {
     public void putAll(Map<? extends K, ? extends V> m) {
         this.updateMap();
 
-        map.putAll(BiStreams.mapStream(m).map((o, o2) -> new Node<>(o, create(o, o2))).collect(BiCollectors.toMap()));
+        map.putAll(BiStreams.mapStream(m).map((o, o2) -> Pairs.of(o, create(o, o2))).collect(BiCollectors.toMap()));
     }
 
     @Override
@@ -134,9 +135,11 @@ public class WeakValueHashMap<K, V> extends AbstractMap<K, V> {
 
         this.updateMap();
 
-        Optional<Node<K, Weak<V>>> first = BiStreams.mapStream(map).filter((k, vWeak) -> equals(getReferenceValue(vWeak), value)).findFirst();
+        Optional<Pair<K, Weak<V>>> first = BiStreams.mapStream(map)
+                .filter((k, vWeak) -> equals(getReferenceValue(vWeak), value))
+                .findFirst();
 
-        return !(!first.isPresent() || first.get().getValue() == null);
+        return !(!first.isPresent() || first.get().getSecond() == null);
     }
 
     @Override
@@ -225,7 +228,7 @@ public class WeakValueHashMap<K, V> extends AbstractMap<K, V> {
     public void forEach(BiConsumer<? super K, ? super V> action) {
         this.updateMap();
 
-        BiStreams.mapStream(map).map((k, v) -> new Node<>(k, getReferenceValue(v))).forEach(action);
+        BiStreams.mapStream(map).map((k, v) -> Pairs.of(k, getReferenceValue(v))).forEach(action);
     }
 
     @Override

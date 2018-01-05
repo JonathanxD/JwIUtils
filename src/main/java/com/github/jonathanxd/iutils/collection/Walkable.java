@@ -29,7 +29,8 @@ package com.github.jonathanxd.iutils.collection;
 
 import com.github.jonathanxd.iutils.function.Predicates;
 import com.github.jonathanxd.iutils.iterator.IteratorUtil;
-import com.github.jonathanxd.iutils.object.Node;
+import com.github.jonathanxd.iutils.object.Pair;
+import com.github.jonathanxd.iutils.object.Pairs;
 import com.github.jonathanxd.iutils.sort.SortingResult;
 
 import java.lang.reflect.Array;
@@ -64,15 +65,17 @@ public interface Walkable<T> {
      * @param map Map.
      * @param <K> Key type.
      * @param <V> Value type.
-     * @return Walkable of map entries (as {@link Node}).
+     * @return Walkable of map entries (as {@link Pair}).
      */
-    static <K, V> Walkable<Node<K, V>> fromList(Map<K, V> map) {
+    static <K, V> Walkable<Pair<K, V>> fromList(Map<K, V> map) {
 
         if (map == null) {
             return Walkable.empty();
         }
 
-        return Walkable.fromCollection(Node.fromEntryCollection(map.entrySet()));
+        List<Pair<K, V>> pairs = map.entrySet().stream().map(e -> Pairs.of(e.getKey(), e.getValue())).collect(Collectors.toList());
+        
+        return Walkable.fromCollection(pairs);
     }
 
     /**
@@ -83,7 +86,7 @@ public interface Walkable<T> {
      * @param <V>   Value type.
      * @return Walkable of list nodes.
      */
-    static <K, V> Walkable<Node<K, V>> fromList(List<Node<K, V>> nodes) {
+    static <K, V> Walkable<Pair<K, V>> fromList(List<Pair<K, V>> nodes) {
         if (nodes == null)
             return empty();
 

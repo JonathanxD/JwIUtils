@@ -25,10 +25,19 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.function.binary;
+package com.github.jonathanxd.iutils.function.function;
 
-import com.github.jonathanxd.iutils.function.function.NodeBiFunction;
+import com.github.jonathanxd.iutils.object.Pair;
 
+/**
+ * Takes two parameters and return a pair array.
+ *
+ * @param <K> Node key type.
+ * @param <V> Node value type.
+ */
 @FunctionalInterface
-public interface NodeBiBinaryOperator<T, U> extends NodeBiFunction<T, U, T, U, T, U> {
+public interface PairArrayIntFunction<K, V> {
+
+    Pair<K, V>[] apply(int i);
+
 }

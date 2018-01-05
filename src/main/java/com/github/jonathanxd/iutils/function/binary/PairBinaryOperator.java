@@ -27,8 +27,8 @@
  */
 package com.github.jonathanxd.iutils.function.binary;
 
-import com.github.jonathanxd.iutils.function.function.NodeFunction;
+import com.github.jonathanxd.iutils.function.function.PairFunction;
 
 @FunctionalInterface
-public interface NodeBinaryOperator<T, U> extends NodeFunction<T, U, T, U> {
+public interface PairBinaryOperator<T, U> extends PairFunction<T, U, T, U> {
 }

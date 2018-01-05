@@ -25,40 +25,21 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.function.checked.binary;
+package com.github.jonathanxd.iutils.function.function;
 
-import com.github.jonathanxd.iutils.exception.RethrowException;
-import com.github.jonathanxd.iutils.function.binary.NodeBinaryOperator;
-import com.github.jonathanxd.iutils.object.Node;
+import com.github.jonathanxd.iutils.object.Pair;
 
 /**
- * {@link NodeBinaryOperator}
+ * Takes key and value of two nodes and returns a new node.
  *
- * @see com.github.jonathanxd.iutils.function.checked
+ * @param <FK> First node key type.
+ * @param <FV> First node value type.
+ * @param <SK> Second node key type.
+ * @param <SV> Second node value type.
+ * @param <RK> Result node key type.
+ * @param <RV> Result node value type.
  */
 @FunctionalInterface
-public interface ENodeBinaryOperator<T, U> extends NodeBinaryOperator<T, U> {
-
-    @Override
-    default Node<T, U> apply(T t, U u) {
-        try {
-            return this.applyChecked(t, u);
-        } catch (Exception th) {
-            throw RethrowException.rethrow(th);
-        }
-    }
-
-    /**
-     * {@link NodeBinaryOperator#apply} equivalent which declares a {@code throws} clauses, allowing
-     * exceptions to be caught outside of lambda context.
-     *
-     * Like other interfaces of this package, this interface implements a java corresponding
-     * interface. All exceptions which occurs inside the lambda is rethrown in the implemented
-     * method using {@link RethrowException#rethrow(Throwable)}.
-     *
-     * @return See {@link NodeBinaryOperator#apply}.
-     * @throws Exception Exception occurred inside of function.
-     */
-    Node<T, U> applyChecked(T t, U u) throws Exception;
-
+public interface PairBiFunction<FK, FV, SK, SV, RK, RV> {
+    Pair<RK, RV> apply(FK key1, FV value1, SK key2, SV value2);
 }

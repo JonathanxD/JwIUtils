@@ -29,8 +29,8 @@ package com.github.jonathanxd.iutils.property.internal;
 
 import com.github.jonathanxd.iutils.function.collector.BiCollectors;
 import com.github.jonathanxd.iutils.function.stream.BiStreams;
-import com.github.jonathanxd.iutils.object.Node;
 import com.github.jonathanxd.iutils.object.Pair;
+import com.github.jonathanxd.iutils.object.Pairs;
 import com.github.jonathanxd.iutils.property.value.Value;
 import com.github.jonathanxd.iutils.property.value.Values;
 import com.github.jonathanxd.iutils.text.Text;
@@ -51,7 +51,7 @@ public final class ValuesUtil {
 
     public static Map<String, TextComponent> getTextArgs(Values values) {
         return BiStreams.mapJavaToBiStream(values.getValueList().stream(), f -> Pair.of(f.getProperty().getName(), f.getValue()))
-                .map((k, v) -> new Node<>(k, Text.of(v.toString())))
+                .map((k, v) -> Pairs.of(k, Text.of(v.toString())))
                 .collect(BiCollectors.toMap());
     }
 
