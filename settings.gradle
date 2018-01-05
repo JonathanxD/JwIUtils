@@ -1,2 +1,3 @@
 rootProject.name = 'JwIUtils'
 include 'jwiutils-kt'
+include 'properties'

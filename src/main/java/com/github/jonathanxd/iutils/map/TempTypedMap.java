@@ -3,7 +3,7 @@
  *
  *         The MIT License (MIT)
  *
- *      Copyright (c) 2017 TheRealBuggy/JonathanxD (https://github.com/JonathanxD/) <jonathan.scripter@programmer.net>
+ *      Copyright (c) 2018 TheRealBuggy/JonathanxD (https://github.com/JonathanxD/) <jonathan.scripter@programmer.net>
  *      Copyright (c) contributors
  *
  *
@@ -31,7 +31,7 @@ import com.github.jonathanxd.iutils.object.Pair;
 import com.github.jonathanxd.iutils.type.TypeInfo;
 
 /**
- * A {@link TypedMap} which supports temporary {@link Value}.
+ * A {@link TypedMap} which supports temporary {@link MapValue}.
  */
 public interface TempTypedMap<K, V> extends TypedMap<K, V> {
 

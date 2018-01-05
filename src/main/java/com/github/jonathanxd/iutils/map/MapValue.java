@@ -3,7 +3,7 @@
  *
  *         The MIT License (MIT)
  *
- *      Copyright (c) 2017 TheRealBuggy/JonathanxD (https://github.com/JonathanxD/) <jonathan.scripter@programmer.net>
+ *      Copyright (c) 2018 TheRealBuggy/JonathanxD (https://github.com/JonathanxD/) <jonathan.scripter@programmer.net>
  *      Copyright (c) contributors
  *
  *
@@ -36,7 +36,7 @@ import java.util.Objects;
  *
  * @param <T> Type of value.
  */
-public class Value<T> {
+public class MapValue<T> {
 
     /**
      * Value instance.
@@ -60,7 +60,7 @@ public class Value<T> {
      * @param type        Reified type of instance.
      * @param isTemporary Is temporary.
      */
-    Value(T value, TypeInfo<T> type, boolean isTemporary) {
+    MapValue(T value, TypeInfo<T> type, boolean isTemporary) {
         this.value = value;
         this.type = type;
         this.isTemporary = isTemporary;
@@ -73,8 +73,8 @@ public class Value<T> {
      * @param type  Reified type of instance.
      * @return Non temporary value holder
      */
-    public static <T> Value<T> create(T value, TypeInfo<T> type) {
-        return new Value<>(value, type, false);
+    public static <T> MapValue<T> create(T value, TypeInfo<T> type) {
+        return new MapValue<>(value, type, false);
     }
 
     /**
@@ -85,8 +85,8 @@ public class Value<T> {
      * @param isTemporary Is temporary.
      * @return Value holder.
      */
-    public static <T> Value<T> create(T value, TypeInfo<T> type, boolean isTemporary) {
-        return new Value<>(value, type, isTemporary);
+    public static <T> MapValue<T> create(T value, TypeInfo<T> type, boolean isTemporary) {
+        return new MapValue<>(value, type, isTemporary);
     }
 
     /**
@@ -128,10 +128,10 @@ public class Value<T> {
 
     @Override
     public boolean equals(Object obj) {
-        if(!(obj instanceof Value<?>))
+        if(!(obj instanceof MapValue<?>))
             return super.equals(obj);
 
-        return ((Value) obj).getValue() == this.getValue()
-                && ((Value) obj).getType() == this.getType();
+        return ((MapValue) obj).getValue() == this.getValue()
+                && ((MapValue) obj).getType() == this.getType();
     }
 }

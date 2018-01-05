@@ -3,7 +3,7 @@
  *
  *         The MIT License (MIT)
  *
- *      Copyright (c) 2017 TheRealBuggy/JonathanxD (https://github.com/JonathanxD/) <jonathan.scripter@programmer.net>
+ *      Copyright (c) 2018 TheRealBuggy/JonathanxD (https://github.com/JonathanxD/) <jonathan.scripter@programmer.net>
  *      Copyright (c) contributors
  *
  *
@@ -46,11 +46,11 @@ import java.util.Set;
 
 /**
  * An {@link TempTypedMap} implementation backed to a {@link Map provided map}, all value types are
- * stored together with values using a {@link Value}.
+ * stored together with values using a {@link MapValue}.
  */
 public final class BackedTempTypedMap<K, V> implements TempTypedMap<K, V> {
 
-    private final Map<K, Value<? extends V>> backingMap;
+    private final Map<K, MapValue<? extends V>> backingMap;
     private final Lazy<UnmodTypedMap<K, V>> unmodAccess = Lazy.lazy(() -> new UnmodTypedMap<>(this));
 
     public BackedTempTypedMap() {
@@ -83,7 +83,7 @@ public final class BackedTempTypedMap<K, V> implements TempTypedMap<K, V> {
      *
      * @param m Map to get values.
      */
-    public BackedTempTypedMap(Map<? extends K, ? extends Value<V>> m) {
+    public BackedTempTypedMap(Map<? extends K, ? extends MapValue<V>> m) {
         this.backingMap = new HashMap<>(m);
     }
 
@@ -94,7 +94,7 @@ public final class BackedTempTypedMap<K, V> implements TempTypedMap<K, V> {
      * @param backing If true, delegates operations to {@code m}, if false, only copy all values
      *                from {@code m}.
      */
-    public BackedTempTypedMap(Map<K, Value<? extends V>> m, boolean backing) {
+    public BackedTempTypedMap(Map<K, MapValue<? extends V>> m, boolean backing) {
         if (backing)
             this.backingMap = m;
         else
@@ -108,7 +108,7 @@ public final class BackedTempTypedMap<K, V> implements TempTypedMap<K, V> {
 
     @Override
     public <B extends V> Pair<? extends V, TypeInfo<? extends V>> putTypedTemporary(K key, B value, TypeInfo<B> type) {
-        Value<? extends V> replaced = this.backingMap.put(key, Value.create(value, type, true));
+        MapValue<? extends V> replaced = this.backingMap.put(key, MapValue.create(value, type, true));
 
         if (replaced == null)
             return Pair.nullPair();
@@ -118,7 +118,7 @@ public final class BackedTempTypedMap<K, V> implements TempTypedMap<K, V> {
 
     @Override
     public <B extends V> Pair<? extends V, TypeInfo<? extends V>> putTyped(K key, B value, TypeInfo<B> type) {
-        Value<? extends V> replaced = this.backingMap.put(key, Value.create(value, type));
+        MapValue<? extends V> replaced = this.backingMap.put(key, MapValue.create(value, type));
 
         if (replaced == null)
             return Pair.nullPair();
@@ -128,7 +128,7 @@ public final class BackedTempTypedMap<K, V> implements TempTypedMap<K, V> {
 
     @Override
     public Pair<? extends V, TypeInfo<? extends V>> getTyped(K key) {
-        Value<? extends V> get = this.backingMap.get(key);
+        MapValue<? extends V> get = this.backingMap.get(key);
 
         if (get == null)
             return Pair.nullPair();
@@ -143,13 +143,13 @@ public final class BackedTempTypedMap<K, V> implements TempTypedMap<K, V> {
     public <B extends V> List<Pair<? extends K, TypeInfo<? extends B>>> getValueTyped(B value) {
         List<Pair<? extends K, TypeInfo<? extends B>>> list = new ArrayList<>();
 
-        Iterator<Entry<K, Value<? extends V>>> iterator = this.backingMap.entrySet().iterator();
+        Iterator<Entry<K, MapValue<? extends V>>> iterator = this.backingMap.entrySet().iterator();
 
         while (iterator.hasNext()) {
-            Entry<K, Value<? extends V>> kValueEntry = iterator.next();
+            Entry<K, MapValue<? extends V>> kValueEntry = iterator.next();
 
             K key = kValueEntry.getKey();
-            Value<? extends V> valueHolder = kValueEntry.getValue();
+            MapValue<? extends V> valueHolder = kValueEntry.getValue();
 
             if (valueHolder.getValue().equals(value)) {
                 if (valueHolder.isTemporary())
@@ -179,7 +179,7 @@ public final class BackedTempTypedMap<K, V> implements TempTypedMap<K, V> {
 
     @Override
     public Pair<? extends V, TypeInfo<? extends V>> removeTyped(K key) {
-        Value<? extends V> removed = this.backingMap.remove(key);
+        MapValue<? extends V> removed = this.backingMap.remove(key);
 
         if (removed == null)
             return Pairs.nullPair();
@@ -207,7 +207,7 @@ public final class BackedTempTypedMap<K, V> implements TempTypedMap<K, V> {
 
     @Override
     public Set<TypedEntry<K, ? extends V>> typedEntrySet() {
-        Set<Entry<K, Value<? extends V>>> set = this.backingMap.entrySet();
+        Set<Entry<K, MapValue<? extends V>>> set = this.backingMap.entrySet();
 
         return ViewCollections.setMapped(set,
                 (kPairEntry, entryIterator) -> IteratorUtil.mapped(kPairEntry, entryIterator, kPairEntry1 ->
@@ -249,7 +249,7 @@ public final class BackedTempTypedMap<K, V> implements TempTypedMap<K, V> {
 
     @Override
     public V get(Object key) {
-        Value<? extends V> get = this.backingMap.get(key);
+        MapValue<? extends V> get = this.backingMap.get(key);
 
         if (get != null)
             return get.getValue();
@@ -259,8 +259,8 @@ public final class BackedTempTypedMap<K, V> implements TempTypedMap<K, V> {
 
     @Override
     public V put(K key, V value) {
-        Value<? extends V> put = this.backingMap.put(key,
-                Value.create(value, TypeInfo.of(value.getClass()).cast()));
+        MapValue<? extends V> put = this.backingMap.put(key,
+                MapValue.create(value, TypeInfo.of(value.getClass()).cast()));
 
         if (put != null)
             return put.getValue();
@@ -270,7 +270,7 @@ public final class BackedTempTypedMap<K, V> implements TempTypedMap<K, V> {
 
     @Override
     public V remove(Object key) {
-        Value<? extends V> remove = this.backingMap.remove(key);
+        MapValue<? extends V> remove = this.backingMap.remove(key);
 
         if (remove != null)
             return remove.getValue();
@@ -295,10 +295,10 @@ public final class BackedTempTypedMap<K, V> implements TempTypedMap<K, V> {
 
     @Override
     public Collection<V> values() {
-        Collection<Value<? extends V>> values = this.backingMap.values();
+        Collection<MapValue<? extends V>> values = this.backingMap.values();
 
         return ViewCollections.collectionMapped(values,
-                (typeInfoPair, pairIterator) -> IteratorUtil.mapped(typeInfoPair, pairIterator, Value::getValue),
+                (typeInfoPair, pairIterator) -> IteratorUtil.mapped(typeInfoPair, pairIterator, MapValue::getValue),
                 y -> {
                     throw new UnsupportedOperationException();
                 },
@@ -314,11 +314,11 @@ public final class BackedTempTypedMap<K, V> implements TempTypedMap<K, V> {
 
     @Override
     public Set<Entry<K, V>> entrySet() {
-        Set<Entry<K, Value<? extends V>>> entries = this.backingMap.entrySet();
+        Set<Entry<K, MapValue<? extends V>>> entries = this.backingMap.entrySet();
 
         return ViewCollections.setMapped(entries,
                 (e, eIterator) -> IteratorUtil.mapped(e, eIterator, kPairEntry ->
-                        new BackedTypedMap.MappedEntryWrapper<>(kPairEntry, Value::getValue, o -> Value.create(o, kPairEntry.getValue().getType().cast()))
+                        new BackedTypedMap.MappedEntryWrapper<>(kPairEntry, MapValue::getValue, o -> MapValue.create(o, kPairEntry.getValue().getType().cast()))
                 ),
                 y -> {
                     throw new UnsupportedOperationException();
