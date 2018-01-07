@@ -30,6 +30,7 @@ package com.github.jonathanxd.iutils;
 import com.github.jonathanxd.iutils.exception.InitializationException;
 import com.github.jonathanxd.iutils.object.LateInit;
 import com.github.jonathanxd.iutils.object.Lazy;
+import com.github.jonathanxd.iutils.object.MutableLateInit;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -82,4 +83,14 @@ public class LateTest {
         Assert.assertTrue(myLazy.isEvaluated());
     }
 
+
+    @Test
+    public void mutableReInitFail() {
+        MutableLateInit.Ref<Object> hello = MutableLateInit.lateRef("hello");
+
+        hello.init("A");
+        Assert.assertEquals("A", hello.getValue());
+        hello.init("B");
+        Assert.assertEquals("B", hello.getValue());
+    }
 }

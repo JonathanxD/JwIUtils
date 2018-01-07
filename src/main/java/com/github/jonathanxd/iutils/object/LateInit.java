@@ -192,9 +192,9 @@ public abstract class LateInit {
          * @throws InitializationException if already initialized.
          */
         public void init(E value) {
-            super.initCheck();
+            this.initCheck();
             this.value = value;
-            super.setInitState();
+            this.setInitState();
         }
 
         /**
@@ -204,7 +204,7 @@ public abstract class LateInit {
          * @throws InitializationException if not initialized.
          */
         public E getValue() {
-            super.accessCheck();
+            this.accessCheck();
             return this.value;
         }
 
@@ -236,7 +236,7 @@ public abstract class LateInit {
          * @throws InitializationException if already initialized.
          */
         public void init(Lazy<E> value) {
-            super.initCheck();
+            this.initCheck();
             this.value = value;
             super.setInitState();
         }
@@ -248,7 +248,7 @@ public abstract class LateInit {
          * @throws InitializationException if not initialized.
          */
         public E getValue() {
-            super.accessCheck();
+            this.accessCheck();
             return this.value.get();
         }
 
@@ -282,7 +282,7 @@ public abstract class LateInit {
          * @throws InitializationException if already initialized.
          */
         public void init(boolean value) {
-            super.initCheck();
+            this.initCheck();
             this.value = value;
             super.setInitState();
         }
@@ -294,7 +294,7 @@ public abstract class LateInit {
          * @throws InitializationException if not initialized.
          */
         public boolean getValue() {
-            super.accessCheck();
+            this.accessCheck();
             return this.value;
         }
 
@@ -325,7 +325,7 @@ public abstract class LateInit {
          * @throws InitializationException if already initialized.
          */
         public void init(char value) {
-            super.initCheck();
+            this.initCheck();
             this.value = value;
             super.setInitState();
         }
@@ -337,7 +337,7 @@ public abstract class LateInit {
          * @throws InitializationException if not initialized.
          */
         public char getValue() {
-            super.accessCheck();
+            this.accessCheck();
             return this.value;
         }
 
@@ -368,7 +368,7 @@ public abstract class LateInit {
          * @throws InitializationException if already initialized.
          */
         public void init(byte value) {
-            super.initCheck();
+            this.initCheck();
             this.value = value;
             super.setInitState();
         }
@@ -380,7 +380,7 @@ public abstract class LateInit {
          * @throws InitializationException if not initialized.
          */
         public byte getValue() {
-            super.accessCheck();
+            this.accessCheck();
             return this.value;
         }
 
@@ -411,7 +411,7 @@ public abstract class LateInit {
          * @throws InitializationException if already initialized.
          */
         public void init(short value) {
-            super.initCheck();
+            this.initCheck();
             this.value = value;
             super.setInitState();
         }
@@ -423,7 +423,7 @@ public abstract class LateInit {
          * @throws InitializationException if not initialized.
          */
         public short getValue() {
-            super.accessCheck();
+            this.accessCheck();
             return this.value;
         }
 
@@ -454,7 +454,7 @@ public abstract class LateInit {
          * @throws InitializationException if already initialized.
          */
         public void init(int value) {
-            super.initCheck();
+            this.initCheck();
             this.value = value;
             super.setInitState();
         }
@@ -466,7 +466,7 @@ public abstract class LateInit {
          * @throws InitializationException if not initialized.
          */
         public int getValue() {
-            super.accessCheck();
+            this.accessCheck();
             return this.value;
         }
 
@@ -497,7 +497,7 @@ public abstract class LateInit {
          * @throws InitializationException if already initialized.
          */
         public void init(long value) {
-            super.initCheck();
+            this.initCheck();
             this.value = value;
             super.setInitState();
         }
@@ -509,7 +509,7 @@ public abstract class LateInit {
          * @throws InitializationException if not initialized.
          */
         public long getValue() {
-            super.accessCheck();
+            this.accessCheck();
             return this.value;
         }
 
@@ -540,7 +540,7 @@ public abstract class LateInit {
          * @throws InitializationException if already initialized.
          */
         public void init(float value) {
-            super.initCheck();
+            this.initCheck();
             this.value = value;
             super.setInitState();
         }
@@ -552,7 +552,7 @@ public abstract class LateInit {
          * @throws InitializationException if not initialized.
          */
         public float getValue() {
-            super.accessCheck();
+            this.accessCheck();
             return this.value;
         }
 
@@ -583,7 +583,7 @@ public abstract class LateInit {
          * @throws InitializationException if already initialized.
          */
         public void init(double value) {
-            super.initCheck();
+            this.initCheck();
             this.value = value;
             super.setInitState();
         }
@@ -595,7 +595,7 @@ public abstract class LateInit {
          * @throws InitializationException if not initialized.
          */
         public double getValue() {
-            super.accessCheck();
+            this.accessCheck();
             return this.value;
         }
 
