@@ -37,6 +37,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.Serializable;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -155,6 +156,16 @@ public class TypeInfoTest {
         Assert.assertEquals(expected2, typeInfo.getTypeParameter(0));
         Assert.assertEquals(TypeInfo.of(Integer.class), typeInfo.getTypeParameter("E").getTypeParameter("K"));
         Assert.assertEquals(TypeInfo.of(A.class), typeInfo.getTypeParameter("E").getTypeParameter("V"));
+    }
+
+    @org.junit.Test
+    public void testType() {
+        TypeInfo<List<Map<Integer, A>>> expected =
+                TypeInfo.builderOf(List.class).of(TypeInfo.builderOf(Map.class).of(Integer.class).of(A.class)).buildGeneric();
+
+        Type type = TypeUtil.toType(expected);
+
+        Assert.assertEquals("java.util.List<java.util.Map<java.lang.Integer, com.github.jonathanxd.iutils.typeinfo.TypeInfoTest$A>>", type.toString());
     }
 
     public static class A extends X<List<?>> {

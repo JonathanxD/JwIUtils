@@ -37,6 +37,7 @@ import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class TypeUtil {
@@ -261,7 +262,7 @@ public class TypeUtil {
             try {
                 Reflection.changeFinalField(TypeInfo.class, typeInfo, "classLiteral", fullName);
 
-                if(typeInfo.isResolved()) {
+                if (typeInfo.isResolved()) {
                     ClassLoader loader = typeInfo.getTypeClass().getClassLoader();
 
                     Class<?> arrayCached = loader == null ? Class.forName(fullName) : loader.loadClass(fullName);
@@ -338,13 +339,14 @@ public class TypeUtil {
 
     /**
      * Gets base component of {@code genericArrayType}.
+     *
      * @param genericArrayType Generic array type.
      * @return Base component.
      */
     public static Type getBaseComponent(GenericArrayType genericArrayType) {
         Type component = genericArrayType.getGenericComponentType();
 
-        while(component instanceof GenericArrayType) {
+        while (component instanceof GenericArrayType) {
             component = ((GenericArrayType) component).getGenericComponentType();
         }
 
@@ -522,4 +524,59 @@ public class TypeUtil {
         return stringBuilder.toString();
     }
 
+
+    /**
+     * Creates a {@link Type} instance from {@code typeInfo}. If {@code typeInfo} does not have
+     * {@link TypeInfo#getTypeParameters() type parameters}, then {@link TypeInfo#getTypeClass()
+     * resolved type class} is returned.
+     *
+     * @param typeInfo Type into to get {@link Type type} from.
+     * @return {@link Type} representing {@code typeInfo}.
+     */
+    public static Type toType(TypeInfo<?> typeInfo) {
+        return toType(typeInfo, null);
+    }
+
+    static Type toType(TypeInfo<?> typeInfo, TypeInfoParameterizedType parent) {
+        List<TypeInfo<?>> typeParameters = typeInfo.getTypeParameters();
+
+        if (typeParameters.isEmpty()) {
+            return typeInfo.getTypeClass();
+        } else {
+            return new TypeInfoParameterizedType(typeInfo, parent);
+        }
+    }
+
+    static final class TypeInfoParameterizedType implements ParameterizedType {
+
+        private final TypeInfo<?> typeInfo;
+        private final TypeInfoParameterizedType parent;
+        private final Type[] typeArguments;
+
+        TypeInfoParameterizedType(TypeInfo<?> typeInfo, TypeInfoParameterizedType parent) {
+            this.typeInfo = typeInfo;
+            this.parent = parent;
+            this.typeArguments = typeInfo.getTypeParameters().stream().map(p -> toType(p, this)).toArray(Type[]::new);
+        }
+
+        @Override
+        public Type[] getActualTypeArguments() {
+            return this.typeArguments;
+        }
+
+        @Override
+        public Type getRawType() {
+            return this.typeInfo.getTypeClass();
+        }
+
+        @Override
+        public Type getOwnerType() {
+            return this.parent;
+        }
+
+        @Override
+        public String toString() {
+            return this.typeInfo.toFullString();
+        }
+    }
 }
