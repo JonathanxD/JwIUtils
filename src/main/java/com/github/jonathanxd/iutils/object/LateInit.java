@@ -154,6 +154,10 @@ public abstract class LateInit {
         return this.isInitialized;
     }
 
+    private void setInitialized(boolean initialized) {
+        this.isInitialized = initialized;
+    }
+
     /**
      * Gets the identification name of this late init instance.
      *
@@ -163,18 +167,30 @@ public abstract class LateInit {
         return this.name;
     }
 
+    /**
+     * De-initializes this late init instance. Protected by default, but may be exposed by other
+     * implementations.
+     */
+    protected void deInit() {
+        this.setNotInitState();
+    }
+
     void initCheck() {
-        if (this.isInitialized)
-            throw new InitializationException("LateInit '"+this.getName()+"' is already initialized.");
+        if (this.isInitialized())
+            throw new InitializationException("LateInit '" + this.getName() + "' is already initialized.");
     }
 
     void accessCheck() {
-        if (!this.isInitialized)
-            throw new InitializationException("LateInit '"+this.getName()+"' was not initialized.");
+        if (!this.isInitialized())
+            throw new InitializationException("LateInit '" + this.getName() + "' was not initialized.");
     }
 
-    void setInitState() {
-        this.isInitialized = true;
+    protected void setNotInitState() {
+        this.setInitialized(false);
+    }
+
+    protected void setInitState() {
+        this.setInitialized(true);
     }
 
     public static class Ref<E> extends LateInit {

@@ -149,6 +149,11 @@ public final class MutableLateInit {
         @Override
         void initCheck() {
         }
+
+        @Override
+        public void deInit() {
+            super.deInit();
+        }
     }
 
     public static class LLazy<E> extends LateInit.LLazy<E> {
@@ -158,6 +163,11 @@ public final class MutableLateInit {
 
         @Override
         void initCheck() {
+        }
+
+        @Override
+        public void deInit() {
+            super.deInit();
         }
     }
 
@@ -169,6 +179,11 @@ public final class MutableLateInit {
         @Override
         void initCheck() {
         }
+
+        @Override
+        public void deInit() {
+            super.deInit();
+        }
     }
 
     public static class Char extends LateInit.Char {
@@ -178,6 +193,11 @@ public final class MutableLateInit {
 
         @Override
         void initCheck() {
+        }
+
+        @Override
+        public void deInit() {
+            super.deInit();
         }
     }
 
@@ -189,6 +209,11 @@ public final class MutableLateInit {
         @Override
         void initCheck() {
         }
+
+        @Override
+        public void deInit() {
+            super.deInit();
+        }
     }
 
     public static class Short extends LateInit.Short {
@@ -198,6 +223,11 @@ public final class MutableLateInit {
 
         @Override
         void initCheck() {
+        }
+
+        @Override
+        public void deInit() {
+            super.deInit();
         }
     }
 
@@ -209,6 +239,11 @@ public final class MutableLateInit {
         @Override
         void initCheck() {
         }
+
+        @Override
+        public void deInit() {
+            super.deInit();
+        }
     }
 
     public static class Long extends LateInit.Long {
@@ -218,6 +253,11 @@ public final class MutableLateInit {
 
         @Override
         void initCheck() {
+        }
+
+        @Override
+        public void deInit() {
+            super.deInit();
         }
     }
 
@@ -229,6 +269,11 @@ public final class MutableLateInit {
         @Override
         void initCheck() {
         }
+
+        @Override
+        public void deInit() {
+            super.deInit();
+        }
     }
 
     public static class Double extends LateInit.Double {
@@ -238,6 +283,11 @@ public final class MutableLateInit {
 
         @Override
         void initCheck() {
+        }
+
+        @Override
+        public void deInit() {
+            super.deInit();
         }
     }
 }
