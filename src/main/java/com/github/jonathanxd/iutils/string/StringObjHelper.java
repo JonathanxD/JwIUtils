@@ -77,6 +77,26 @@ public class StringObjHelper {
     }
 
     /**
+     * Parses a string list in the following format:
+     *
+     * {@code [A, B, C, B]}.
+     *
+     * List values can be:
+     *
+     * {@code List} in format specified in this method documentation.
+     *
+     * {@code Map} in format specified in {@link #parseStringMap(String, boolean)}.
+     *
+     * {@code String} element.
+     *
+     * @param charIter Iterator of characters representing a list in the specified format.
+     * @return List with parsed values.
+     */
+    public static List<Object> parseStringList(Iterator<Character> charIter) {
+        return StringObjHelper.parseStringList(charIter, true);
+    }
+
+    /**
      * Parses a string map in the following format:
      *
      * {@code {A=B, C=D}}.
@@ -95,6 +115,27 @@ public class StringObjHelper {
     public static Map<Object, Object> parseStringMap(String stringMap) {
         return StringObjHelper.parseStringMap(stringMap, true);
     }
+
+    /**
+     * Parses a string map in the following format:
+     *
+     * {@code {A=B, C=D}}.
+     *
+     * Map values can be:
+     *
+     * {@code List} in format specified in {@link #parseStringList(String, boolean)}.
+     *
+     * {@code Map} in format specified in this method documentation.
+     *
+     * {@code String} element.
+     *
+     * @param charIter Iterator of characters representing a map in the specified format.
+     * @return Map with parsed values.
+     */
+    public static Map<Object, Object> parseStringMap(Iterator<Character> charIter) {
+        return StringObjHelper.parseStringMap(charIter, true);
+    }
+
 
     /**
      * Parses a string list in the following format:
@@ -117,6 +158,29 @@ public class StringObjHelper {
      */
     public static List<Object> parseStringList(String stringList, boolean reqTag) {
         Iterator<Character> charIter = IteratorUtil.ofArray(PrimitiveArrayConverter.fromPrimitive(stringList.toCharArray()));
+        return StringObjHelper.parseStringList(charIter, reqTag);
+    }
+
+    /**
+     * Parses a string list in the following format:
+     *
+     * {@code [A, B, C, B]}.
+     *
+     * List values can be:
+     *
+     * {@code List} in format specified in this method documentation.
+     *
+     * {@code Map} in format specified in {@link #parseStringMap(String, boolean)}.
+     *
+     * {@code String} element.
+     *
+     * Tags are always required for inner Lists and Maps.
+     *
+     * @param charIter Iterator of characters representing a list in the specified format.
+     * @param reqTag   Whether {@code []} is required in main {@code stringList}.
+     * @return List with parsed values.
+     */
+    public static List<Object> parseStringList(Iterator<Character> charIter, boolean reqTag) {
 
         if (reqTag) {
             if (!charIter.hasNext())
@@ -128,7 +192,40 @@ public class StringObjHelper {
             }
         }
 
-        return parseStringList(charIter, reqTag);
+        return StringObjHelper.parseStringList0(charIter, reqTag);
+    }
+
+    /**
+     * Parses a string map in the following format:
+     *
+     * {@code {A=B, C=D}}.
+     *
+     * Map values can be:
+     *
+     * {@code List} in format specified in {@link #parseStringList(String, boolean)}.
+     *
+     * {@code Map} in format specified in this method documentation.
+     *
+     * {@code String} element.
+     *
+     * Tags are always required for inner Lists and Maps.
+     *
+     * @param charIter Iterator of characters representing a map in the specified format.
+     * @param reqTag   Whether {@code {}} is required in main {@code stringMap}.
+     * @return Map with parsed values.
+     */
+    public static Map<Object, Object> parseStringMap(Iterator<Character> charIter, boolean reqTag) {
+        if (reqTag) {
+            if (!charIter.hasNext())
+                throw new MapParseException("Empty string map");
+
+            Character c;
+            if ((c = charIter.next()) != MAP_OPEN) {
+                throw new MapParseException("Expected '" + MAP_OPEN + "' but found '" + c + "'.");
+            }
+        }
+
+        return StringObjHelper.parseStringMap0(charIter, reqTag);
     }
 
     /**
@@ -152,21 +249,10 @@ public class StringObjHelper {
      */
     public static Map<Object, Object> parseStringMap(String stringMap, boolean reqTag) {
         Iterator<Character> charIter = IteratorUtil.ofArray(PrimitiveArrayConverter.fromPrimitive(stringMap.toCharArray()));
-
-        if (reqTag) {
-            if (!charIter.hasNext())
-                throw new MapParseException("Empty string map");
-
-            Character c;
-            if ((c = charIter.next()) != MAP_OPEN) {
-                throw new MapParseException("Expected '" + MAP_OPEN + "' but found '" + c + "'.");
-            }
-        }
-
-        return parseStringMap(charIter, reqTag);
+        return StringObjHelper.parseStringMap(charIter, reqTag);
     }
 
-    private static List<Object> parseStringList(Iterator<Character> charIter, boolean req) {
+    private static List<Object> parseStringList0(Iterator<Character> charIter, boolean req) {
         StringBuilder stringBuilder = new StringBuilder();
         boolean lastIsEscape = false;
         boolean[] openCount = new boolean[OPEN_CLOSE_CHAR.length];
@@ -232,11 +318,11 @@ public class StringObjHelper {
             } else if (ArrayUtils.any(SEPARATORS, t -> t == c)) {
                 build.accept(Token.SEPARATOR);
             } else if (c == MAP_OPEN) {
-                setObj.accept(parseStringMap(charIter, true));
+                setObj.accept(parseStringMap0(charIter, true));
             } else if (c == MAP_CLOSE) {
                 build.accept(Token.CLOSE);
             } else if (c == LIST_OPEN) {
-                setObj.accept(parseStringList(charIter, true));
+                setObj.accept(parseStringList0(charIter, true));
             } else if (c == LIST_CLOSE) {
                 build.accept(Token.CLOSE);
                 return list;
@@ -262,7 +348,7 @@ public class StringObjHelper {
         return list;
     }
 
-    private static Map<Object, Object> parseStringMap(Iterator<Character> charIter, boolean req) {
+    private static Map<Object, Object> parseStringMap0(Iterator<Character> charIter, boolean req) {
         StringBuilder stringBuilder = new StringBuilder();
         boolean lastIsEscape = false;
         boolean[] openCount = new boolean[OPEN_CLOSE_CHAR.length];
@@ -344,11 +430,11 @@ public class StringObjHelper {
             } else if (c == MAP_DEFINE) {
                 build.accept(Token.DEFINE);
             } else if (c == LIST_OPEN) {
-                setObj.accept(parseStringList(charIter, true));
+                setObj.accept(parseStringList0(charIter, true));
             } else if (c == LIST_CLOSE) {
                 build.accept(Token.CLOSE);
             } else if (c == MAP_OPEN) {
-                setObj.accept(parseStringMap(charIter, true));
+                setObj.accept(parseStringMap0(charIter, true));
             } else if (c == MAP_CLOSE) {
                 build.accept(Token.CLOSE);
                 return map;
