@@ -60,6 +60,22 @@ public final class OptDouble extends AbstractOpt<OptDouble, ValueHolder.DoubleVa
     }
 
     /**
+     * Creates an {@link OptDouble} from {@code optional}.
+     *
+     * @param optional Optional to create {@link OptDouble}.
+     * @return An {@link Opt} of {@code Some} if {@link Optional#isPresent() Optional value is
+     * present}, or {@code None} otherwise.
+     */
+    @SuppressWarnings({"unchecked", "OptionalUsedAsFieldOrParameterType"})
+    public static OptDouble fromOptional(OptionalDouble optional) {
+        if (optional.isPresent()) {
+            return OptDouble.some(optional.getAsDouble());
+        } else {
+            return OptDouble.none();
+        }
+    }
+
+    /**
      * Creates an {@link Opt} from {@code value}.
      *
      * @param value Value to create {@link Opt}.

@@ -32,6 +32,7 @@ import com.github.jonathanxd.iutils.opt.Opt;
 import com.github.jonathanxd.iutils.opt.ValueHolder;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 
 /**
@@ -50,6 +51,19 @@ public final class OptObject<T> extends AbstractOptObject<T, ValueHolder.ObjectV
 
     private OptObject(T value) {
         this(new ValueHolder.ObjectValueHolder.Some<>(value));
+    }
+
+    /**
+     * Creates an {@link OptObject} from {@code optional}.
+     *
+     * @param optional Optional to create {@link OptObject}.
+     * @param <T>      Type of value.
+     * @return An {@link Opt} of {@code Some} if {@link Optional#isPresent() Optional value is
+     * present}, or {@code None} otherwise.
+     */
+    @SuppressWarnings({"unchecked", "OptionalUsedAsFieldOrParameterType"})
+    public static <T> OptObject<T> fromOptional(Optional<T> optional) {
+        return optional.map(OptObject::some).orElseGet(OptObject::none);
     }
 
     /**

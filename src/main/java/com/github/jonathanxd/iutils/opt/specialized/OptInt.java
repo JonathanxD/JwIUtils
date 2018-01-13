@@ -60,6 +60,22 @@ public final class OptInt extends AbstractOpt<OptInt, ValueHolder.IntValueHolder
     }
 
     /**
+     * Creates an {@link OptInt} from {@code optional}.
+     *
+     * @param optional Optional to create {@link OptInt}.
+     * @return An {@link Opt} of {@code Some} if {@link Optional#isPresent() Optional value is
+     * present}, or {@code None} otherwise.
+     */
+    @SuppressWarnings({"unchecked", "OptionalUsedAsFieldOrParameterType"})
+    public static OptInt fromOptional(OptionalInt optional) {
+        if (optional.isPresent()) {
+            return OptInt.some(optional.getAsInt());
+        } else {
+            return OptInt.none();
+        }
+    }
+
+    /**
      * Creates an {@link Opt} from {@code value}.
      *
      * @param value Value to create {@link Opt}.

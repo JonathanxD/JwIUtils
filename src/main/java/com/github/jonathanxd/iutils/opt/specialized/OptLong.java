@@ -60,6 +60,22 @@ public final class OptLong extends AbstractOpt<OptLong, ValueHolder.LongValueHol
     }
 
     /**
+     * Creates an {@link OptLong} from {@code optional}.
+     *
+     * @param optional Optional to create {@link OptLong}.
+     * @return An {@link Opt} of {@code Some} if {@link Optional#isPresent() Optional value is
+     * present}, or {@code None} otherwise.
+     */
+    @SuppressWarnings({"unchecked", "OptionalUsedAsFieldOrParameterType"})
+    public static OptLong fromOptional(OptionalLong optional) {
+        if (optional.isPresent()) {
+            return OptLong.some(optional.getAsLong());
+        } else {
+            return OptLong.none();
+        }
+    }
+
+    /**
      * Creates an {@link Opt} from {@code value}.
      *
      * @param value Value to create {@link Opt}.

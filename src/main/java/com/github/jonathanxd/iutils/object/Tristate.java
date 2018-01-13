@@ -31,7 +31,18 @@ package com.github.jonathanxd.iutils.object;
  * Tri-state (3-state).
  */
 public enum Tristate {
+    /**
+     * True/valid state.
+     */
     TRUE,
+
+    /**
+     * False/invalid state
+     */
     FALSE,
+
+    /**
+     * Unknown/undefined/neutral state.
+     */
     UNKNOWN
 }
