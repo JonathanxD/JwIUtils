@@ -27,13 +27,13 @@
  */
 package com.github.jonathanxd.iutils.property.format;
 
-import com.github.jonathanxd.iutils.map.MapValue;
+import com.github.jonathanxd.iutils.property.value.Value;
 import com.github.jonathanxd.iutils.text.localizer.TextLocalizer;
 
 import java.util.Optional;
 
 /**
- * Formatter of {@link MapValue} to user readable representation.
+ * Formatter of {@link Value} to user readable representation.
  */
 public interface ValueFormatter {
 
@@ -43,8 +43,8 @@ public interface ValueFormatter {
      * @param value         Value to format.
      * @param textLocalizer Localizer to use to translate.
      * @return User readable representation. Empty optional if this formatter cannot format {@link
-     * MapValue}.
+     * Value}.
      */
-    Optional<String> format(MapValue<?> value, TextLocalizer textLocalizer);
+    Optional<String> format(Value<?> value, TextLocalizer textLocalizer);
 
 }

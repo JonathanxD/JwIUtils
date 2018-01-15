@@ -27,7 +27,7 @@
  */
 package com.github.jonathanxd.iutils.property.format;
 
-import com.github.jonathanxd.iutils.map.MapValue;
+import com.github.jonathanxd.iutils.property.value.Value;
 import com.github.jonathanxd.iutils.text.localizer.TextLocalizer;
 
 import java.util.HashSet;
@@ -52,11 +52,12 @@ public class ValueFormatterHelper {
 
     /**
      * Formats {@code value} and return a user readable formatted representation.
-     * @param value
-     * @param textLocalizer
-     * @return
+     *
+     * @param value         Value to format.
+     * @param textLocalizer Localizer to use.
+     * @return Optional of user readable formatted value, or empty if cannot format.
      */
-    public Optional<String> format(MapValue<?> value, TextLocalizer textLocalizer) {
+    public Optional<String> format(Value<?> value, TextLocalizer textLocalizer) {
         for (ValueFormatter valueFormatter : this.formatterSet) {
             Optional<String> format = valueFormatter.format(value, textLocalizer);
 
