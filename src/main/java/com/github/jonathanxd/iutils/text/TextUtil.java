@@ -27,8 +27,15 @@
  */
 package com.github.jonathanxd.iutils.text;
 
+import com.github.jonathanxd.iutils.exception.LocalizationMapParseException;
+import com.github.jonathanxd.iutils.iterator.IteratorUtil;
+import com.github.jonathanxd.iutils.recursion.Element;
+import com.github.jonathanxd.iutils.recursion.ElementUtil;
+import com.github.jonathanxd.iutils.recursion.Elements;
 import com.github.jonathanxd.iutils.string.StringObjHelper;
+import com.github.jonathanxd.iutils.type.Primitive;
 
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -47,50 +54,64 @@ public class TextUtil {
     private static final int LOCALIZABLE = 1;
     private static final int COLOR_OR_STYLE = 2;
 
-    public static Map<String, TextComponent> parseMap(String receiver) {
+    @SuppressWarnings("unchecked")
+    public static Map<String, List<TextComponent>> parseMap(String receiver) {
         receiver = receiver.replace("\n", ",");
-
-        Map<String, TextComponent> componentMap = new HashMap<>();
         Map<Object, Object> map = StringObjHelper.parseStringMap(receiver, false);
+        return TextUtil.parseMap(map);
+    }
 
-        for (Map.Entry<Object, Object> entry : map.entrySet()) {
-            Object key = entry.getKey();
-            Object value = entry.getValue();
+    /**
+     * Parses {@code Localization map} from {@code map}. The input map must have only {@link String}
+     * keys and values of following types: {@code primitive}, {@link String}, {@link List} (of any
+     * of listed types) and {@link Map} (with values of any listed types, keys must be of {@link
+     * String} type).
+     *
+     * @param map Map with localizations.
+     * @return Localization map.
+     */
+    @SuppressWarnings("unchecked")
+    public static Map<String, List<TextComponent>> parseMap(Map<Object, Object> map) throws LocalizationMapParseException {
 
-            if (!(key instanceof String))
-                throw new IllegalArgumentException("Only strings are supported as lang keys. Key: " + key + ".");
+        Map<String, List<TextComponent>> componentMap = new HashMap<>();
 
-            TextComponent current = componentMap.get(key);
-            TextComponent newComponent = null;
+        if (!map.isEmpty()) {
+            Elements<Map.Entry<Object, Object>> entries = new Elements<>();
+            List<Map.Entry<Object, Object>> mapEntries = new ArrayList<>(map.entrySet());
 
-            if (value instanceof String) {
-                newComponent = TextUtil.parse((String) value);
-            } else if (value instanceof List<?>) {
-                List<?> list = (List<?>) value;
-                Iterator<?> iterator = list.iterator();
+            entries.insertFromPair(ElementUtil.fromIterable(mapEntries));
 
-                while (iterator.hasNext()) {
-                    Object o = iterator.next();
-                    if (!(o instanceof String))
-                        throw new IllegalArgumentException("Only strings are supported" +
-                                " as element of lang lists. Element: " + o + ".");
+            Element<Map.Entry<Object, Object>> entry;
 
-                    String s = o + (iterator.hasNext() ? "\n" : "");
+            while ((entry = entries.nextElement()) != null) {
+                Object key = entry.value.getKey();
+                Object value = entry.value.getValue();
 
-                    if (newComponent == null)
-                        newComponent = TextUtil.parse(s);
-                    else
-                        newComponent = newComponent.append(TextUtil.parse(s));
+                if (!(key instanceof String))
+                    throw new LocalizationMapParseException("Only string is supported as key type. Key: " + key + ".");
+
+                if (value instanceof List<?> && !((List<?>) value).isEmpty()) {
+                    List<Object> array = (List<Object>) value;
+                    Iterator<Object> arraIterator = array.iterator();
+
+                    Iterator<Map.Entry<Object, Object>> iterator =
+                            IteratorUtil.mappedIterator(arraIterator, v -> new AbstractMap.SimpleEntry<>(key, v));
+
+                    entries.insertFromPair(ElementUtil.fromIterable(() -> iterator));
+                } else if (value instanceof Map<?, ?> && !((Map<?, ?>) value).isEmpty()) {
+                    Map<Object, Object> obj = (Map<Object, Object>) value;
+
+                    Iterator<Map.Entry<Object, Object>> iterator =
+                            IteratorUtil.mappedIterator(obj.entrySet().iterator(),
+                                    v -> new AbstractMap.SimpleEntry<>(key + "." + v.getKey(), v.getValue()));
+
+                    entries.insertFromPair(ElementUtil.fromIterable(() -> iterator));
+                } else if (Primitive.instanceOfAnyPrimitiveBox(value) || value instanceof String) {
+                    componentMap.computeIfAbsent((String) key, f -> new ArrayList<>()).add(TextUtil.parse(String.valueOf(value)));
+                } else {
+                    throw new IllegalArgumentException("Invalid input '" + value + "' in map object '" + map + "'.");
                 }
-
-            } else {
-                throw new IllegalArgumentException("Value '" + value + "' is not supported as lang value.");
             }
-
-            if (current != null)
-                newComponent = current.append(newComponent);
-
-            componentMap.put((String) key, newComponent);
         }
 
         return componentMap;
@@ -311,18 +332,13 @@ public class TextUtil {
     }
 
     /**
-     * Defines the correspondence between {@code &} and color and style. This is based on Minecraft Color Codes and only
-     * used in String serialization of text.
+     * Defines the correspondence between {@code &} and color and style. This is based on Minecraft
+     * Color Codes and only used in String serialization of text.
      */
     public static class ColorAndStyleTable {
         public static Map<TextComponent, Character> TABLE = new HashMap<>();
         public static Map<Character, TextComponent> TABLE2 = new HashMap<>();
-        
-        public static void put(TextComponent o, Character c) {
-            TABLE.put(o, c);
-            TABLE2.put(c, o);
-        }
-        
+
         static {
             put(Colors.BLACK, '0');
             put(Colors.DARK_BLUE, '1');
@@ -348,6 +364,11 @@ public class TextUtil {
 
             put(Colors.RESET, 'r');
             put(Styles.RESET, 'r');
+        }
+
+        public static void put(TextComponent o, Character c) {
+            TABLE.put(o, c);
+            TABLE2.put(c, o);
         }
     }
 

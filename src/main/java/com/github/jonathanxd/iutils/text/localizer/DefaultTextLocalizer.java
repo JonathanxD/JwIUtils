@@ -40,7 +40,10 @@ import com.github.jonathanxd.iutils.text.Text;
 import com.github.jonathanxd.iutils.text.TextComponent;
 import com.github.jonathanxd.iutils.text.VariableComponent;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -65,76 +68,86 @@ public class DefaultTextLocalizer extends AbstractTextLocalizer {
 
     @Override
     public String localize(TextComponent textComponent, Map<String, TextComponent> args, Locale locale) {
-
-        if (textComponent instanceof Color
-                || textComponent instanceof Style)
-            return "";
-        if (textComponent instanceof Text) {
-            return this.getTextString((Text) textComponent, args, locale);
-        } else if (textComponent instanceof StringComponent) {
-            return ((StringComponent) textComponent).getText();
-        } else if (textComponent instanceof CapitalizeComponent) {
-            String s = this.localize(((CapitalizeComponent) textComponent).getTextComponent(), args, locale);
-            if (s.length() == 0)
-                return "";
-
-            return Character.toUpperCase(s.charAt(0)) + s.substring(1, s.length());
-        } else if (textComponent instanceof DecapitalizeComponent) {
-            String s = this.localize(((DecapitalizeComponent) textComponent).getTextComponent(), args, locale);
-            if (s.length() == 0)
-                return "";
-
-            return Character.toLowerCase(s.charAt(0)) + s.substring(1, s.length());
-        } else if (textComponent instanceof VariableComponent) {
-            String variable = ((VariableComponent) textComponent).getVariable();
-            TextComponent component = args.get(variable);
-
-            if (component != null)
-                return this.localize(component, args, locale);
-
-            return "$" + ((VariableComponent) textComponent).getVariable();
-        } else if (textComponent instanceof LocalizableComponent) {
-            LocalizableComponent localizableComponent = (LocalizableComponent) textComponent;
-            String componentLocalization = localizableComponent.getLocalization();
-
-            String localeStr = localizableComponent.getLocale();
-            Locale localLocale = localeStr != null
-                    ? this.getLocaleManager().getRequiredLocale(localeStr)
-                    : null;
-
-            Locale toUse = locale != null ? locale : localLocale != null ? localLocale : this.getLocale();
-
-            TextComponent localization =
-                    toUse.getLocalizationManager().getLocalization(componentLocalization);
-
-            Locale current = this.getLocale();
-            if (localization == null && toUse != current)
-                current.getLocalizationManager().getLocalization(componentLocalization);
-
-            if (localization == null)
-                localization = this.getDefaultLocale().getLocalizationManager()
-                        .getRequiredLocalization(componentLocalization);
-
-            return this.localize(localization, args, locale);
-        } else if (textComponent instanceof ArgsAppliedText) {
-            ArgsAppliedText argsAppliedText = (ArgsAppliedText) textComponent;
-            Map<String, TextComponent> arguments = new HashMap<>(argsAppliedText.getArgs());
-            arguments.putAll(args);
-
-            return this.localize(argsAppliedText.getComponent(), arguments, locale);
-        }
-
-        throw new IllegalArgumentException("Invalid component '" + textComponent + "'!");
+        StringBuilder sb = new StringBuilder();
+        this.localize(textComponent, args, locale, sb);
+        return sb.toString();
     }
 
-    private String getTextString(Text text, Map<String, TextComponent> variableValues, Locale locale) {
-        StringBuilder builder = new StringBuilder();
+    public void localize(TextComponent textComponent, Map<String, TextComponent> args, Locale locale,
+                           StringBuilder sb) {
 
-        for (TextComponent textComponent : text) {
-            builder.append(this.localize(textComponent, variableValues, locale));
+        if (!(textComponent instanceof Color)
+                && !(textComponent instanceof Style)) {
+            if (textComponent instanceof Text) {
+                this.getTextString((Text) textComponent, args, locale, sb);
+            } else if (textComponent instanceof StringComponent) {
+                sb.append(((StringComponent) textComponent).getText());
+            } else if (textComponent instanceof CapitalizeComponent) {
+                String s = this.localize(((CapitalizeComponent) textComponent).getTextComponent(), args, locale);
+                if (s.length() != 0) {
+                    sb.append(Character.toUpperCase(s.charAt(0))).append(s.substring(1, s.length()));
+                }
+            } else if (textComponent instanceof DecapitalizeComponent) {
+                String s = this.localize(((DecapitalizeComponent) textComponent).getTextComponent(), args, locale);
+                if (s.length() != 0) {
+                    sb.append(Character.toLowerCase(s.charAt(0))).append(s.substring(1, s.length()));
+                }
+            } else if (textComponent instanceof VariableComponent) {
+                String variable = ((VariableComponent) textComponent).getVariable();
+                TextComponent component = args.get(variable);
+
+                if (component != null) {
+                    this.localize(component, args, locale, sb);
+                } else {
+                    sb.append("$").append(((VariableComponent) textComponent).getVariable());
+                }
+            } else if (textComponent instanceof LocalizableComponent) {
+                LocalizableComponent localizableComponent = (LocalizableComponent) textComponent;
+                String componentLocalization = localizableComponent.getLocalization();
+
+                String localeStr = localizableComponent.getLocale();
+                Locale localLocale = localeStr != null
+                        ? this.getLocaleManager().getRequiredLocale(localeStr)
+                        : null;
+
+                Locale toUse = locale != null ? locale : localLocale != null ? localLocale : this.getLocale();
+
+                List<TextComponent> localizations =
+                        toUse.getLocalizationManager().getLocalizations(componentLocalization);
+
+                Locale current = this.getLocale();
+                if (localizations.isEmpty() && toUse != current)
+                    localizations = current.getLocalizationManager().getLocalizations(componentLocalization);
+
+                if (localizations.isEmpty())
+                    localizations = this.getDefaultLocale().getLocalizationManager().getLocalizations(componentLocalization);
+
+                if (localizations.isEmpty())
+                    localizations = Collections.singletonList(Text.single(componentLocalization));
+
+                Iterator<TextComponent> iterator = localizations.iterator();
+
+                while (iterator.hasNext()) {
+                    this.localize(iterator.next(), args, locale, sb);
+                    if (iterator.hasNext())
+                        sb.append('\n');
+                }
+            } else if (textComponent instanceof ArgsAppliedText) {
+                ArgsAppliedText argsAppliedText = (ArgsAppliedText) textComponent;
+                Map<String, TextComponent> arguments = new HashMap<>(argsAppliedText.getArgs());
+                arguments.putAll(args);
+
+                this.localize(argsAppliedText.getComponent(), arguments, locale, sb);
+            } else {
+                throw new IllegalArgumentException("Invalid component '" + textComponent + "'!");
+            }
         }
+    }
 
-        return builder.toString();
+    private void getTextString(Text text, Map<String, TextComponent> variableValues, Locale locale, StringBuilder sb) {
+        for (TextComponent textComponent : text) {
+            this.localize(textComponent, variableValues, locale, sb);
+        }
     }
 
 

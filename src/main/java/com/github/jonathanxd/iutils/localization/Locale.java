@@ -27,21 +27,10 @@
  */
 package com.github.jonathanxd.iutils.localization;
 
-import com.github.jonathanxd.iutils.array.PrimitiveArrayConverter;
-import com.github.jonathanxd.iutils.iterator.IteratorUtil;
+import com.github.jonathanxd.iutils.exception.LocaleLoadException;
 import com.github.jonathanxd.iutils.string.StringObjHelper;
-import com.github.jonathanxd.iutils.text.TextUtil;
-import com.github.jonathanxd.iutils.text.TextComponent;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URL;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Map;
-import java.util.Properties;
-import java.util.stream.Collectors;
 
 /**
  * Locale represents a language.
@@ -73,35 +62,8 @@ public interface Locale {
      * @param classLoader Class loader.
      * @return True if loaded with success.
      */
-    default boolean load(Path path, String baseName, ClassLoader classLoader) {
-        String name = (baseName == null ? "" : baseName + "_") + this.getName() + ".lang";
-
-        Path rPath = (path == null ? Paths.get(name) : path.resolve(name));
-        URL resource = classLoader.getResource(rPath.toString());
-
-        if (resource == null)
-            return false;
-
-        try (BufferedReader stream = new BufferedReader(new InputStreamReader(resource.openStream(), "UTF-8"))) {
-
-            String s = stream.lines()
-                    .filter(c -> !c.isEmpty())
-                    .collect(Collectors.joining("\n"));
-
-            Map<String, String> properties = StringObjHelper.parsePropertyMap(s);
-
-            for (Map.Entry<String, String> objectObjectEntry : properties.entrySet()) {
-                this.getLocalizationManager().registerLocalization(
-                        objectObjectEntry.getKey(),
-                        TextUtil.parse(objectObjectEntry.getValue())
-                );
-            }
-
-            return true;
-        } catch (IOException e) {
-            return false;
-        }
-
+    default void load(Path path, String baseName, ClassLoader classLoader) throws LocaleLoadException {
+        LocaleLoaders.langLoader().loadFromResource(this, path, baseName, classLoader);
     }
 
     /**
@@ -115,32 +77,8 @@ public interface Locale {
      * @param classLoader Class loader.
      * @return True if loaded with success.
      */
-    default boolean loadMap(Path path, String baseName, ClassLoader classLoader) {
-        String name = (baseName == null ? "" : baseName + "_") + this.getName() + ".lang";
-
-        Path rPath = (path == null ? Paths.get(name) : path.resolve(name));
-        URL resource = classLoader.getResource(rPath.toString());
-
-        if (resource == null)
-            return false;
-
-        try (BufferedReader stream = new BufferedReader(new InputStreamReader(resource.openStream(), "UTF-8"))) {
-
-            String s = stream.lines()
-                    .filter(c -> !c.isEmpty())
-                    .collect(Collectors.joining("\n"));
-
-            Map<String, TextComponent> map = TextUtil.parseMap(s);
-
-            for (Map.Entry<String, TextComponent> entry : map.entrySet()) {
-                this.getLocalizationManager().registerLocalization(entry.getKey(), entry.getValue());
-            }
-
-            return true;
-        } catch (IOException e) {
-            return false;
-        }
-
+    default void loadMap(Path path, String baseName, ClassLoader classLoader) throws LocaleLoadException {
+        LocaleLoaders.langMapLoader().loadFromResource(this, path, baseName, classLoader);
     }
 
 }

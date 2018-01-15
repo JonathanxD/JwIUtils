@@ -27,6 +27,8 @@
  */
 package com.github.jonathanxd.iutils.recursion;
 
+import com.github.jonathanxd.iutils.object.Pair;
+
 /**
  * Represents a sequence of consumable elements.
  *
@@ -39,9 +41,10 @@ public class Elements<E> {
     public Element<E> first;
 
     /**
-     * Inserts an element immediately after the current element (in other words, next element will
-     * be the inserted element). The element to insert cannot point to a next element, if you want
-     * to insert more than one element, use {@link #insert(Element, Element)}.
+     * Inserts an element immediately after the current element (the element returned by the last
+     * call to {@link #nextElement()}, in other words, {@link #nextElement() next element} will be
+     * the inserted element. The element to insert cannot point to a next element, if you want to
+     * insert more than one element, use {@link #insert(Element, Element)}.
      *
      * @param eElement Element to insert.
      */
@@ -50,8 +53,9 @@ public class Elements<E> {
     }
 
     /**
-     * Inserts an element immediately after the current element (in other words, next element will
-     * be the inserted element).
+     * Inserts an element immediately after the current element (the element returned by the last
+     * call to {@link #nextElement()}, in other words, {@link #nextElement() next element} will be
+     * the inserted element.
      *
      * This method allows multiple elements to be added, but a pointer to last element is required,
      * the last element cannot have a pointer to a next element.
@@ -70,6 +74,17 @@ public class Elements<E> {
             first = eElement;
             end.next = f;
         }
+    }
+
+    /**
+     * Same as {@link #insert(Element, Element)}, but extract {@code first} and {@code last} from a
+     * {@link Pair pair}.
+     *
+     * @param firstAndLastPair Pair with {@code first} and {@code last} element to insert.
+     * @see #insert(Element, Element)
+     */
+    public void insertFromPair(Pair<Element<E>, Element<E>> firstAndLastPair) {
+        this.insert(firstAndLastPair.getFirst(), firstAndLastPair.getSecond());
     }
 
     /**

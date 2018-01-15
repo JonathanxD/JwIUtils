@@ -30,6 +30,7 @@ package com.github.jonathanxd.iutils.localization;
 import com.github.jonathanxd.iutils.text.Text;
 import com.github.jonathanxd.iutils.text.TextComponent;
 
+import java.util.List;
 import java.util.ResourceBundle;
 
 /**
@@ -38,24 +39,45 @@ import java.util.ResourceBundle;
 public interface LocalizationManager {
 
     /**
-     * Registers a localization of {@code text} to {@code key}.
+     * Registers a localization of {@code text} to {@code key}. Multiple {@link TextComponent} can
+     * be associated to same {@code key}.
      *
      * @param key  Key to register localization.
      * @param text Text to associate to {@code key}.
-     * @return True if registered with success, false otherwise.
+     * @return True if this was the first association, false otherwise.
      */
     boolean registerLocalization(String key, TextComponent text);
 
     /**
-     * Gets the localization registered for {@code key}.
+     * Associates all localizations of {@code text} to {@code key}.
+     *
+     * @param key   Key to associate to localizations.
+     * @param texts Texts to associate to key.
+     * @return True if this was the first association, false otherwise.
+     */
+    boolean registerLocalizations(String key, Iterable<? extends TextComponent> texts);
+
+    /**
+     * Gets the last localization registered for {@code key}.
      *
      * The translation is applied by default.
      *
-     * @param key Key use to register localization.
-     * @return Localization associated to {@code key}, or {@code null} if no one localization was
-     * registered to {@code key}.
+     * @param key Key use to get localization.
+     * @return Last localization associated to {@code key}, or {@code null} if no one localization
+     * was registered to {@code key}.
      */
     TextComponent getLocalization(String key);
+
+    /**
+     * Gets multiple localizations registered for {@code key}.
+     *
+     * The translation is applied by default.
+     *
+     * @param key Key use to get localization.
+     * @return Multiple localizations associated to {@code key}, or {@code empty list} if no one
+     * localization was registered to {@code key}.
+     */
+    List<TextComponent> getLocalizations(String key);
 
     /**
      * Gets the localization registered for {@code key}, never returns null.

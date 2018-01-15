@@ -39,6 +39,26 @@ public final class Primitive {
     }
 
     /**
+     * Returns whether {@code obj} is instance of any primitive type box/wrapper. ({@code int},
+     * {@code char}, {@code byte}, {@code boolean}, {@code short}, {@code long}, {@code double},
+     * {@code float} or {@code void}).
+     *
+     * @param obj Object to check.
+     * @return Whether {@code obj} is instance of any primitive type box/wrapper.
+     */
+    public static boolean instanceOfAnyPrimitiveBox(Object obj) {
+        return obj instanceof Integer
+                || obj instanceof Byte
+                || obj instanceof Boolean
+                || obj instanceof Short
+                || obj instanceof Long
+                || obj instanceof Float
+                || obj instanceof Double
+                || obj instanceof Character
+                || obj instanceof Void;
+    }
+
+    /**
      * Box Type (return boxed type. (primitive) -&gt; Wrapper)
      *
      * @param type Type to Box

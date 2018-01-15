@@ -30,6 +30,7 @@ package com.github.jonathanxd.iutils.text.localizer;
 import com.github.jonathanxd.iutils.localization.Locale;
 import com.github.jonathanxd.iutils.localization.LocaleManager;
 import com.github.jonathanxd.iutils.recursion.Element;
+import com.github.jonathanxd.iutils.recursion.ElementUtil;
 import com.github.jonathanxd.iutils.recursion.Elements;
 import com.github.jonathanxd.iutils.text.ArgsAppliedText;
 import com.github.jonathanxd.iutils.text.CapitalizeComponent;
@@ -42,7 +43,11 @@ import com.github.jonathanxd.iutils.text.Text;
 import com.github.jonathanxd.iutils.text.TextComponent;
 import com.github.jonathanxd.iutils.text.VariableComponent;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -120,6 +125,7 @@ public final class FastTextLocalizer extends AbstractTextLocalizer {
         Element<TextComponent> elem;
         while ((elem = components.nextElement()) != null) {
             TextComponent next = elem.value;
+
             if (next instanceof Color) {
                 components.insert(new Element<>(this.getColorTransformer().apply((Color) next)));
             } else if (next instanceof Style) {
@@ -184,24 +190,39 @@ public final class FastTextLocalizer extends AbstractTextLocalizer {
 
                 Locale toUse = locale != null ? locale : localLocale != null ? localLocale : this.getLocale();
 
-                TextComponent localization =
-                        toUse.getLocalizationManager().getLocalization(componentLocalization);
+                List<TextComponent> localizations =
+                        toUse.getLocalizationManager().getLocalizations(componentLocalization);
 
                 Locale current = this.getLocale();
-                if (localization == null && toUse != current)
-                    current.getLocalizationManager().getLocalization(componentLocalization);
+                if (localizations.isEmpty() && toUse != current)
+                    localizations = current.getLocalizationManager().getLocalizations(componentLocalization);
 
-                if (localization == null)
-                    localization = this.getDefaultLocale().getLocalizationManager()
-                            .getLocalization(componentLocalization);
+                if (localizations.isEmpty())
+                    localizations = this.getDefaultLocale().getLocalizationManager().getLocalizations(componentLocalization);
 
-                if (localization == null)
-                    localization = Text.single(componentLocalization);
+                if (localizations.isEmpty())
+                    localizations = Collections.singletonList(Text.single(componentLocalization));
 
-                if (privateArgs.containsKey(next))
-                    privateArgs.put(localization, privateArgs.get(next));
+                if (privateArgs.containsKey(next)) {
+                    for (TextComponent localization : localizations) {
+                        privateArgs.put(localization, privateArgs.get(next));
+                    }
+                }
 
-                components.insert(new Element<>(localization));
+                if (localizations.size() > 1) {
+                    List<TextComponent> withLine = new ArrayList<>();
+
+                    Iterator<TextComponent> iterator = localizations.iterator();
+
+                    while (iterator.hasNext()) {
+                        withLine.add(iterator.next());
+                        if(iterator.hasNext())
+                            withLine.add(Text.of("\n"));
+                    }
+
+                    localizations = withLine;
+                }
+                components.insertFromPair(ElementUtil.fromIterable(localizations));
             } else if (next instanceof ArgsAppliedText) {
                 ArgsAppliedText argsAppliedText = (ArgsAppliedText) next;
                 TextComponent component = argsAppliedText.getComponent();

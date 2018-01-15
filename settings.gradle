@@ -1,3 +1,4 @@
 rootProject.name = 'JwIUtils'
 include 'jwiutils-kt'
 include 'properties'
+include 'json-lang-loader'

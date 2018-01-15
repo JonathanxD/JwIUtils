@@ -485,7 +485,6 @@ public class StringObjHelper {
     public static Map<String, String> parsePropertyMap(Iterator<Character> charIter) {
         StringBuilder stringBuilder = new StringBuilder();
         boolean lastIsEscape = false;
-        boolean[] openCount = new boolean[OPEN_CLOSE_CHAR.length];
 
         final Map<String, String> map = new HashMap<>();
         final IMutableBox<OptObject<String>> key = new MutableBox<>(Opt.none());
