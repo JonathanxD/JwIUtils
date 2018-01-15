@@ -37,19 +37,20 @@ import com.github.jonathanxd.iutils.text.CapitalizeComponent;
 import com.github.jonathanxd.iutils.text.Color;
 import com.github.jonathanxd.iutils.text.DecapitalizeComponent;
 import com.github.jonathanxd.iutils.text.LocalizableComponent;
+import com.github.jonathanxd.iutils.text.MapLocalizedOperators;
+import com.github.jonathanxd.iutils.text.MapLocalizedText;
 import com.github.jonathanxd.iutils.text.StringComponent;
 import com.github.jonathanxd.iutils.text.Style;
 import com.github.jonathanxd.iutils.text.Text;
 import com.github.jonathanxd.iutils.text.TextComponent;
 import com.github.jonathanxd.iutils.text.VariableComponent;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 /**
  * Fast text localizer.
@@ -179,10 +180,19 @@ public final class FastTextLocalizer extends AbstractTextLocalizer {
                 } else {
                     components.insert(new Element<>(Text.single("$" + variable)));
                 }
-            } else if (next instanceof LocalizableComponent) {
-                LocalizableComponent localizableComponent = (LocalizableComponent) next;
-                String componentLocalization = localizableComponent.getLocalization();
+            } else if (next instanceof LocalizableComponent || next instanceof MapLocalizedText) {
+                LocalizableComponent localizableComponent;
+                UnaryOperator<List<TextComponent>> operator;
 
+                if (next instanceof LocalizableComponent) {
+                    localizableComponent = (LocalizableComponent) next;
+                    operator = MapLocalizedOperators.lineJump();
+                } else {
+                    localizableComponent = ((MapLocalizedText) next).getLocalizableComponent();
+                    operator = ((MapLocalizedText) next).getOperator();
+                }
+
+                String componentLocalization = localizableComponent.getLocalization();
                 String localeStr = localizableComponent.getLocale();
                 Locale localLocale = localeStr != null
                         ? this.getLocaleManager().getRequiredLocale(localeStr)
@@ -209,20 +219,7 @@ public final class FastTextLocalizer extends AbstractTextLocalizer {
                     }
                 }
 
-                if (localizations.size() > 1) {
-                    List<TextComponent> withLine = new ArrayList<>();
-
-                    Iterator<TextComponent> iterator = localizations.iterator();
-
-                    while (iterator.hasNext()) {
-                        withLine.add(iterator.next());
-                        if(iterator.hasNext())
-                            withLine.add(Text.of("\n"));
-                    }
-
-                    localizations = withLine;
-                }
-                components.insertFromPair(ElementUtil.fromIterable(localizations));
+                components.insertFromPair(ElementUtil.fromIterable(operator.apply(localizations)));
             } else if (next instanceof ArgsAppliedText) {
                 ArgsAppliedText argsAppliedText = (ArgsAppliedText) next;
                 TextComponent component = argsAppliedText.getComponent();

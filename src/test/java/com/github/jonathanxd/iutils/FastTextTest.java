@@ -34,6 +34,7 @@ import com.github.jonathanxd.iutils.localization.LocalizationManager;
 import com.github.jonathanxd.iutils.localization.MapLocaleManager;
 import com.github.jonathanxd.iutils.localization.MapLocalizationManager;
 import com.github.jonathanxd.iutils.map.MapUtils;
+import com.github.jonathanxd.iutils.text.MapLocalizedOperators;
 import com.github.jonathanxd.iutils.text.Text;
 import com.github.jonathanxd.iutils.text.TextComponent;
 import com.github.jonathanxd.iutils.text.localizer.FastTextLocalizer;
@@ -114,6 +115,19 @@ public class FastTextTest {
                 "about\n" +
                 "empty\n" +
                 "lines", localize.localize(helloMessages, ptBr));
+
+        Assert.assertEquals("Hello, " +
+                "parser " +
+                "don't " +
+                "care " +
+                "about " +
+                "commas " +
+                "in " +
+                "lang " +
+                "neither " +
+                "about " +
+                "empty " +
+                "lines", localize.localize(helloMessages.mapLocalized(MapLocalizedOperators.join(Text.of(" "))), ptBr));
 
         TextComponent twoVarsText = Text.of("Hello ", Text.variable("name")).apply(MapUtils.mapOf(
                 "name", Text.single("JwIUtils")

@@ -27,10 +27,16 @@
  */
 package com.github.jonathanxd.iutils.text;
 
+import java.util.List;
 import java.util.Objects;
+import java.util.function.UnaryOperator;
 
 /**
- * Component with localization and locale to be used to localize the text,
+ * A component that is resolved to another during text localization. This is commonly used to
+ * represents a component that should be translated.
+ *
+ * A localizable element is like a {@link VariableComponent}, but in a global scope and the value is
+ * stored in {@link com.github.jonathanxd.iutils.localization.LocalizationManager}.
  */
 public final class LocalizableComponent implements Localizable<LocalizableComponent> {
     private final String locale;
@@ -52,6 +58,11 @@ public final class LocalizableComponent implements Localizable<LocalizableCompon
     @Override
     public LocalizableComponent localize(String locale) {
         return new LocalizableComponent(locale, this.localization);
+    }
+
+    @Override
+    public TextComponent mapLocalized(UnaryOperator<List<TextComponent>> operator) {
+        return new MapLocalizedText(this, operator);
     }
 
     public String getLocalization() {

@@ -28,45 +28,51 @@
 package com.github.jonathanxd.iutils.text;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.function.UnaryOperator;
 
 /**
- * Text component that can be localized. Localized text are returned in a new instance of the same
- * type or a type that extends the current type. Also, the same instance may be returned if the text
- * is already localized for specified locale.
- *
- * Locale is provided in form of string, the locale must be registered before text transformation
- * into string.
+ * Mapper to apply to list of resolved components of a {@link LocalizableComponent}.
  */
-public interface Localizable<T extends Localizable<T>> extends TextComponent {
+public final class MapLocalizedText implements TextComponent {
+    private final LocalizableComponent localizableComponent;
+    private final UnaryOperator<List<TextComponent>> operator;
 
-    /**
-     * Gets the locale.
-     *
-     * @return Locale.
-     */
-    String getLocale();
+    MapLocalizedText(LocalizableComponent localizableComponent,
+                     UnaryOperator<List<TextComponent>> operator) {
+        this.localizableComponent = localizableComponent;
+        this.operator = operator;
+    }
 
-    /**
-     * Localize the text for {@code locale}. By default, text is localized for default locale. The
-     * same instance may be returned when it is called with same {@code locale} as it was before.
-     *
-     * If {@link #getLocalization() localization} of this {@link Localizable} is not registered for
-     * {@code locale}, the default {@code locale} will be used to localized the component.
-     *
-     * @param locale Locale to localize the text.
-     * @return Localized text.
-     */
-    T localize(String locale);
+    public LocalizableComponent getLocalizableComponent() {
+        return this.localizableComponent;
+    }
 
-    /**
-     * Gets the localization path of this component, commonly a lower case name, with dots,
-     * underscore, letters and/or numbers.
-     *
-     * Constants are recommended for better maintainability.
-     *
-     * @return Localization path of this component.
-     */
-    String getLocalization();
+    public UnaryOperator<List<TextComponent>> getOperator() {
+        return this.operator;
+    }
 
+    @Override
+    public boolean isEmpty() {
+        return this.getLocalizableComponent().isEmpty();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof MapLocalizedText)
+            return Objects.equals(((MapLocalizedText) obj).getLocalizableComponent(), this.getLocalizableComponent())
+                    && Objects.equals(((MapLocalizedText) obj).getOperator(), this.getOperator());
+
+        return super.equals(obj);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.getLocalizableComponent(), this.getOperator());
+    }
+
+    @Override
+    public String toString() {
+        return "MapLocalized[" + this.getLocalizableComponent() + ", operator=" + this.getOperator() + "]";
+    }
 }

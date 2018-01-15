@@ -27,7 +27,9 @@
  */
 package com.github.jonathanxd.iutils.text;
 
+import java.util.List;
 import java.util.Map;
+import java.util.function.UnaryOperator;
 
 public interface TextComponent {
 
@@ -45,6 +47,18 @@ public interface TextComponent {
      */
     default boolean isNotEmpty() {
         return !this.isEmpty();
+    }
+
+    /**
+     * Returns a text component that applies {@code operator} to localized {@link TextComponent
+     * TextComponents}, or itself if the component cannot be localized to text components.
+     *
+     * @param operator Operator of components.
+     * @return Text component that applies {@code operator} to localized {@link TextComponent
+     * TextComponents}, or itself if the component cannot be localized to text components.
+     */
+    default TextComponent mapLocalized(UnaryOperator<List<TextComponent>> operator) {
+        return this;
     }
 
     default TextComponent capitalize() {

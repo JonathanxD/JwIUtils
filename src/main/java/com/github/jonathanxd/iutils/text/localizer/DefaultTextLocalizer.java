@@ -34,6 +34,8 @@ import com.github.jonathanxd.iutils.text.CapitalizeComponent;
 import com.github.jonathanxd.iutils.text.Color;
 import com.github.jonathanxd.iutils.text.DecapitalizeComponent;
 import com.github.jonathanxd.iutils.text.LocalizableComponent;
+import com.github.jonathanxd.iutils.text.MapLocalizedOperators;
+import com.github.jonathanxd.iutils.text.MapLocalizedText;
 import com.github.jonathanxd.iutils.text.StringComponent;
 import com.github.jonathanxd.iutils.text.Style;
 import com.github.jonathanxd.iutils.text.Text;
@@ -42,17 +44,17 @@ import com.github.jonathanxd.iutils.text.VariableComponent;
 
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.function.UnaryOperator;
 
 /**
  * Default text localizer.
  *
  * This localizer does not support colors, but can be safely extended, the localizer function is
- * {@link #localize(TextComponent, Map, Locale)}, so you can override it and handle color components, falling
- * back to {@code super} implementation when a non-color component is found. The function use recursion, then
- * color parsing through function override is safe.
+ * {@link #localize(TextComponent, Map, Locale)}, so you can override it and handle color
+ * components, falling back to {@code super} implementation when a non-color component is found. The
+ * function use recursion, then color parsing through function override is safe.
  */
 public class DefaultTextLocalizer extends AbstractTextLocalizer {
     public DefaultTextLocalizer(LocaleManager localeManager,
@@ -74,7 +76,7 @@ public class DefaultTextLocalizer extends AbstractTextLocalizer {
     }
 
     public void localize(TextComponent textComponent, Map<String, TextComponent> args, Locale locale,
-                           StringBuilder sb) {
+                         StringBuilder sb) {
 
         if (!(textComponent instanceof Color)
                 && !(textComponent instanceof Style)) {
@@ -101,8 +103,18 @@ public class DefaultTextLocalizer extends AbstractTextLocalizer {
                 } else {
                     sb.append("$").append(((VariableComponent) textComponent).getVariable());
                 }
-            } else if (textComponent instanceof LocalizableComponent) {
-                LocalizableComponent localizableComponent = (LocalizableComponent) textComponent;
+            } else if (textComponent instanceof LocalizableComponent || textComponent instanceof MapLocalizedText) {
+                LocalizableComponent localizableComponent;
+                UnaryOperator<List<TextComponent>> operator;
+
+                if (textComponent instanceof LocalizableComponent) {
+                    localizableComponent = (LocalizableComponent) textComponent;
+                    operator = MapLocalizedOperators.lineJump();
+                } else {
+                    localizableComponent = ((MapLocalizedText) textComponent).getLocalizableComponent();
+                    operator = ((MapLocalizedText) textComponent).getOperator();
+                }
+
                 String componentLocalization = localizableComponent.getLocalization();
 
                 String localeStr = localizableComponent.getLocale();
@@ -125,12 +137,10 @@ public class DefaultTextLocalizer extends AbstractTextLocalizer {
                 if (localizations.isEmpty())
                     localizations = Collections.singletonList(Text.single(componentLocalization));
 
-                Iterator<TextComponent> iterator = localizations.iterator();
+                List<TextComponent> apply = operator.apply(localizations);
 
-                while (iterator.hasNext()) {
-                    this.localize(iterator.next(), args, locale, sb);
-                    if (iterator.hasNext())
-                        sb.append('\n');
+                for (TextComponent component : apply) {
+                    this.localize(component, args, locale, sb);
                 }
             } else if (textComponent instanceof ArgsAppliedText) {
                 ArgsAppliedText argsAppliedText = (ArgsAppliedText) textComponent;
