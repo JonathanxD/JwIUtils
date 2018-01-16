@@ -25,71 +25,34 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.opt.specialized;
+package com.github.jonathanxd.iutils.object;
 
-import com.github.jonathanxd.iutils.object.Lazy;
-import com.github.jonathanxd.iutils.opt.DefBaseNoneObj;
-
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.NoSuchElementException;
 import java.util.Objects;
-import java.util.function.Function;
 
-public final class NoneLazy<T> extends OptLazy<T> implements DefBaseNoneObj<T, OptLazy<T>> {
-    static final OptLazy NONE = new NoneLazy();
+public final class NonNullLazy<T> extends Lazy<T> {
+    private final Lazy<T> wrapped;
 
-    private NoneLazy() {
-    }
-
-    @Contract(pure = true)
-    @Override
-    public boolean isEvaluated() {
-        return true;
+    NonNullLazy(@NotNull Lazy<T> wrapped) {
+        this.wrapped = wrapped;
     }
 
     @NotNull
     @Override
-    public <R> OptLazy<R> map(@NotNull Function<? super T, ? extends R> mapper) {
-        return OptLazy.none();
+    public T get() {
+        return Objects.requireNonNull(this.wrapped.get());
     }
 
     @NotNull
     @Override
-    public <R> OptLazy<R> flatMap(@NotNull Function<? super T, ? extends OptLazy<R>> mapper) {
-        return OptLazy.none();
+    public Lazy<T> copy(boolean evaluated) {
+        return new NonNullLazy<>(this.wrapped.copy(evaluated));
     }
 
     @NotNull
     @Override
-    public <R> OptLazy<R> mapLazy(@NotNull Function<? super T, Lazy<R>> mapper) {
-        return OptLazy.none();
+    public Lazy<T> copy() {
+        return new NonNullLazy<>(this.wrapped.copy());
     }
-
-    @NotNull
-    @Contract(pure = true)
-    @Override
-    public OptObject<Lazy<T>> toObjectOpt() {
-        return OptObject.none();
-    }
-
-    @NotNull
-    @Contract(" -> fail")
-    @Override
-    public T getValue() {
-        throw new NoSuchElementException("None");
-    }
-
-    @Contract("null -> false")
-    @Override
-    public boolean equals(Object obj) {
-        return obj instanceof NoneLazy<?> && Objects.equals(this.getValue(), ((NoneLazy) obj).getValue());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(this.getValue());
-    }
-
 }

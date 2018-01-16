@@ -39,16 +39,16 @@ public final class Some<T> extends OptObject<T> implements DefBaseSomeObj<T, Opt
 
     private final T value;
 
-    Some(T value) {
+    Some(@NotNull T value) {
         this.value = value;
     }
 
+    @NotNull
     @Contract(pure = true)
     @Override
     public T getValue() {
         return this.value;
     }
-
 
     @NotNull
     @Override

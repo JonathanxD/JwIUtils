@@ -72,7 +72,7 @@ public abstract class OptObject<T> implements BaseOptObject<T, OptObject<T>> {
      */
     @SuppressWarnings("unchecked")
     @NotNull
-    public static <T> OptObject<T> optObject(@Nullable T value) {
+    public static <T> OptObject<T> optObject(@NotNull T value) {
         return new Some<>(value);
     }
 
@@ -85,7 +85,7 @@ public abstract class OptObject<T> implements BaseOptObject<T, OptObject<T>> {
      */
     @SuppressWarnings("unchecked")
     @NotNull
-    public static <T> OptObject<T> some(@Nullable T value) {
+    public static <T> OptObject<T> some(@NotNull T value) {
         return new Some<>(value);
     }
 

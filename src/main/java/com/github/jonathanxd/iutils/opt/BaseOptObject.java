@@ -50,11 +50,11 @@ public interface BaseOptObject<T, O extends BaseOptObject<T, O>> extends Opt<O> 
      * @throws java.util.NoSuchElementException If this {@link Opt} is {@code None}.
      */
     @SuppressWarnings("unchecked")
-    @Nullable
+    @NotNull
     T getValue();
 
-    @Nullable
     @Override
+    @NotNull
     default Object getObjectValue() {
         return this.getValue();
     }
@@ -141,7 +141,7 @@ public interface BaseOptObject<T, O extends BaseOptObject<T, O>> extends Opt<O> 
      * @return Value of this {@link Opt} if present, or {@code value} if not.
      */
     @Nullable
-    T orElse(@Nullable T value);
+    T orElse(@NotNull T value);
 
     /**
      * Returns the value of this {@link Opt} if present, or value supplied by {@code supplier} if
@@ -173,7 +173,7 @@ public interface BaseOptObject<T, O extends BaseOptObject<T, O>> extends Opt<O> 
      * @return Value if present.
      * @throws E If value is not present.
      */
-    @Nullable <E extends Throwable> T orElseFailStupidly(@NotNull Supplier<? extends E> supplier) throws E;
+    @NotNull <E extends Throwable> T orElseFailStupidly(@NotNull Supplier<? extends E> supplier) throws E;
 
     /**
      * Returns a {@link Stream} with value of this {@link Opt} or an empty {@link Stream} if value

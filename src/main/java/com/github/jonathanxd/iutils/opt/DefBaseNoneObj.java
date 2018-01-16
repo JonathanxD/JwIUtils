@@ -89,7 +89,7 @@ public interface DefBaseNoneObj<T, O extends BaseOptObject<T, O>> extends BaseNo
         return lazy.get();
     }
 
-    @Nullable
+    @NotNull
     @Override
     default <E extends Throwable> T orElseFailStupidly(@NotNull Supplier<? extends E> supplier) throws E {
         Objects.requireNonNull(supplier);

@@ -44,16 +44,13 @@ import java.util.function.Supplier;
  *
  * @param <T> Type of value.
  */
-public class Lazy<T> {
+public abstract class Lazy<T> {
 
-    @NotNull
-    private final Supplier<T> supplier;
-    private boolean isEvaluated = false;
+    protected boolean isEvaluated = false;
     @Nullable
-    private volatile T value = null;
+    protected volatile T value = null;
 
-    Lazy(@NotNull Supplier<T> supplier) {
-        this.supplier = supplier;
+    Lazy() {
     }
 
 
@@ -84,11 +81,11 @@ public class Lazy<T> {
      */
     @NotNull
     public static <T> Lazy<T> lazy(@NotNull Supplier<T> supplier) {
-        return new Lazy<>(supplier);
+        return new Supplied<>(supplier);
     }
 
     /**
-     * Returns a wrapper to async evaluation. Read {@link Async}.
+     * Returns a wrapper to asynchronous evaluation. Read {@link Async}.
      *
      * @param lazy Lazy instance.
      * @param <T>  Value type.
@@ -96,7 +93,25 @@ public class Lazy<T> {
      */
     @NotNull
     public static <T> Async<T> async(@NotNull Lazy<T> lazy) {
+        if (lazy instanceof Async<?>)
+            return (Async<T>) lazy;
         return new Async<>(lazy);
+    }
+
+    /**
+     * Returns a wrapper of {@code lazy} that does not return a null evaluated value (throwing
+     * exception if result is null).
+     *
+     * @param lazy Lazy instance.
+     * @param <T>  Value type.
+     * @return {@link NonNullLazy} wrapper.
+     */
+    @NotNull
+    public static <T> NonNullLazy<T> nonNull(@NotNull Lazy<T> lazy) {
+        if (lazy instanceof NonNullLazy<?>)
+            return (NonNullLazy<T>) lazy;
+
+        return new NonNullLazy<>(lazy);
     }
 
     /**
@@ -108,7 +123,7 @@ public class Lazy<T> {
      */
     @NotNull
     public static <T> Lazy<T> evaluated(@Nullable T value) {
-        Lazy<T> lazy = new Lazy<>(() -> value);
+        Lazy<T> lazy = new Supplied<>(() -> value);
         lazy.isEvaluated = true;
         lazy.value = value;
 
@@ -121,14 +136,7 @@ public class Lazy<T> {
      * @return Value.
      */
     @Nullable
-    public T get() {
-        if (!this.isEvaluated) {
-            this.value = this.supplier.get();
-            this.isEvaluated = true;
-        }
-
-        return this.value;
-    }
+    public abstract T get();
 
     /**
      * Returns true if this lazy instance is already evaluated.
@@ -142,22 +150,12 @@ public class Lazy<T> {
     /**
      * Creates a copy of {@code this} {@link Lazy}.
      *
-     * Note that returned {@link Lazy} instance uses the same {@link #supplier} as {@code this}
-     * {@link Lazy} instance.
-     *
      * @param evaluated If true, creates a copy of evaluated lazy, if not, creates a non evaluated
      *                  lazy.
      * @return A copy of {@code this} {@link Lazy}.
      */
     @NotNull
-    public Lazy<T> copy(boolean evaluated) {
-        Lazy<T> lazy = new Lazy<>(this.supplier);
-
-        lazy.isEvaluated = evaluated;
-        lazy.value = this.value;
-
-        return lazy;
-    }
+    public abstract Lazy<T> copy(boolean evaluated);
 
     /**
      * Creates a copy of this {@link Lazy} with same state.
@@ -165,13 +163,48 @@ public class Lazy<T> {
      * @return Copy of this {@link Lazy} with same state.
      */
     @NotNull
-    public Lazy<T> copy() {
-        Lazy<T> lazy = new Lazy<>(this.supplier);
+    public abstract Lazy<T> copy();
 
-        lazy.isEvaluated = this.isEvaluated();
-        lazy.value = this.value;
+    public static class Supplied<T> extends Lazy<T> {
 
-        return lazy;
+        @NotNull
+        private final Supplier<T> supplier;
+
+        Supplied(@NotNull Supplier<T> supplier) {
+            this.supplier = supplier;
+        }
+
+        @Override
+        public @Nullable T get() {
+            if (!this.isEvaluated) {
+                this.value = this.supplier.get();
+                this.isEvaluated = true;
+            }
+
+            return this.value;
+        }
+
+        @NotNull
+        @Override
+        public Lazy<T> copy(boolean evaluated) {
+            Lazy<T> lazy = new Supplied<>(this.supplier);
+
+            lazy.isEvaluated = evaluated;
+            lazy.value = this.value;
+
+            return lazy;
+        }
+
+        @NotNull
+        @Override
+        public Lazy<T> copy() {
+            Lazy<T> lazy = new Supplied<>(this.supplier);
+
+            lazy.isEvaluated = this.isEvaluated();
+            lazy.value = this.value;
+
+            return lazy;
+        }
     }
 
     /**
@@ -193,9 +226,6 @@ public class Lazy<T> {
         private volatile boolean isEvaluating = false;
 
         Async(Lazy<T> lazy) {
-            super(() -> {
-                throw new UnsupportedOperationException();
-            });
             this.wrapped = lazy.copy(false);
             Conditions.require(!(lazy instanceof Lazy.Async<?>), "Cannot wrap an AsyncLazy into another.");
         }
@@ -258,6 +288,13 @@ public class Lazy<T> {
         public Lazy<T> copy(boolean evaluated) {
             Lazy<T> copy = this.wrapped.copy(evaluated);
 
+            return new Async<>(copy);
+        }
+
+        @NotNull
+        @Override
+        public Lazy<T> copy() {
+            Lazy<T> copy = this.wrapped.copy();
             return new Async<>(copy);
         }
     }

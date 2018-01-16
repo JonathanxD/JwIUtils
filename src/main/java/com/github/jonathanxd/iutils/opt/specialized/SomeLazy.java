@@ -28,6 +28,7 @@
 package com.github.jonathanxd.iutils.opt.specialized;
 
 import com.github.jonathanxd.iutils.object.Lazy;
+import com.github.jonathanxd.iutils.object.NonNullLazy;
 import com.github.jonathanxd.iutils.opt.BaseSome;
 import com.github.jonathanxd.iutils.opt.DefBaseSomeObj;
 
@@ -39,16 +40,18 @@ import java.util.function.Function;
 
 public final class SomeLazy<T> extends OptLazy<T> implements DefBaseSomeObj<T, OptLazy<T>> {
 
-    private final Lazy<T> lazy;
+    @NotNull
+    private final NonNullLazy<T> lazy;
 
     SomeLazy(@NotNull Lazy<T> lazy) {
         Objects.requireNonNull(lazy, "Lazy cannot be null.");
-        this.lazy = lazy;
+        this.lazy = Lazy.nonNull(lazy);
     }
 
+    @NotNull
     @Override
     public T getValue() {
-        return this.lazy.get();
+        return Objects.requireNonNull(this.lazy.get(), "Lazy evaluation result cannot be null");
     }
 
     @NotNull

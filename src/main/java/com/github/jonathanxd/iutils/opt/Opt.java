@@ -51,6 +51,8 @@ import java.util.function.Supplier;
  * a value, you have {@code Some} value, when you do not have a value, you have {@code None}. All
  * classes are built with this concept in mind.
  *
+ * {@link Opt} can never return or hold {@code null} value.
+ *
  * This class is named {@code Opt} to avoid confusion with {@code Option} and {@code Optional} of
  * other libraries.
  *
@@ -91,7 +93,7 @@ public interface Opt<O extends Opt<O>> {
      * @return {@link Opt} of {@code Some} {@code value}.
      */
     @NotNull
-    static <T> OptObject<T> some(@Nullable T value) {
+    static <T> OptObject<T> some(@NotNull T value) {
         return OptObject.optObject(value);
     }
 

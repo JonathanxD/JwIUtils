@@ -42,6 +42,7 @@ public final class None<T> extends OptObject<T> implements DefBaseNoneObj<T, Opt
     private None() {
     }
 
+    @NotNull
     @Contract(" -> fail")
     @Override
     public T getValue() {

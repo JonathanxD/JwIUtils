@@ -73,7 +73,7 @@ public interface DefBaseSomeObj<T, O extends BaseOptObject<T, O>> extends BaseSo
 
     @Nullable
     @Override
-    default T orElse(@Nullable T value) {
+    default T orElse(@NotNull T value) {
         return this.getValue();
     }
 
@@ -89,7 +89,7 @@ public interface DefBaseSomeObj<T, O extends BaseOptObject<T, O>> extends BaseSo
         return this.getValue();
     }
 
-    @Nullable
+    @NotNull
     @Override
     default <E extends Throwable> T orElseFailStupidly(@NotNull Supplier<? extends E> supplier) throws E {
         return this.getValue();
