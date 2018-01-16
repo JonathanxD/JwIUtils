@@ -28,6 +28,7 @@
 package com.github.jonathanxd.iutils.text;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.UnaryOperator;
@@ -53,6 +54,16 @@ public class MapLocalizedOperators {
      */
     public static UnaryOperator<List<TextComponent>> join(TextComponent toJoin) {
         return new Join(toJoin);
+    }
+
+    /**
+     * Returns an operator that extract a component at {@code index}.
+     *
+     * @param index Index to extract element.
+     * @return Operator that extract a component at {@code index}.
+     */
+    public static UnaryOperator<List<TextComponent>> extract(int index) {
+        return l -> Collections.singletonList(l.get(index));
     }
 
     static final class Join implements UnaryOperator<List<TextComponent>> {

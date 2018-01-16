@@ -75,6 +75,7 @@ public interface LocaleLoader {
     default void loadFromResource(@NotNull Locale locale,
                                   @Nullable Path path,
                                   @NotNull ClassLoader classLoader) throws LocaleLoadException {
+        this.loadFromResource(locale, path, null, classLoader);
     }
 
     /**
