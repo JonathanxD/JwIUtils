@@ -84,12 +84,12 @@ public final class NoneLazy<T> extends OptLazy<T> implements DefBaseNoneObj<T, O
     @Contract("null -> false")
     @Override
     public boolean equals(Object obj) {
-        return obj instanceof NoneLazy<?> && Objects.equals(this.getValue(), ((NoneLazy) obj).getValue());
+        return obj instanceof NoneLazy<?>;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(this.getValue());
+        return super.hashCode();
     }
 
 }

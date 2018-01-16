@@ -72,6 +72,6 @@ public final class Some<T> extends OptObject<T> implements DefBaseSomeObj<T, Opt
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(this.getValue());
+        return Objects.hash(1, this.getValue());
     }
 }

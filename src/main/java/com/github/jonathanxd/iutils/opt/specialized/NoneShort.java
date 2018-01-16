@@ -130,7 +130,7 @@ public final class NoneShort extends OptShort implements BaseNone<OptShort> {
 
     @Override
     public int hashCode() {
-        return super.hashCode();
+        return Objects.hash(0, super.hashCode());
     }
 
     @NotNull

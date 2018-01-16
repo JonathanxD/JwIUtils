@@ -39,6 +39,7 @@ import com.github.jonathanxd.iutils.opt.Opt;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.function.Supplier;
@@ -131,7 +132,7 @@ public final class SomeChar extends OptChar implements BaseSome<OptChar> {
 
     @Override
     public int hashCode() {
-        return Character.hashCode(this.getValue());
+        return Objects.hash(1, Character.hashCode(this.getValue()));
     }
 
     @NotNull

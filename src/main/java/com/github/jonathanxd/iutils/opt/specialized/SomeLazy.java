@@ -94,7 +94,7 @@ public final class SomeLazy<T> extends OptLazy<T> implements DefBaseSomeObj<T, O
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(this.getValue());
+        return Objects.hash(1, Objects.hashCode(this.getValue()));
     }
 
 }

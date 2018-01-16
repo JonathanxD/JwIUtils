@@ -35,6 +35,7 @@ import com.github.jonathanxd.iutils.opt.Opt;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.function.DoubleConsumer;
@@ -131,7 +132,7 @@ public final class SomeDouble extends OptDouble implements BaseSome<OptDouble> {
 
     @Override
     public int hashCode() {
-        return Double.hashCode(this.getValue());
+        return Objects.hash(1, Double.hashCode(this.getValue()));
     }
 
     @NotNull

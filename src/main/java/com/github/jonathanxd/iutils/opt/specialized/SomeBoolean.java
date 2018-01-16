@@ -142,7 +142,7 @@ public abstract class SomeBoolean extends OptBoolean implements BaseSome<OptBool
 
     @Override
     public int hashCode() {
-        return Boolean.hashCode(this.getValue());
+        return Objects.hash(1, Boolean.hashCode(this.getValue()));
     }
 
     @NotNull

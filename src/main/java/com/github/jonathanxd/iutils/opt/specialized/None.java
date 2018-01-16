@@ -64,12 +64,12 @@ public final class None<T> extends OptObject<T> implements DefBaseNoneObj<T, Opt
     @Contract("null -> false")
     @Override
     public boolean equals(Object obj) {
-        return obj instanceof None<?> && Objects.equals(this.getValue(), ((None) obj).getValue());
+        return obj instanceof None<?>;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(this.getValue());
+        return Objects.hash(0, super.hashCode());
     }
 
 }

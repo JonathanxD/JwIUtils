@@ -35,6 +35,7 @@ import com.github.jonathanxd.iutils.opt.Opt;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.function.IntConsumer;
@@ -130,7 +131,7 @@ public final class SomeInt extends OptInt implements BaseSome<OptInt> {
 
     @Override
     public int hashCode() {
-        return Integer.hashCode(this.getValue());
+        return Objects.hash(1, Integer.hashCode(this.getValue()));
     }
 
     @NotNull

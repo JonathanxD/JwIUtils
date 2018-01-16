@@ -130,7 +130,7 @@ public final class NoneInt extends OptInt implements BaseNone<OptInt> {
 
     @Override
     public int hashCode() {
-        return super.hashCode();
+        return Objects.hash(0, super.hashCode());
     }
 
     @NotNull

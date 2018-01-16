@@ -130,7 +130,7 @@ public final class NoneByte extends OptByte implements BaseNone<OptByte> {
 
     @Override
     public int hashCode() {
-        return super.hashCode();
+        return Objects.hash(0, super.hashCode());
     }
 
     @NotNull

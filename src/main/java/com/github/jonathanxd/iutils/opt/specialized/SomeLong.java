@@ -35,6 +35,7 @@ import com.github.jonathanxd.iutils.opt.Opt;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalLong;
 import java.util.function.LongConsumer;
@@ -131,7 +132,7 @@ public final class SomeLong extends OptLong implements BaseSome<OptLong> {
 
     @Override
     public int hashCode() {
-        return Long.hashCode(this.getValue());
+        return Objects.hash(1, Long.hashCode(this.getValue()));
     }
 
     @NotNull

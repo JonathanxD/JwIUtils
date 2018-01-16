@@ -148,7 +148,7 @@ public final class NoneBoolean extends OptBoolean implements BaseNone<OptBoolean
 
     @Override
     public int hashCode() {
-        return super.hashCode();
+        return Objects.hash(0, super.hashCode());
     }
 
 }
