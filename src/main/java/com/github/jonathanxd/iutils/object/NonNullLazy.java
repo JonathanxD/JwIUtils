@@ -28,6 +28,7 @@
 package com.github.jonathanxd.iutils.object;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -36,6 +37,16 @@ public final class NonNullLazy<T> extends Lazy<T> {
 
     NonNullLazy(@NotNull Lazy<T> wrapped) {
         this.wrapped = wrapped;
+    }
+
+    @Override
+    public boolean isEvaluated() {
+        return this.wrapped.isEvaluated();
+    }
+
+    @Override
+    protected void setEvaluated(boolean eval, @Nullable T value) {
+        this.wrapped.setEvaluated(eval, value);
     }
 
     @NotNull
