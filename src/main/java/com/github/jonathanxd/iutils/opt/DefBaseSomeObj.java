@@ -77,13 +77,13 @@ public interface DefBaseSomeObj<T, O extends BaseOptObject<T, O>> extends BaseSo
         return this.getValue();
     }
 
-    @Nullable
+    @NotNull
     @Override
     default T orElseGet(@NotNull Supplier<? extends T> supplier) {
         return this.getValue();
     }
 
-    @Nullable
+    @NotNull
     @Override
     default T orElseLazy(@NotNull Lazy<? extends T> lazy) {
         return this.getValue();

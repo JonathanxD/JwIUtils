@@ -140,7 +140,7 @@ public interface BaseOptObject<T, O extends BaseOptObject<T, O>> extends Opt<O> 
      *              null).
      * @return Value of this {@link Opt} if present, or {@code value} if not.
      */
-    @Nullable
+    @NotNull
     T orElse(@NotNull T value);
 
     /**
@@ -151,7 +151,7 @@ public interface BaseOptObject<T, O extends BaseOptObject<T, O>> extends Opt<O> 
      *                 (cannot be null).
      * @return Value of this {@link Opt} if present, or value supplied by {@code supplier} if not.
      */
-    @Nullable
+    @NotNull
     T orElseGet(@NotNull Supplier<? extends T> supplier);
 
     /**
@@ -160,7 +160,7 @@ public interface BaseOptObject<T, O extends BaseOptObject<T, O>> extends Opt<O> 
      * @param lazy Lazy provider of value to return if value is not present.
      * @return Value of this {@link Opt} if present, or value returned by {@code lazy}.
      */
-    @Nullable
+    @NotNull
     T orElseLazy(@NotNull Lazy<? extends T> lazy);
 
     /**
