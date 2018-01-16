@@ -29,11 +29,12 @@ package com.github.jonathanxd.iutils.opt.specialized;
 
 import com.github.jonathanxd.iutils.function.function.LongToLongFunction;
 import com.github.jonathanxd.iutils.object.Lazy;
-import com.github.jonathanxd.iutils.opt.AbstractOpt;
 import com.github.jonathanxd.iutils.opt.Opt;
-import com.github.jonathanxd.iutils.opt.ValueHolder;
 
-import java.util.Objects;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Optional;
 import java.util.OptionalLong;
 import java.util.function.LongConsumer;
@@ -44,19 +45,11 @@ import java.util.function.Supplier;
 import java.util.stream.LongStream;
 
 /**
- * Long specialized {@link Opt}.
+ * {@code long} specialized {@link Opt}.
  */
-public final class OptLong extends AbstractOpt<OptLong, ValueHolder.LongValueHolder> {
+public abstract class OptLong implements Opt<OptLong> {
 
-    private static final OptLong NONE = new OptLong(ValueHolder.LongValueHolder.None.getInstance());
-    private final ValueHolder.LongValueHolder holder;
-
-    private OptLong(ValueHolder.LongValueHolder holder) {
-        this.holder = holder;
-    }
-
-    private OptLong(long value) {
-        this(new ValueHolder.LongValueHolder.Some(value));
+    OptLong() {
     }
 
     /**
@@ -67,7 +60,8 @@ public final class OptLong extends AbstractOpt<OptLong, ValueHolder.LongValueHol
      * present}, or {@code None} otherwise.
      */
     @SuppressWarnings({"unchecked", "OptionalUsedAsFieldOrParameterType"})
-    public static OptLong fromOptional(OptionalLong optional) {
+    @NotNull
+    public static OptLong fromOptional(@NotNull OptionalLong optional) {
         if (optional.isPresent()) {
             return OptLong.some(optional.getAsLong());
         } else {
@@ -82,8 +76,9 @@ public final class OptLong extends AbstractOpt<OptLong, ValueHolder.LongValueHol
      * @return An {@link Opt} of {@code Some} {@code value}
      */
     @SuppressWarnings("unchecked")
+    @NotNull
     public static OptLong optLong(long value) {
-        return new OptLong(value);
+        return new SomeLong(value);
     }
 
     /**
@@ -93,8 +88,9 @@ public final class OptLong extends AbstractOpt<OptLong, ValueHolder.LongValueHol
      * @return An {@link Opt} of {@code Some} {@code value}
      */
     @SuppressWarnings("unchecked")
+    @NotNull
     public static OptLong some(long value) {
-        return new OptLong(value);
+        return new SomeLong(value);
     }
 
     /**
@@ -103,42 +99,27 @@ public final class OptLong extends AbstractOpt<OptLong, ValueHolder.LongValueHol
      * @return {@link Opt} with {@code None} value.
      */
     @SuppressWarnings("unchecked")
+    @Contract(pure = true)
+    @NotNull
     public static OptLong none() {
-        return NONE;
-    }
-
-    @Override
-    public ValueHolder.LongValueHolder getValueHolder() {
-        return this.holder;
+        return NoneLong.NONE;
     }
 
     /**
      * Gets the value holden by this optional.
      *
      * @return Value.
-     * @throws NullPointerException If this {@link Opt} holds an {@code None}.
+     * @throws java.util.NoSuchElementException If this {@link Opt} is {@code None}.
      */
     @SuppressWarnings("unchecked")
-    public long getValue() {
-        ValueHolder.LongValueHolder valueHolder = this.getValueHolder();
-
-        if (!valueHolder.hasSome())
-            throw new NullPointerException("No value found!");
-
-        return valueHolder.getValue();
-    }
+    public abstract long getValue();
 
     /**
      * Calls {@code consumer} if value is present.
      *
      * @param consumer Consumer to accept value if is present.
      */
-    public void ifPresent(LongConsumer consumer) {
-        Objects.requireNonNull(consumer);
-
-        if (this.isPresent())
-            consumer.accept(this.getValue());
-    }
+    public abstract void ifPresent(@NotNull LongConsumer consumer);
 
     /**
      * Calls {@code consumer} with value if present, or calls {@code elseRunnable} if value is not
@@ -147,13 +128,31 @@ public final class OptLong extends AbstractOpt<OptLong, ValueHolder.LongValueHol
      * @param consumer     Consumer to accept value if is present.
      * @param elseRunnable Runnable to call if value is not present.
      */
-    public void ifPresent(LongConsumer consumer, Runnable elseRunnable) {
-        Objects.requireNonNull(consumer);
+    public abstract void ifPresent(@NotNull LongConsumer consumer, @NotNull Runnable elseRunnable);
 
-        if (this.isPresent())
-            consumer.accept(this.getValue());
-        else
-            elseRunnable.run();
+    /**
+     * Calls {@code consumer} to accept value (if present) and return {@code this}.
+     *
+     * @param consumer Consumer of value.
+     * @return {@code this};
+     */
+    @NotNull
+    public OptLong onPresent(@NotNull LongConsumer consumer) {
+        this.ifPresent(consumer);
+        return this;
+    }
+
+    /**
+     * Calls {@code consumer} to accept value (if present) and return {@code this}.
+     *
+     * @param consumer     Consumer of value.
+     * @param elseRunnable Runnable to invoke if value is not present.
+     * @return {@code this};
+     */
+    @NotNull
+    public OptLong onPresent(@NotNull LongConsumer consumer, @NotNull Runnable elseRunnable) {
+        this.ifPresent(consumer, elseRunnable);
+        return this;
     }
 
     /**
@@ -163,15 +162,8 @@ public final class OptLong extends AbstractOpt<OptLong, ValueHolder.LongValueHol
      * @return An {@link Opt} of {@code None} if value does not match predicate, or return same
      * {@link Opt} if either value is not present or value matches predicate.
      */
-    public OptLong filter(LongPredicate predicate) {
-        Objects.requireNonNull(predicate);
-
-        if (this.isPresent())
-            if (!predicate.test(this.getValue()))
-                return OptLong.none();
-
-        return this;
-    }
+    @NotNull
+    public abstract OptLong filter(@NotNull LongPredicate predicate);
 
     /**
      * Maps the value of {@code this} {@link Opt} to a another value using {@code mapper}.
@@ -180,14 +172,8 @@ public final class OptLong extends AbstractOpt<OptLong, ValueHolder.LongValueHol
      * @return An {@link Opt} of mapped value if present, or an {@link Opt} of {@code None} if no
      * value is present.
      */
-    public OptLong map(LongToLongFunction mapper) {
-        Objects.requireNonNull(mapper);
-
-        if (!this.isPresent())
-            return OptLong.none();
-
-        return OptLong.optLong(mapper.apply(this.getValue()));
-    }
+    @NotNull
+    public abstract OptLong map(@NotNull LongToLongFunction mapper);
 
     /**
      * Flat maps the value of {@code this} {@link Opt} to another {@link Opt}.
@@ -196,14 +182,8 @@ public final class OptLong extends AbstractOpt<OptLong, ValueHolder.LongValueHol
      * @return An {@link Opt} of {@code None} if the value is not present, or the {@link Opt}
      * returned by {@code mapper} if value is present.
      */
-    public OptLong flatMap(LongFunction<? extends OptLong> mapper) {
-        Objects.requireNonNull(mapper);
-
-        if (!this.isPresent())
-            return OptLong.none();
-
-        return Objects.requireNonNull(mapper.apply(this.getValue()));
-    }
+    @NotNull
+    public abstract OptLong flatMap(@NotNull LongFunction<? extends OptLong> mapper);
 
     /**
      * Flat maps the value of {@code this} {@link Opt} to an {@link Opt} of type {@link O}.
@@ -214,16 +194,8 @@ public final class OptLong extends AbstractOpt<OptLong, ValueHolder.LongValueHol
      * @return An {@link Opt} supplied by {@code none} if value is not present, or {@link Opt}
      * returned by {@code mapper}.
      */
-    public <O extends Opt<O, V>, V extends ValueHolder>
-    O flatMapTo(LongFunction<? extends O> mapper, Supplier<O> none) {
-        Objects.requireNonNull(mapper);
-        Objects.requireNonNull(none);
-
-        if (!this.isPresent())
-            return Objects.requireNonNull(none.get());
-
-        return Objects.requireNonNull(mapper.apply(this.getValue()));
-    }
+    @NotNull
+    public abstract <O extends Opt<O>> O flatMapTo(@NotNull LongFunction<? extends O> mapper, @NotNull Supplier<O> none);
 
     /**
      * Returns the value of this {@link Opt} if present, or {@code value} if not.
@@ -232,12 +204,7 @@ public final class OptLong extends AbstractOpt<OptLong, ValueHolder.LongValueHol
      *              null).
      * @return Value of this {@link Opt} if present, or {@code value} if not.
      */
-    public long orElse(long value) {
-        if (this.isPresent())
-            return this.getValue();
-
-        return value;
-    }
+    public abstract long orElse(long value);
 
     /**
      * Returns the value of this {@link Opt} if present, or value supplied by {@code supplier} if
@@ -247,14 +214,7 @@ public final class OptLong extends AbstractOpt<OptLong, ValueHolder.LongValueHol
      *                 (cannot be null).
      * @return Value of this {@link Opt} if present, or value supplied by {@code supplier} if not.
      */
-    public long orElse(LongSupplier supplier) {
-        Objects.requireNonNull(supplier);
-
-        if (this.isPresent())
-            return this.getValue();
-
-        return supplier.getAsLong();
-    }
+    public abstract long orElseGet(@NotNull LongSupplier supplier);
 
     /**
      * Returns the value of this {@link Opt} if present, or value returned by {@code lazy}.
@@ -262,14 +222,7 @@ public final class OptLong extends AbstractOpt<OptLong, ValueHolder.LongValueHol
      * @param lazy Lazy provider of value to return if value is not present.
      * @return Value of this {@link Opt} if present, or value returned by {@code lazy}.
      */
-    public long orElse(Lazy<? extends Long> lazy) { // :(, No specialized Lazy instances...
-        Objects.requireNonNull(lazy);
-
-        if (this.isPresent())
-            return this.getValue();
-
-        return Objects.requireNonNull(lazy.get());
-    }
+    public abstract long orElseLazy(@NotNull Lazy<? extends Long> lazy);
 
     /**
      * Returns the value of this {@link Opt} if present, or fail stupidly if value is not present.
@@ -281,14 +234,7 @@ public final class OptLong extends AbstractOpt<OptLong, ValueHolder.LongValueHol
      * @return Value if present.
      * @throws E If value is not present.
      */
-    public <E extends Throwable> long orElseFailStupidly(Supplier<? extends E> supplier) throws E {
-        Objects.requireNonNull(supplier);
-
-        if (this.isPresent())
-            return this.getValue();
-
-        throw Objects.requireNonNull(supplier.get());
-    }
+    public abstract <E extends Throwable> long orElseFailStupidly(@NotNull Supplier<? extends E> supplier) throws E;
 
     /**
      * Returns a {@link LongStream} with value of this {@link Opt} or an empty {@link LongStream} if
@@ -300,13 +246,10 @@ public final class OptLong extends AbstractOpt<OptLong, ValueHolder.LongValueHol
      * @return {@link LongStream} with value of this {@link Opt} or an empty {@link LongStream} if
      * value is not present.
      */
-    public LongStream stream() {
-        if (this.isPresent())
-            return LongStream.of(this.getValue());
+    @NotNull
+    public abstract LongStream stream();
 
-        return LongStream.empty();
-    }
-
+    @Nullable
     @Override
     public Object getObjectValue() {
         return this.getValue();
@@ -320,9 +263,8 @@ public final class OptLong extends AbstractOpt<OptLong, ValueHolder.LongValueHol
      *
      * @return {@link OptionalLong} of value if it is present, or {@link OptionalLong#empty()}.
      */
-    public OptionalLong toOptional() {
-        return this.isPresent() ? OptionalLong.of(this.getValue()) : OptionalLong.empty();
-    }
+    @NotNull
+    public abstract OptionalLong toOptional();
 
     /**
      * Creates a {@link Optional} from this {@link Opt}.
@@ -330,7 +272,6 @@ public final class OptLong extends AbstractOpt<OptLong, ValueHolder.LongValueHol
      * @return {@link Optional} of value if it is not null, or {@link Optional#empty()} if this opt
      * is either empty or has a null value.
      */
-    public Optional<Long> toBoxedOptional() {
-        return this.isPresent() ? Optional.of(this.getValue()) : Optional.empty();
-    }
+    @NotNull
+    public abstract Optional<Long> toBoxedOptional();
 }

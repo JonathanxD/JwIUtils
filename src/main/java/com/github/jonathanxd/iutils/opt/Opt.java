@@ -39,31 +39,25 @@ import com.github.jonathanxd.iutils.opt.specialized.OptLong;
 import com.github.jonathanxd.iutils.opt.specialized.OptObject;
 import com.github.jonathanxd.iutils.opt.specialized.OptShort;
 
-import java.util.Objects;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.function.Supplier;
 
 /**
  * Improved Optional utility. {@link Opt} has an specialized version for each primitive type
- * (excluding void type) and is intended to NEVER return {@code null}, Java {@link
- * java.util.Optional} supports {@code null} when using {@link java.util.Optional#orElse(Object)} or
- * {@link java.util.Optional#orElseGet(Supplier)} and does support {@link
- * com.github.jonathanxd.iutils.object.Lazy Lazy evaluated values}. This {@link Opt Optional class}
- * also uses a concept of that when you have a value, you have {@code Some} value, when you do not
- * have a value, you have {@code None}. All classes are built with this concept in mind.
+ * (excluding void type). This {@link Opt Optional class} also uses a concept of that when you have
+ * a value, you have {@code Some} value, when you do not have a value, you have {@code None}. All
+ * classes are built with this concept in mind.
  *
- * All {@link Opt} specialized classes extends {@link AbstractOpt} and holds a {@link ValueHolder},
- * a {@link ValueHolder} is a value-based class that have specialized versions for primitive, object
- * and {@link Lazy} types. There are two types of {@link ValueHolder ValueHolders}, {@code None} and
- * {@code Some} (each specialized holder have a implementation for both types). {@link ValueHolder
- * ValueHolders} are only like boxed values and does not provide any operation.
- *
- * This class is named {@code Opt} to avoid confusion with {@link com.github.jonathanxd.iutils.option
- * Option utility}.
+ * This class is named {@code Opt} to avoid confusion with {@code Option} and {@code Optional} of
+ * other libraries.
  *
  * @param <O> Type of this {@link Opt}. Implementations must only pass the same class type to this
  *            parameter.
  */
-public interface Opt<O extends Opt<O, V>, V extends ValueHolder> {
+public interface Opt<O extends Opt<O>> {
 
     /**
      * Creates an Object Opt from a nullable {@code value}.
@@ -72,7 +66,8 @@ public interface Opt<O extends Opt<O, V>, V extends ValueHolder> {
      * @param <T>   Type of value.
      * @return Opt of {@code Some} if value is not null, or opt of {@code None} if value is null.
      */
-    static <T> OptObject<T> someNullable(T value) {
+    @NotNull
+    static <T> OptObject<T> someNullable(@Nullable T value) {
         return OptObject.optObjectNullable(value);
     }
 
@@ -83,27 +78,31 @@ public interface Opt<O extends Opt<O, V>, V extends ValueHolder> {
      * @param <T>   Type of value.
      * @return {@link Opt} of {@code Some}.
      */
-    static <T> OptObject<T> someNotNull(T value) {
+    @NotNull
+    static <T> OptObject<T> someNotNull(@NotNull T value) {
         return OptObject.optObjectNotNull(value);
     }
 
     /**
-     * Creates an Object Opt from a nullable {@code value}.
+     * Creates an Object Opt of {@code Some} {@code value}.
      *
      * @param value Value.
      * @param <T>   Type of value.
      * @return {@link Opt} of {@code Some} {@code value}.
      */
-    static <T> OptObject<T> some(T value) {
+    @NotNull
+    static <T> OptObject<T> some(@Nullable T value) {
         return OptObject.optObject(value);
     }
 
     /**
-     * Creates an Opt Object holding {@code None} value.
+     * Creates an Object Opt of {@code None} value.
      *
      * @param <T> Type of value.
      * @return {@link Opt} of {@code None} value.
      */
+    @Contract(pure = true)
+    @NotNull
     static <T> OptObject<T> none() {
         return OptObject.none();
     }
@@ -114,6 +113,8 @@ public interface Opt<O extends Opt<O, V>, V extends ValueHolder> {
      * @param value Boolean value.
      * @return {@link Opt} of {@code Some} {@code value}
      */
+    @Contract(pure = true)
+    @NotNull
     static OptBoolean someBoolean(boolean value) {
         return OptBoolean.optBoolean(value);
     }
@@ -123,6 +124,8 @@ public interface Opt<O extends Opt<O, V>, V extends ValueHolder> {
      *
      * @return {@code None} {@link OptBoolean}.
      */
+    @Contract(pure = true)
+    @NotNull
     static OptBoolean noneBoolean() {
         return OptBoolean.none();
     }
@@ -133,6 +136,8 @@ public interface Opt<O extends Opt<O, V>, V extends ValueHolder> {
      * @param value Value.
      * @return {@link Opt} of {@code Some} {@code value}
      */
+    @Contract(pure = true)
+    @NotNull
     static OptByte someByte(byte value) {
         return OptByte.optByte(value);
     }
@@ -142,6 +147,8 @@ public interface Opt<O extends Opt<O, V>, V extends ValueHolder> {
      *
      * @return {@code None} {@link OptByte}.
      */
+    @Contract(pure = true)
+    @NotNull
     static OptByte noneByte() {
         return OptByte.none();
     }
@@ -152,6 +159,8 @@ public interface Opt<O extends Opt<O, V>, V extends ValueHolder> {
      * @param value Value.
      * @return {@link Opt} of {@code Some} {@code value}
      */
+    @Contract(pure = true)
+    @NotNull
     static OptChar someChar(char value) {
         return OptChar.optChar(value);
     }
@@ -161,6 +170,8 @@ public interface Opt<O extends Opt<O, V>, V extends ValueHolder> {
      *
      * @return {@code None} {@link OptChar}.
      */
+    @Contract(pure = true)
+    @NotNull
     static OptChar noneChar() {
         return OptChar.none();
     }
@@ -171,6 +182,8 @@ public interface Opt<O extends Opt<O, V>, V extends ValueHolder> {
      * @param value Value.
      * @return {@link Opt} of {@code Some} {@code value}
      */
+    @Contract(pure = true)
+    @NotNull
     static OptDouble someDouble(double value) {
         return OptDouble.optDouble(value);
     }
@@ -180,6 +193,8 @@ public interface Opt<O extends Opt<O, V>, V extends ValueHolder> {
      *
      * @return {@code None} {@link OptDouble}.
      */
+    @Contract(pure = true)
+    @NotNull
     static OptDouble noneDouble() {
         return OptDouble.none();
     }
@@ -190,6 +205,8 @@ public interface Opt<O extends Opt<O, V>, V extends ValueHolder> {
      * @param value Value.
      * @return {@link Opt} of {@code Some} {@code value}
      */
+    @Contract(pure = true)
+    @NotNull
     static OptFloat someFloat(float value) {
         return OptFloat.optFloat(value);
     }
@@ -199,6 +216,8 @@ public interface Opt<O extends Opt<O, V>, V extends ValueHolder> {
      *
      * @return {@code None} {@link OptFloat}.
      */
+    @Contract(pure = true)
+    @NotNull
     static OptFloat noneFloat() {
         return OptFloat.none();
     }
@@ -209,6 +228,8 @@ public interface Opt<O extends Opt<O, V>, V extends ValueHolder> {
      * @param value Value.
      * @return {@link Opt} of {@code Some} {@code value}
      */
+    @Contract(pure = true)
+    @NotNull
     static OptInt someInt(int value) {
         return OptInt.optInt(value);
     }
@@ -218,6 +239,8 @@ public interface Opt<O extends Opt<O, V>, V extends ValueHolder> {
      *
      * @return {@code None} {@link OptInt}.
      */
+    @Contract(pure = true)
+    @NotNull
     static OptInt noneInt() {
         return OptInt.none();
     }
@@ -228,6 +251,8 @@ public interface Opt<O extends Opt<O, V>, V extends ValueHolder> {
      * @param lazy Lazy initializer.
      * @return {@link Opt} of {@code Some} {@code lazy} initializer.
      */
+    @Contract(pure = true)
+    @NotNull
     static <T> OptLazy<T> someLazy(Lazy<T> lazy) {
         return OptLazy.optLazy(lazy);
     }
@@ -237,6 +262,8 @@ public interface Opt<O extends Opt<O, V>, V extends ValueHolder> {
      *
      * @return {@code None} {@link OptLazy}.
      */
+    @Contract(pure = true)
+    @NotNull
     static OptLazy noneLazy() {
         return OptLazy.none();
     }
@@ -247,6 +274,8 @@ public interface Opt<O extends Opt<O, V>, V extends ValueHolder> {
      * @param value Value.
      * @return {@link Opt} of {@code Some} {@code value}
      */
+    @Contract(pure = true)
+    @NotNull
     static OptLong someLong(long value) {
         return OptLong.optLong(value);
     }
@@ -256,6 +285,8 @@ public interface Opt<O extends Opt<O, V>, V extends ValueHolder> {
      *
      * @return {@code None} {@link OptLong}.
      */
+    @Contract(pure = true)
+    @NotNull
     static OptLong noneLong() {
         return OptLong.none();
     }
@@ -266,6 +297,8 @@ public interface Opt<O extends Opt<O, V>, V extends ValueHolder> {
      * @param value Value.
      * @return {@link Opt} of {@code Some} {@code value}
      */
+    @Contract(pure = true)
+    @NotNull
     static OptShort someShort(short value) {
         return OptShort.optShort(value);
     }
@@ -275,6 +308,8 @@ public interface Opt<O extends Opt<O, V>, V extends ValueHolder> {
      *
      * @return {@code None} {@link OptShort}.
      */
+    @Contract(pure = true)
+    @NotNull
     static OptShort noneShort() {
         return OptShort.none();
     }
@@ -291,13 +326,8 @@ public interface Opt<O extends Opt<O, V>, V extends ValueHolder> {
      * supplier} if not.
      */
     @SuppressWarnings("unchecked")
-    default Opt<O, V> $or(Supplier<? extends Opt<O, V>> supplier) {
-        Objects.requireNonNull(supplier);
-        if (this.isPresent())
-            return this;
-
-        return Objects.requireNonNull(supplier.get());
-    }
+    @NotNull
+    Opt<O> $or(@NotNull Supplier<? extends Opt<O>> supplier);
 
     /**
      * Returns this {@link Opt} if value is present, or returns {@link Opt} supplied by {@code
@@ -308,13 +338,8 @@ public interface Opt<O extends Opt<O, V>, V extends ValueHolder> {
      * supplier} if not.
      */
     @SuppressWarnings("unchecked")
-    default O or(Supplier<? extends O> supplier) {
-        Objects.requireNonNull(supplier);
-        if (this.isPresent())
-            return (O) this;
-
-        return Objects.requireNonNull(supplier.get());
-    }
+    @NotNull
+    O or(@NotNull Supplier<? extends O> supplier);
 
     /**
      * Returns true if this {@link Opt optional} holds an instance of {@code Some}, false if holds
@@ -323,16 +348,7 @@ public interface Opt<O extends Opt<O, V>, V extends ValueHolder> {
      * @return True if this {@link Opt optional} holds an instance of {@code Some}, false if holds
      * an instance of {@code None}.
      */
-    default boolean isPresent() {
-        return this.getValueHolder().hasSome();
-    }
-
-    /**
-     * Returns the value holder with the value of this {@link Opt}.
-     *
-     * @return The value holder with the value of this {@link Opt}.
-     */
-    V getValueHolder();
+    boolean isPresent();
 
     /**
      * Casts this {@link Opt} to {@link O}. As the documentation says, all implementation of {@link
@@ -341,6 +357,7 @@ public interface Opt<O extends Opt<O, V>, V extends ValueHolder> {
      * @return {@link O} instance.
      */
     @SuppressWarnings("unchecked")
+    @NotNull
     default O cast() {
         return (O) this;
     }
@@ -348,9 +365,11 @@ public interface Opt<O extends Opt<O, V>, V extends ValueHolder> {
     /**
      * Gets object value.
      *
-     * Note Boxing should be made in the method implementation and not cached.
+     * For primitive implementations, the value will be wrapped and returned.
      *
      * @return Object value.
      */
+    @Nullable
     Object getObjectValue();
+
 }

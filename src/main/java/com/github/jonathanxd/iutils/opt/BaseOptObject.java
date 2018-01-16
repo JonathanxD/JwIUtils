@@ -25,48 +25,37 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.opt.specialized;
+package com.github.jonathanxd.iutils.opt;
 
-import com.github.jonathanxd.iutils.iterator.IteratorUtil;
 import com.github.jonathanxd.iutils.object.Lazy;
-import com.github.jonathanxd.iutils.opt.AbstractOpt;
-import com.github.jonathanxd.iutils.opt.Opt;
-import com.github.jonathanxd.iutils.opt.ValueHolder;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Iterator;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Spliterator;
-import java.util.Spliterators;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
-public abstract class AbstractOptObject<T,
-        V extends ValueHolder.ObjectValueHolder<T>,
-        O extends AbstractOptObject<T, V, O>> extends AbstractOpt<O, V> {
+public interface BaseOptObject<T, O extends BaseOptObject<T, O>> extends Opt<O> {
 
     /**
      * Gets the value holden by this optional.
      *
      * @return Value.
-     * @throws NullPointerException If this {@link Opt} holds an {@code None}.
+     * @throws java.util.NoSuchElementException If this {@link Opt} is {@code None}.
      */
     @SuppressWarnings("unchecked")
-    public final T getValue() {
-        V valueHolder = this.getValueHolder();
+    @Nullable
+    T getValue();
 
-        if (!valueHolder.hasSome())
-            throw new NullPointerException("No value found!");
-
-        return valueHolder.getValue();
-    }
-
+    @Nullable
     @Override
-    public final Object getObjectValue() {
+    default Object getObjectValue() {
         return this.getValue();
     }
 
@@ -75,12 +64,7 @@ public abstract class AbstractOptObject<T,
      *
      * @param consumer Consumer to accept value if is present.
      */
-    public final void ifPresent(Consumer<? super T> consumer) {
-        Objects.requireNonNull(consumer);
-
-        if (this.isPresent())
-            consumer.accept(this.getValue());
-    }
+    void ifPresent(@NotNull Consumer<? super T> consumer);
 
     /**
      * Calls {@code consumer} with value if present, or calls {@code elseRunnable} if value is not
@@ -89,13 +73,33 @@ public abstract class AbstractOptObject<T,
      * @param consumer     Consumer to accept value if is present.
      * @param elseRunnable Runnable to call if value is not present.
      */
-    public final void ifPresent(Consumer<? super T> consumer, Runnable elseRunnable) {
-        Objects.requireNonNull(consumer);
+    void ifPresent(@NotNull Consumer<? super T> consumer, @NotNull Runnable elseRunnable);
 
-        if (this.isPresent())
-            consumer.accept(this.getValue());
-        else
-            elseRunnable.run();
+    /**
+     * Calls {@code consumer} to accept value (if present) and return {@code this}.
+     *
+     * @param consumer Consumer of value.
+     * @return {@code this};
+     */
+    @SuppressWarnings("unchecked")
+    @NotNull
+    default O onPresent(@NotNull Consumer<? super T> consumer) {
+        this.ifPresent(consumer);
+        return (O) this;
+    }
+
+    /**
+     * Calls {@code consumer} to accept value (if present) and return {@code this}.
+     *
+     * @param consumer     Consumer of value.
+     * @param elseRunnable Runnable to invoke if value is not present.
+     * @return {@code this};
+     */
+    @SuppressWarnings("unchecked")
+    @NotNull
+    default O onPresent(@NotNull Consumer<? super T> consumer, @NotNull Runnable elseRunnable) {
+        this.ifPresent(consumer, elseRunnable);
+        return (O) this;
     }
 
     /**
@@ -106,23 +110,17 @@ public abstract class AbstractOptObject<T,
      * {@link Opt} if either value is not present or value matches predicate.
      */
     @SuppressWarnings("unchecked")
-    public final O filter(Predicate<? super T> predicate) {
-        Objects.requireNonNull(predicate);
-
-        if (this.isPresent())
-            if (!predicate.test(this.getValue()))
-                return this.toNone();
-
-        return (O) this;
-    }
+    @NotNull
+    O filter(@NotNull Predicate<? super T> predicate);
 
     /**
-     * Converts this {@link AbstractOptObject} of {@code Some} to {@link AbstractOptObject} with
-     * {@code None} value.
+     * Converts this {@link BaseOptObject} of either {@code Some} or {@code None} to an opt of
+     * {@code None}.
      *
-     * @return {@link AbstractOptObject} with {@code None} value.
+     * @return {@link O} of {@code None}.
      */
-    public abstract O toNone();
+    @NotNull
+    O toNone();
 
     /**
      * Flat maps the value of {@code this} {@link Opt} to an {@link Opt} of type {@link O2}.
@@ -133,16 +131,7 @@ public abstract class AbstractOptObject<T,
      * @return An {@link Opt} supplied by {@code none} if value is not present, or {@link Opt}
      * returned by {@code mapper}.
      */
-    public final <O2 extends Opt<O2, V2>, V2 extends ValueHolder>
-    O2 flatMapTo(Function<? super T, ? extends O2> mapper, Supplier<O2> none) {
-        Objects.requireNonNull(mapper);
-        Objects.requireNonNull(none);
-
-        if (!this.isPresent())
-            return Objects.requireNonNull(none.get());
-
-        return Objects.requireNonNull(mapper.apply(this.getValue()));
-    }
+    @NotNull <O2 extends Opt<O2>> O2 flatMapTo(@NotNull Function<? super T, ? extends O2> mapper, @NotNull Supplier<O2> none);
 
     /**
      * Returns the value of this {@link Opt} if present, or {@code value} if not.
@@ -151,14 +140,8 @@ public abstract class AbstractOptObject<T,
      *              null).
      * @return Value of this {@link Opt} if present, or {@code value} if not.
      */
-    public final T orElse(T value) {
-        Objects.requireNonNull(value);
-
-        if (this.isPresent())
-            return this.getValue();
-
-        return value;
-    }
+    @Nullable
+    T orElse(@Nullable T value);
 
     /**
      * Returns the value of this {@link Opt} if present, or value supplied by {@code supplier} if
@@ -168,14 +151,8 @@ public abstract class AbstractOptObject<T,
      *                 (cannot be null).
      * @return Value of this {@link Opt} if present, or value supplied by {@code supplier} if not.
      */
-    public final T orElseGet(Supplier<? extends T> supplier) {
-        Objects.requireNonNull(supplier);
-
-        if (this.isPresent())
-            return this.getValue();
-
-        return Objects.requireNonNull(supplier.get());
-    }
+    @Nullable
+    T orElseGet(@NotNull Supplier<? extends T> supplier);
 
     /**
      * Returns the value of this {@link Opt} if present, or value returned by {@code lazy}.
@@ -183,14 +160,8 @@ public abstract class AbstractOptObject<T,
      * @param lazy Lazy provider of value to return if value is not present.
      * @return Value of this {@link Opt} if present, or value returned by {@code lazy}.
      */
-    public final T orElseLazy(Lazy<? extends T> lazy) {
-        Objects.requireNonNull(lazy);
-
-        if (this.isPresent())
-            return this.getValue();
-
-        return Objects.requireNonNull(lazy.get());
-    }
+    @Nullable
+    T orElseLazy(@NotNull Lazy<? extends T> lazy);
 
     /**
      * Returns the value of this {@link Opt} if present, or fail stupidly if value is not present.
@@ -202,14 +173,7 @@ public abstract class AbstractOptObject<T,
      * @return Value if present.
      * @throws E If value is not present.
      */
-    public final <E extends Throwable> T orElseFailStupidly(Supplier<? extends E> supplier) throws E {
-        Objects.requireNonNull(supplier);
-
-        if (this.isPresent())
-            return this.getValue();
-
-        throw Objects.requireNonNull(supplier.get());
-    }
+    @Nullable <E extends Throwable> T orElseFailStupidly(@NotNull Supplier<? extends E> supplier) throws E;
 
     /**
      * Returns a {@link Stream} with value of this {@link Opt} or an empty {@link Stream} if value
@@ -218,30 +182,24 @@ public abstract class AbstractOptObject<T,
      * @return {@link Stream} with value of this {@link Opt} or an empty {@link Stream} if value is
      * not present.
      */
-    public final Stream<T> stream() {
-        if (this.isPresent())
-            return StreamSupport.stream(this.spliterator(), false);
-
-        return Stream.empty();
-    }
+    @NotNull
+    Stream<T> stream();
 
     /**
      * Returns an iterator of this value.
      *
      * @return Iterator of this value.
      */
-    public final Iterator<T> iterator() {
-        return IteratorUtil.singleSupplied(this::getValue);
-    }
+    @NotNull
+    Iterator<T> iterator();
 
     /**
      * Returns an iterator of this value.
      *
      * @return Iterator of this value.
      */
-    public final Spliterator<T> spliterator() {
-        return Spliterators.spliterator(this.iterator(), 1, Spliterator.ORDERED | Spliterator.NONNULL | Spliterator.IMMUTABLE);
-    }
+    @NotNull
+    Spliterator<T> spliterator();
 
     /**
      * Creates a {@link Optional} from this {@link Opt}.
@@ -249,7 +207,6 @@ public abstract class AbstractOptObject<T,
      * @return {@link Optional} of value if it is not null, or {@link Optional#empty()} if this opt
      * is either empty or has a null value.
      */
-    public final Optional<T> toOptional() {
-        return this.isPresent() ? Optional.ofNullable(this.getValue()) : Optional.empty();
-    }
+    @NotNull
+    Optional<T> toOptional();
 }

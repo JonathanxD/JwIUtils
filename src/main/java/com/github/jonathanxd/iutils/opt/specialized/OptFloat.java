@@ -33,30 +33,23 @@ import com.github.jonathanxd.iutils.function.function.FloatToFloatFunction;
 import com.github.jonathanxd.iutils.function.predicate.FloatPredicate;
 import com.github.jonathanxd.iutils.function.supplier.FloatSupplier;
 import com.github.jonathanxd.iutils.object.Lazy;
-import com.github.jonathanxd.iutils.opt.AbstractOpt;
 import com.github.jonathanxd.iutils.opt.Opt;
-import com.github.jonathanxd.iutils.opt.ValueHolder;
 
-import java.util.Objects;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.function.Supplier;
 import java.util.stream.DoubleStream;
 
 /**
- * Float specialized {@link Opt}.
+ * {@code float} specialized {@link Opt}.
  */
-public final class OptFloat extends AbstractOpt<OptFloat, ValueHolder.FloatValueHolder> {
+public abstract class OptFloat implements Opt<OptFloat> {
 
-    private static final OptFloat NONE = new OptFloat(ValueHolder.FloatValueHolder.None.getInstance());
-    private final ValueHolder.FloatValueHolder holder;
-
-    private OptFloat(ValueHolder.FloatValueHolder holder) {
-        this.holder = holder;
-    }
-
-    private OptFloat(float value) {
-        this(new ValueHolder.FloatValueHolder.Some(value));
+    OptFloat() {
     }
 
     /**
@@ -66,8 +59,9 @@ public final class OptFloat extends AbstractOpt<OptFloat, ValueHolder.FloatValue
      * @return An {@link Opt} of {@code Some} {@code value}.
      */
     @SuppressWarnings("unchecked")
+    @NotNull
     public static OptFloat optFloat(float value) {
-        return new OptFloat(value);
+        return new SomeFloat(value);
     }
 
     /**
@@ -77,8 +71,9 @@ public final class OptFloat extends AbstractOpt<OptFloat, ValueHolder.FloatValue
      * @return An {@link Opt} of {@code Some} {@code value}.
      */
     @SuppressWarnings("unchecked")
+    @NotNull
     public static OptFloat some(float value) {
-        return new OptFloat(value);
+        return new SomeFloat(value);
     }
 
     /**
@@ -87,42 +82,27 @@ public final class OptFloat extends AbstractOpt<OptFloat, ValueHolder.FloatValue
      * @return {@link Opt} with {@code None} value.
      */
     @SuppressWarnings("unchecked")
+    @Contract(pure = true)
+    @NotNull
     public static OptFloat none() {
-        return NONE;
-    }
-
-    @Override
-    public ValueHolder.FloatValueHolder getValueHolder() {
-        return this.holder;
+        return NoneFloat.NONE;
     }
 
     /**
      * Gets the value holden by this optional.
      *
      * @return Value.
-     * @throws NullPointerException If this {@link Opt} holds an {@code None}.
+     * @throws java.util.NoSuchElementException If this {@link Opt} is {@code None}.
      */
     @SuppressWarnings("unchecked")
-    public float getValue() {
-        ValueHolder.FloatValueHolder valueHolder = this.getValueHolder();
-
-        if (!valueHolder.hasSome())
-            throw new NullPointerException("No value found!");
-
-        return valueHolder.getValue();
-    }
+    public abstract float getValue();
 
     /**
      * Calls {@code consumer} if value is present.
      *
      * @param consumer Consumer to accept value if is present.
      */
-    public void ifPresent(FloatConsumer consumer) {
-        Objects.requireNonNull(consumer);
-
-        if (this.isPresent())
-            consumer.accept(this.getValue());
-    }
+    public abstract void ifPresent(@NotNull FloatConsumer consumer);
 
     /**
      * Calls {@code consumer} with value if present, or calls {@code elseRunnable} if value is not
@@ -131,13 +111,31 @@ public final class OptFloat extends AbstractOpt<OptFloat, ValueHolder.FloatValue
      * @param consumer     Consumer to accept value if is present.
      * @param elseRunnable Runnable to call if value is not present.
      */
-    public void ifPresent(FloatConsumer consumer, Runnable elseRunnable) {
-        Objects.requireNonNull(consumer);
+    public abstract void ifPresent(@NotNull FloatConsumer consumer, @NotNull Runnable elseRunnable);
 
-        if (this.isPresent())
-            consumer.accept(this.getValue());
-        else
-            elseRunnable.run();
+    /**
+     * Calls {@code consumer} to accept value (if present) and return {@code this}.
+     *
+     * @param consumer Consumer of value.
+     * @return {@code this};
+     */
+    @NotNull
+    public OptFloat onPresent(@NotNull FloatConsumer consumer) {
+        this.ifPresent(consumer);
+        return this;
+    }
+
+    /**
+     * Calls {@code consumer} to accept value (if present) and return {@code this}.
+     *
+     * @param consumer     Consumer of value.
+     * @param elseRunnable Runnable to invoke if value is not present.
+     * @return {@code this};
+     */
+    @NotNull
+    public OptFloat onPresent(@NotNull FloatConsumer consumer, @NotNull Runnable elseRunnable) {
+        this.ifPresent(consumer, elseRunnable);
+        return this;
     }
 
     /**
@@ -147,15 +145,8 @@ public final class OptFloat extends AbstractOpt<OptFloat, ValueHolder.FloatValue
      * @return An {@link Opt} of {@code None} if value does not match predicate, or return same
      * {@link Opt} if either value is not present or value matches predicate.
      */
-    public OptFloat filter(FloatPredicate predicate) {
-        Objects.requireNonNull(predicate);
-
-        if (this.isPresent())
-            if (!predicate.test(this.getValue()))
-                return OptFloat.none();
-
-        return this;
-    }
+    @NotNull
+    public abstract OptFloat filter(@NotNull FloatPredicate predicate);
 
     /**
      * Maps the value of {@code this} {@link Opt} to a another value using {@code mapper}.
@@ -164,14 +155,8 @@ public final class OptFloat extends AbstractOpt<OptFloat, ValueHolder.FloatValue
      * @return An {@link Opt} of mapped value if present, or an {@link Opt} of {@code None} if no
      * value is present.
      */
-    public OptFloat map(FloatToFloatFunction mapper) {
-        Objects.requireNonNull(mapper);
-
-        if (!this.isPresent())
-            return OptFloat.none();
-
-        return OptFloat.optFloat(mapper.apply(this.getValue()));
-    }
+    @NotNull
+    public abstract OptFloat map(@NotNull FloatToFloatFunction mapper);
 
     /**
      * Flat maps the value of {@code this} {@link Opt} to another {@link Opt}.
@@ -180,14 +165,8 @@ public final class OptFloat extends AbstractOpt<OptFloat, ValueHolder.FloatValue
      * @return An {@link Opt} of {@code None} if the value is not present, or the {@link Opt}
      * returned by {@code mapper} if value is present.
      */
-    public OptFloat flatMap(FloatFunction<? extends OptFloat> mapper) {
-        Objects.requireNonNull(mapper);
-
-        if (!this.isPresent())
-            return OptFloat.none();
-
-        return Objects.requireNonNull(mapper.apply(this.getValue()));
-    }
+    @NotNull
+    public abstract OptFloat flatMap(@NotNull FloatFunction<? extends OptFloat> mapper);
 
     /**
      * Flat maps the value of {@code this} {@link Opt} to an {@link Opt} of type {@link O}.
@@ -198,16 +177,8 @@ public final class OptFloat extends AbstractOpt<OptFloat, ValueHolder.FloatValue
      * @return An {@link Opt} supplied by {@code none} if value is not present, or {@link Opt}
      * returned by {@code mapper}.
      */
-    public <O extends Opt<O, V>, V extends ValueHolder>
-    O flatMapTo(FloatFunction<? extends O> mapper, Supplier<O> none) {
-        Objects.requireNonNull(mapper);
-        Objects.requireNonNull(none);
-
-        if (!this.isPresent())
-            return Objects.requireNonNull(none.get());
-
-        return Objects.requireNonNull(mapper.apply(this.getValue()));
-    }
+    @NotNull
+    public abstract <O extends Opt<O>> O flatMapTo(@NotNull FloatFunction<? extends O> mapper, @NotNull Supplier<O> none);
 
     /**
      * Returns the value of this {@link Opt} if present, or {@code value} if not.
@@ -216,12 +187,7 @@ public final class OptFloat extends AbstractOpt<OptFloat, ValueHolder.FloatValue
      *              null).
      * @return Value of this {@link Opt} if present, or {@code value} if not.
      */
-    public float orElse(float value) {
-        if (this.isPresent())
-            return this.getValue();
-
-        return value;
-    }
+    public abstract float orElse(float value);
 
     /**
      * Returns the value of this {@link Opt} if present, or value supplied by {@code supplier} if
@@ -231,14 +197,7 @@ public final class OptFloat extends AbstractOpt<OptFloat, ValueHolder.FloatValue
      *                 (cannot be null).
      * @return Value of this {@link Opt} if present, or value supplied by {@code supplier} if not.
      */
-    public float orElse(FloatSupplier supplier) {
-        Objects.requireNonNull(supplier);
-
-        if (this.isPresent())
-            return this.getValue();
-
-        return supplier.get();
-    }
+    public abstract float orElseGet(@NotNull FloatSupplier supplier);
 
     /**
      * Returns the value of this {@link Opt} if present, or value returned by {@code lazy}.
@@ -246,14 +205,7 @@ public final class OptFloat extends AbstractOpt<OptFloat, ValueHolder.FloatValue
      * @param lazy Lazy provider of value to return if value is not present.
      * @return Value of this {@link Opt} if present, or value returned by {@code lazy}.
      */
-    public float orElse(Lazy<? extends Float> lazy) { // :(, No specialized Lazy instances...
-        Objects.requireNonNull(lazy);
-
-        if (this.isPresent())
-            return this.getValue();
-
-        return Objects.requireNonNull(lazy.get());
-    }
+    public abstract float orElseLazy(@NotNull Lazy<? extends Float> lazy);
 
     /**
      * Returns the value of this {@link Opt} if present, or fail stupidly if value is not present.
@@ -265,14 +217,7 @@ public final class OptFloat extends AbstractOpt<OptFloat, ValueHolder.FloatValue
      * @return Value if present.
      * @throws E If value is not present.
      */
-    public <E extends Throwable> float orElseFailStupidly(Supplier<? extends E> supplier) throws E {
-        Objects.requireNonNull(supplier);
-
-        if (this.isPresent())
-            return this.getValue();
-
-        throw Objects.requireNonNull(supplier.get());
-    }
+    public abstract <E extends Throwable> float orElseFailStupidly(@NotNull Supplier<? extends E> supplier) throws E;
 
     /**
      * Returns a {@link DoubleStream} with value of this {@link Opt} or an empty {@link
@@ -284,13 +229,10 @@ public final class OptFloat extends AbstractOpt<OptFloat, ValueHolder.FloatValue
      * @return {@link DoubleStream} with value of this {@link Opt} or an empty {@link DoubleStream}
      * if value is not present.
      */
-    public DoubleStream stream() {
-        if (this.isPresent())
-            return DoubleStream.of(this.getValue());
+    @NotNull
+    public abstract DoubleStream stream();
 
-        return DoubleStream.empty();
-    }
-
+    @Nullable
     @Override
     public Object getObjectValue() {
         return this.getValue();
@@ -304,9 +246,8 @@ public final class OptFloat extends AbstractOpt<OptFloat, ValueHolder.FloatValue
      *
      * @return {@link OptionalDouble} of value if it is present, or {@link OptionalDouble#empty()}.
      */
-    public OptionalDouble toOptional() {
-        return this.isPresent() ? OptionalDouble.of(this.getValue()) : OptionalDouble.empty();
-    }
+    @NotNull
+    public abstract OptionalDouble toOptional();
 
     /**
      * Creates a {@link Optional} from this {@link Opt}.
@@ -314,7 +255,6 @@ public final class OptFloat extends AbstractOpt<OptFloat, ValueHolder.FloatValue
      * @return {@link Optional} of value if it is not null, or {@link Optional#empty()} if this opt
      * is either empty or has a null value.
      */
-    public Optional<Float> toBoxedOptional() {
-        return this.isPresent() ? Optional.of(this.getValue()) : Optional.empty();
-    }
+    @NotNull
+    public abstract Optional<Float> toBoxedOptional();
 }

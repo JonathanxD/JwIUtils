@@ -1,5 +1,5 @@
 /*
- *      JwIUtils-kt - Extension of JwIUtils for Kotlin <https://github.com/JonathanxD/JwIUtils/>
+ *      JwIUtils - Java utilities library <https://github.com/JonathanxD/JwIUtils>
  *
  *         The MIT License (MIT)
  *
@@ -25,29 +25,53 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.kt.test
+package com.github.jonathanxd.iutils.opt.specialized;
 
-import com.github.jonathanxd.iutils.kt.left
-import com.github.jonathanxd.iutils.kt.right
-import com.github.jonathanxd.iutils.kt.some
-import org.junit.Assert
-import org.junit.Test
+import com.github.jonathanxd.iutils.opt.DefBaseSomeObj;
 
-class Tests {
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
-    @Test
-    fun testOpt() {
-        val value = some(9)
+import java.util.Objects;
+import java.util.function.Function;
 
-        Assert.assertTrue(value.isPresent)
+public final class Some<T> extends OptObject<T> implements DefBaseSomeObj<T, OptObject<T>> {
+
+    private final T value;
+
+    Some(T value) {
+        this.value = value;
     }
 
-    @Test
-    fun testEither() {
-        val value = left<Int, String>(9)
-        val value2 = right<Int, String>("9")
+    @Contract(pure = true)
+    @Override
+    public T getValue() {
+        return this.value;
+    }
 
-        Assert.assertTrue(value.isLeft)
-        Assert.assertTrue(value2.isRight)
+
+    @NotNull
+    @Override
+    public <R> OptObject<R> map(@NotNull Function<? super T, ? extends R> mapper) {
+        Objects.requireNonNull(mapper);
+        return OptObject.some(mapper.apply(this.getValue()));
+    }
+
+    @NotNull
+    @Override
+    public <R> OptObject<R> flatMap(@NotNull Function<? super T, ? extends OptObject<R>> mapper) {
+        Objects.requireNonNull(mapper);
+        return Objects.requireNonNull(mapper.apply(this.getValue()));
+    }
+
+    @Contract("null -> false")
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof Some<?> && Objects.equals(this.getValue(), ((Some) obj).getValue());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(this.getValue());
     }
 }

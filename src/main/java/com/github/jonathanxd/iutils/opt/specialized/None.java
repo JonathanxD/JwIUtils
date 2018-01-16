@@ -1,5 +1,5 @@
 /*
- *      JwIUtils-kt - Extension of JwIUtils for Kotlin <https://github.com/JonathanxD/JwIUtils/>
+ *      JwIUtils - Java utilities library <https://github.com/JonathanxD/JwIUtils>
  *
  *         The MIT License (MIT)
  *
@@ -25,29 +25,50 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.kt.test
+package com.github.jonathanxd.iutils.opt.specialized;
 
-import com.github.jonathanxd.iutils.kt.left
-import com.github.jonathanxd.iutils.kt.right
-import com.github.jonathanxd.iutils.kt.some
-import org.junit.Assert
-import org.junit.Test
+import com.github.jonathanxd.iutils.opt.DefBaseNoneObj;
 
-class Tests {
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
-    @Test
-    fun testOpt() {
-        val value = some(9)
+import java.util.NoSuchElementException;
+import java.util.Objects;
+import java.util.function.Function;
 
-        Assert.assertTrue(value.isPresent)
+public final class None<T> extends OptObject<T> implements DefBaseNoneObj<T, OptObject<T>> {
+    static final OptObject NONE = new None();
+
+    private None() {
     }
 
-    @Test
-    fun testEither() {
-        val value = left<Int, String>(9)
-        val value2 = right<Int, String>("9")
-
-        Assert.assertTrue(value.isLeft)
-        Assert.assertTrue(value2.isRight)
+    @Contract(" -> fail")
+    @Override
+    public T getValue() {
+        throw new NoSuchElementException("None");
     }
+
+    @NotNull
+    @Override
+    public <R> OptObject<R> map(@NotNull Function<? super T, ? extends R> mapper) {
+        return OptObject.none();
+    }
+
+    @NotNull
+    @Override
+    public <R> OptObject<R> flatMap(@NotNull Function<? super T, ? extends OptObject<R>> mapper) {
+        return OptObject.none();
+    }
+
+    @Contract("null -> false")
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof None<?> && Objects.equals(this.getValue(), ((None) obj).getValue());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(this.getValue());
+    }
+
 }

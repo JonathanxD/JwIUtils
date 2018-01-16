@@ -33,31 +33,23 @@ import com.github.jonathanxd.iutils.function.function.CharToCharFunction;
 import com.github.jonathanxd.iutils.function.predicate.CharPredicate;
 import com.github.jonathanxd.iutils.function.supplier.CharSupplier;
 import com.github.jonathanxd.iutils.object.Lazy;
-import com.github.jonathanxd.iutils.opt.AbstractOpt;
 import com.github.jonathanxd.iutils.opt.Opt;
-import com.github.jonathanxd.iutils.opt.ValueHolder;
 
-import java.util.Objects;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
 /**
- * Char specialized {@link Opt}.
+ * {@code char} specialized {@link Opt}.
  */
-public final class OptChar extends AbstractOpt<OptChar, ValueHolder.CharValueHolder> {
+public abstract class OptChar implements Opt<OptChar> {
 
-    private static final OptChar NONE = new OptChar(ValueHolder.CharValueHolder.None.getInstance());
-
-    private final ValueHolder.CharValueHolder holder;
-
-    private OptChar(ValueHolder.CharValueHolder holder) {
-        this.holder = holder;
-    }
-
-    private OptChar(char value) {
-        this(new ValueHolder.CharValueHolder.Some(value));
+    OptChar() {
     }
 
     /**
@@ -67,8 +59,9 @@ public final class OptChar extends AbstractOpt<OptChar, ValueHolder.CharValueHol
      * @return An {@link Opt} of {@code Some} {@code value}.
      */
     @SuppressWarnings("unchecked")
+    @NotNull
     public static OptChar optChar(char value) {
-        return new OptChar(value);
+        return new SomeChar(value);
     }
 
     /**
@@ -78,8 +71,9 @@ public final class OptChar extends AbstractOpt<OptChar, ValueHolder.CharValueHol
      * @return An {@link Opt} of {@code Some} {@code value}.
      */
     @SuppressWarnings("unchecked")
+    @NotNull
     public static OptChar some(char value) {
-        return new OptChar(value);
+        return new SomeChar(value);
     }
 
     /**
@@ -88,42 +82,27 @@ public final class OptChar extends AbstractOpt<OptChar, ValueHolder.CharValueHol
      * @return {@link Opt} with {@code None} value.
      */
     @SuppressWarnings("unchecked")
+    @Contract(pure = true)
+    @NotNull
     public static OptChar none() {
-        return NONE;
-    }
-
-    @Override
-    public ValueHolder.CharValueHolder getValueHolder() {
-        return this.holder;
+        return NoneChar.NONE;
     }
 
     /**
      * Gets the value holden by this optional.
      *
      * @return Value.
-     * @throws NullPointerException If this {@link Opt} holds an {@code None}.
+     * @throws java.util.NoSuchElementException If this {@link Opt} is {@code None}.
      */
     @SuppressWarnings("unchecked")
-    public char getValue() {
-        ValueHolder.CharValueHolder valueHolder = this.getValueHolder();
-
-        if (!valueHolder.hasSome())
-            throw new NullPointerException("No value found!");
-
-        return valueHolder.getValue();
-    }
+    public abstract char getValue();
 
     /**
      * Calls {@code consumer} if value is present.
      *
      * @param consumer Consumer to accept value if is present.
      */
-    public void ifPresent(CharConsumer consumer) {
-        Objects.requireNonNull(consumer);
-
-        if (this.isPresent())
-            consumer.accept(this.getValue());
-    }
+    public abstract void ifPresent(@NotNull CharConsumer consumer);
 
     /**
      * Calls {@code consumer} with value if present, or calls {@code elseRunnable} if value is not
@@ -132,13 +111,31 @@ public final class OptChar extends AbstractOpt<OptChar, ValueHolder.CharValueHol
      * @param consumer     Consumer to accept value if is present.
      * @param elseRunnable Runnable to call if value is not present.
      */
-    public void ifPresent(CharConsumer consumer, Runnable elseRunnable) {
-        Objects.requireNonNull(consumer);
+    public abstract void ifPresent(@NotNull CharConsumer consumer, @NotNull Runnable elseRunnable);
 
-        if (this.isPresent())
-            consumer.accept(this.getValue());
-        else
-            elseRunnable.run();
+    /**
+     * Calls {@code consumer} to accept value (if present) and return {@code this}.
+     *
+     * @param consumer Consumer of value.
+     * @return {@code this};
+     */
+    @NotNull
+    public OptChar onPresent(@NotNull CharConsumer consumer) {
+        this.ifPresent(consumer);
+        return this;
+    }
+
+    /**
+     * Calls {@code consumer} to accept value (if present) and return {@code this}.
+     *
+     * @param consumer     Consumer of value.
+     * @param elseRunnable Runnable to invoke if value is not present.
+     * @return {@code this};
+     */
+    @NotNull
+    public OptChar onPresent(@NotNull CharConsumer consumer, @NotNull Runnable elseRunnable) {
+        this.ifPresent(consumer, elseRunnable);
+        return this;
     }
 
     /**
@@ -148,15 +145,8 @@ public final class OptChar extends AbstractOpt<OptChar, ValueHolder.CharValueHol
      * @return An {@link Opt} of {@code None} if value does not match predicate, or return same
      * {@link Opt} if either value is not present or value matches predicate.
      */
-    public OptChar filter(CharPredicate predicate) {
-        Objects.requireNonNull(predicate);
-
-        if (this.isPresent())
-            if (!predicate.test(this.getValue()))
-                return OptChar.none();
-
-        return this;
-    }
+    @NotNull
+    public abstract OptChar filter(@NotNull CharPredicate predicate);
 
     /**
      * Maps the value of {@code this} {@link Opt} to a another value using {@code mapper}.
@@ -165,14 +155,8 @@ public final class OptChar extends AbstractOpt<OptChar, ValueHolder.CharValueHol
      * @return An {@link Opt} of mapped value if present, or an {@link Opt} of {@code None} if no
      * value is present.
      */
-    public OptChar map(CharToCharFunction mapper) {
-        Objects.requireNonNull(mapper);
-
-        if (!this.isPresent())
-            return OptChar.none();
-
-        return OptChar.optChar(mapper.apply(this.getValue()));
-    }
+    @NotNull
+    public abstract OptChar map(@NotNull CharToCharFunction mapper);
 
     /**
      * Flat maps the value of {@code this} {@link Opt} to another {@link Opt}.
@@ -181,14 +165,8 @@ public final class OptChar extends AbstractOpt<OptChar, ValueHolder.CharValueHol
      * @return An {@link Opt} of {@code None} if the value is not present, or the {@link Opt}
      * returned by {@code mapper} if value is present.
      */
-    public OptChar flatMap(CharFunction<? extends OptChar> mapper) {
-        Objects.requireNonNull(mapper);
-
-        if (!this.isPresent())
-            return OptChar.none();
-
-        return Objects.requireNonNull(mapper.apply(this.getValue()));
-    }
+    @NotNull
+    public abstract OptChar flatMap(@NotNull CharFunction<? extends OptChar> mapper);
 
     /**
      * Flat maps the value of {@code this} {@link Opt} to an {@link Opt} of type {@link O}.
@@ -199,16 +177,8 @@ public final class OptChar extends AbstractOpt<OptChar, ValueHolder.CharValueHol
      * @return An {@link Opt} supplied by {@code none} if value is not present, or {@link Opt}
      * returned by {@code mapper}.
      */
-    public <O extends Opt<O, V>, V extends ValueHolder>
-    O flatMapTo(CharFunction<? extends O> mapper, Supplier<O> none) {
-        Objects.requireNonNull(mapper);
-        Objects.requireNonNull(none);
-
-        if (!this.isPresent())
-            return Objects.requireNonNull(none.get());
-
-        return Objects.requireNonNull(mapper.apply(this.getValue()));
-    }
+    @NotNull
+    public abstract <O extends Opt<O>> O flatMapTo(@NotNull CharFunction<? extends O> mapper, @NotNull Supplier<O> none);
 
     /**
      * Returns the value of this {@link Opt} if present, or {@code value} if not.
@@ -217,12 +187,7 @@ public final class OptChar extends AbstractOpt<OptChar, ValueHolder.CharValueHol
      *              null).
      * @return Value of this {@link Opt} if present, or {@code value} if not.
      */
-    public char orElse(char value) {
-        if (this.isPresent())
-            return this.getValue();
-
-        return value;
-    }
+    public abstract char orElse(char value);
 
     /**
      * Returns the value of this {@link Opt} if present, or value supplied by {@code supplier} if
@@ -232,14 +197,7 @@ public final class OptChar extends AbstractOpt<OptChar, ValueHolder.CharValueHol
      *                 (cannot be null).
      * @return Value of this {@link Opt} if present, or value supplied by {@code supplier} if not.
      */
-    public char orElse(CharSupplier supplier) {
-        Objects.requireNonNull(supplier);
-
-        if (this.isPresent())
-            return this.getValue();
-
-        return supplier.get();
-    }
+    public abstract char orElseGet(@NotNull CharSupplier supplier);
 
     /**
      * Returns the value of this {@link Opt} if present, or value returned by {@code lazy}.
@@ -247,14 +205,7 @@ public final class OptChar extends AbstractOpt<OptChar, ValueHolder.CharValueHol
      * @param lazy Lazy provider of value to return if value is not present.
      * @return Value of this {@link Opt} if present, or value returned by {@code lazy}.
      */
-    public char orElse(Lazy<? extends Character> lazy) { // :(, No specialized Lazy instances...
-        Objects.requireNonNull(lazy);
-
-        if (this.isPresent())
-            return this.getValue();
-
-        return Objects.requireNonNull(lazy.get());
-    }
+    public abstract char orElseLazy(@NotNull Lazy<? extends Character> lazy);
 
     /**
      * Returns the value of this {@link Opt} if present, or fail stupidly if value is not present.
@@ -266,14 +217,7 @@ public final class OptChar extends AbstractOpt<OptChar, ValueHolder.CharValueHol
      * @return Value if present.
      * @throws E If value is not present.
      */
-    public <E extends Throwable> char orElseFailStupidly(Supplier<? extends E> supplier) throws E {
-        Objects.requireNonNull(supplier);
-
-        if (this.isPresent())
-            return this.getValue();
-
-        throw Objects.requireNonNull(supplier.get());
-    }
+    public abstract <E extends Throwable> char orElseFailStupidly(@NotNull Supplier<? extends E> supplier) throws E;
 
     /**
      * Returns a {@link IntStream} with value of this {@link Opt} or an empty {@link IntStream} if
@@ -285,13 +229,10 @@ public final class OptChar extends AbstractOpt<OptChar, ValueHolder.CharValueHol
      * @return {@link IntStream} with value of this {@link Opt} or an empty {@link IntStream} if
      * value is not present.
      */
-    public IntStream stream() {
-        if (this.isPresent())
-            return IntStream.of(this.getValue());
+    @NotNull
+    public abstract IntStream stream();
 
-        return IntStream.empty();
-    }
-
+    @Nullable
     @Override
     public Object getObjectValue() {
         return this.getValue();
@@ -305,9 +246,8 @@ public final class OptChar extends AbstractOpt<OptChar, ValueHolder.CharValueHol
      *
      * @return {@link OptionalInt} of value if it is present, or {@link OptionalInt#empty()}.
      */
-    public OptionalInt toOptional() {
-        return this.isPresent() ? OptionalInt.of(this.getValue()) : OptionalInt.empty();
-    }
+    @NotNull
+    public abstract OptionalInt toOptional();
 
     /**
      * Creates a {@link Optional} from this {@link Opt}.
@@ -315,7 +255,6 @@ public final class OptChar extends AbstractOpt<OptChar, ValueHolder.CharValueHol
      * @return {@link Optional} of value if it is not null, or {@link Optional#empty()} if this opt
      * is either empty or has a null value.
      */
-    public Optional<Character> toBoxedOptional() {
-        return this.isPresent() ? Optional.of(this.getValue()) : Optional.empty();
-    }
+    @NotNull
+    public abstract Optional<Character> toBoxedOptional();
 }

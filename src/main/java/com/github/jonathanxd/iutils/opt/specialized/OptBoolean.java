@@ -32,11 +32,13 @@ import com.github.jonathanxd.iutils.function.function.BoolToBoolFunction;
 import com.github.jonathanxd.iutils.function.function.BooleanFunction;
 import com.github.jonathanxd.iutils.function.predicate.BooleanPredicate;
 import com.github.jonathanxd.iutils.object.Lazy;
-import com.github.jonathanxd.iutils.opt.AbstractOpt;
+import com.github.jonathanxd.iutils.object.Tristate;
 import com.github.jonathanxd.iutils.opt.Opt;
-import com.github.jonathanxd.iutils.opt.ValueHolder;
 
-import java.util.Objects;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.function.BooleanSupplier;
@@ -44,21 +46,11 @@ import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
 /**
- * Object specialized {@link Opt}.
+ * {@code boolean} specialized {@link Opt}.
  */
-public final class OptBoolean extends AbstractOpt<OptBoolean, ValueHolder.BooleanValueHolder> {
+public abstract class OptBoolean implements Opt<OptBoolean> {
 
-    private static final OptBoolean NONE = new OptBoolean(ValueHolder.BooleanValueHolder.None.getInstance());
-    private static final OptBoolean TRUE = new OptBoolean(true);
-    private static final OptBoolean FALSE = new OptBoolean(false);
-    private final ValueHolder.BooleanValueHolder holder;
-
-    private OptBoolean(ValueHolder.BooleanValueHolder holder) {
-        this.holder = holder;
-    }
-
-    private OptBoolean(boolean value) {
-        this(new ValueHolder.BooleanValueHolder.Some(value));
+    OptBoolean() {
     }
 
     /**
@@ -68,8 +60,10 @@ public final class OptBoolean extends AbstractOpt<OptBoolean, ValueHolder.Boolea
      * @return An {@link Opt} of {@code Some} {@code value}.
      */
     @SuppressWarnings("unchecked")
+    @Contract(pure = true)
+    @NotNull
     public static OptBoolean optBoolean(boolean value) {
-        return value ? TRUE : FALSE;
+        return value ? SomeBoolean.TRUE : SomeBoolean.FALSE;
     }
 
     /**
@@ -79,8 +73,10 @@ public final class OptBoolean extends AbstractOpt<OptBoolean, ValueHolder.Boolea
      * @return An {@link Opt} of {@code Some} {@code value}.
      */
     @SuppressWarnings("unchecked")
+    @Contract(pure = true)
+    @NotNull
     public static OptBoolean some(boolean value) {
-        return value ? TRUE : FALSE;
+        return value ? SomeBoolean.TRUE : SomeBoolean.FALSE;
     }
 
     /**
@@ -89,8 +85,10 @@ public final class OptBoolean extends AbstractOpt<OptBoolean, ValueHolder.Boolea
      * @return An {@link Opt} with {@code true} value.
      */
     @SuppressWarnings("unchecked")
+    @Contract(pure = true)
+    @NotNull
     public static OptBoolean trueOpt() {
-        return TRUE;
+        return SomeBoolean.TRUE;
     }
 
     /**
@@ -99,8 +97,10 @@ public final class OptBoolean extends AbstractOpt<OptBoolean, ValueHolder.Boolea
      * @return An {@link Opt} with {@code false} value.
      */
     @SuppressWarnings("unchecked")
+    @Contract(pure = true)
+    @NotNull
     public static OptBoolean falseOpt() {
-        return FALSE;
+        return SomeBoolean.FALSE;
     }
 
     /**
@@ -109,42 +109,27 @@ public final class OptBoolean extends AbstractOpt<OptBoolean, ValueHolder.Boolea
      * @return {@link Opt} with {@code None} value.
      */
     @SuppressWarnings("unchecked")
+    @Contract(pure = true)
+    @NotNull
     public static OptBoolean none() {
-        return NONE;
+        return NoneBoolean.NONE;
     }
 
     /**
      * Gets the value holden by this optional.
      *
      * @return Value.
-     * @throws NullPointerException If this {@link Opt} holds an {@code None}.
+     * @throws java.util.NoSuchElementException If this {@link Opt} is {@code None}.
      */
     @SuppressWarnings("unchecked")
-    public boolean getValue() {
-        ValueHolder.BooleanValueHolder valueHolder = this.getValueHolder();
-
-        if (!valueHolder.hasSome())
-            throw new NullPointerException("No value found!");
-
-        return valueHolder.getValue();
-    }
-
-    @Override
-    public ValueHolder.BooleanValueHolder getValueHolder() {
-        return this.holder;
-    }
+    public abstract boolean getValue();
 
     /**
      * Calls {@code consumer} if value is present.
      *
      * @param consumer Consumer to accept value if is present.
      */
-    public void ifPresent(BooleanConsumer consumer) {
-        Objects.requireNonNull(consumer);
-
-        if (this.isPresent())
-            consumer.accept(this.getValue());
-    }
+    public abstract void ifPresent(@NotNull BooleanConsumer consumer);
 
     /**
      * Calls {@code consumer} with value if present, or calls {@code elseRunnable} if value is not
@@ -153,13 +138,31 @@ public final class OptBoolean extends AbstractOpt<OptBoolean, ValueHolder.Boolea
      * @param consumer     Consumer to accept value if is present.
      * @param elseRunnable Runnable to call if value is not present.
      */
-    public void ifPresent(BooleanConsumer consumer, Runnable elseRunnable) {
-        Objects.requireNonNull(consumer);
+    public abstract void ifPresent(@NotNull BooleanConsumer consumer, @NotNull Runnable elseRunnable);
 
-        if (this.isPresent())
-            consumer.accept(this.getValue());
-        else
-            elseRunnable.run();
+    /**
+     * Calls {@code consumer} to accept value (if present) and return {@code this}.
+     *
+     * @param consumer Consumer of value.
+     * @return {@code this};
+     */
+    @NotNull
+    public OptBoolean onPresent(@NotNull BooleanConsumer consumer) {
+        this.ifPresent(consumer);
+        return this;
+    }
+
+    /**
+     * Calls {@code consumer} to accept value (if present) and return {@code this}.
+     *
+     * @param consumer     Consumer of value.
+     * @param elseRunnable Runnable to invoke if value is not present.
+     * @return {@code this};
+     */
+    @NotNull
+    public OptBoolean onPresent(@NotNull BooleanConsumer consumer, @NotNull Runnable elseRunnable) {
+        this.ifPresent(consumer, elseRunnable);
+        return this;
     }
 
     /**
@@ -169,15 +172,8 @@ public final class OptBoolean extends AbstractOpt<OptBoolean, ValueHolder.Boolea
      * @return An {@link Opt} of {@code None} if value does not match predicate, or return same
      * {@link Opt} if either value is not present or value matches predicate.
      */
-    public OptBoolean filter(BooleanPredicate predicate) {
-        Objects.requireNonNull(predicate);
-
-        if (this.isPresent())
-            if (!predicate.test(this.getValue()))
-                return OptBoolean.none();
-
-        return this;
-    }
+    @NotNull
+    public abstract OptBoolean filter(@NotNull BooleanPredicate predicate);
 
     /**
      * Maps the value of {@code this} {@link Opt} to a another value using {@code mapper}.
@@ -186,14 +182,8 @@ public final class OptBoolean extends AbstractOpt<OptBoolean, ValueHolder.Boolea
      * @return An {@link Opt} of mapped value if present, or an {@link Opt} of {@code None} if no
      * value is present.
      */
-    public OptBoolean map(BoolToBoolFunction mapper) {
-        Objects.requireNonNull(mapper);
-
-        if (!this.isPresent())
-            return OptBoolean.none();
-
-        return OptBoolean.optBoolean(mapper.apply(this.getValue()));
-    }
+    @NotNull
+    public abstract OptBoolean map(@NotNull BoolToBoolFunction mapper);
 
     /**
      * Flat maps the value of {@code this} {@link Opt} to another {@link Opt}.
@@ -202,14 +192,8 @@ public final class OptBoolean extends AbstractOpt<OptBoolean, ValueHolder.Boolea
      * @return An {@link Opt} of {@code None} if the value is not present, or the {@link Opt}
      * returned by {@code mapper} if value is present.
      */
-    public OptBoolean flatMap(BooleanFunction<? extends OptBoolean> mapper) {
-        Objects.requireNonNull(mapper);
-
-        if (!this.isPresent())
-            return OptBoolean.none();
-
-        return Objects.requireNonNull(mapper.apply(this.getValue()));
-    }
+    @NotNull
+    public abstract OptBoolean flatMap(@NotNull BooleanFunction<? extends OptBoolean> mapper);
 
     /**
      * Flat maps the value of {@code this} {@link Opt} to an {@link Opt} of type {@link O}.
@@ -220,16 +204,8 @@ public final class OptBoolean extends AbstractOpt<OptBoolean, ValueHolder.Boolea
      * @return An {@link Opt} supplied by {@code none} if value is not present, or {@link Opt}
      * returned by {@code mapper}.
      */
-    public <O extends Opt<O, V>, V extends ValueHolder> O
-    flatMapTo(BooleanFunction<? extends O> mapper, Supplier<O> none) {
-        Objects.requireNonNull(mapper);
-        Objects.requireNonNull(none);
-
-        if (!this.isPresent())
-            return Objects.requireNonNull(none.get());
-
-        return Objects.requireNonNull(mapper.apply(this.getValue()));
-    }
+    @NotNull
+    public abstract <O extends Opt<O>> O flatMapTo(@NotNull BooleanFunction<? extends O> mapper, @NotNull Supplier<O> none);
 
     /**
      * Returns the value of this {@link Opt} if present, or {@code value} if not.
@@ -238,12 +214,7 @@ public final class OptBoolean extends AbstractOpt<OptBoolean, ValueHolder.Boolea
      *              null).
      * @return Value of this {@link Opt} if present, or {@code value} if not.
      */
-    public boolean orElse(boolean value) {
-        if (this.isPresent())
-            return this.getValue();
-
-        return value;
-    }
+    public abstract boolean orElse(boolean value);
 
     /**
      * Returns the value of this {@link Opt} if present, or value supplied by {@code supplier} if
@@ -253,14 +224,7 @@ public final class OptBoolean extends AbstractOpt<OptBoolean, ValueHolder.Boolea
      *                 (cannot be null).
      * @return Value of this {@link Opt} if present, or value supplied by {@code supplier} if not.
      */
-    public boolean orElse(BooleanSupplier supplier) {
-        Objects.requireNonNull(supplier);
-
-        if (this.isPresent())
-            return this.getValue();
-
-        return supplier.getAsBoolean();
-    }
+    public abstract boolean orElseGet(@NotNull BooleanSupplier supplier);
 
     /**
      * Returns the value of this {@link Opt} if present, or value returned by {@code lazy}.
@@ -268,14 +232,7 @@ public final class OptBoolean extends AbstractOpt<OptBoolean, ValueHolder.Boolea
      * @param lazy Lazy provider of value to return if value is not present.
      * @return Value of this {@link Opt} if present, or value returned by {@code lazy}.
      */
-    public boolean orElse(Lazy<? extends Boolean> lazy) { // :(, No specialized Lazy instances...
-        Objects.requireNonNull(lazy);
-
-        if (this.isPresent())
-            return this.getValue();
-
-        return Objects.requireNonNull(lazy.get());
-    }
+    public abstract boolean orElseLazy(@NotNull Lazy<? extends Boolean> lazy);
 
     /**
      * Returns the value of this {@link Opt} if present, or fail stupidly if value is not present.
@@ -287,14 +244,7 @@ public final class OptBoolean extends AbstractOpt<OptBoolean, ValueHolder.Boolea
      * @return Value if present.
      * @throws E If value is not present.
      */
-    public <E extends Throwable> boolean orElseFailStupidly(Supplier<? extends E> supplier) throws E {
-        Objects.requireNonNull(supplier);
-
-        if (this.isPresent())
-            return this.getValue();
-
-        throw Objects.requireNonNull(supplier.get());
-    }
+    public abstract <E extends Throwable> boolean orElseFailStupidly(@NotNull Supplier<? extends E> supplier) throws E;
 
     /**
      * Returns a {@link IntStream} with value of this {@link Opt} or an empty {@link IntStream} if
@@ -306,14 +256,11 @@ public final class OptBoolean extends AbstractOpt<OptBoolean, ValueHolder.Boolea
      * @return {@link IntStream} with value of this {@link Opt} or an empty {@link IntStream} if
      * value is not present.
      */
-    public IntStream stream() {
-        if (this.isPresent())
-            return IntStream.of(this.getValue() ? 1 : 0);
-
-        return IntStream.empty();
-    }
+    @NotNull
+    public abstract IntStream stream();
 
     @Override
+    @Nullable
     public Object getObjectValue() {
         return this.getValue();
     }
@@ -326,9 +273,8 @@ public final class OptBoolean extends AbstractOpt<OptBoolean, ValueHolder.Boolea
      *
      * @return {@link OptionalInt} of value if it is present, or {@link OptionalInt#empty()}.
      */
-    public OptionalInt toOptional() {
-        return this.isPresent() ? OptionalInt.of(this.getValue() ? 1 : 0) : OptionalInt.empty();
-    }
+    @NotNull
+    public abstract OptionalInt toOptional();
 
     /**
      * Creates a {@link Optional} from this {@link Opt}.
@@ -336,7 +282,14 @@ public final class OptBoolean extends AbstractOpt<OptBoolean, ValueHolder.Boolea
      * @return {@link Optional} of value if it is not null, or {@link Optional#empty()} if this opt
      * is either empty or has a null value.
      */
-    public Optional<Boolean> toBoxedOptional() {
-        return this.isPresent() ? Optional.of(this.getValue()) : Optional.empty();
-    }
+    @NotNull
+    public abstract Optional<Boolean> toBoxedOptional();
+
+    /**
+     * Creates a {@link Tristate} from this {@link Opt}.
+     *
+     * @return {@link Tristate} of this opt.
+     */
+    @NotNull
+    public abstract Tristate toTristate();
 }

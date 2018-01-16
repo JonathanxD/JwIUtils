@@ -25,12 +25,14 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.testing;
+package com.github.jonathanxd.iutils.opt;
 
-/**
- * Not available in 4.x
- */
-public class WrappedIO {
+public interface BaseNone<O extends Opt<O>> extends Opt<O> {
+
+    @Override
+    default boolean isPresent() {
+        return false;
+    }
 
 
 }

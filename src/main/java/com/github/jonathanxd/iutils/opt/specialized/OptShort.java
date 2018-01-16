@@ -33,11 +33,12 @@ import com.github.jonathanxd.iutils.function.function.ShortToShortFunction;
 import com.github.jonathanxd.iutils.function.predicate.ShortPredicate;
 import com.github.jonathanxd.iutils.function.supplier.ShortSupplier;
 import com.github.jonathanxd.iutils.object.Lazy;
-import com.github.jonathanxd.iutils.opt.AbstractOpt;
 import com.github.jonathanxd.iutils.opt.Opt;
-import com.github.jonathanxd.iutils.opt.ValueHolder;
 
-import java.util.Objects;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.function.Supplier;
@@ -46,17 +47,9 @@ import java.util.stream.IntStream;
 /**
  * Short specialized {@link Opt}.
  */
-public final class OptShort extends AbstractOpt<OptShort, ValueHolder.ShortValueHolder> {
+public abstract class OptShort implements Opt<OptShort> {
 
-    private static final OptShort NONE = new OptShort(ValueHolder.ShortValueHolder.None.getInstance());
-    private final ValueHolder.ShortValueHolder holder;
-
-    private OptShort(ValueHolder.ShortValueHolder holder) {
-        this.holder = holder;
-    }
-
-    private OptShort(short value) {
-        this(new ValueHolder.ShortValueHolder.Some(value));
+    OptShort() {
     }
 
     /**
@@ -66,8 +59,9 @@ public final class OptShort extends AbstractOpt<OptShort, ValueHolder.ShortValue
      * @return An {@link Opt} of {@code Some} {@code value}.
      */
     @SuppressWarnings("unchecked")
+    @NotNull
     public static OptShort optShort(short value) {
-        return new OptShort(value);
+        return new SomeShort(value);
     }
 
     /**
@@ -77,8 +71,9 @@ public final class OptShort extends AbstractOpt<OptShort, ValueHolder.ShortValue
      * @return An {@link Opt} of {@code Some} {@code value}.
      */
     @SuppressWarnings("unchecked")
+    @NotNull
     public static OptShort some(short value) {
-        return new OptShort(value);
+        return new SomeShort(value);
     }
 
     /**
@@ -87,42 +82,27 @@ public final class OptShort extends AbstractOpt<OptShort, ValueHolder.ShortValue
      * @return {@link Opt} with {@code None} value.
      */
     @SuppressWarnings("unchecked")
+    @Contract(pure = true)
+    @NotNull
     public static OptShort none() {
-        return NONE;
-    }
-
-    @Override
-    public ValueHolder.ShortValueHolder getValueHolder() {
-        return this.holder;
+        return NoneShort.NONE;
     }
 
     /**
      * Gets the value holden by this optional.
      *
      * @return Value.
-     * @throws NullPointerException If this {@link Opt} holds an {@code None}.
+     * @throws java.util.NoSuchElementException If this {@link Opt} is {@code None}.
      */
     @SuppressWarnings("unchecked")
-    public short getValue() {
-        ValueHolder.ShortValueHolder valueHolder = this.getValueHolder();
-
-        if (!valueHolder.hasSome())
-            throw new NullPointerException("No value found!");
-
-        return valueHolder.getValue();
-    }
+    public abstract short getValue();
 
     /**
      * Calls {@code consumer} if value is present.
      *
      * @param consumer Consumer to accept value if is present.
      */
-    public void ifPresent(ShortConsumer consumer) {
-        Objects.requireNonNull(consumer);
-
-        if (this.isPresent())
-            consumer.accept(this.getValue());
-    }
+    public abstract void ifPresent(@NotNull ShortConsumer consumer);
 
     /**
      * Calls {@code consumer} with value if present, or calls {@code elseRunnable} if value is not
@@ -131,13 +111,31 @@ public final class OptShort extends AbstractOpt<OptShort, ValueHolder.ShortValue
      * @param consumer     Consumer to accept value if is present.
      * @param elseRunnable Runnable to call if value is not present.
      */
-    public void ifPresent(ShortConsumer consumer, Runnable elseRunnable) {
-        Objects.requireNonNull(consumer);
+    public abstract void ifPresent(@NotNull ShortConsumer consumer, @NotNull Runnable elseRunnable);
 
-        if (this.isPresent())
-            consumer.accept(this.getValue());
-        else
-            elseRunnable.run();
+    /**
+     * Calls {@code consumer} to accept value (if present) and return {@code this}.
+     *
+     * @param consumer Consumer of value.
+     * @return {@code this};
+     */
+    @NotNull
+    public OptShort onPresent(@NotNull ShortConsumer consumer) {
+        this.ifPresent(consumer);
+        return this;
+    }
+
+    /**
+     * Calls {@code consumer} to accept value (if present) and return {@code this}.
+     *
+     * @param consumer     Consumer of value.
+     * @param elseRunnable Runnable to invoke if value is not present.
+     * @return {@code this};
+     */
+    @NotNull
+    public OptShort onPresent(@NotNull ShortConsumer consumer, @NotNull Runnable elseRunnable) {
+        this.ifPresent(consumer, elseRunnable);
+        return this;
     }
 
     /**
@@ -147,15 +145,8 @@ public final class OptShort extends AbstractOpt<OptShort, ValueHolder.ShortValue
      * @return An {@link Opt} of {@code None} if value does not match predicate, or return same
      * {@link Opt} if either value is not present or value matches predicate.
      */
-    public OptShort filter(ShortPredicate predicate) {
-        Objects.requireNonNull(predicate);
-
-        if (this.isPresent())
-            if (!predicate.test(this.getValue()))
-                return OptShort.none();
-
-        return this;
-    }
+    @NotNull
+    public abstract OptShort filter(@NotNull ShortPredicate predicate);
 
     /**
      * Maps the value of {@code this} {@link Opt} to a another value using {@code mapper}.
@@ -164,14 +155,8 @@ public final class OptShort extends AbstractOpt<OptShort, ValueHolder.ShortValue
      * @return An {@link Opt} of mapped value if present, or an {@link Opt} of {@code None} if no
      * value is present.
      */
-    public OptShort map(ShortToShortFunction mapper) {
-        Objects.requireNonNull(mapper);
-
-        if (!this.isPresent())
-            return OptShort.none();
-
-        return OptShort.optShort(mapper.apply(this.getValue()));
-    }
+    @NotNull
+    public abstract OptShort map(@NotNull ShortToShortFunction mapper);
 
     /**
      * Flat maps the value of {@code this} {@link Opt} to another {@link Opt}.
@@ -180,14 +165,8 @@ public final class OptShort extends AbstractOpt<OptShort, ValueHolder.ShortValue
      * @return An {@link Opt} of {@code None} if the value is not present, or the {@link Opt}
      * returned by {@code mapper} if value is present.
      */
-    public OptShort flatMap(ShortFunction<? extends OptShort> mapper) {
-        Objects.requireNonNull(mapper);
-
-        if (!this.isPresent())
-            return OptShort.none();
-
-        return Objects.requireNonNull(mapper.apply(this.getValue()));
-    }
+    @NotNull
+    public abstract OptShort flatMap(@NotNull ShortFunction<? extends OptShort> mapper);
 
     /**
      * Flat maps the value of {@code this} {@link Opt} to an {@link Opt} of type {@link O}.
@@ -198,16 +177,8 @@ public final class OptShort extends AbstractOpt<OptShort, ValueHolder.ShortValue
      * @return An {@link Opt} supplied by {@code none} if value is not present, or {@link Opt}
      * returned by {@code mapper}.
      */
-    public <O extends Opt<O, V>, V extends ValueHolder>
-    O flatMapTo(ShortFunction<? extends O> mapper, Supplier<O> none) {
-        Objects.requireNonNull(mapper);
-        Objects.requireNonNull(none);
-
-        if (!this.isPresent())
-            return Objects.requireNonNull(none.get());
-
-        return Objects.requireNonNull(mapper.apply(this.getValue()));
-    }
+    @NotNull
+    public abstract <O extends Opt<O>> O flatMapTo(@NotNull ShortFunction<? extends O> mapper, @NotNull Supplier<O> none);
 
     /**
      * Returns the value of this {@link Opt} if present, or {@code value} if not.
@@ -216,12 +187,7 @@ public final class OptShort extends AbstractOpt<OptShort, ValueHolder.ShortValue
      *              null).
      * @return Value of this {@link Opt} if present, or {@code value} if not.
      */
-    public short orElse(short value) {
-        if (this.isPresent())
-            return this.getValue();
-
-        return value;
-    }
+    public abstract short orElse(short value);
 
     /**
      * Returns the value of this {@link Opt} if present, or value supplied by {@code supplier} if
@@ -231,14 +197,7 @@ public final class OptShort extends AbstractOpt<OptShort, ValueHolder.ShortValue
      *                 (cannot be null).
      * @return Value of this {@link Opt} if present, or value supplied by {@code supplier} if not.
      */
-    public short orElse(ShortSupplier supplier) {
-        Objects.requireNonNull(supplier);
-
-        if (this.isPresent())
-            return this.getValue();
-
-        return supplier.get();
-    }
+    public abstract short orElse(@NotNull ShortSupplier supplier);
 
     /**
      * Returns the value of this {@link Opt} if present, or value returned by {@code lazy}.
@@ -246,14 +205,7 @@ public final class OptShort extends AbstractOpt<OptShort, ValueHolder.ShortValue
      * @param lazy Lazy provider of value to return if value is not present.
      * @return Value of this {@link Opt} if present, or value returned by {@code lazy}.
      */
-    public short orElse(Lazy<? extends Short> lazy) { // :(, No specialized Lazy instances...
-        Objects.requireNonNull(lazy);
-
-        if (this.isPresent())
-            return this.getValue();
-
-        return Objects.requireNonNull(lazy.get());
-    }
+    public abstract short orElseLazy(@NotNull Lazy<? extends Short> lazy);
 
     /**
      * Returns the value of this {@link Opt} if present, or fail stupidly if value is not present.
@@ -265,14 +217,7 @@ public final class OptShort extends AbstractOpt<OptShort, ValueHolder.ShortValue
      * @return Value if present.
      * @throws E If value is not present.
      */
-    public <E extends Throwable> short orElseFailStupidly(Supplier<? extends E> supplier) throws E {
-        Objects.requireNonNull(supplier);
-
-        if (this.isPresent())
-            return this.getValue();
-
-        throw Objects.requireNonNull(supplier.get());
-    }
+    public abstract <E extends Throwable> short orElseFailStupidly(@NotNull Supplier<? extends E> supplier) throws E;
 
     /**
      * Returns a {@link IntStream} with value of this {@link Opt} or an empty {@link IntStream} if
@@ -284,13 +229,10 @@ public final class OptShort extends AbstractOpt<OptShort, ValueHolder.ShortValue
      * @return {@link IntStream} with value of this {@link Opt} or an empty {@link IntStream} if
      * value is not present.
      */
-    public IntStream stream() {
-        if (this.isPresent())
-            return IntStream.of(this.getValue());
+    @NotNull
+    public abstract IntStream stream();
 
-        return IntStream.empty();
-    }
-
+    @Nullable
     @Override
     public Object getObjectValue() {
         return this.getValue();
@@ -304,9 +246,8 @@ public final class OptShort extends AbstractOpt<OptShort, ValueHolder.ShortValue
      *
      * @return {@link OptionalInt} of value if it is present, or {@link OptionalInt#empty()}.
      */
-    public OptionalInt toOptional() {
-        return this.isPresent() ? OptionalInt.of(this.getValue()) : OptionalInt.empty();
-    }
+    @NotNull
+    public abstract OptionalInt toOptional();
 
     /**
      * Creates a {@link Optional} from this {@link Opt}.
@@ -314,7 +255,6 @@ public final class OptShort extends AbstractOpt<OptShort, ValueHolder.ShortValue
      * @return {@link Optional} of value if it is not null, or {@link Optional#empty()} if this opt
      * is either empty or has a null value.
      */
-    public Optional<Short> toBoxedOptional() {
-        return this.isPresent() ? Optional.of(this.getValue()) : Optional.empty();
-    }
+    @NotNull
+    public abstract Optional<Short> toBoxedOptional();
 }

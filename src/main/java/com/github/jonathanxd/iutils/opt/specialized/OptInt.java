@@ -29,11 +29,12 @@ package com.github.jonathanxd.iutils.opt.specialized;
 
 import com.github.jonathanxd.iutils.function.function.IntToIntFunction;
 import com.github.jonathanxd.iutils.object.Lazy;
-import com.github.jonathanxd.iutils.opt.AbstractOpt;
 import com.github.jonathanxd.iutils.opt.Opt;
-import com.github.jonathanxd.iutils.opt.ValueHolder;
 
-import java.util.Objects;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.function.IntConsumer;
@@ -44,19 +45,11 @@ import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
 /**
- * Int specialized {@link Opt}.
+ * {@code int} specialized {@link Opt}.
  */
-public final class OptInt extends AbstractOpt<OptInt, ValueHolder.IntValueHolder> {
+public abstract class OptInt implements Opt<OptInt> {
 
-    private static final OptInt NONE = new OptInt(ValueHolder.IntValueHolder.None.getInstance());
-    private final ValueHolder.IntValueHolder holder;
-
-    private OptInt(ValueHolder.IntValueHolder holder) {
-        this.holder = holder;
-    }
-
-    private OptInt(int value) {
-        this(new ValueHolder.IntValueHolder.Some(value));
+    OptInt() {
     }
 
     /**
@@ -67,6 +60,7 @@ public final class OptInt extends AbstractOpt<OptInt, ValueHolder.IntValueHolder
      * present}, or {@code None} otherwise.
      */
     @SuppressWarnings({"unchecked", "OptionalUsedAsFieldOrParameterType"})
+    @NotNull
     public static OptInt fromOptional(OptionalInt optional) {
         if (optional.isPresent()) {
             return OptInt.some(optional.getAsInt());
@@ -82,8 +76,9 @@ public final class OptInt extends AbstractOpt<OptInt, ValueHolder.IntValueHolder
      * @return An {@link Opt} of {@code Some} {@code value}
      */
     @SuppressWarnings("unchecked")
+    @NotNull
     public static OptInt optInt(int value) {
-        return new OptInt(value);
+        return new SomeInt(value);
     }
 
     /**
@@ -93,8 +88,9 @@ public final class OptInt extends AbstractOpt<OptInt, ValueHolder.IntValueHolder
      * @return An {@link Opt} of {@code Some} {@code value}
      */
     @SuppressWarnings("unchecked")
+    @NotNull
     public static OptInt some(int value) {
-        return new OptInt(value);
+        return new SomeInt(value);
     }
 
     /**
@@ -103,42 +99,27 @@ public final class OptInt extends AbstractOpt<OptInt, ValueHolder.IntValueHolder
      * @return {@link Opt} with {@code None} value.
      */
     @SuppressWarnings("unchecked")
+    @Contract(pure = true)
+    @NotNull
     public static OptInt none() {
-        return NONE;
-    }
-
-    @Override
-    public ValueHolder.IntValueHolder getValueHolder() {
-        return this.holder;
+        return NoneInt.NONE;
     }
 
     /**
      * Gets the value holden by this optional.
      *
      * @return Value.
-     * @throws NullPointerException If this {@link Opt} holds an {@code None}.
+     * @throws java.util.NoSuchElementException If this {@link Opt} is {@code None}.
      */
     @SuppressWarnings("unchecked")
-    public int getValue() {
-        ValueHolder.IntValueHolder valueHolder = this.getValueHolder();
-
-        if (!valueHolder.hasSome())
-            throw new NullPointerException("No value found!");
-
-        return valueHolder.getValue();
-    }
+    public abstract int getValue();
 
     /**
      * Calls {@code consumer} if value is present.
      *
      * @param consumer Consumer to accept value if is present.
      */
-    public void ifPresent(IntConsumer consumer) {
-        Objects.requireNonNull(consumer);
-
-        if (this.isPresent())
-            consumer.accept(this.getValue());
-    }
+    public abstract void ifPresent(@NotNull IntConsumer consumer);
 
     /**
      * Calls {@code consumer} with value if present, or calls {@code elseRunnable} if value is not
@@ -147,13 +128,31 @@ public final class OptInt extends AbstractOpt<OptInt, ValueHolder.IntValueHolder
      * @param consumer     Consumer to accept value if is present.
      * @param elseRunnable Runnable to call if value is not present.
      */
-    public void ifPresent(IntConsumer consumer, Runnable elseRunnable) {
-        Objects.requireNonNull(consumer);
+    public abstract void ifPresent(@NotNull IntConsumer consumer, @NotNull Runnable elseRunnable);
 
-        if (this.isPresent())
-            consumer.accept(this.getValue());
-        else
-            elseRunnable.run();
+    /**
+     * Calls {@code consumer} to accept value (if present) and return {@code this}.
+     *
+     * @param consumer Consumer of value.
+     * @return {@code this};
+     */
+    @NotNull
+    public OptInt onPresent(@NotNull IntConsumer consumer) {
+        this.ifPresent(consumer);
+        return this;
+    }
+
+    /**
+     * Calls {@code consumer} to accept value (if present) and return {@code this}.
+     *
+     * @param consumer     Consumer of value.
+     * @param elseRunnable Runnable to invoke if value is not present.
+     * @return {@code this};
+     */
+    @NotNull
+    public OptInt onPresent(@NotNull IntConsumer consumer, @NotNull Runnable elseRunnable) {
+        this.ifPresent(consumer, elseRunnable);
+        return this;
     }
 
     /**
@@ -163,15 +162,8 @@ public final class OptInt extends AbstractOpt<OptInt, ValueHolder.IntValueHolder
      * @return An {@link Opt} of {@code None} if value does not match predicate, or return same
      * {@link Opt} if either value is not present or value matches predicate.
      */
-    public OptInt filter(IntPredicate predicate) {
-        Objects.requireNonNull(predicate);
-
-        if (this.isPresent())
-            if (!predicate.test(this.getValue()))
-                return OptInt.none();
-
-        return this;
-    }
+    @NotNull
+    public abstract OptInt filter(@NotNull IntPredicate predicate);
 
     /**
      * Maps the value of {@code this} {@link Opt} to a another value using {@code mapper}.
@@ -180,14 +172,8 @@ public final class OptInt extends AbstractOpt<OptInt, ValueHolder.IntValueHolder
      * @return An {@link Opt} of mapped value if present, or an {@link Opt} of {@code None} if no
      * value is present.
      */
-    public OptInt map(IntToIntFunction mapper) {
-        Objects.requireNonNull(mapper);
-
-        if (!this.isPresent())
-            return OptInt.none();
-
-        return OptInt.optInt(mapper.apply(this.getValue()));
-    }
+    @NotNull
+    public abstract OptInt map(@NotNull IntToIntFunction mapper);
 
     /**
      * Flat maps the value of {@code this} {@link Opt} to another {@link Opt}.
@@ -196,14 +182,8 @@ public final class OptInt extends AbstractOpt<OptInt, ValueHolder.IntValueHolder
      * @return An {@link Opt} of {@code None} if the value is not present, or the {@link Opt}
      * returned by {@code mapper} if value is present.
      */
-    public OptInt flatMap(IntFunction<? extends OptInt> mapper) {
-        Objects.requireNonNull(mapper);
-
-        if (!this.isPresent())
-            return OptInt.none();
-
-        return Objects.requireNonNull(mapper.apply(this.getValue()));
-    }
+    @NotNull
+    public abstract OptInt flatMap(@NotNull IntFunction<? extends OptInt> mapper);
 
     /**
      * Flat maps the value of {@code this} {@link Opt} to an {@link Opt} of type {@link O}.
@@ -214,16 +194,8 @@ public final class OptInt extends AbstractOpt<OptInt, ValueHolder.IntValueHolder
      * @return An {@link Opt} supplied by {@code none} if value is not present, or {@link Opt}
      * returned by {@code mapper}.
      */
-    public <O extends Opt<O, V>, V extends ValueHolder>
-    O flatMapTo(IntFunction<? extends O> mapper, Supplier<O> none) {
-        Objects.requireNonNull(mapper);
-        Objects.requireNonNull(none);
-
-        if (!this.isPresent())
-            return Objects.requireNonNull(none.get());
-
-        return Objects.requireNonNull(mapper.apply(this.getValue()));
-    }
+    @NotNull
+    public abstract <O extends Opt<O>> O flatMapTo(@NotNull IntFunction<? extends O> mapper, @NotNull Supplier<O> none);
 
     /**
      * Returns the value of this {@link Opt} if present, or {@code value} if not.
@@ -232,12 +204,7 @@ public final class OptInt extends AbstractOpt<OptInt, ValueHolder.IntValueHolder
      *              null).
      * @return Value of this {@link Opt} if present, or {@code value} if not.
      */
-    public int orElse(int value) {
-        if (this.isPresent())
-            return this.getValue();
-
-        return value;
-    }
+    public abstract int orElse(int value);
 
     /**
      * Returns the value of this {@link Opt} if present, or value supplied by {@code supplier} if
@@ -247,14 +214,7 @@ public final class OptInt extends AbstractOpt<OptInt, ValueHolder.IntValueHolder
      *                 (cannot be null).
      * @return Value of this {@link Opt} if present, or value supplied by {@code supplier} if not.
      */
-    public int orElse(IntSupplier supplier) {
-        Objects.requireNonNull(supplier);
-
-        if (this.isPresent())
-            return this.getValue();
-
-        return supplier.getAsInt();
-    }
+    public abstract int orElseGet(@NotNull IntSupplier supplier);
 
     /**
      * Returns the value of this {@link Opt} if present, or value returned by {@code lazy}.
@@ -262,14 +222,7 @@ public final class OptInt extends AbstractOpt<OptInt, ValueHolder.IntValueHolder
      * @param lazy Lazy provider of value to return if value is not present.
      * @return Value of this {@link Opt} if present, or value returned by {@code lazy}.
      */
-    public int orElse(Lazy<? extends Integer> lazy) { // :(, No specialized Lazy instances...
-        Objects.requireNonNull(lazy);
-
-        if (this.isPresent())
-            return this.getValue();
-
-        return Objects.requireNonNull(lazy.get());
-    }
+    public abstract int orElseLazy(@NotNull Lazy<? extends Integer> lazy);
 
     /**
      * Returns the value of this {@link Opt} if present, or fail stupidly if value is not present.
@@ -281,14 +234,7 @@ public final class OptInt extends AbstractOpt<OptInt, ValueHolder.IntValueHolder
      * @return Value if present.
      * @throws E If value is not present.
      */
-    public <E extends Throwable> int orElseFailStupidly(Supplier<? extends E> supplier) throws E {
-        Objects.requireNonNull(supplier);
-
-        if (this.isPresent())
-            return this.getValue();
-
-        throw Objects.requireNonNull(supplier.get());
-    }
+    public abstract <E extends Throwable> int orElseFailStupidly(@NotNull Supplier<? extends E> supplier) throws E;
 
     /**
      * Returns a {@link IntStream} with value of this {@link Opt} or an empty {@link IntStream} if
@@ -300,13 +246,10 @@ public final class OptInt extends AbstractOpt<OptInt, ValueHolder.IntValueHolder
      * @return {@link IntStream} with value of this {@link Opt} or an empty {@link IntStream} if
      * value is not present.
      */
-    public IntStream stream() {
-        if (this.isPresent())
-            return IntStream.of(this.getValue());
+    @NotNull
+    public abstract IntStream stream();
 
-        return IntStream.empty();
-    }
-
+    @Nullable
     @Override
     public Object getObjectValue() {
         return this.getValue();
@@ -320,9 +263,8 @@ public final class OptInt extends AbstractOpt<OptInt, ValueHolder.IntValueHolder
      *
      * @return {@link OptionalInt} of value if it is present, or {@link OptionalInt#empty()}.
      */
-    public OptionalInt toOptional() {
-        return this.isPresent() ? OptionalInt.of(this.getValue()) : OptionalInt.empty();
-    }
+    @NotNull
+    public abstract OptionalInt toOptional();
 
     /**
      * Creates a {@link Optional} from this {@link Opt}.
@@ -330,7 +272,6 @@ public final class OptInt extends AbstractOpt<OptInt, ValueHolder.IntValueHolder
      * @return {@link Optional} of value if it is not null, or {@link Optional#empty()} if this opt
      * is either empty or has a null value.
      */
-    public Optional<Integer> toBoxedOptional() {
-        return this.isPresent() ? Optional.of(this.getValue()) : Optional.empty();
-    }
+    @NotNull
+    public abstract Optional<Integer> toBoxedOptional();
 }

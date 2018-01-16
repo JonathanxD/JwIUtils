@@ -30,6 +30,9 @@ package com.github.jonathanxd.iutils.object;
 import com.github.jonathanxd.iutils.condition.Conditions;
 import com.github.jonathanxd.iutils.exception.LazyEvaluationException;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -43,11 +46,13 @@ import java.util.function.Supplier;
  */
 public class Lazy<T> {
 
+    @NotNull
     private final Supplier<T> supplier;
     private boolean isEvaluated = false;
+    @Nullable
     private volatile T value = null;
 
-    Lazy(Supplier<T> supplier) {
+    Lazy(@NotNull Supplier<T> supplier) {
         this.supplier = supplier;
     }
 
@@ -59,7 +64,8 @@ public class Lazy<T> {
      * @param <T>    Type of value.
      * @return {@link Lazy} with a {@link Future} wrapped in a {@link Supplier}.
      */
-    public static <T> Lazy<T> lazy(Future<T> future) {
+    @NotNull
+    public static <T> Lazy<T> lazy(@NotNull Future<T> future) {
         return Lazy.lazy(() -> {
             try {
                 return future.get();
@@ -76,7 +82,8 @@ public class Lazy<T> {
      * @param <T>      Value type.
      * @return {@link Lazy} with {@code supplier} as evaluator.
      */
-    public static <T> Lazy<T> lazy(Supplier<T> supplier) {
+    @NotNull
+    public static <T> Lazy<T> lazy(@NotNull Supplier<T> supplier) {
         return new Lazy<>(supplier);
     }
 
@@ -87,7 +94,8 @@ public class Lazy<T> {
      * @param <T>  Value type.
      * @return {@link Async} wrapper.
      */
-    public static <T> Async<T> async(Lazy<T> lazy) {
+    @NotNull
+    public static <T> Async<T> async(@NotNull Lazy<T> lazy) {
         return new Async<>(lazy);
     }
 
@@ -98,7 +106,8 @@ public class Lazy<T> {
      * @param <T>   Value type.
      * @return Evaluated {@link Lazy}.
      */
-    public static <T> Lazy<T> evaluated(T value) {
+    @NotNull
+    public static <T> Lazy<T> evaluated(@Nullable T value) {
         Lazy<T> lazy = new Lazy<>(() -> value);
         lazy.isEvaluated = true;
         lazy.value = value;
@@ -111,6 +120,7 @@ public class Lazy<T> {
      *
      * @return Value.
      */
+    @Nullable
     public T get() {
         if (!this.isEvaluated) {
             this.value = this.supplier.get();
@@ -139,6 +149,7 @@ public class Lazy<T> {
      *                  lazy.
      * @return A copy of {@code this} {@link Lazy}.
      */
+    @NotNull
     public Lazy<T> copy(boolean evaluated) {
         Lazy<T> lazy = new Lazy<>(this.supplier);
 
@@ -153,6 +164,7 @@ public class Lazy<T> {
      *
      * @return Copy of this {@link Lazy} with same state.
      */
+    @NotNull
     public Lazy<T> copy() {
         Lazy<T> lazy = new Lazy<>(this.supplier);
 
@@ -181,7 +193,9 @@ public class Lazy<T> {
         private volatile boolean isEvaluating = false;
 
         Async(Lazy<T> lazy) {
-            super(null);
+            super(() -> {
+                throw new UnsupportedOperationException();
+            });
             this.wrapped = lazy.copy(false);
             Conditions.require(!(lazy instanceof Lazy.Async<?>), "Cannot wrap an AsyncLazy into another.");
         }
@@ -239,6 +253,7 @@ public class Lazy<T> {
             return this.isEvaluating;
         }
 
+        @NotNull
         @Override
         public Lazy<T> copy(boolean evaluated) {
             Lazy<T> copy = this.wrapped.copy(evaluated);

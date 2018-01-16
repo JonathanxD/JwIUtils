@@ -28,8 +28,12 @@
 package com.github.jonathanxd.iutils.opt.specialized;
 
 import com.github.jonathanxd.iutils.function.checked.supplier.CSupplier;
+import com.github.jonathanxd.iutils.opt.BaseOptObject;
 import com.github.jonathanxd.iutils.opt.Opt;
-import com.github.jonathanxd.iutils.opt.ValueHolder;
+
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -40,17 +44,9 @@ import java.util.function.Function;
  *
  * @param <T> Type of value.
  */
-public final class OptObject<T> extends AbstractOptObject<T, ValueHolder.ObjectValueHolder<T>, OptObject<T>> {
+public abstract class OptObject<T> implements BaseOptObject<T, OptObject<T>> {
 
-    private static final OptObject<?> NONE = new OptObject<>(ValueHolder.ObjectValueHolder.None.getInstance());
-    private final ValueHolder.ObjectValueHolder<T> holder;
-
-    private OptObject(ValueHolder.ObjectValueHolder<T> holder) {
-        this.holder = holder;
-    }
-
-    private OptObject(T value) {
-        this(new ValueHolder.ObjectValueHolder.Some<>(value));
+    OptObject() {
     }
 
     /**
@@ -62,7 +58,8 @@ public final class OptObject<T> extends AbstractOptObject<T, ValueHolder.ObjectV
      * present}, or {@code None} otherwise.
      */
     @SuppressWarnings({"unchecked", "OptionalUsedAsFieldOrParameterType"})
-    public static <T> OptObject<T> fromOptional(Optional<T> optional) {
+    @NotNull
+    public static <T> OptObject<T> fromOptional(@NotNull Optional<T> optional) {
         return optional.map(OptObject::some).orElseGet(OptObject::none);
     }
 
@@ -74,24 +71,26 @@ public final class OptObject<T> extends AbstractOptObject<T, ValueHolder.ObjectV
      * @return An {@link Opt} of {@code Some} {@code value}.
      */
     @SuppressWarnings("unchecked")
-    public static <T> OptObject<T> optObject(T value) {
-        return new OptObject<>(value);
+    @NotNull
+    public static <T> OptObject<T> optObject(@Nullable T value) {
+        return new Some<>(value);
     }
 
     /**
-     * Creates an {@link Opt} from {@code value}.
+     * Creates an {@link Opt} of {@code Some} {@code value}.
      *
      * @param value Value to create {@link Opt}.
      * @param <T>   Type of value.
      * @return An {@link Opt} of {@code Some} {@code value}.
      */
     @SuppressWarnings("unchecked")
-    public static <T> OptObject<T> some(T value) {
-        return new OptObject<>(value);
+    @NotNull
+    public static <T> OptObject<T> some(@Nullable T value) {
+        return new Some<>(value);
     }
 
     /**
-     * Creates an {@link Opt} from {@code value}.
+     * Creates an {@link Opt} of {@code Some} {@code nullable value}.
      *
      * @param value Value to create {@link Opt}.
      * @param <T>   Type of value.
@@ -99,8 +98,9 @@ public final class OptObject<T> extends AbstractOptObject<T, ValueHolder.ObjectV
      * None} if value is null.
      */
     @SuppressWarnings("unchecked")
-    public static <T> OptObject<T> optObjectNullable(T value) {
-        return value == null ? (OptObject<T>) OptObject.NONE : new OptObject<>(value);
+    @NotNull
+    public static <T> OptObject<T> optObjectNullable(@Nullable T value) {
+        return value == null ? (OptObject<T>) None.NONE : new Some<>(value);
     }
 
     /**
@@ -112,7 +112,8 @@ public final class OptObject<T> extends AbstractOptObject<T, ValueHolder.ObjectV
      * @return {@link Opt} of {@link T} if {@code supplier} returns a value, returns a {@link Opt}
      * with {@code None} value if {@code supplier} throws an exception.
      */
-    public static <T> OptObject<T> $try(CSupplier<T> supplier) {
+    @NotNull
+    public static <T> OptObject<T> $try(@NotNull CSupplier<T> supplier) {
         try {
             return OptObject.optObjectNullable(supplier.getChecked());
         } catch (Throwable t) {
@@ -129,8 +130,9 @@ public final class OptObject<T> extends AbstractOptObject<T, ValueHolder.ObjectV
      * None} if value is null.
      */
     @SuppressWarnings("unchecked")
-    public static <T> OptObject<T> optObjectNotNull(T value) {
-        return new OptObject<>(Objects.requireNonNull(value));
+    @NotNull
+    public static <T> OptObject<T> optObjectNotNull(@NotNull T value) {
+        return new Some<>(Objects.requireNonNull(value));
     }
 
     /**
@@ -140,20 +142,17 @@ public final class OptObject<T> extends AbstractOptObject<T, ValueHolder.ObjectV
      * @return {@link Opt} with {@code None} value.
      */
     @SuppressWarnings("unchecked")
+    @Contract(pure = true)
+    @NotNull
     public static <T> OptObject<T> none() {
-        return (OptObject<T>) NONE;
+        return (OptObject<T>) None.NONE;
     }
 
-    @Override
-    public ValueHolder.ObjectValueHolder<T> getValueHolder() {
-        return this.holder;
-    }
-
+    @NotNull
     @Override
     public OptObject<T> toNone() {
         return OptObject.none();
     }
-
 
     /**
      * Maps the value of {@code this} {@link Opt} to a value of type {@link R} using {@code
@@ -164,14 +163,8 @@ public final class OptObject<T> extends AbstractOptObject<T, ValueHolder.ObjectV
      * @return An {@link Opt} of mapped value if present, or an {@link Opt} of {@code None} if no
      * value is present.
      */
-    public <R> OptObject<R> map(Function<? super T, ? extends R> mapper) {
-        Objects.requireNonNull(mapper);
-
-        if (!this.isPresent())
-            return OptObject.none();
-
-        return OptObject.optObjectNotNull(Objects.requireNonNull(mapper.apply(this.getValue())));
-    }
+    @NotNull
+    public abstract <R> OptObject<R> map(@NotNull Function<? super T, ? extends R> mapper);
 
     /**
      * Flat maps the value of {@code this} {@link Opt} to an {@link Opt} of value of type {@link
@@ -182,13 +175,7 @@ public final class OptObject<T> extends AbstractOptObject<T, ValueHolder.ObjectV
      * @return An {@link Opt} of {@code None} if the value is not present, or the {@link Opt}
      * returned by {@code mapper} if value is present.
      */
-    public <R> OptObject<R> flatMap(Function<? super T, ? extends OptObject<R>> mapper) {
-        Objects.requireNonNull(mapper);
-
-        if (!this.isPresent())
-            return OptObject.none();
-
-        return Objects.requireNonNull(mapper.apply(this.getValue()));
-    }
+    @NotNull
+    public abstract <R> OptObject<R> flatMap(@NotNull Function<? super T, ? extends OptObject<R>> mapper);
 
 }

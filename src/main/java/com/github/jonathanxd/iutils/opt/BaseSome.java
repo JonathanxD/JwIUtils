@@ -27,27 +27,12 @@
  */
 package com.github.jonathanxd.iutils.opt;
 
-/**
- * Abstract implementation of {@link Opt}.
- *
- * @param <O> Type of {@link Opt}.
- */
-public abstract class AbstractOpt<O extends AbstractOpt<O, V>, V extends ValueHolder> implements Opt<O, V> {
-    @Override
-    public boolean equals(Object obj) {
-        if (!(obj instanceof AbstractOpt<?, ?>))
-            return super.equals(obj);
+import com.github.jonathanxd.iutils.opt.Opt;
 
-        return this.getValueHolder().equals(((AbstractOpt) obj).getValueHolder());
-    }
+public interface BaseSome<O extends Opt<O>> extends Opt<O> {
 
     @Override
-    public int hashCode() {
-        return this.getValueHolder().hashCode();
-    }
-
-    @Override
-    public final String toString() {
-        return this.getClass().getSimpleName() + "[" + this.getValueHolder().toString() + "]";
+    default boolean isPresent() {
+        return true;
     }
 }

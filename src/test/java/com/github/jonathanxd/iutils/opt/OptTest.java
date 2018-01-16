@@ -48,7 +48,7 @@ public class OptTest {
 
     @Test
     public void optTest() {
-        Opt<OptBoolean, ValueHolder.BooleanValueHolder> abcd = op("aabbc")
+        Opt<OptBoolean> abcd = op("aabbc")
                 .$or(() -> op("ccddaa"));
 
         OptObject<String> s = abcd.cast()
@@ -179,7 +179,7 @@ public class OptTest {
     }
 
 
-    public Opt<OptBoolean, ValueHolder.BooleanValueHolder> op(String s) {
+    public Opt<OptBoolean> op(String s) {
         char[] charArray = s.toCharArray();
 
         for (int i = 0; i < charArray.length; i += 2) {
