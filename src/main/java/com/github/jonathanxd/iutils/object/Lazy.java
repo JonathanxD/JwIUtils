@@ -46,10 +46,6 @@ import java.util.function.Supplier;
  */
 public abstract class Lazy<T> {
 
-    protected boolean isEvaluated = false;
-    @Nullable
-    protected volatile T value = null;
-
     Lazy() {
     }
 
@@ -123,11 +119,7 @@ public abstract class Lazy<T> {
      */
     @NotNull
     public static <T> Lazy<T> evaluated(@Nullable T value) {
-        Lazy<T> lazy = new Supplied<>(() -> value);
-        lazy.isEvaluated = true;
-        lazy.value = value;
-
-        return lazy;
+        return new Evaluated<>(value);
     }
 
     /**
@@ -143,9 +135,15 @@ public abstract class Lazy<T> {
      *
      * @return True if this lazy instance is already evaluated.
      */
-    public boolean isEvaluated() {
-        return this.isEvaluated;
-    }
+    public abstract boolean isEvaluated();
+
+    /**
+     * Sets this lazy to evaluated state.
+     *
+     * @param eval  Evaluated state.
+     * @param value Evaluated value.
+     */
+    protected abstract void setEvaluated(boolean eval, @Nullable T value);
 
     /**
      * Creates a copy of {@code this} {@link Lazy}.
@@ -165,10 +163,49 @@ public abstract class Lazy<T> {
     @NotNull
     public abstract Lazy<T> copy();
 
+    public static class Evaluated<T> extends Lazy<T> {
+
+        private final T value;
+
+        public Evaluated(T value) {
+            this.value = value;
+        }
+
+        @Nullable
+        @Override
+        public T get() {
+            return this.value;
+        }
+
+        @Override
+        public boolean isEvaluated() {
+            return true;
+        }
+
+        @Override
+        protected void setEvaluated(boolean eval, @Nullable T value) {
+        }
+
+        @NotNull
+        @Override
+        public Lazy<T> copy(boolean evaluated) {
+            return this;
+        }
+
+        @NotNull
+        @Override
+        public Lazy<T> copy() {
+            return this;
+        }
+    }
+
     public static class Supplied<T> extends Lazy<T> {
 
         @NotNull
         private final Supplier<T> supplier;
+        private boolean isEvaluated = false;
+        @Nullable
+        private volatile T value = null;
 
         Supplied(@NotNull Supplier<T> supplier) {
             this.supplier = supplier;
@@ -184,13 +221,23 @@ public abstract class Lazy<T> {
             return this.value;
         }
 
+        @Override
+        public boolean isEvaluated() {
+            return this.isEvaluated;
+        }
+
+        @Override
+        protected void setEvaluated(boolean eval, @Nullable T value) {
+            this.isEvaluated = eval;
+            this.value = value;
+        }
+
         @NotNull
         @Override
         public Lazy<T> copy(boolean evaluated) {
             Lazy<T> lazy = new Supplied<>(this.supplier);
 
-            lazy.isEvaluated = evaluated;
-            lazy.value = this.value;
+            lazy.setEvaluated(evaluated, this.value);
 
             return lazy;
         }
@@ -200,8 +247,7 @@ public abstract class Lazy<T> {
         public Lazy<T> copy() {
             Lazy<T> lazy = new Supplied<>(this.supplier);
 
-            lazy.isEvaluated = this.isEvaluated();
-            lazy.value = this.value;
+            lazy.setEvaluated(this.isEvaluated, this.value);
 
             return lazy;
         }
@@ -272,6 +318,11 @@ public abstract class Lazy<T> {
         @Override
         public boolean isEvaluated() {
             return this.wrapped.isEvaluated();
+        }
+
+        @Override
+        protected void setEvaluated(boolean eval, @Nullable T value) {
+            this.wrapped.setEvaluated(eval, value);
         }
 
         /**
