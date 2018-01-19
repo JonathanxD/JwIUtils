@@ -36,6 +36,8 @@ import com.github.jonathanxd.iutils.property.value.Values;
 import com.github.jonathanxd.iutils.text.Text;
 import com.github.jonathanxd.iutils.text.TextComponent;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Comparator;
 import java.util.Map;
 import java.util.Objects;
@@ -44,24 +46,26 @@ public final class ValuesUtil {
     private ValuesUtil() {
     }
 
-    public static Map<String, Object> getArgs(Values values) {
+    @NotNull
+    public static Map<String, Object> getArgs(@NotNull Values values) {
         return BiStreams.mapJavaToBiStream(values.getValueList().stream(), f -> Pair.of(f.getProperty().getName(), f.getValue()))
                 .collect(BiCollectors.toMap());
     }
 
-    public static Map<String, TextComponent> getTextArgs(Values values) {
+    @NotNull
+    public static Map<String, TextComponent> getTextArgs(@NotNull Values values) {
         return BiStreams.mapJavaToBiStream(values.getValueList().stream(), f -> Pair.of(f.getProperty().getName(), f.getValue()))
                 .map((k, v) -> Pairs.of(k, Text.of(v.toString())))
                 .collect(BiCollectors.toMap());
     }
 
     @SuppressWarnings("unchecked")
-    public static boolean reached(Value<?> currentValue, Value<?> valueToReach) {
+    public static boolean reached(@NotNull Value<?> currentValue, @NotNull Value<?> valueToReach) {
         return ValuesUtil.reached(currentValue, valueToReach.getValue());
     }
 
     @SuppressWarnings("unchecked")
-    public static boolean reached(Value<?> currentValue, Object valueToReach) {
+    public static boolean reached(@NotNull Value<?> currentValue, @NotNull Object valueToReach) {
         Comparator<Object> comparator = (Comparator<Object>) currentValue.getComparator();
         Object currentValueObj = currentValue.getValue();
 
@@ -69,15 +73,16 @@ public final class ValuesUtil {
         return comparator.compare(currentValueObj, valueToReach) >= 0;
     }
 
+    @NotNull
     @SuppressWarnings("unchecked")
     public static <T> Comparator<T> getValueComparator() {
         return (a, b) -> a instanceof Comparable<?> ? ((Comparable) a).compareTo(b)
                 : (Objects.equals(a, b) ? 0 : -1); // If both equals, 0, otherwise -1 (a less than b)
     }
 
+    @NotNull
     public static Values createCurrentValues(Values values) {
         return Values.createCurrentValues(values);
     }
-
 
 }

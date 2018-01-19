@@ -34,19 +34,24 @@ import com.github.jonathanxd.iutils.property.typed.ValueTypedProperty;
 import com.github.jonathanxd.iutils.property.typed.ValueTypedPropertyHolder;
 import com.github.jonathanxd.iutils.property.value.ValueType;
 
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+
 import java.util.List;
 
 // Module only
 public class PropCollUtil {
 
-    public static List<Property<?>> getProperties(ValueTypedPropertyHolder holder) {
+    @NotNull
+    public static List<Property<?>> getProperties(@NotNull ValueTypedPropertyHolder holder) {
         return ViewCollections.listMapped(holder.getPropertiesWithValueTypes(),
                 (e, iter) -> IteratorUtil.mapped(e, iter, ValueTypedProperty::getProperty, f -> unmod()),
                 a -> unmod(),
                 x -> unmod());
     }
 
-    public static List<ValueType> getValueTypes(ValueTypedPropertyHolder holder) {
+    @NotNull
+    public static List<ValueType> getValueTypes(@NotNull ValueTypedPropertyHolder holder) {
         return ViewCollections.listMapped(holder.getPropertiesWithValueTypes(),
                 (e, iter) -> IteratorUtil.mapped(e, iter, ValueTypedProperty::getValueType, f -> unmod()),
                 a -> unmod(),
@@ -54,6 +59,7 @@ public class PropCollUtil {
     }
 
 
+    @Contract(" -> fail")
     public static <T> T unmod() {
         throw new UnsupportedOperationException("Immutable collection");
     }

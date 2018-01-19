@@ -27,12 +27,14 @@
  */
 package com.github.jonathanxd.iutils.matching;
 
+import com.github.jonathanxd.iutils.collection.Collections3;
 import com.github.jonathanxd.iutils.object.Lazy;
 import com.github.jonathanxd.iutils.opt.specialized.OptObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -193,6 +195,17 @@ public interface When<K, R> {
     }
 
     /**
+     * Checks if any objects of {@code objs} is equal to pattern matching receiver.
+     *
+     * @param objs      Objects to compare.
+     * @param ifMatches Function to call if any object of {@code objs} is equal to pattern matching
+     *                  receiver.
+     */
+    static <K, R> Case<K, R> EqualsToAny(Iterable<? extends K> objs, Function<K, R> ifMatches) {
+        return new EqualsToAnyCase<>(objs, ifMatches);
+    }
+
+    /**
      * Checks if pattern matching receiver is instance of {@code type}.
      *
      * @param type      Type to check if value is instance.
@@ -290,8 +303,29 @@ public interface When<K, R> {
 
         @Override
         public OptObject<R> evaluate(K value) {
-            if (value.equals(this.other))
+            if (Objects.equals(value, this.other))
                 return OptObject.optObject(this.ifSuccess.apply(value));
+
+            return OptObject.none();
+        }
+    }
+
+    class EqualsToAnyCase<K, R> implements Case<K, R> {
+
+        private final Iterable<? extends K> other;
+        private final Function<K, R> ifSuccess;
+
+        EqualsToAnyCase(Iterable<? extends K> other, Function<K, R> ifSuccess) {
+            this.other = other;
+            this.ifSuccess = ifSuccess;
+        }
+
+        @Override
+        public OptObject<R> evaluate(K value) {
+            for (K k : other) {
+                if (Objects.equals(value, k))
+                    return OptObject.optObject(this.ifSuccess.apply(value));
+            }
 
             return OptObject.none();
         }

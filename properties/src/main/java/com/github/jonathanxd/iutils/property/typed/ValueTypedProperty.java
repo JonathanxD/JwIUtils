@@ -30,6 +30,7 @@ package com.github.jonathanxd.iutils.property.typed;
 import com.github.jonathanxd.iutils.property.Property;
 import com.github.jonathanxd.iutils.property.value.Value;
 import com.github.jonathanxd.iutils.property.value.ValueType;
+import com.github.jonathanxd.iutils.string.ToStringHelper;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -73,5 +74,13 @@ public class ValueTypedProperty<T> {
 
         return Objects.equals(this.getProperty(), other.getProperty())
                 && Objects.equals(this.getValueType(), other.getValueType());
+    }
+
+    @Override
+    public String toString() {
+        return ToStringHelper.defaultHelper("ValueTypedProperty")
+                .add("property", this.getProperty())
+                .add("valueType", this.getValueType())
+                .toString();
     }
 }

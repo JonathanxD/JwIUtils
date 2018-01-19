@@ -28,6 +28,7 @@
 package com.github.jonathanxd.iutils;
 
 import com.github.jonathanxd.iutils.annotation.Named;
+import com.github.jonathanxd.iutils.collection.Collections3;
 import com.github.jonathanxd.iutils.localization.Locale;
 import com.github.jonathanxd.iutils.localization.LocaleManager;
 import com.github.jonathanxd.iutils.localization.LocalizationManager;
@@ -37,6 +38,7 @@ import com.github.jonathanxd.iutils.map.MapUtils;
 import com.github.jonathanxd.iutils.text.MapLocalizedOperators;
 import com.github.jonathanxd.iutils.text.Text;
 import com.github.jonathanxd.iutils.text.TextComponent;
+import com.github.jonathanxd.iutils.text.dynamic.Resolve;
 import com.github.jonathanxd.iutils.text.localizer.FastTextLocalizer;
 import com.github.jonathanxd.iutils.text.localizer.TextLocalizer;
 import com.github.jonathanxd.iutils.text.dynamic.DynamicGenerator;
@@ -46,6 +48,8 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.nio.file.Paths;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class FastTextTest {
 
@@ -93,6 +97,11 @@ public class FastTextTest {
         String stub1 = localize.localize(generate.getNotify("Moo"));
         String stub2 = localize.localize(generate.getNotify("Moo"), ptBr);
 
+        List<String> resolve = generate.getWelcomeMessages().resolve(localize, ptBr).stream()
+                .map(localize::localize)
+                .collect(Collectors.toList());
+
+
         Assert.assertEquals("Notify Moo please.", stub1);
         Assert.assertEquals("Notifique o Moo por favor.", stub2);
 
@@ -115,6 +124,21 @@ public class FastTextTest {
                 "about\n" +
                 "empty\n" +
                 "lines", localize.localize(helloMessages, ptBr));
+
+        List<String> list = Collections3.listOf("Hello,",
+                "parser",
+                "don't",
+                "care",
+                "about",
+                "commas",
+                "in",
+                "lang",
+                "neither",
+                "about",
+                "empty",
+                "lines");
+
+        Assert.assertEquals(list, resolve);
 
         Assert.assertEquals("Hello, " +
                 "parser " +
@@ -140,6 +164,9 @@ public class FastTextTest {
     public interface Stub {
         @Section({"message", "notify"})
         TextComponent getNotify(@Named("user") String user);
+
+        @Section({"hello_messages"})
+        Resolve.Components getWelcomeMessages();
     }
 
     private static class EnUsLocale implements Locale {

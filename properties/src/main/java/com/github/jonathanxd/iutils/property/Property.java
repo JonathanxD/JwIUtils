@@ -28,6 +28,7 @@
 package com.github.jonathanxd.iutils.property;
 
 import com.github.jonathanxd.iutils.opt.specialized.OptObject;
+import com.github.jonathanxd.iutils.string.ToStringHelper;
 import com.github.jonathanxd.iutils.type.TypeInfo;
 
 import org.jetbrains.annotations.NotNull;
@@ -89,5 +90,14 @@ public final class Property<T> {
         return Objects.equals(this.getType(), objProperty.getType())
                 && Objects.equals(this.getName(), objProperty.getName())
                 && Objects.equals(this.getDefaultValue(), objProperty.getDefaultValue());
+    }
+
+    @Override
+    public String toString() {
+        return ToStringHelper.defaultHelper("Property")
+                .add("type", this.getType())
+                .add("name", this.getName())
+                .add("defaultValue", this.getDefaultValue())
+                .toString();
     }
 }

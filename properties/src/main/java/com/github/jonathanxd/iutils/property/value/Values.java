@@ -30,6 +30,7 @@ package com.github.jonathanxd.iutils.property.value;
 import com.github.jonathanxd.iutils.property.Property;
 import com.github.jonathanxd.iutils.property.internal.ValuesUtil;
 import com.github.jonathanxd.iutils.property.optionalnav.OptionalValues;
+import com.github.jonathanxd.iutils.string.ToStringHelper;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -202,5 +203,12 @@ public class Values implements Iterable<Value<?>> {
         }
 
         return true;
+    }
+
+    @Override
+    public String toString() {
+        return ToStringHelper.defaultHelper("Values")
+                .add("values", this.getValueList())
+                .toString();
     }
 }

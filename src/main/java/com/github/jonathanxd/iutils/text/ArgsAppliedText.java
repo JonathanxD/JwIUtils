@@ -27,6 +27,7 @@
  */
 package com.github.jonathanxd.iutils.text;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -45,6 +46,13 @@ public final class ArgsAppliedText implements TextComponent {
 
     public Map<String, TextComponent> getArgs() {
         return this.args;
+    }
+
+    @Override
+    public TextComponent apply(Map<String, TextComponent> args) {
+        Map<String, TextComponent> nargs = new HashMap<>(this.getArgs());
+        nargs.putAll(args);
+        return new ArgsAppliedText(component, nargs);
     }
 
     @Override

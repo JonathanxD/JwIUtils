@@ -54,8 +54,8 @@ public interface TextLocalizer {
     Locale getDefaultLocale();
 
     /**
-     * Sets default locale to be used in translation, this locale is also used as a fallback when text cannot
-     * be localized with {@link #getLocale() current locale}.
+     * Sets default locale to be used in translation, this locale is also used as a fallback when
+     * text cannot be localized with {@link #getLocale() current locale}.
      *
      * @param locale New default locale.
      * @return Old locale.
@@ -76,6 +76,20 @@ public interface TextLocalizer {
      * @return Old locale.
      */
     Locale setLocale(Locale locale);
+
+    /**
+     * Localizes {@code textComponent} to {@code locale}.
+     *
+     * If text cannot be localized using {@code locale}, current locale will be used, or the locale
+     * defined by component. If component defined a locale, but text cannot be localized, current
+     * locale is used, if current locale does localize the text, default locale is used.
+     *
+     * @param textComponent Text component.
+     * @param args          Values of text variables.
+     * @param locale        Locale to be used to localize text.
+     * @return String of text component.
+     */
+    String localize(TextComponent textComponent, Map<String, TextComponent> args, Locale locale);
 
     /**
      * Localizes {@code textComponent} to {@link #getLocale() current locale}.
@@ -117,17 +131,4 @@ public interface TextLocalizer {
         return this.localize(textComponent, Collections.emptyMap(), locale);
     }
 
-    /**
-     * Localizes {@code textComponent} to {@code locale}.
-     *
-     * If text cannot be localized using {@code locale}, current locale will be used, or the locale
-     * defined by component. If component defined a locale, but text cannot be localized, current
-     * locale is used, if current locale does localize the text, default locale is used.
-     *
-     * @param textComponent Text component.
-     * @param args          Values of text variables.
-     * @param locale        Locale to be used to localize text.
-     * @return String of text component.
-     */
-    String localize(TextComponent textComponent, Map<String, TextComponent> args, Locale locale);
 }

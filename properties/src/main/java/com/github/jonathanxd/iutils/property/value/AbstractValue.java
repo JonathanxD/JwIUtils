@@ -28,6 +28,7 @@
 package com.github.jonathanxd.iutils.property.value;
 
 import com.github.jonathanxd.iutils.property.Property;
+import com.github.jonathanxd.iutils.string.ToStringHelper;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -65,4 +66,12 @@ public abstract class AbstractValue<T> implements Value<T> {
                 && Objects.equals(this.getValueType(), v.getValueType());
     }
 
+    @Override
+    public String toString() {
+        return ToStringHelper.defaultHelper("Value")
+                .add("property", this.getProperty())
+                .add("value", this.getValue())
+                .add("valueType", this.getValueType())
+                .toString();
+    }
 }
