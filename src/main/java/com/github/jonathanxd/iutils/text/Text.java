@@ -279,10 +279,8 @@ public final class Text implements Iterable<TextComponent>, TextComponent {
     public static TextComponent single(Object o) {
         if (o instanceof TextComponent)
             return (TextComponent) o;
-        if (o instanceof String || o instanceof Number)
-            return StringComponent.of(o.toString());
 
-        throw new IllegalArgumentException("Illegal input component '" + o + "'!");
+        return StringComponent.of(o.toString());
     }
 
     public static CapitalizeComponent capitalize(TextComponent textComponent) {
