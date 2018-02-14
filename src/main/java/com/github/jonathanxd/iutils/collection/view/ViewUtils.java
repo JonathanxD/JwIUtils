@@ -32,7 +32,9 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.function.IntFunction;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 public class ViewUtils {
@@ -106,8 +108,8 @@ public class ViewUtils {
     }
 
     /**
-     * Creates a reverse iterator which maps elements of {@code i} to an {@link Iterator} and provide these
-     * elements for iteration.
+     * Creates a reverse iterator which maps elements of {@code i} to an {@link Iterator} and
+     * provide these elements for iteration.
      *
      * If you did not understand this doc, see the class, it is not hard to understand what happens
      * inside the iterator.
@@ -123,14 +125,14 @@ public class ViewUtils {
     }
 
     /**
-     * Creates a reverse iterator which maps elements of {@code i} to an {@link Iterator} and provide these
-     * elements for iteration.
+     * Creates a reverse iterator which maps elements of {@code i} to an {@link Iterator} and
+     * provide these elements for iteration.
      *
      * If you did not understand this doc, see the class, it is not hard to understand what happens
      * inside the iterator.
      *
      * @param i      Iterator supplier.
-     *               @param size Size of list.
+     * @param size   Size of list.
      * @param mapper Mapper function.
      * @param start  Start index of list.
      * @param <E>    Element type.
@@ -141,8 +143,8 @@ public class ViewUtils {
     }
 
     /**
-     * Creates a read only iterator which maps elements of {@code i} to an {@link Iterator} and provide these
-     * elements for iteration.
+     * Creates a read only iterator which maps elements of {@code i} to an {@link Iterator} and
+     * provide these elements for iteration.
      *
      * If you did not understand this doc, see the class, it is not hard to understand what happens
      * inside the iterator.
@@ -158,8 +160,8 @@ public class ViewUtils {
     }
 
     /**
-     * Creates a read only iterator which maps elements of {@code i} to an {@link Iterator} and provide these
-     * elements for iteration.
+     * Creates a read only iterator which maps elements of {@code i} to an {@link Iterator} and
+     * provide these elements for iteration.
      *
      * If you did not understand this doc, see the class, it is not hard to understand what happens
      * inside the iterator.
@@ -199,76 +201,148 @@ public class ViewUtils {
     }
 
     /**
-     * Creates a {@link ListIterable} which holds a {@link #reverseListIterator(List, BiFunction, int)} instance.
+     * Creates a {@link ListIterable} which holds a {@link #reverseListIterator(List, BiFunction,
+     * int)} instance.
      *
      * @param i      Iterable to map.
      * @param mapper Mapper function.
      * @param <E>    Element type.
-     * @return {@link ListIterable} which holds a {@link #reverseListIterator(List, BiFunction, int)} instance.
+     * @return {@link ListIterable} which holds a {@link #reverseListIterator(List, BiFunction,
+     * int)} instance.
      */
     public static <E, Y> ListIterable<Y> reverseListIterable(List<E> i, BiFunction<E, ListIterator<E>, ListIterator<Y>> mapper) {
         return index -> reverseListIterator(i, mapper, index);
     }
 
     /**
-     * Creates a {@link ListIterable} which holds a {@link #reverseListIterator(List, BiFunction, int)} instance.
+     * Creates a {@link ListIterable} which holds a {@link #reverseListIterator(List, BiFunction,
+     * int)} instance.
      *
      * @param i      Iterator provider.
-     *               @param size Size of list.
+     * @param size   Size of list.
      * @param mapper Mapper function.
      * @param <E>    Element type.
-     * @return {@link ListIterable} which holds a {@link #reverseListIterator(List, BiFunction, int)} instance.
+     * @return {@link ListIterable} which holds a {@link #reverseListIterator(List, BiFunction,
+     * int)} instance.
      */
     public static <E, Y> ListIterable<Y> reverseListIterable(IntFunction<ListIterator<E>> i, int size, BiFunction<E, ListIterator<E>, ListIterator<Y>> mapper) {
         return index -> reverseListIterator(i, size, mapper, index);
     }
 
     /**
-     * Creates a {@link ListIterable} which holds a {@link #readOnlyListIterator(List, BiFunction, int)} instance.
+     * Creates a {@link ListIterable} which holds a {@link #readOnlyListIterator(List, BiFunction,
+     * int)} instance.
      *
      * @param i      Iterable to map.
      * @param mapper Mapper function.
      * @param <E>    Element type.
-     * @return {@link ListIterable} which holds a {@link #readOnlyListIterator(List, BiFunction, int)} instance.
+     * @return {@link ListIterable} which holds a {@link #readOnlyListIterator(List, BiFunction,
+     * int)} instance.
      */
     public static <E, Y> ListIterable<Y> readOnlyListIterable(List<E> i, BiFunction<E, ListIterator<E>, ListIterator<Y>> mapper) {
         return index -> readOnlyListIterator(i, mapper, index);
     }
 
     /**
-     * Creates a {@link ListIterable} which holds a {@link #readOnlyListIterator(List, BiFunction, int)} instance.
+     * Creates a {@link ListIterable} which holds a {@link #readOnlyListIterator(List, BiFunction,
+     * int)} instance.
      *
      * @param i      Iterator supplier.
      * @param mapper Mapper function.
      * @param <E>    Element type.
-     * @return {@link ListIterable} which holds a {@link #readOnlyListIterator(List, BiFunction, int)} instance.
+     * @return {@link ListIterable} which holds a {@link #readOnlyListIterator(List, BiFunction,
+     * int)} instance.
      */
     public static <E, Y> ListIterable<Y> readOnlyListIterable(Supplier<ListIterator<E>> i, BiFunction<E, ListIterator<E>, ListIterator<Y>> mapper) {
         return index -> readOnlyListIterator(i, mapper, index);
     }
 
     /**
-     * Creates a {@link ListIterable} which holds a {@link #listIterator(List, BiFunction, int)} instance.
+     * Creates a {@link ListIterable} which holds a {@link #listIterator(List, BiFunction, int)}
+     * instance.
      *
      * @param i      Iterable to map.
      * @param mapper Mapper function.
      * @param <E>    Element type.
-     * @return {@link ListIterable} which holds a {@link #listIterator(List, BiFunction, int)} instance.
+     * @return {@link ListIterable} which holds a {@link #listIterator(List, BiFunction, int)}
+     * instance.
      */
     public static <E, Y> ListIterable<Y> listIterable(List<E> i, BiFunction<E, ListIterator<E>, ListIterator<Y>> mapper) {
         return index -> listIterator(i, mapper, index);
     }
 
     /**
-     * Creates a {@link ListIterable} which holds a {@link #listIterator(List, BiFunction, int)} instance.
+     * Creates a {@link ListIterable} which holds a {@link #listIterator(List, BiFunction, int)}
+     * instance.
      *
      * @param i      Iterator supplier.
      * @param mapper Mapper function.
      * @param <E>    Element type.
-     * @return {@link ListIterable} which holds a {@link #listIterator(List, BiFunction, int)} instance.
+     * @return {@link ListIterable} which holds a {@link #listIterator(List, BiFunction, int)}
+     * instance.
      */
     public static <E, Y> ListIterable<Y> listIterable(Supplier<ListIterator<E>> i, BiFunction<E, ListIterator<E>, ListIterator<Y>> mapper) {
         return index -> listIterator(i, mapper, index);
+    }
+
+    /**
+     * Creates a iterator to map values.
+     *
+     * This iterator should only be used in view collections. The behavior is uncertain outside of a
+     * view collection.
+     *
+     * @param value    Original value.
+     * @param original Original iterator.
+     * @param mapper   Value mapper.
+     * @param <E>      Input type.
+     * @param <Y>      Output type.
+     * @return Iterator mapping {@code value} and delegating remove operations to original iterator.
+     */
+    public static <E, Y> Iterator<Y> mapped(E value, Iterator<E> original, Function<E, Y> mapper) {
+        return new ViewMappedIterator<>(mapper, value, original);
+    }
+
+    /**
+     * Creates a iterator to map values.
+     *
+     * This iterator should only be used in view collections. The behavior is uncertain outside of a
+     * view collection.
+     *
+     * @param value    Original value.
+     * @param original Original iterator.
+     * @param mapper   Value mapper.
+     * @param unmapper Remap value to original type.
+     * @param <E>      Input type.
+     * @param <Y>      Output type.
+     * @return Iterator mapping {@code value} and delegating operations to original iterator.
+     */
+    public static <E, Y> ListIterator<Y> mapped(E value, ListIterator<E> original, Function<E, Y> mapper, Function<Y, E> unmapper) {
+        return new ViewMappedListIterator<>(original, mapper, value, unmapper);
+    }
+
+    /**
+     * Returns a predicate that throws a read only collection exception.
+     *
+     * @param <X> Value type.
+     * @return Predicate that throws a read only collection exception.
+     */
+    public static <X> Predicate<X> unmodifiable() {
+        return x -> {
+            throw new UnsupportedOperationException("Read-only collection.");
+        };
+    }
+
+    /**
+     * Returns a predicate that throws a {@link UnsupportedOperationException} exception.
+     *
+     * @param message Message of exception.
+     * @param <X>     Value type.
+     * @return Predicate that throws a {@link UnsupportedOperationException} exception.
+     */
+    public static <X> Predicate<X> unmodifiable(String message) {
+        return x -> {
+            throw new UnsupportedOperationException(message);
+        };
     }
 
     public interface ListIterable<Y> extends Iterable<Y> {
@@ -494,7 +568,7 @@ public class ViewUtils {
 
         @Override
         public void set(Y y) {
-            if(this.isReadOnly)
+            if (this.isReadOnly)
                 throw new UnsupportedOperationException("Read only!");
             super.defineCurrent();
             this.current.set(y);
@@ -502,7 +576,7 @@ public class ViewUtils {
 
         @Override
         public void add(Y y) {
-            if(this.isReadOnly)
+            if (this.isReadOnly)
                 throw new UnsupportedOperationException("Read only!");
 
             super.defineCurrent();
@@ -516,7 +590,7 @@ public class ViewUtils {
 
         @Override
         public void remove() {
-            if(this.isReadOnly)
+            if (this.isReadOnly)
                 throw new UnsupportedOperationException("Read only!");
 
             super.defineCurrent();
@@ -662,4 +736,134 @@ public class ViewUtils {
             throw new UnsupportedOperationException("Read only!");
         }
     }
+
+    private static class ViewMappedIterator<E, Y> implements Iterator<Y> {
+
+        private final Function<E, Y> mapper;
+        private final E value;
+        private final Iterator<E> original;
+        private boolean readed;
+
+        public ViewMappedIterator(Function<E, Y> mapper, E value, Iterator<E> original) {
+            this.mapper = mapper;
+            this.value = value;
+            this.original = original;
+            this.readed = false;
+        }
+
+        @Override
+        public boolean hasNext() {
+
+            return !this.readed;
+        }
+
+        @Override
+        public Y next() {
+
+            if (!this.hasNext())
+                throw new NoSuchElementException();
+
+            this.readed = true;
+
+            return mapper.apply(value);
+        }
+
+        @Override
+        public void remove() {
+            if (!this.readed)
+                throw new IllegalStateException();
+
+            original.remove();
+        }
+    }
+
+    private static class ViewMappedListIterator<E, Y> implements ListIterator<Y> {
+
+        private final int index;
+        private final ListIterator<E> original;
+        private final Function<E, Y> mapper;
+        private final E value;
+        private final Function<Y, E> unmapper;
+        private boolean readed;
+
+        public ViewMappedListIterator(ListIterator<E> original, Function<E, Y> mapper, E value, Function<Y, E> unmapper) {
+            this.original = original;
+            this.mapper = mapper;
+            this.value = value;
+            this.unmapper = unmapper;
+            this.index = original.nextIndex() - 1;
+            this.readed = false;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return !this.readed;
+        }
+
+        @Override
+        public Y next() {
+            if (!this.hasNext())
+                throw new NoSuchElementException();
+
+            this.readed = true;
+            return mapper.apply(value);
+        }
+
+        @Override
+        public boolean hasPrevious() {
+            return this.readed;
+        }
+
+        @Override
+        public Y previous() {
+            if (!this.hasPrevious())
+                throw new NoSuchElementException();
+
+            this.readed = false;
+
+            return mapper.apply(value);
+        }
+
+        @Override
+        public int nextIndex() {
+
+            if (!this.readed)
+                return this.index;
+
+            return this.index + 1;
+        }
+
+        @Override
+        public int previousIndex() {
+
+            if (!this.readed)
+                return this.index - 1;
+
+            return this.index;
+        }
+
+        @Override
+        public void remove() {
+            if (!this.readed)
+                throw new IllegalStateException();
+
+            original.remove();
+        }
+
+        @Override
+        public void set(Y y) {
+            if (!this.readed)
+                throw new IllegalStateException();
+
+            original.set(unmapper.apply(y));
+        }
+
+        @Override
+        public void add(Y y) {
+            if (!this.readed)
+                throw new IllegalStateException();
+            original.add(unmapper.apply(y));
+        }
+    }
+
 }

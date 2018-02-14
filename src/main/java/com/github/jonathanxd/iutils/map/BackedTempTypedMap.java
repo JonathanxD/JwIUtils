@@ -28,6 +28,7 @@
 package com.github.jonathanxd.iutils.map;
 
 import com.github.jonathanxd.iutils.collection.view.ViewCollections;
+import com.github.jonathanxd.iutils.collection.view.ViewUtils;
 import com.github.jonathanxd.iutils.function.stream.BiStreams;
 import com.github.jonathanxd.iutils.iterator.IteratorUtil;
 import com.github.jonathanxd.iutils.object.Lazy;
@@ -209,8 +210,8 @@ public final class BackedTempTypedMap<K, V> implements TempTypedMap<K, V> {
     public Set<TypedEntry<K, ? extends V>> typedEntrySet() {
         Set<Entry<K, MapValue<? extends V>>> set = this.backingMap.entrySet();
 
-        return ViewCollections.setMapped(set,
-                (kPairEntry, entryIterator) -> IteratorUtil.mapped(kPairEntry, entryIterator, kPairEntry1 ->
+        return ViewCollections.setMappedMulti(set,
+                (kPairEntry, entryIterator) -> ViewUtils.mapped(kPairEntry, entryIterator, kPairEntry1 ->
                         new TypedEntry<>(kPairEntry1.getKey(),
                                 kPairEntry1.getValue().getValue(),
                                 kPairEntry1.getValue().getType().cast())
@@ -297,8 +298,8 @@ public final class BackedTempTypedMap<K, V> implements TempTypedMap<K, V> {
     public Collection<V> values() {
         Collection<MapValue<? extends V>> values = this.backingMap.values();
 
-        return ViewCollections.collectionMapped(values,
-                (typeInfoPair, pairIterator) -> IteratorUtil.mapped(typeInfoPair, pairIterator, MapValue::getValue),
+        return ViewCollections.collectionMappedMulti(values,
+                (typeInfoPair, pairIterator) -> ViewUtils.mapped(typeInfoPair, pairIterator, MapValue::getValue),
                 y -> {
                     throw new UnsupportedOperationException();
                 },
@@ -316,8 +317,8 @@ public final class BackedTempTypedMap<K, V> implements TempTypedMap<K, V> {
     public Set<Entry<K, V>> entrySet() {
         Set<Entry<K, MapValue<? extends V>>> entries = this.backingMap.entrySet();
 
-        return ViewCollections.setMapped(entries,
-                (e, eIterator) -> IteratorUtil.mapped(e, eIterator, kPairEntry ->
+        return ViewCollections.setMappedMulti(entries,
+                (e, eIterator) -> ViewUtils.mapped(e, eIterator, kPairEntry ->
                         new BackedTypedMap.MappedEntryWrapper<>(kPairEntry, MapValue::getValue, o -> MapValue.create(o, kPairEntry.getValue().getType().cast()))
                 ),
                 y -> {

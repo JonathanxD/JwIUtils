@@ -32,6 +32,7 @@ import com.github.jonathanxd.iutils.collection.view.ViewCollection;
 import com.github.jonathanxd.iutils.collection.view.ViewCollections;
 import com.github.jonathanxd.iutils.collection.view.ViewList;
 import com.github.jonathanxd.iutils.collection.view.ViewSet;
+import com.github.jonathanxd.iutils.collection.view.ViewUtils;
 import com.github.jonathanxd.iutils.function.consumer.IntObjConsumer;
 import com.github.jonathanxd.iutils.function.function.IntObjBiFunction;
 import com.github.jonathanxd.iutils.iterator.DelegatedListIterator;
@@ -71,7 +72,8 @@ public class ViewCollectionTest {
     public void viewSetTest() {
         Set<String> set = new HashSet<>();
 
-        ViewSet<String, String> view = ViewCollections.setMapped(set, (s, stringIterator) -> IteratorUtil.single(s),
+        ViewSet<String, String> view = ViewCollections.setMappedMulti(set,
+                (s, stringIterator) -> IteratorUtil.single(s),
                 s -> s.length() > 2 && set.add(s),
                 set::remove);
 
@@ -86,8 +88,8 @@ public class ViewCollectionTest {
     public void mappedViewSetTest() {
         Set<String> set = new HashSet<>();
 
-        ViewSet<String, Integer> view = ViewCollections.setMapped(set,
-                (s, stringIterator) -> IteratorUtil.mapped(s, stringIterator, Integer::parseInt),
+        ViewSet<String, Integer> view = ViewCollections.setMappedMulti(set,
+                (s, stringIterator) -> ViewUtils.mapped(s, stringIterator, Integer::parseInt),
                 i -> i % 2 == 0 && set.add(i.toString()),
                 i -> set.remove(i.toString()));
 
@@ -106,9 +108,9 @@ public class ViewCollectionTest {
         Predicate<Integer> removePred = i -> list.remove(i.toString());
         IntObjConsumer<Integer> set = (i, element) -> list.set(i, element.toString());
 
-        ViewList<String, Integer> view = ViewCollections.listMapped(list,
+        ViewList<String, Integer> view = ViewCollections.listMappedMulti(list,
                 (s, stringIterator) -> new DelegatedListIterator<Integer>() {
-                    ListIterator<Integer> delegate = IteratorUtil.mapped(s, stringIterator, Integer::parseInt, Object::toString);
+                    ListIterator<Integer> delegate = ViewUtils.mapped(s, stringIterator, Integer::parseInt, Object::toString);
 
                     @Override
                     public void add(Integer integer) {
@@ -152,7 +154,7 @@ public class ViewCollectionTest {
         list.add(Collections3.listOf("D", "E", "F"));
         list.add(Collections3.listOf("G", "I", "J"));
 
-        ViewCollection<List<String>, String> collection = ViewCollections.collectionMapped(
+        ViewCollection<List<String>, String> collection = ViewCollections.collectionMappedMulti(
                 list,
                 (e, origin) -> e.iterator(),
                 (o) -> list.size() > 0 ? list.get(list.size() - 1).add(o) : list.add(Collections3.listOf(o)),
@@ -176,7 +178,7 @@ public class ViewCollectionTest {
         list.add(Collections3.listOf("D", "E", "F"));
         list.add(Collections3.listOf("G", "I", "J"));
 
-        ViewList<List<String>, String> view = ViewCollections.listMapped(list,
+        ViewList<List<String>, String> view = ViewCollections.listMappedMulti(list,
                 (strings, listListIterator) -> strings.listIterator(),
                 y -> list.size() > 0 ? list.get(list.size() - 1).add(y) : list.add(Collections3.listOf(y)),
                 y -> firstRemove(list, y)
@@ -199,7 +201,7 @@ public class ViewCollectionTest {
         list.add(Collections3.listOf("D", "E", "F"));
         list.add(Collections3.listOf("G", "I", "J"));
 
-        ViewList<List<String>, String> view = ViewCollections.listMapped(list,
+        ViewList<List<String>, String> view = ViewCollections.listMappedMulti(list,
                 (strings, listListIterator) -> strings.listIterator(),
                 y -> list.size() > 0 ? list.get(list.size() - 1).add(y) : list.add(Collections3.listOf(y)),
                 y -> firstRemove(list, y)
@@ -251,9 +253,9 @@ public class ViewCollectionTest {
         list.addAll(Collections3.listOf("1", "2", "3"));
         list.addAll(Collections3.listOf("4", "5", "6"));
 
-        ViewList<String, Integer> view = ViewCollections.listMapped(list,
+        ViewList<String, Integer> view = ViewCollections.listMappedMulti(list,
                 (strings, listListIterator) ->
-                        IteratorUtil.mapped(strings, listListIterator, Integer::parseInt, Object::toString),
+                        ViewUtils.mapped(strings, listListIterator, Integer::parseInt, Object::toString),
                 y -> list.add(y.toString()),
                 y -> list.remove(y.toString())
         );

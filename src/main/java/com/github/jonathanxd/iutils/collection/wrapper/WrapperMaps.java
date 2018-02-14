@@ -1,5 +1,5 @@
 /*
- *      JwIUtils-kt - Extension of JwIUtils for Kotlin <https://github.com/JonathanxD/JwIUtils/>
+ *      JwIUtils - Java utilities library <https://github.com/JonathanxD/JwIUtils>
  *
  *         The MIT License (MIT)
  *
@@ -25,26 +25,25 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.kt
+package com.github.jonathanxd.iutils.collection.wrapper;
 
-import com.github.jonathanxd.iutils.type.TypeInfo
-import com.github.jonathanxd.iutils.type.TypeParameterProvider
-import java.lang.reflect.Type
+import com.github.jonathanxd.iutils.collection.immutable.ImmutableMap;
+import com.github.jonathanxd.iutils.collection.wrapper.impl.ImmutableWrapperMap;
 
-/**
- * Creates a [TypeInfo] of type [T].
- */
-inline fun <reified T> typeInfo(): TypeInfo<T> =
-        object : TypeParameterProvider<T>() {}.createTypeInfo()
+import java.util.Map;
 
-/**
- * Creates a [Type] for [T].
- */
-inline fun <reified T> type(): Type =
-        object : TypeParameterProvider<T>() {}.type
+public class WrapperMaps {
 
-/**
- * Returns class of [T].
- */
-inline fun <reified T> classOf(): Class<T> =
-        T::class.java
+    /**
+     * Creates an immutable map that wraps {@code map}.
+     *
+     * @param map Map to wrap.
+     * @param <K> Key type.
+     * @param <V> Value type.
+     * @return Immutable map.
+     */
+    public static <K, V> ImmutableMap<K, V> immutableMap(Map<K, V> map) {
+        return new ImmutableWrapperMap<>(map);
+    }
+
+}

@@ -152,5 +152,15 @@ public class EitherTest {
 
     }
 
+    @Test
+    public void testTry() {
+        Either<Throwable, String> aTry = Try.Try(() -> {
+            throw new IllegalStateException();
+        });
 
+        Either<Throwable, String> throwableStringEither = aTry.mapLeftToRight(x -> "x");
+
+        Assert.assertTrue(throwableStringEither.isRight());
+        Assert.assertEquals("x", throwableStringEither.getRight());
+    }
 }

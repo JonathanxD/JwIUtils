@@ -28,6 +28,7 @@
 package com.github.jonathanxd.iutils.map;
 
 import com.github.jonathanxd.iutils.collection.view.ViewCollections;
+import com.github.jonathanxd.iutils.collection.view.ViewUtils;
 import com.github.jonathanxd.iutils.function.stream.BiStreams;
 import com.github.jonathanxd.iutils.iterator.IteratorUtil;
 import com.github.jonathanxd.iutils.object.Lazy;
@@ -190,8 +191,8 @@ public final class BackedTypedMap<K, V> implements TypedMap<K, V> {
     public Set<TypedEntry<K, ? extends V>> typedEntrySet() {
         Set<Entry<K, Pair<? extends V, TypeInfo<? extends V>>>> set = this.backingMap.entrySet();
 
-        return ViewCollections.setMapped(set,
-                (kPairEntry, entryIterator) -> IteratorUtil.mapped(kPairEntry, entryIterator, kPairEntry1 ->
+        return ViewCollections.setMappedMulti(set,
+                (kPairEntry, entryIterator) -> ViewUtils.mapped(kPairEntry, entryIterator, kPairEntry1 ->
                         new TypedEntry<>(kPairEntry1.getKey(),
                                 kPairEntry1.getValue().getFirst(),
                                 kPairEntry1.getValue().getSecond().cast())
@@ -278,8 +279,8 @@ public final class BackedTypedMap<K, V> implements TypedMap<K, V> {
     public Collection<V> values() {
         Collection<Pair<? extends V, TypeInfo<? extends V>>> values = this.backingMap.values();
 
-        return ViewCollections.collectionMapped(values,
-                (typeInfoPair, pairIterator) -> IteratorUtil.mapped(typeInfoPair, pairIterator, Pair::getFirst),
+        return ViewCollections.collectionMappedMulti(values,
+                (typeInfoPair, pairIterator) -> ViewUtils.mapped(typeInfoPair, pairIterator, Pair::getFirst),
                 y -> values.add(Pair.ofSupplier(() -> y, () -> {
                     throw new UnsupportedOperationException();
                 })),
@@ -292,8 +293,8 @@ public final class BackedTypedMap<K, V> implements TypedMap<K, V> {
     public Set<Entry<K, V>> entrySet() {
         Set<Entry<K, Pair<? extends V, TypeInfo<? extends V>>>> entries = this.backingMap.entrySet();
 
-        return ViewCollections.setMapped(entries,
-                (e, eIterator) -> IteratorUtil.mapped(e, eIterator, kPairEntry ->
+        return ViewCollections.setMappedMulti(entries,
+                (e, eIterator) -> ViewUtils.mapped(e, eIterator, kPairEntry ->
                         new MappedEntryWrapper<>(kPairEntry, Pair::getFirst, o -> Pair.of(o, kPairEntry.getValue().getSecond()))
                 ),
                 y -> {

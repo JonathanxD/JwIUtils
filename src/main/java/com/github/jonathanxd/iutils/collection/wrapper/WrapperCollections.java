@@ -27,17 +27,37 @@
  */
 package com.github.jonathanxd.iutils.collection.wrapper;
 
+import com.github.jonathanxd.iutils.collection.immutable.ImmutableCollection;
 import com.github.jonathanxd.iutils.collection.immutable.ImmutableList;
 import com.github.jonathanxd.iutils.collection.immutable.ImmutableSet;
+import com.github.jonathanxd.iutils.collection.wrapper.impl.ImmutableWrapperCollection;
 import com.github.jonathanxd.iutils.collection.wrapper.impl.ImmutableWrapperList;
 import com.github.jonathanxd.iutils.collection.wrapper.impl.ImmutableWrapperSet;
 import com.github.jonathanxd.iutils.collection.wrapper.impl.SuppliedWrapperList;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
 
 public class WrapperCollections {
+
+    /**
+     * Creates an immutable collection wrapping {@code collection} (to be used in specific
+     * contexts).
+     *
+     * @param collection Collection to wrap.
+     * @param <E>        Element type.
+     * @return Immutable collection wrapping {@code collection}.
+     */
+    public static <E> ImmutableCollection<E> immutableCollection(Collection<E> collection) {
+        return new ImmutableWrapperCollection<E>() {
+            @Override
+            protected Collection<E> getWrapped() {
+                return collection;
+            }
+        };
+    }
 
     /**
      * Creates a wrapper list that wrap calls to list supplied by {@code supplier}.

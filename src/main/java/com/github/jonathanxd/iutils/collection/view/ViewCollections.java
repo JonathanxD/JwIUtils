@@ -158,6 +158,8 @@ public class ViewCollections {
     /**
      * Creates a mapped collection backing to {@code collection}.
      *
+     * Maps one element to multiple elements.
+     *
      * @param collection Original collection.
      * @param mapper     Mapper function (should return iterator to delegate operations).
      * @param add        Element add handler.
@@ -166,10 +168,10 @@ public class ViewCollections {
      * @param <Y>        Mapped type.
      * @return Mapped collection backing to {@code collection}.
      */
-    public static <E, Y> ViewCollection<E, Y> collectionMapped(Collection<E> collection,
-                                                               BiFunction<E, Iterator<E>, Iterator<Y>> mapper,
-                                                               Predicate<Y> add,
-                                                               Predicate<Y> remove) {
+    public static <E, Y> ViewCollection<E, Y> collectionMappedMulti(Collection<E> collection,
+                                                                    BiFunction<E, Iterator<E>, Iterator<Y>> mapper,
+                                                                    Predicate<Y> add,
+                                                                    Predicate<Y> remove) {
         return new ViewCollection<>(collection,
                 mapper,
                 add,
@@ -177,7 +179,32 @@ public class ViewCollections {
     }
 
     /**
+     * Creates a mapped collection backing to {@code collection}.
+     *
+     * @param collection Original collection.
+     * @param mapper     Mapper of elements.
+     * @param add        Element add handler.
+     * @param remove     Element remove handler.
+     * @param <E>        Element type.
+     * @param <Y>        Mapped type.
+     * @return Mapped collection backing to {@code collection}.
+     */
+    public static <E, Y> ViewCollection<E, Y> collectionMapped(Collection<E> collection,
+                                                               Function<E, Y> mapper,
+                                                               Predicate<Y> add,
+                                                               Predicate<Y> remove) {
+        return ViewCollections.collectionMappedMulti(
+                collection,
+                (e, i) -> ViewUtils.mapped(e, i, mapper),
+                add,
+                remove
+        );
+    }
+
+    /**
      * Creates a mapped list backing to {@code list}.
+     *
+     * Maps one element to multiple elements.
      *
      * @param list   Original list.
      * @param mapper Mapper function (should return list iterator to delegate operations).
@@ -187,10 +214,10 @@ public class ViewCollections {
      * @param <Y>    Mapped type.
      * @return Mapped list backing to {@code list}.
      */
-    public static <E, Y> ViewList<E, Y> listMapped(List<E> list,
-                                                   BiFunction<E, ListIterator<E>, ListIterator<Y>> mapper,
-                                                   Predicate<Y> add,
-                                                   Predicate<Y> remove) {
+    public static <E, Y> ViewList<E, Y> listMappedMulti(List<E> list,
+                                                        BiFunction<E, ListIterator<E>, ListIterator<Y>> mapper,
+                                                        Predicate<Y> add,
+                                                        Predicate<Y> remove) {
         return new ViewList<>(list,
                 mapper,
                 add,
@@ -198,7 +225,28 @@ public class ViewCollections {
     }
 
     /**
+     * Creates a mapped list backing to {@code list}.
+     *
+     * @param list   Original list.
+     * @param mapper Mapper of elements.
+     * @param add    Element add handler.
+     * @param remove Element remove handler.
+     * @param <E>    Element type.
+     * @param <Y>    Mapped type.
+     * @return Mapped list backing to {@code list}.
+     */
+    public static <E, Y> ViewList<E, Y> listMapped(List<E> list,
+                                                   Function<E, Y> mapper,
+                                                   Function<Y, E> unmapper,
+                                                   Predicate<Y> add,
+                                                   Predicate<Y> remove) {
+        return ViewCollections.listMappedMulti(list, (e, i) -> ViewUtils.mapped(e, i, mapper, unmapper), add, remove);
+    }
+
+    /**
      * Creates a mapped set backing to {@code set}.
+     *
+     * Maps one element to multiple elements.
      *
      * @param set    Original collection.
      * @param mapper Mapper function (should return iterable to delegate operations).
@@ -208,12 +256,33 @@ public class ViewCollections {
      * @param <Y>    Mapped type.
      * @return Mapped collection backing to {@code set}.
      */
-    public static <E, Y> ViewSet<E, Y> setMapped(Set<E> set,
-                                                 BiFunction<E, Iterator<E>, Iterator<Y>> mapper,
-                                                 Predicate<Y> add,
-                                                 Predicate<Y> remove) {
+    public static <E, Y> ViewSet<E, Y> setMappedMulti(Set<E> set,
+                                                      BiFunction<E, Iterator<E>, Iterator<Y>> mapper,
+                                                      Predicate<Y> add,
+                                                      Predicate<Y> remove) {
         return new ViewSet<>(set,
                 mapper,
+                add,
+                remove);
+    }
+
+    /**
+     * Creates a mapped set backing to {@code set}.
+     *
+     * @param set    Original collection.
+     * @param mapper Mapper of elements.
+     * @param add    Element add handler.
+     * @param remove Element remove handler.
+     * @param <E>    Element type.
+     * @param <Y>    Mapped type.
+     * @return Mapped collection backing to {@code set}.
+     */
+    public static <E, Y> ViewSet<E, Y> setMapped(Set<E> set,
+                                                 Function<E, Y> mapper,
+                                                 Predicate<Y> add,
+                                                 Predicate<Y> remove) {
+        return ViewCollections.setMappedMulti(set,
+                (e, eIterator) -> ViewUtils.mapped(e, eIterator, mapper),
                 add,
                 remove);
     }
@@ -291,17 +360,17 @@ public class ViewCollections {
             Predicate<Y> remove = o -> removeFirst(collection, o);
 
             if (type == Type.COLLECTION) {
-                value = (E) ViewCollections.collectionMapped(collection,
+                value = (E) ViewCollections.collectionMappedMulti(collection,
                         (e, eIterator) -> e.iterator(),
                         add,
                         remove);
             } else if (type == Type.SET) {
-                value = (E) ViewCollections.setMapped((Set<E>) collection,
+                value = (E) ViewCollections.setMappedMulti((Set<E>) collection,
                         (e, eIterator) -> e.iterator(),
                         add,
                         remove);
             } else if (type == Type.LIST) {
-                value = (E) ViewCollections.listMapped((List<List<Y>>) collection,
+                value = (E) ViewCollections.listMappedMulti((List<List<Y>>) collection,
                         (e, eIterator) -> e.listIterator(),
                         add,
                         remove);

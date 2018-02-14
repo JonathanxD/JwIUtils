@@ -25,27 +25,46 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.object;
+package com.github.jonathanxd.iutils.io;
 
-/**
- * Base class of either classes, it includes specialized either.
- *
- * Specialized Either may not contains all features that {@link Either} have.
- */
-public abstract class BaseEither {
+import org.jetbrains.annotations.NotNull;
 
-    /**
-     * Returns true if left value is the present value.
-     *
-     * @return True if left value is the present value.
-     */
-    public abstract boolean isLeft();
+import java.io.IOException;
+import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
+import java.util.function.Consumer;
 
-    /**
-     * Returns true if right value is the present value.
-     *
-     * @return True if right value is the present value.
-     */
-    public abstract boolean isRight();
+public class DelegatePrintStream extends PrintStream {
+    public DelegatePrintStream(Consumer<String> printlnConsumer) {
+        super(new MyOS(null, printlnConsumer), true);
+    }
 
+    public DelegatePrintStream(@NotNull String encoding, Consumer<String> printlnConsumer) throws UnsupportedEncodingException {
+        super(new MyOS(encoding, printlnConsumer), false, encoding);
+    }
+
+    static class MyOS extends ByteFlushDelegateOutputStream {
+        private final String encoding;
+        private final Consumer<String> printlnConsumer;
+
+        MyOS(String encoding, Consumer<String> printlnConsumer) {
+            this.encoding = encoding;
+            this.printlnConsumer = printlnConsumer;
+        }
+
+        @Override
+        public synchronized void write(int b) throws IOException {
+            if (b == '\n')
+                this.flush();
+            else
+                super.write(b);
+        }
+
+        @Override
+        protected void flushBytes(byte[] bytes) throws IOException {
+            String s = encoding == null ? new String(bytes) : new String(bytes, Charset.forName(encoding));
+            printlnConsumer.accept(s);
+        }
+    }
 }

@@ -28,6 +28,7 @@
 package com.github.jonathanxd.iutils.map;
 
 import com.github.jonathanxd.iutils.collection.view.ViewCollections;
+import com.github.jonathanxd.iutils.collection.view.ViewUtils;
 import com.github.jonathanxd.iutils.iterator.IteratorUtil;
 import com.github.jonathanxd.iutils.object.Pair;
 import com.github.jonathanxd.iutils.type.TypeInfo;
@@ -161,8 +162,8 @@ public class UnmodTypedMap<K, V> implements TypedMap<K, V> {
     public Set<Entry<K, V>> entrySet() {
         Set<Entry<K, V>> set = this.original.entrySet();
 
-        return ViewCollections.setMapped(set,
-                (kvEntry, entryIterator) -> IteratorUtil.mapped(kvEntry, entryIterator, ImmutableBackedEntry::new),
+        return ViewCollections.setMappedMulti(set,
+                (kvEntry, entryIterator) -> ViewUtils.mapped(kvEntry, entryIterator, ImmutableBackedEntry::new),
                 set::add,
                 set::remove);
     }

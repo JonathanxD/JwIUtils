@@ -261,6 +261,46 @@ public abstract class Either<L, R> extends BaseEither {
      */
     public abstract <MR> Either<L, MR> flatMapRight(Function<? super R, ? extends Either<L, MR>> rightMapper);
 
+    // Since 4.15.0:
+
+    /**
+     * If this is {@link Left}, maps the value of left side to right side, if it is the right side,
+     * return same instance.
+     *
+     * @param toRightFunc Function that maps left value to right.
+     * @return Either with left side mapped to right (if is left side, otherwise returns the same
+     * instance).
+     */
+    public abstract Either<L, R> mapLeftToRight(Function<L, R> toRightFunc);
+
+    /**
+     * If this is {@link Right}, maps the value of right side to left side, if it is the left side,
+     * return same instance.
+     *
+     * @param toLeftFunc Function that maps right value to left.
+     * @return Either with right side mapped to left (if is right side, otherwise returns the same
+     * instance).
+     */
+    public abstract Either<L, R> mapRightToLeft(Function<R, L> toLeftFunc);
+
+    /**
+     * Gets left or right value.
+     *
+     * @param leftMapper  Mapper of left side to {@link B}.
+     * @param rightMapper Mapper of right side to {@link B}.
+     * @param <B>         Base type of left and right side, or type of object expected to return.
+     * @return Left or right side.
+     */
+    public abstract <B> B getLeftOrRight(Function<L, B> leftMapper, Function<R, B> rightMapper);
+
+    /**
+     * Swaps values. If this is {@link Left} returns a {@link Right} of {@link Left left value}, if
+     * this is {@link Right}, returns a {@link Left} of {@link Right right value}.
+     *
+     * @return Swapped either.
+     */
+    public abstract Either<R, L> swap();
+
     static class Left<L, R> extends Either<L, R> {
         private final L value;
 
@@ -352,6 +392,26 @@ public abstract class Either<L, R> extends BaseEither {
         @Override
         public <MR> Either<L, MR> mapRight(Function<? super R, ? extends MR> rightMapper) {
             return Either.left(this.getLeft());
+        }
+
+        @Override
+        public Either<L, R> mapLeftToRight(Function<L, R> toRightFunc) {
+            return Either.right(toRightFunc.apply(this.getLeft()));
+        }
+
+        @Override
+        public Either<L, R> mapRightToLeft(Function<R, L> toLeftFunc) {
+            return this;
+        }
+
+        @Override
+        public <B> B getLeftOrRight(Function<L, B> leftMapper, Function<R, B> rightMapper) {
+            return leftMapper.apply(this.getLeft());
+        }
+
+        @Override
+        public Either<R, L> swap() {
+            return Either.right(this.getLeft());
         }
     }
 
@@ -446,6 +506,26 @@ public abstract class Either<L, R> extends BaseEither {
         @Override
         public <MR> Either<L, MR> mapRight(Function<? super R, ? extends MR> rightMapper) {
             return Either.right(rightMapper.apply(this.getRight()));
+        }
+
+        @Override
+        public Either<L, R> mapLeftToRight(Function<L, R> toRightFunc) {
+            return this;
+        }
+
+        @Override
+        public Either<L, R> mapRightToLeft(Function<R, L> toLeftFunc) {
+            return Either.left(toLeftFunc.apply(this.getRight()));
+        }
+
+        @Override
+        public <B> B getLeftOrRight(Function<L, B> leftMapper, Function<R, B> rightMapper) {
+            return rightMapper.apply(this.getRight());
+        }
+
+        @Override
+        public Either<R, L> swap() {
+            return Either.left(this.getRight());
         }
     }
 }

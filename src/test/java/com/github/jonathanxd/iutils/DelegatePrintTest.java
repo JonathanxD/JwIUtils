@@ -1,5 +1,5 @@
 /*
- *      JwIUtils-kt - Extension of JwIUtils for Kotlin <https://github.com/JonathanxD/JwIUtils/>
+ *      JwIUtils - Java utilities library <https://github.com/JonathanxD/JwIUtils>
  *
  *         The MIT License (MIT)
  *
@@ -25,26 +25,25 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.kt
+package com.github.jonathanxd.iutils;
 
-import com.github.jonathanxd.iutils.type.TypeInfo
-import com.github.jonathanxd.iutils.type.TypeParameterProvider
-import java.lang.reflect.Type
+import com.github.jonathanxd.iutils.collection.Collections3;
+import com.github.jonathanxd.iutils.io.DelegatePrintStream;
 
-/**
- * Creates a [TypeInfo] of type [T].
- */
-inline fun <reified T> typeInfo(): TypeInfo<T> =
-        object : TypeParameterProvider<T>() {}.createTypeInfo()
+import org.junit.Assert;
+import org.junit.Test;
 
-/**
- * Creates a [Type] for [T].
- */
-inline fun <reified T> type(): Type =
-        object : TypeParameterProvider<T>() {}.type
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
 
-/**
- * Returns class of [T].
- */
-inline fun <reified T> classOf(): Class<T> =
-        T::class.java
+public class DelegatePrintTest {
+    @Test
+    public void delPr() throws UnsupportedEncodingException {
+        List<String> fs = new ArrayList<>();
+        DelegatePrintStream dps = new DelegatePrintStream("UTF-8", fs::add);
+        dps.println("Hello");
+        dps.println("World");
+        Assert.assertEquals(Collections3.listOf("Hello", "World"), fs);
+    }
+}
