@@ -45,7 +45,8 @@ public class PropCollUtil {
     @NotNull
     public static List<Property<?>> getProperties(@NotNull ValueTypedPropertyHolder holder) {
         return ViewCollections.listMapped(holder.getPropertiesWithValueTypes(),
-                (e, iter) -> IteratorUtil.mapped(e, iter, ValueTypedProperty::getProperty, f -> unmod()),
+                ValueTypedProperty::getProperty,
+                f -> unmod(),
                 a -> unmod(),
                 x -> unmod());
     }
@@ -53,7 +54,8 @@ public class PropCollUtil {
     @NotNull
     public static List<ValueType> getValueTypes(@NotNull ValueTypedPropertyHolder holder) {
         return ViewCollections.listMapped(holder.getPropertiesWithValueTypes(),
-                (e, iter) -> IteratorUtil.mapped(e, iter, ValueTypedProperty::getValueType, f -> unmod()),
+                ValueTypedProperty::getValueType,
+                f -> unmod(),
                 a -> unmod(),
                 x -> unmod());
     }
