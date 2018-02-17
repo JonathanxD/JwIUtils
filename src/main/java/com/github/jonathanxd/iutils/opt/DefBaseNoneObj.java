@@ -69,10 +69,10 @@ public interface DefBaseNoneObj<T, O extends BaseOptObject<T, O>> extends BaseNo
         return Objects.requireNonNull(none.get());
     }
 
-    @Nullable
+    @NotNull
     @Override
-    default T orElse(@Nullable T value) {
-        throw new NoSuchElementException("None");
+    default T orElse(@NotNull T value) {
+        return value;
     }
 
     @NotNull
@@ -86,7 +86,7 @@ public interface DefBaseNoneObj<T, O extends BaseOptObject<T, O>> extends BaseNo
     @Override
     default T orElseLazy(@NotNull Lazy<? extends T> lazy) {
         Objects.requireNonNull(lazy);
-        return lazy.get();
+        return Lazy.nonNull(lazy).get();
     }
 
     @NotNull

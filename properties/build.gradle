@@ -5,7 +5,7 @@ apply plugin: 'license'
 
 jar {
     manifest {
-        attributes 'Implementation-Title': 'JwIUtils-kt',
+        attributes 'Implementation-Title': 'JwIUtils-Properties',
                 'Implementation-Version': project.version
     }
 }
