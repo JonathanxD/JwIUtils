@@ -27,12 +27,13 @@
  */
 package com.github.jonathanxd.iutils.matching;
 
-import com.github.jonathanxd.iutils.collection.Collections3;
 import com.github.jonathanxd.iutils.object.Lazy;
+import com.github.jonathanxd.iutils.object.result.Result;
 import com.github.jonathanxd.iutils.opt.specialized.OptObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
@@ -41,7 +42,23 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
- * Simple "functional pattern matching".
+ * Simple "functional pattern matching" that is evaluated by calling {@link #evaluate()}.
+ *
+ * Example of uses of {@link When}:
+ *
+ * <pre>
+ *     {@code
+ *     When(choice,
+ *         When.EqualsTo(Choice.ACCEPT, v -> accept()),
+ *         When.EqualsTo(Choice.REJECT, v -> reject())
+ *     ).evaluate();
+ *
+ *     When(download,
+ *         When.Ok(this::save),
+ *         When.Err(this::printError)
+ *     ).evaluate();
+ *     }
+ * </pre>
  *
  * @param <K> Type of input value.
  */
@@ -212,8 +229,82 @@ public interface When<K, R> {
      * @param ifMatches Function to be called if pattern matching receiver is instance of {@code
      *                  type}.
      */
-    static <K, R> Case<K, R> InstanceOf(Class<?> type, Function<K, R> ifMatches) {
-        return new InstanceOfCase<>(type, ifMatches);
+    @SuppressWarnings("unchecked")
+    static <K, R, V> Case<K, R> InstanceOf(Class<V> type, Function<V, R> ifMatches) {
+        return new InstanceOfCase<>(type, k -> ifMatches.apply((V) k));
+    }
+
+    /**
+     * Checks if input {@link Result} is a {@link Result.Ok success result} and map result value
+     * with {@code ifMatches}.
+     *
+     * @param ifMatches Mapper of result value.
+     * @param <RR>      Result value type.
+     * @param <RE>      Error value type.
+     * @param <R>       New result value type.
+     * @return A case that matches {@link Result.Ok success result}.
+     */
+    static <RR, RE, R> Case<Result<RR, RE>, R> Ok(Function<RR, R> ifMatches) {
+        return new ResultOkCase<>(ifMatches);
+    }
+
+    /**
+     * Checks if input {@link Result} is an {@link Result.Err error result} and map error value with
+     * {@code ifMatches}.
+     *
+     * @param ifMatches Mapper of error value.
+     * @param <RR>      Result value type.
+     * @param <RE>      Error value type.
+     * @param <R>       New result value type.
+     * @return A case that matches {@link Result.Err error result}.
+     */
+    static <RR, RE, R> Case<Result<RR, RE>, R> Err(Function<RE, R> ifMatches) {
+        return new ResultErrCase<>(ifMatches);
+    }
+
+    /**
+     * Checks if input {@link Collection} contains all {@code elements} and map the collection to a
+     * new value.
+     *
+     * @param elements  Elements to check if collection contains them.
+     * @param ifMatches Mapper of collection.
+     * @param <V>       Collection elements type.
+     * @param <R>       New value type.
+     * @return A Case that matches collections that contains {@code elements}.
+     */
+    static <V, R> Case<Collection<? extends V>, R> ContainsAll(Collection<V> elements,
+                                                               Function<Collection<? extends V>, R> ifMatches) {
+        return When.Matches(vs -> vs.containsAll(elements), ifMatches);
+    }
+
+    /**
+     * Checks if input {@link Collection} contains value supplied by {@code supplier} and map the
+     * collection to a new value.
+     *
+     * @param supplier  Supplier of value to check if collection contains it.
+     * @param ifMatches Mapper of collection.
+     * @param <V>       Collection elements type.
+     * @param <R>       New value type.
+     * @return A Case that matches collections that contains value supplied by {@code supplier}.
+     */
+    static <V, R> Case<Collection<? extends V>, R> Contains(Supplier<V> supplier,
+                                                            Function<Collection<? extends V>, R> ifMatches) {
+        return When.Matches(vs -> vs.contains(supplier.get()), ifMatches);
+    }
+
+    /**
+     * Checks if input {@link Collection} contains {@code value} and map the collection to a new
+     * value.
+     *
+     * @param value     Value to check if collection contains.
+     * @param ifMatches Mapper of collection.
+     * @param <V>       Collection elements type.
+     * @param <R>       New value type.
+     * @return A Case that matches collections that contains {@code value}.
+     */
+    static <V, R> Case<Collection<? extends V>, R> ContainsValue(V value,
+                                                                 Function<Collection<? extends V>, R> ifMatches) {
+        return When.Contains(() -> value, ifMatches);
     }
 
     /**
@@ -239,6 +330,12 @@ public interface When<K, R> {
      * @return The result of matched pattern case.
      */
     OptObject<R> evaluate();
+
+    /**
+     * Creates a {@link Supplier} that invokes {@code this} {@link #evaluate() evaluation} function.
+     * @return A {@link Supplier} that invokes {@code this} {@link #evaluate() evaluation} function.
+     */
+    Supplier<OptObject<R>> asSupplier();
 
     /**
      * Returns a new pattern matching with merged {@link Case cases} of current instance and
@@ -350,6 +447,43 @@ public interface When<K, R> {
         }
     }
 
+    class ResultOkCase<RR, RE, R> implements Case<Result<RR, RE>, R> {
+
+        private final Function<RR, R> ifSuccess;
+
+        ResultOkCase(Function<RR, R> ifSuccess) {
+            this.ifSuccess = ifSuccess;
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        public OptObject<R> evaluate(Result<RR, RE> value) {
+            if (value instanceof Result.Ok<?, ?>)
+                return OptObject.optObject(this.ifSuccess.apply(((Result.Ok<RR, RE>) value).success()));
+
+            return OptObject.none();
+        }
+    }
+
+    class ResultErrCase<RR, RE, R> implements Case<Result<RR, RE>, R> {
+
+        private final Function<RE, R> ifSuccess;
+
+        ResultErrCase(Function<RE, R> ifSuccess) {
+            this.ifSuccess = ifSuccess;
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        public OptObject<R> evaluate(Result<RR, RE> value) {
+            if (value instanceof Result.Err<?, ?>)
+                return OptObject.optObject(this.ifSuccess.apply(((Result.Err<RR, RE>) value).error()));
+
+            return OptObject.none();
+        }
+    }
+
+
     abstract class BaseWhen<K, R> implements When<K, R> {
         private final List<Case<K, R>> cases;
         private final int mode;
@@ -450,6 +584,11 @@ public interface When<K, R> {
                 return elseCase.evaluate(value);
 
             return result;
+        }
+
+        @Override
+        public Supplier<OptObject<R>> asSupplier() {
+            return this::evaluate;
         }
     }
 

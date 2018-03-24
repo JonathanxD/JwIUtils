@@ -240,6 +240,93 @@ public class Collections3 {
         return target;
     }
 
+    ////////////////////////
+
+    /**
+     * Returns a new list with both {@code list} elements and {@code element}.
+     *
+     * @param element Element to add after {@code list}.
+     * @param list    List with elements to add before {@code element}.
+     * @param <E>     Element type.
+     * @return A new list with both {@code list} elements and {@code element}.
+     */
+    public static <E> List<E> append(E element, List<E> list) {
+        return Collections3.append(element, list, ArrayList::new);
+    }
+
+    /**
+     * Returns a new list with elements of both {@code target} and {@code elements} list.
+     *
+     * @param elements List with elements to append to {@code target}.
+     * @param target   Target list with elements.
+     * @param <E>      Element type.
+     * @return A new list with elements of both {@code elements} and {@code target} list.
+     */
+    public static <E> List<E> append(List<E> elements, List<E> target) {
+        return Collections3.append(elements, target, ArrayList::new);
+    }
+
+    /**
+     * Returns a new list with both {@code target} elements and {@code element}.
+     *
+     * @param element Last element to add to new list.
+     * @param target  List with elements to add before {@code element}.
+     * @param factory Factory of new list (must be mutable).
+     * @param <E>     Element type.
+     * @return A new list with both {@code target} elements and {@code element}.
+     */
+    public static <E> List<E> append(E element, List<E> target,
+                                     Supplier<? extends List<E>> factory) {
+        List<E> newList = factory.get();
+        newList.add(element);
+        newList.addAll(target);
+        return newList;
+    }
+
+    /**
+     * Returns a new list with elements of both {@code target} and {@code elements} list.
+     *
+     * {@code append(elements to target)}
+     *
+     * @param elements List with elements to append to {@code target}.
+     * @param target   Target list elements.
+     * @param factory  Factory of new list (must be mutable).
+     * @param <E>      Element type.
+     * @return A new list with elements of both {@code target} and {@code elements} list.
+     */
+    public static <E> List<E> append(List<E> elements, List<E> target,
+                                     Supplier<? extends List<E>> factory) {
+        List<E> newList = factory.get();
+        newList.addAll(target);
+        newList.addAll(elements);
+        return newList;
+    }
+
+    /**
+     * Returns {@code target} list with {@code element} appended to it.
+     *
+     * @param element Element to append to {@code target} list.
+     * @param <E>     Element type.
+     * @return {@code target} list with {@code element} appended to it.
+     */
+    public static <E> List<E> appendTo(List<E> target, E element) {
+        target.add(element);
+        return target;
+    }
+
+    /**
+     * Returns {@code target} list with {@code elements} appended to it.
+     *
+     * @param elements Elements to append to {@code target} list.
+     * @param <E>      Element type.
+     * @return {@code target} list with {@code elements} appended to it.
+     */
+    public static <E> List<E> appendTo(List<E> target, List<E> elements) {
+        target.addAll(elements);
+        return target;
+    }
+
+
     /**
      * Creates a {@link T Sequence} of {@link E}.
      *

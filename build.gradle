@@ -52,6 +52,7 @@ license {
 
     exclude "**/*.info"
     exclude "**/*.md"
+    exclude "**/*.json"
     exclude "res/**"
     exclude "src/main/resources/**"
     exclude "src/test/resources/**"
