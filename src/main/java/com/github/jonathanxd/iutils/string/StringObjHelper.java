@@ -33,7 +33,7 @@ import com.github.jonathanxd.iutils.box.IMutableBox;
 import com.github.jonathanxd.iutils.box.MutableBox;
 import com.github.jonathanxd.iutils.iterator.IteratorUtil;
 import com.github.jonathanxd.iutils.opt.Opt;
-import com.github.jonathanxd.iutils.opt.specialized.OptObject;
+import com.github.jonathanxd.iutils.opt.OptObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;

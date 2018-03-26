@@ -27,7 +27,7 @@
  */
 package com.github.jonathanxd.iutils.property;
 
-import com.github.jonathanxd.iutils.opt.specialized.OptObject;
+import com.github.jonathanxd.iutils.opt.OptObject;
 import com.github.jonathanxd.iutils.type.TypeInfo;
 
 /**

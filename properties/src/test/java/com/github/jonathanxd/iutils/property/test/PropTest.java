@@ -28,11 +28,10 @@
 package com.github.jonathanxd.iutils.property.test;
 
 import com.github.jonathanxd.iutils.collection.Collections3;
-import com.github.jonathanxd.iutils.opt.specialized.OptObject;
+import com.github.jonathanxd.iutils.opt.OptObject;
 import com.github.jonathanxd.iutils.property.Property;
 import com.github.jonathanxd.iutils.property.PropertyFactory;
 import com.github.jonathanxd.iutils.property.ValueHelper;
-import com.github.jonathanxd.iutils.property.value.CurrentValue;
 import com.github.jonathanxd.iutils.property.value.Value;
 import com.github.jonathanxd.iutils.property.value.ValueFactory;
 import com.github.jonathanxd.iutils.property.value.Values;

@@ -28,7 +28,7 @@
 package com.github.jonathanxd.iutils.iterator;
 
 import com.github.jonathanxd.iutils.function.checked.CRunnable;
-import com.github.jonathanxd.iutils.opt.specialized.OptObject;
+import com.github.jonathanxd.iutils.opt.OptObject;
 
 import java.util.ArrayList;
 import java.util.Iterator;

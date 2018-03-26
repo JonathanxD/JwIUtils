@@ -27,19 +27,15 @@
  */
 package com.github.jonathanxd.iutils.either;
 
-import com.github.jonathanxd.iutils.function.checked.supplier.CSupplier;
 import com.github.jonathanxd.iutils.object.BaseEither;
 import com.github.jonathanxd.iutils.object.Either;
 import com.github.jonathanxd.iutils.object.Try;
-import com.github.jonathanxd.iutils.object.specialized.EitherObjInt;
-import com.github.jonathanxd.iutils.object.specialized.all.EitherIntDouble;
-import com.github.jonathanxd.iutils.reflection.Invokables;
-import com.github.jonathanxd.iutils.reflection.Link;
-import com.github.jonathanxd.iutils.reflection.Links;
 
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.NoSuchElementException;
 import java.util.function.Consumer;
 
@@ -76,20 +72,19 @@ public class EitherTest {
             }
 
 
-            Link<Object> func =
-                    Links.ofInvokable(Invokables.fromMethod(
-                            either.getClass().getEnclosingClass().getDeclaredMethod(nName)))
-                            .bind(either);
+            Method func = either.getClass().getEnclosingClass().getDeclaredMethod(nName);
+            Method func2 = either.getClass().getEnclosingClass().getDeclaredMethod(fName);
 
-            Link<Object> func2 =
-                    Links.ofInvokable(Invokables.fromMethod(
-                            either.getClass().getEnclosingClass().getDeclaredMethod(fName)))
-                            .bind(either);
-
-            test.accept((T) func.invoke());
+            test.accept((T) func.invoke(either));
 
             Either<Throwable, Object> aTry =
-                    Try.Try((CSupplier<Object>) func2::invoke);
+                    Try.Try(() -> {
+                        try {
+                            return func2.invoke(either);
+                        } catch (InvocationTargetException e) {
+                            throw e.getCause();
+                        }
+                    });
 
             Assert.assertTrue(aTry.isLeft());
 
@@ -118,39 +113,6 @@ public class EitherTest {
         assertLeft(either2, o -> Assert.assertTrue(o instanceof RuntimeException));
     }
 
-    @Test
-    public void testObjPrimEither() {
-        EitherObjInt<String> e =
-                EitherObjInt.right(9);
-
-        EitherObjInt<String> e2 =
-                EitherObjInt.left("Y");
-
-        assertRight(e, o -> Assert.assertEquals(9, (int) o));
-        assertLeft(e2, o -> Assert.assertEquals("Y", o));
-    }
-
-    @Test
-    public void testPrimEither() {
-        EitherIntDouble e =
-                EitherIntDouble.right(9.9);
-
-        EitherIntDouble e2 =
-                EitherIntDouble.left(5);
-
-        assertRight(e, o -> Assert.assertEquals(9.9, (double) o, 0.0));
-        assertLeft(e2, o -> Assert.assertEquals(5, (int) o));
-
-        EitherIntDouble map = e2.map(v -> v * 9, v -> v * 5.1);
-        assertLeft(map, o -> Assert.assertEquals(5 * 9, (int) o));
-
-        EitherIntDouble e3 = map
-                .flatMap(value -> value % 2 == 0 ? EitherIntDouble.right(5.0) : EitherIntDouble.left(9),
-                        value -> value % 2 == 0 ? EitherIntDouble.left(7) : EitherIntDouble.right(1.0));
-
-        assertLeft(e3, o -> Assert.assertEquals(9, (int) o));
-
-    }
 
     @Test
     public void testTry() {

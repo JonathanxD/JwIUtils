@@ -27,17 +27,13 @@
  */
 package com.github.jonathanxd.iutils.property;
 
-import com.github.jonathanxd.iutils.opt.specialized.OptObject;
+import com.github.jonathanxd.iutils.opt.OptObject;
 import com.github.jonathanxd.iutils.string.ToStringHelper;
 import com.github.jonathanxd.iutils.type.TypeInfo;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
-import java.util.Optional;
-import java.util.function.BinaryOperator;
-import java.util.function.UnaryOperator;
 
 /**
  * Specifies a property to reach in system, example, amount of users.

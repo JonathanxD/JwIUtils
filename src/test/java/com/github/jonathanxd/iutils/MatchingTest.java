@@ -28,7 +28,7 @@
 package com.github.jonathanxd.iutils;
 
 import com.github.jonathanxd.iutils.matching.When;
-import com.github.jonathanxd.iutils.opt.specialized.OptObject;
+import com.github.jonathanxd.iutils.opt.OptObject;
 
 import org.junit.Assert;
 import org.junit.Test;

@@ -29,11 +29,6 @@ package com.github.jonathanxd.iutils.opt;
 
 import com.github.jonathanxd.iutils.collection.Collections3;
 import com.github.jonathanxd.iutils.object.Lazy;
-import com.github.jonathanxd.iutils.opt.specialized.OptBoolean;
-import com.github.jonathanxd.iutils.opt.specialized.OptByte;
-import com.github.jonathanxd.iutils.opt.specialized.OptDouble;
-import com.github.jonathanxd.iutils.opt.specialized.OptLazy;
-import com.github.jonathanxd.iutils.opt.specialized.OptObject;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -45,19 +40,6 @@ import java.util.List;
 import java.util.function.Supplier;
 
 public class OptTest {
-
-    @Test
-    public void optTest() {
-        Opt<OptBoolean> abcd = op("aabbc")
-                .$or(() -> op("ccddaa"));
-
-        OptObject<String> s = abcd.cast()
-                .flatMapTo(value -> value ? OptObject.optObjectNotNull("TRUE") : OptObject.optObjectNotNull("FALSE"), OptObject::none);
-
-
-        Assert.assertTrue(abcd.isPresent());
-        Assert.assertTrue(s.isPresent());
-    }
 
     @Test
     public void optTest2() {
@@ -93,21 +75,6 @@ public class OptTest {
         Assert.assertEquals("110", test.getValue());
 
         test.flatMap(s -> OptObject.$try(() -> Integer.parseInt(s)));
-    }
-
-    @Test
-    public void optTest5() {
-        OptDouble test = testDouble(16.9)
-                .or(() -> testDouble(50.0))
-                .or(() -> testDouble(99.9999999999)
-                .or(() -> testDouble(100.0)));
-
-        Assert.assertTrue(test.equals(OptDouble.optDouble(100.0)));
-        Assert.assertEquals(100.0, test.getValue(), 0D);
-    }
-
-    private OptDouble testDouble(double doub) {
-        return doub >= 100.0 ? OptDouble.optDouble(doub) : OptDouble.none();
     }
 
     @Test
@@ -178,19 +145,4 @@ public class OptTest {
 
     }
 
-
-    public Opt<OptBoolean> op(String s) {
-        char[] charArray = s.toCharArray();
-
-        for (int i = 0; i < charArray.length; i += 2) {
-            if (i + 1 >= charArray.length)
-                return OptBoolean.none();
-
-            if (charArray[i] != charArray[i + 1])
-                return OptBoolean.falseOpt();
-        }
-
-        return OptBoolean.trueOpt();
-
-    }
 }

@@ -29,7 +29,7 @@ package com.github.jonathanxd.iutils.matching;
 
 import com.github.jonathanxd.iutils.object.Lazy;
 import com.github.jonathanxd.iutils.object.result.Result;
-import com.github.jonathanxd.iutils.opt.specialized.OptObject;
+import com.github.jonathanxd.iutils.opt.OptObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;

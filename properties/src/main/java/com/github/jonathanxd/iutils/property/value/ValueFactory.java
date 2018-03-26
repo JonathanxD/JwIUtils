@@ -28,7 +28,7 @@
 package com.github.jonathanxd.iutils.property.value;
 
 import com.github.jonathanxd.iutils.box.MutableBox;
-import com.github.jonathanxd.iutils.opt.specialized.OptObject;
+import com.github.jonathanxd.iutils.opt.OptObject;
 import com.github.jonathanxd.iutils.property.Property;
 import com.github.jonathanxd.iutils.property.internal.PropertyUtil;
 

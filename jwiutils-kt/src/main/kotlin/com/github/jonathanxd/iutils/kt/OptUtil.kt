@@ -29,7 +29,8 @@ package com.github.jonathanxd.iutils.kt
 
 import com.github.jonathanxd.iutils.`object`.Lazy
 import com.github.jonathanxd.iutils.opt.specialized.*
-import kotlin.reflect.KProperty
+import com.github.jonathanxd.iutils.opt.OptObject
+import com.github.jonathanxd.iutils.opt.OptLazy
 
 fun noneBoolean(): OptBoolean = OptBoolean.none()
 fun noneByte(): OptByte = OptByte.none()
