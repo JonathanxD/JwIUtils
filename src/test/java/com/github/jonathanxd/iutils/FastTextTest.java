@@ -159,6 +159,23 @@ public class FastTextTest {
         String twoVarsTextLocalized = localize.localize(twoVarsText);
 
         Assert.assertEquals("Hello JwIUtils $name", twoVarsTextLocalized);
+
+        List<TextComponent> localizations = localize.getLocalizations(helloMessages, ptBr);
+
+        Assert.assertEquals(Collections3.listOf(
+                Text.of("Hello,"),
+                Text.of("parser"),
+                Text.of("don't"),
+                Text.of("care"),
+                Text.of("about"),
+                Text.of("commas"),
+                Text.of("in"),
+                Text.of("lang"),
+                Text.of("neither"),
+                Text.of("about"),
+                Text.of("empty"),
+                Text.of("lines")
+        ), localizations);
     }
 
     public interface Stub {

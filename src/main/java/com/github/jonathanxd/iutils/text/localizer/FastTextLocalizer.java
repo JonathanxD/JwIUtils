@@ -45,6 +45,9 @@ import com.github.jonathanxd.iutils.text.Text;
 import com.github.jonathanxd.iutils.text.TextComponent;
 import com.github.jonathanxd.iutils.text.VariableComponent;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -60,6 +63,9 @@ import java.util.function.UnaryOperator;
  */
 public final class FastTextLocalizer extends AbstractTextLocalizer {
 
+    static final int NORMAL = 0;
+    static final int UPPER = 1;
+    static final int LOWER = 2;
     private final Function<Color, TextComponent> colorTransformer;
     private final Function<Style, TextComponent> styleTransformer;
     private final Function<TextComponent, TextComponent> additionalTransformer;
@@ -107,8 +113,11 @@ public final class FastTextLocalizer extends AbstractTextLocalizer {
         return this.additionalTransformer;
     }
 
+    @NotNull
     @Override
-    public String localize(TextComponent textComponent, Map<String, TextComponent> args, Locale locale) {
+    public String localize(@NotNull TextComponent textComponent,
+                           @NotNull Map<String, TextComponent> args,
+                           @Nullable Locale locale) {
         StringBuilder result = new StringBuilder();
         this.localize(textComponent, args, locale, result);
         return result.toString();
@@ -271,9 +280,5 @@ public final class FastTextLocalizer extends AbstractTextLocalizer {
         }
 
     }
-
-    static final int NORMAL = 0;
-    static final int UPPER = 1;
-    static final int LOWER = 2;
 
 }

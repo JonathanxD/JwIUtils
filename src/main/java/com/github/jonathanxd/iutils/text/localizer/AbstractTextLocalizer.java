@@ -30,6 +30,8 @@ package com.github.jonathanxd.iutils.text.localizer;
 import com.github.jonathanxd.iutils.localization.Locale;
 import com.github.jonathanxd.iutils.localization.LocaleManager;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Objects;
 
 /**
@@ -40,40 +42,45 @@ public abstract class AbstractTextLocalizer implements TextLocalizer {
     private Locale defaultLocale;
     private Locale locale;
 
-    public AbstractTextLocalizer(LocaleManager localeManager,
-                                 Locale defaultLocale,
-                                 Locale locale) {
+    public AbstractTextLocalizer(@NotNull LocaleManager localeManager,
+                                 @NotNull Locale defaultLocale,
+                                 @NotNull Locale locale) {
         this.localeManager = Objects.requireNonNull(localeManager, "Locale manager cannot be null.");
         this.defaultLocale = Objects.requireNonNull(defaultLocale, "Default locale cannot be null.");
         this.locale = Objects.requireNonNull(locale, "Current locale cannot be null.");
     }
 
+    @NotNull
     @Override
     public Locale getDefaultLocale() {
         return this.defaultLocale;
     }
 
+    @NotNull
     @Override
     public LocaleManager getLocaleManager() {
         return this.localeManager;
     }
 
+    @NotNull
     @Override
-    public Locale setDefaultLocale(Locale locale) {
+    public Locale setDefaultLocale(@NotNull Locale locale) {
         Objects.requireNonNull(locale, "Default locale cannot be null.");
         Locale old = this.defaultLocale;
         this.defaultLocale = locale;
         return old;
     }
 
+    @NotNull
     @Override
     public Locale getLocale() {
         return this.locale;
     }
 
 
+    @NotNull
     @Override
-    public Locale setLocale(Locale locale) {
+    public Locale setLocale(@NotNull Locale locale) {
         Objects.requireNonNull(locale, "Locale cannot be null.");
         Locale old = this.locale;
         this.locale = locale;

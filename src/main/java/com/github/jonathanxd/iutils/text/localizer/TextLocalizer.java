@@ -31,7 +31,12 @@ import com.github.jonathanxd.iutils.localization.Locale;
 import com.github.jonathanxd.iutils.localization.LocaleManager;
 import com.github.jonathanxd.iutils.text.TextComponent;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -44,6 +49,7 @@ public interface TextLocalizer {
      *
      * @return Locale manager.
      */
+    @NotNull
     LocaleManager getLocaleManager();
 
     /**
@@ -51,6 +57,7 @@ public interface TextLocalizer {
      *
      * @return Default locale.
      */
+    @NotNull
     Locale getDefaultLocale();
 
     /**
@@ -60,13 +67,15 @@ public interface TextLocalizer {
      * @param locale New default locale.
      * @return Old locale.
      */
-    Locale setDefaultLocale(Locale locale);
+    @NotNull
+    Locale setDefaultLocale(@NotNull Locale locale);
 
     /**
      * Gets current locale.
      *
      * @return Current locale.
      */
+    @NotNull
     Locale getLocale();
 
     /**
@@ -75,7 +84,70 @@ public interface TextLocalizer {
      * @param locale New locale.
      * @return Old locale.
      */
-    Locale setLocale(Locale locale);
+    @NotNull
+    Locale setLocale(@NotNull Locale locale);
+
+    /**
+     * Returns a list with all localizations that {@code textComponent} resolves to. This method
+     * will first lookup for localizations in {@code locale}, then in {@link #getLocale() current
+     * locale} and then in {@link #getDefaultLocale() default locale}.
+     *
+     * This works by mapping {@code textComponent} to a list and then calling {@link
+     * #localize(TextComponent, Map, Locale)}.
+     *
+     * @param textComponent Component to localize.
+     * @param args          Values of text variables.
+     * @param locale        First locale to use to localize.
+     * @return List with all localizations that {@code textComponent} resolves to.
+     */
+    @NotNull
+    default List<TextComponent> getLocalizations(@NotNull TextComponent textComponent,
+                                                 @NotNull Map<String, TextComponent> args,
+                                                 @Nullable Locale locale) {
+        List<TextComponent> components = new ArrayList<>();
+
+        textComponent = textComponent.mapLocalized(textComponents -> {
+            components.addAll(textComponents);
+            return textComponents;
+        });
+
+        this.localize(textComponent, args, locale);
+
+        return components;
+    }
+
+    /**
+     * Returns a list with all localizations that {@code textComponent} resolves to. This method
+     * will first lookup for localizations in {@code locale}, then in {@link #getLocale() current
+     * locale} and then in {@link #getDefaultLocale() default locale}.
+     *
+     * This works by mapping {@code textComponent} to a list and then calling {@link
+     * #localize(TextComponent, Map, Locale)}.
+     *
+     * @param textComponent Component to localize.
+     * @param locale        First locale to use to localize.
+     * @return List with all localizations that {@code textComponent} resolves to.
+     */
+    @NotNull
+    default List<TextComponent> getLocalizations(@NotNull TextComponent textComponent,
+                                                 @Nullable Locale locale) {
+        return this.getLocalizations(textComponent, Collections.emptyMap(), locale);
+    }
+
+    /**
+     * Returns a list with all localizations that {@code textComponent} resolves to. This method
+     * will first lookup for localizations in {@link #getLocale() current locale} and then in {@link
+     * #getDefaultLocale() default locale}.
+     *
+     * This works by mapping {@code textComponent} to a list and then calling {@link
+     * #localize(TextComponent, Map, Locale)}.
+     *
+     * @param textComponent Component to localize.
+     * @return List with all localizations that {@code textComponent} resolves to.
+     */
+    default List<TextComponent> getLocalizations(@NotNull TextComponent textComponent) {
+        return this.getLocalizations(textComponent, Collections.emptyMap(), null);
+    }
 
     /**
      * Localizes {@code textComponent} to {@code locale}.
@@ -89,7 +161,8 @@ public interface TextLocalizer {
      * @param locale        Locale to be used to localize text.
      * @return String of text component.
      */
-    String localize(TextComponent textComponent, Map<String, TextComponent> args, Locale locale);
+    @NotNull
+    String localize(@NotNull TextComponent textComponent, @NotNull Map<String, TextComponent> args, @Nullable Locale locale);
 
     /**
      * Localizes {@code textComponent} to {@link #getLocale() current locale}.
@@ -99,7 +172,8 @@ public interface TextLocalizer {
      * @param textComponent Text component.
      * @return String of text component.
      */
-    default String localize(TextComponent textComponent) {
+    @NotNull
+    default String localize(@NotNull TextComponent textComponent) {
         return this.localize(textComponent, (Locale) null);
     }
 
@@ -112,7 +186,8 @@ public interface TextLocalizer {
      * @param args          Values of text variables.
      * @return String of text component.
      */
-    default String localize(TextComponent textComponent, Map<String, TextComponent> args) {
+    @NotNull
+    default String localize(@NotNull TextComponent textComponent, @NotNull Map<String, TextComponent> args) {
         return this.localize(textComponent, args, null);
     }
 
@@ -127,7 +202,8 @@ public interface TextLocalizer {
      * @param locale        Locale to be used to localize text.
      * @return String of text component.
      */
-    default String localize(TextComponent textComponent, Locale locale) {
+    @NotNull
+    default String localize(@NotNull TextComponent textComponent, @Nullable Locale locale) {
         return this.localize(textComponent, Collections.emptyMap(), locale);
     }
 

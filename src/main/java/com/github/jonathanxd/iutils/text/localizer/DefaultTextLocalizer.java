@@ -42,6 +42,9 @@ import com.github.jonathanxd.iutils.text.Text;
 import com.github.jonathanxd.iutils.text.TextComponent;
 import com.github.jonathanxd.iutils.text.VariableComponent;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -57,26 +60,31 @@ import java.util.function.UnaryOperator;
  * function use recursion, then color parsing through function override is safe.
  */
 public class DefaultTextLocalizer extends AbstractTextLocalizer {
-    public DefaultTextLocalizer(LocaleManager localeManager,
-                                Locale defaultLocale,
-                                Locale locale) {
+    public DefaultTextLocalizer(@NotNull LocaleManager localeManager,
+                                @NotNull Locale defaultLocale,
+                                @NotNull Locale locale) {
         super(localeManager, defaultLocale, locale);
     }
 
-    public DefaultTextLocalizer(LocaleManager localeManager,
-                                Locale defaultLocale) {
+    public DefaultTextLocalizer(@NotNull LocaleManager localeManager,
+                                @NotNull Locale defaultLocale) {
         this(localeManager, defaultLocale, defaultLocale);
     }
 
+    @NotNull
     @Override
-    public String localize(TextComponent textComponent, Map<String, TextComponent> args, Locale locale) {
+    public String localize(@NotNull TextComponent textComponent,
+                           @NotNull Map<String, TextComponent> args,
+                           @Nullable Locale locale) {
         StringBuilder sb = new StringBuilder();
         this.localize(textComponent, args, locale, sb);
         return sb.toString();
     }
 
-    public void localize(TextComponent textComponent, Map<String, TextComponent> args, Locale locale,
-                         StringBuilder sb) {
+    public void localize(@NotNull TextComponent textComponent,
+                         @NotNull Map<String, TextComponent> args,
+                         @Nullable Locale locale,
+                         @NotNull StringBuilder sb) {
 
         if (!(textComponent instanceof Color)
                 && !(textComponent instanceof Style)) {
@@ -87,12 +95,12 @@ public class DefaultTextLocalizer extends AbstractTextLocalizer {
             } else if (textComponent instanceof CapitalizeComponent) {
                 String s = this.localize(((CapitalizeComponent) textComponent).getTextComponent(), args, locale);
                 if (s.length() != 0) {
-                    sb.append(Character.toUpperCase(s.charAt(0))).append(s.substring(1, s.length()));
+                    sb.append(Character.toUpperCase(s.charAt(0))).append(s, 1, s.length());
                 }
             } else if (textComponent instanceof DecapitalizeComponent) {
                 String s = this.localize(((DecapitalizeComponent) textComponent).getTextComponent(), args, locale);
                 if (s.length() != 0) {
-                    sb.append(Character.toLowerCase(s.charAt(0))).append(s.substring(1, s.length()));
+                    sb.append(Character.toLowerCase(s.charAt(0))).append(s, 1, s.length());
                 }
             } else if (textComponent instanceof VariableComponent) {
                 String variable = ((VariableComponent) textComponent).getVariable();
@@ -154,7 +162,10 @@ public class DefaultTextLocalizer extends AbstractTextLocalizer {
         }
     }
 
-    private void getTextString(Text text, Map<String, TextComponent> variableValues, Locale locale, StringBuilder sb) {
+    private void getTextString(@NotNull Text text,
+                               @NotNull Map<String, TextComponent> variableValues,
+                               @Nullable Locale locale,
+                               @NotNull StringBuilder sb) {
         for (TextComponent textComponent : text) {
             this.localize(textComponent, variableValues, locale, sb);
         }
