@@ -31,6 +31,8 @@ import com.github.jonathanxd.iutils.localization.Locale
 import com.github.jonathanxd.iutils.text.Text
 import com.github.jonathanxd.iutils.text.TextComponent
 import com.github.jonathanxd.iutils.text.TextUtil
+import com.github.jonathanxd.iutils.text.localizer.Localizer
+import com.github.jonathanxd.iutils.text.localizer.SingleLocalizer
 import com.github.jonathanxd.iutils.text.localizer.TextLocalizer
 
 /**
@@ -86,3 +88,9 @@ operator fun TextLocalizer.get(component: TextComponent): String =
 
 operator fun TextLocalizer.get(component: TextComponent, locale: Locale): String =
         this.localize(component, locale)
+
+operator fun SingleLocalizer.get(component: TextComponent): String =
+        this.localize(component)
+
+operator fun Localizer.get(component: TextComponent): String =
+        this.localize(component)

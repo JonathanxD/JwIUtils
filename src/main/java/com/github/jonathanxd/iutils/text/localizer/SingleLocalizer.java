@@ -39,7 +39,7 @@ import java.util.Map;
 /**
  * A localizer which localizes only to a single locale (recommended for multi-user contexts).
  */
-public interface SingleLocalizer {
+public interface SingleLocalizer extends Localizer {
 
     /**
      * Gets the locale which this localizer localizes to.
@@ -59,6 +59,7 @@ public interface SingleLocalizer {
      * See {@link TextLocalizer#getLocalizations(TextComponent, Map, Locale)}.
      */
     @NotNull
+    @Override
     default List<TextComponent> getLocalizations(@NotNull TextComponent textComponent,
                                                  @NotNull Map<String, TextComponent> args) {
         return this.getTextLocalizer().getLocalizations(textComponent, args, this.getLocale());
@@ -68,6 +69,7 @@ public interface SingleLocalizer {
      * See {@link TextLocalizer#getLocalizations(TextComponent, Map, Locale)}.
      */
     @NotNull
+    @Override
     default List<TextComponent> getLocalizations(@NotNull TextComponent textComponent) {
         return this.getLocalizations(textComponent, Collections.emptyMap());
     }
@@ -81,6 +83,7 @@ public interface SingleLocalizer {
      * @return Localized text.
      */
     @NotNull
+    @Override
     default String localize(@NotNull TextComponent textComponent, @NotNull Map<String, TextComponent> args) {
         return this.getTextLocalizer().localize(textComponent, args, this.getLocale());
     }
@@ -92,6 +95,7 @@ public interface SingleLocalizer {
      * @return Localized text.
      */
     @NotNull
+    @Override
     default String localize(@NotNull TextComponent textComponent) {
         return this.localize(textComponent, Collections.emptyMap());
     }

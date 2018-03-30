@@ -42,7 +42,7 @@ import java.util.Map;
 /**
  * Converts text into string.
  */
-public interface TextLocalizer {
+public interface TextLocalizer extends Localizer {
 
     /**
      * Gets the locale manager.
@@ -145,8 +145,15 @@ public interface TextLocalizer {
      * @param textComponent Component to localize.
      * @return List with all localizations that {@code textComponent} resolves to.
      */
+    @Override
     default List<TextComponent> getLocalizations(@NotNull TextComponent textComponent) {
         return this.getLocalizations(textComponent, Collections.emptyMap(), null);
+    }
+
+    @Override
+    default List<TextComponent> getLocalizations(@NotNull TextComponent textComponent,
+                                                 @NotNull Map<String, TextComponent> args) {
+        return this.getLocalizations(textComponent, args, null);
     }
 
     /**
@@ -173,6 +180,7 @@ public interface TextLocalizer {
      * @return String of text component.
      */
     @NotNull
+    @Override
     default String localize(@NotNull TextComponent textComponent) {
         return this.localize(textComponent, (Locale) null);
     }
@@ -187,6 +195,7 @@ public interface TextLocalizer {
      * @return String of text component.
      */
     @NotNull
+    @Override
     default String localize(@NotNull TextComponent textComponent, @NotNull Map<String, TextComponent> args) {
         return this.localize(textComponent, args, null);
     }
