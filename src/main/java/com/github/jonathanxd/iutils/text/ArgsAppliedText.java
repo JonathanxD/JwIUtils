@@ -28,8 +28,10 @@
 package com.github.jonathanxd.iutils.text;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.UnaryOperator;
 
 public final class ArgsAppliedText implements TextComponent {
     private final TextComponent component;
@@ -46,6 +48,11 @@ public final class ArgsAppliedText implements TextComponent {
 
     public Map<String, TextComponent> getArgs() {
         return this.args;
+    }
+
+    @Override
+    public TextComponent mapLocalized(UnaryOperator<List<TextComponent>> operator) {
+        return new ArgsAppliedText(this.getComponent().mapLocalized(operator), this.getArgs());
     }
 
     @Override

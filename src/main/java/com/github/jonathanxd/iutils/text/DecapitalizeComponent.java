@@ -27,8 +27,10 @@
  */
 package com.github.jonathanxd.iutils.text;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.UnaryOperator;
 
 public final class DecapitalizeComponent implements TextComponent {
     private final TextComponent textComponent;
@@ -39,6 +41,11 @@ public final class DecapitalizeComponent implements TextComponent {
 
     public static DecapitalizeComponent of(TextComponent textComponent) {
         return new DecapitalizeComponent(textComponent);
+    }
+
+    @Override
+    public TextComponent mapLocalized(UnaryOperator<List<TextComponent>> operator) {
+        return DecapitalizeComponent.of(this.getTextComponent().mapLocalized(operator));
     }
 
     public TextComponent getTextComponent() {

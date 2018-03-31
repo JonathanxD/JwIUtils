@@ -50,6 +50,8 @@ import java.util.stream.Stream;
  */
 public final class Text implements Iterable<TextComponent>, TextComponent {
 
+    private static final TextComponent EMPTY = Text.single("");
+
     private final List<TextComponent> components;
 
     private Text(List<TextComponent> components) {
@@ -280,11 +282,22 @@ public final class Text implements Iterable<TextComponent>, TextComponent {
         if (o instanceof TextComponent)
             return (TextComponent) o;
 
+        if (o.toString().isEmpty())
+            return Text.empty();
+
         return StringComponent.of(o.toString());
+    }
+
+    public static TextComponent empty() {
+        return Text.EMPTY;
     }
 
     public static CapitalizeComponent capitalize(TextComponent textComponent) {
         return CapitalizeComponent.of(textComponent);
+    }
+
+    public static DecapitalizeComponent decapitalize(TextComponent textComponent) {
+        return DecapitalizeComponent.of(textComponent);
     }
 
     public static LocalizableComponent localizable(String localization) {
@@ -297,6 +310,13 @@ public final class Text implements Iterable<TextComponent>, TextComponent {
 
     public static VariableComponent variable(String variable) {
         return VariableComponent.of(variable);
+    }
+
+    @Override
+    public TextComponent mapLocalized(UnaryOperator<List<TextComponent>> operator) {
+        return Text.of(this.getComponents().stream()
+                .map(textComponent -> textComponent.mapLocalized(operator))
+                .collect(Collectors.toList()));
     }
 
     @Override
