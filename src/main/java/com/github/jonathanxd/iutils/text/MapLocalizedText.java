@@ -53,6 +53,13 @@ public final class MapLocalizedText implements TextComponent {
     }
 
     @Override
+    public TextComponent mapLocalized(UnaryOperator<List<TextComponent>> operator) {
+        return new MapLocalizedText(this.getLocalizableComponent(),
+                it -> operator.apply(this.getOperator().apply(it))
+        );
+    }
+
+    @Override
     public boolean isEmpty() {
         return this.getLocalizableComponent().isEmpty();
     }
