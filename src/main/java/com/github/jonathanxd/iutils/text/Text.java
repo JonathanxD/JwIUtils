@@ -50,7 +50,7 @@ import java.util.stream.Stream;
  */
 public final class Text implements Iterable<TextComponent>, TextComponent {
 
-    private static final TextComponent EMPTY = Text.single("");
+    private static final TextComponent EMPTY = new Text(Collections.emptyList());
 
     private final List<TextComponent> components;
 
