@@ -34,6 +34,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 /**
@@ -62,12 +63,51 @@ public abstract class Result<R, E> {
      * @param <R>      Result value type.
      * @return Result of operation.
      */
-    public static <R> Result<R, Throwable> Try(CSupplier<R> supplier) {
+    @NotNull
+    public static <R> Result<R, Throwable> Try(@NotNull CSupplier<R> supplier) {
         try {
             return Result.ok(supplier.getChecked());
         } catch (Throwable t) {
             return Result.error(t);
         }
+    }
+
+    /**
+     * Tests {@code value} with {@code predicate}. If {@code predicate} returns {@code true}, then
+     * return {@link #Ok(Object) success result}, otherwise call {@code otherwise} with {@code
+     * value} and return it.
+     *
+     * @param value     Value to test.
+     * @param predicate Predicate to test value.
+     * @param otherwise Function to map {@code value} to a {@link Result} if {@code predicate}
+     *                  returns false.
+     * @param <R>       Result type.
+     * @param <E>       Error type.
+     * @return Result of operation.
+     */
+    public static <R, E> Result<R, E> test(R value,
+                                           Predicate<? super R> predicate,
+                                           Function<? super R, ? extends Result<R, E>> otherwise) {
+        return predicate.test(value) ? Ok(value) : otherwise.apply(value);
+    }
+
+    /**
+     * Tests {@code error} with {@code predicate}. If {@code predicate} returns {@code true}, then
+     * return {@link #Err(Object) error result}, otherwise call {@code otherwise} with {@code value}
+     * and return it.
+     *
+     * @param error     Error value to test.
+     * @param predicate Predicate to test value.
+     * @param otherwise Function to map {@code value} to a {@link Result} if {@code predicate}
+     *                  returns false.
+     * @param <R>       Result type.
+     * @param <E>       Error type.
+     * @return Result of operation.
+     */
+    public static <R, E> Result<R, E> testError(E error,
+                                                Predicate<? super E> predicate,
+                                                Function<? super E, ? extends Result<R, E>> otherwise) {
+        return predicate.test(error) ? Err(error) : otherwise.apply(error);
     }
 
     /**
@@ -181,7 +221,8 @@ public abstract class Result<R, E> {
      *
      * @return This result or {@code other} if this is not a {@link #isSuccess() success result}.
      */
-    public abstract Result<R, E> successOrResult(Result<R, E> other);
+    @NotNull
+    public abstract Result<R, E> successOrResult(@NotNull Result<R, E> other);
 
     /**
      * Returns this result or result supplied by {@code otherSupplier} if this is not a {@link
@@ -190,7 +231,8 @@ public abstract class Result<R, E> {
      * @return This result or result supplied by {@code otherSupplier} if this is not a {@link
      * #isSuccess() success result}.
      */
-    public abstract Result<R, E> successOrResult(Supplier<? extends Result<R, E>> otherSupplier);
+    @NotNull
+    public abstract Result<R, E> successOrResult(@NotNull Supplier<? extends Result<R, E>> otherSupplier);
 
     /**
      * Returns the error value or {@code null} if this is not an {@link #isError() error result}.
@@ -221,7 +263,8 @@ public abstract class Result<R, E> {
      *
      * @return This result or {@code success} if this is not an {@link #isError() error result}.
      */
-    public abstract Result<R, E> errorOrResult(Result<R, E> other);
+    @NotNull
+    public abstract Result<R, E> errorOrResult(@NotNull Result<R, E> other);
 
     /**
      * Returns this result or result supplied by {@code otherSupplier} if this is not an {@link
@@ -230,7 +273,8 @@ public abstract class Result<R, E> {
      * @return This result or result supplied by {@code otherSupplier} if this is not an {@link
      * #isError() error result}.
      */
-    public abstract Result<R, E> errorOrResult(Supplier<? extends Result<R, E>> otherSupplier);
+    @NotNull
+    public abstract Result<R, E> errorOrResult(@NotNull Supplier<? extends Result<R, E>> otherSupplier);
 
     /**
      * Success value or null. (Kotlin compatibility purpose)
@@ -256,7 +300,8 @@ public abstract class Result<R, E> {
      * @param okConsumer    Consumer of {@code success} value.
      * @param errorConsumer Consumer of {@code error} value.
      */
-    public abstract void consume(Consumer<? super R> okConsumer, Consumer<? super E> errorConsumer);
+    public abstract void consume(@NotNull Consumer<? super R> okConsumer,
+                                 @NotNull Consumer<? super E> errorConsumer);
 
     /**
      * Consumes {@code success} value with {@code okConsumer} if this is a {@link #isSuccess()
@@ -264,7 +309,7 @@ public abstract class Result<R, E> {
      *
      * @param consumer Consumer of success result.
      */
-    public abstract void ifSuccess(Consumer<? super R> consumer);
+    public abstract void ifSuccess(@NotNull Consumer<? super R> consumer);
 
     /**
      * Consumes {@code error} value with {@code errorConsumer} if this is an {@link #isError() error
@@ -272,7 +317,7 @@ public abstract class Result<R, E> {
      *
      * @param consumer Consumer of error value.
      */
-    public abstract void ifError(Consumer<? super E> consumer);
+    public abstract void ifError(@NotNull Consumer<? super E> consumer);
 
     /**
      * Returns a {@link Result} recovered from error to a value supplied by {@code success}, or
@@ -282,7 +327,8 @@ public abstract class Result<R, E> {
      * @return {@link Result} recovered from error to a value supplied by {@code success}, or
      * returns the same {@link Result} if this is a {@link #isSuccess() success result}.
      */
-    public abstract Result<R, E> recover(Supplier<R> result);
+    @NotNull
+    public abstract Result<R, E> recover(@NotNull Supplier<R> result);
 
     /**
      * Returns a {@link Result} recovered from error to a value transformed by {@code toResultFunc}
@@ -294,7 +340,8 @@ public abstract class Result<R, E> {
      * from {@code error} value, or returns the same {@link Result} if this is a {@link #isSuccess()
      * success result}.
      */
-    public abstract Result<R, E> recover(Function<E, R> toResultFunc);
+    @NotNull
+    public abstract Result<R, E> recover(@NotNull Function<E, R> toResultFunc);
 
     /**
      * Returns a {@link Result} failed with a value supplied by {@code error}, or returns the same
@@ -304,7 +351,8 @@ public abstract class Result<R, E> {
      * @return {@link Result} failed with a value supplied by {@code error}, or returns the same
      * {@link Result} if this is an {@link #isError() error result}.
      */
-    public abstract Result<R, E> fail(Supplier<E> error);
+    @NotNull
+    public abstract Result<R, E> fail(@NotNull Supplier<E> error);
 
     /**
      * Returns a {@link Result} failed with a value transformed by {@code toErrorFunc} from {@code
@@ -316,7 +364,8 @@ public abstract class Result<R, E> {
      * result} value, or returns the same {@link Result} if this is an {@link #isError() error
      * result}.
      */
-    public abstract Result<R, E> fail(Function<R, E> toErrorFunc);
+    @NotNull
+    public abstract Result<R, E> fail(@NotNull Function<R, E> toErrorFunc);
 
     /**
      * Maps {@code success} with {@code okMapper} if this is a {@link #isSuccess() success result}
@@ -330,8 +379,9 @@ public abstract class Result<R, E> {
      * @return New result mapped with either a success result mapped with {@code okMapper} or an
      * error result mapped with {@code errorMapper}.
      */
-    public abstract <MR, ME> Result<MR, ME> map(Function<? super R, ? extends MR> okMapper,
-                                                Function<? super E, ? extends ME> errorMapper);
+    @NotNull
+    public abstract <MR, ME> Result<MR, ME> map(@NotNull Function<? super R, ? extends MR> okMapper,
+                                                @NotNull Function<? super E, ? extends ME> errorMapper);
 
 
     /**
@@ -343,7 +393,8 @@ public abstract class Result<R, E> {
      * @return New result with mapped {@code success} or same result if this is an {@link #isError()
      * error result},
      */
-    public abstract <MR> Result<MR, E> mapSuccess(Function<? super R, ? extends MR> okMapper);
+    @NotNull
+    public abstract <MR> Result<MR, E> map(@NotNull Function<? super R, ? extends MR> okMapper);
 
     /**
      * Maps {@code error} with {@code errorMapper} if this is an {@link #isError() error result}, or
@@ -354,7 +405,8 @@ public abstract class Result<R, E> {
      * @return New result with mapped {@code error} or same result if this is a {@link #isSuccess()
      * success result},
      */
-    public abstract <ME> Result<R, ME> mapError(Function<? super E, ? extends ME> errorMapper);
+    @NotNull
+    public abstract <ME> Result<R, ME> mapError(@NotNull Function<? super E, ? extends ME> errorMapper);
 
     /**
      * Maps this result to a new {@link #isSuccess() success result} with {@code okMapper} if this
@@ -369,8 +421,9 @@ public abstract class Result<R, E> {
      * @return New result mapped to either a new {@link #isSuccess() success result} or a new {@link
      * #isError() error result}.
      */
-    public abstract <MR, ME> Result<MR, ME> flatMap(Function<? super R, ? extends Result<MR, ME>> okMapper,
-                                                    Function<? super E, ? extends Result<MR, ME>> errorMapper);
+    @NotNull
+    public abstract <MR, ME> Result<MR, ME> flatMap(@NotNull Function<? super R, ? extends Result<MR, ME>> okMapper,
+                                                    @NotNull Function<? super E, ? extends Result<MR, ME>> errorMapper);
 
     /**
      * Maps this result to a new {@link #isSuccess() success result} with {@code okMapper} if this
@@ -383,7 +436,38 @@ public abstract class Result<R, E> {
      * @return New result mapped to a new success result or the same result if this is an {@link
      * #isError() error result}.
      */
-    public abstract <MR> Result<MR, E> flatMapSuccess(Function<? super R, ? extends Result<MR, E>> okMapper);
+    @NotNull
+    public abstract <MR> Result<MR, E> flatMap(@NotNull Function<? super R, ? extends Result<MR, E>> okMapper);
+
+    /**
+     * Tests if {@link #isSuccess() success result} matches {@code predicate}, returning a {@link
+     * Result} with same {@link #isSuccess() success result} if {@code predicate} returns {@code
+     * true}, or returning {@link Result} provided by {@code otherwise} if {@code predicate} returns
+     * {@code false}.
+     *
+     * @param predicate Predicate to test {@link #isSuccess() success result}.
+     * @param otherwise Function that returns the {@link Result} if {@code predicate} does not match
+     *                  current value.
+     * @return Either current result or result returned by {@code otherwise}.
+     */
+    @NotNull
+    public abstract Result<R, E> test(@NotNull Predicate<? super R> predicate,
+                                      @NotNull Function<? super R, ? extends Result<R, E>> otherwise);
+
+    /**
+     * Tests if {@link #isError() error result} matches {@code predicate}, returning a {@link
+     * Result} with same {@link #isError() error result} if {@code predicate} returns {@code true},
+     * or returning {@link Result} provided by {@code otherwise} if {@code predicate} returns {@code
+     * false}.
+     *
+     * @param predicate Predicate to test {@link #isError() error result}.
+     * @param otherwise Function that returns the {@link Result} if {@code predicate} does not match
+     *                  current value.
+     * @return Either current result or result returned by {@code otherwise}.
+     */
+    @NotNull
+    public abstract Result<R, E> testError(@NotNull Predicate<? super E> predicate,
+                                           @NotNull Function<? super E, ? extends Result<R, E>> otherwise);
 
     /**
      * Maps this result to a new {@link #isError() error result} with {@code errorMapper} if this is
@@ -395,7 +479,8 @@ public abstract class Result<R, E> {
      * @return New result mapped to a new {@link #isError() error result} or the same result if this
      * is an {@link #isSuccess() success result}.
      */
-    public abstract <ME> Result<R, ME> flatMapError(Function<? super E, ? extends Result<R, ME>> errorMapper);
+    @NotNull
+    public abstract <ME> Result<R, ME> flatMapError(@NotNull Function<? super E, ? extends Result<R, ME>> errorMapper);
 
     /**
      * Maps this {@link #isSuccess() success result} to an {@link #isError() error result} or
@@ -405,7 +490,8 @@ public abstract class Result<R, E> {
      * @return A new {@link #isError() error result} with {@code success} value mapped to an {@code
      * error} value or the same result if this is an {@link #isError() error result}.
      */
-    public abstract Result<R, E> mapSuccessToError(Function<R, E> toErrorFunc);
+    @NotNull
+    public abstract Result<R, E> mapSuccessToError(@NotNull Function<R, E> toErrorFunc);
 
     /**
      * Maps this {@link #isError() error result} to a {@link #isSuccess() success result} or returns
@@ -415,7 +501,8 @@ public abstract class Result<R, E> {
      * @return A new {@link #isSuccess() success result} with {@code error} value mapped to a {@code
      * result} value or the same result if this is a {@link #isSuccess() success result}.
      */
-    public abstract Result<R, E> mapErrorToSuccess(Function<E, R> toOkFunc);
+    @NotNull
+    public abstract Result<R, E> mapErrorToSuccess(@NotNull Function<E, R> toOkFunc);
 
     /**
      * Returns either {@code success} or {@code error} mapped with {@code okMapper} or {@code
@@ -427,7 +514,9 @@ public abstract class Result<R, E> {
      * @return Either {@code success} or {@code error} mapped with {@code okMapper} or {@code
      * errorMapper} respectively.
      */
-    public abstract <B> B getSuccessOrError(Function<R, B> okMapper, Function<E, B> errorMapper);
+    @NotNull
+    public abstract <B> B getSuccessOrError(@NotNull Function<R, B> okMapper,
+                                            @NotNull Function<E, B> errorMapper);
 
     /**
      * Swaps {@code error} and {@code success} value.
@@ -435,6 +524,7 @@ public abstract class Result<R, E> {
      * @return Either a {@link #isSuccess() success result} with {@code error} value or an {@link
      * #isError() error result} with {@code success} value.
      */
+    @NotNull
     public abstract Result<E, R> swap();
 
     /**
@@ -455,6 +545,7 @@ public abstract class Result<R, E> {
          * @param <ME> New error type.
          * @return {@link Ok} instance of {@link R} and {@link ME}.
          */
+        @NotNull
         public abstract <ME> Ok<R, ME> as();
 
     }
@@ -477,6 +568,7 @@ public abstract class Result<R, E> {
          * @param <MR> New result type.
          * @return {@link Err} instance of {@link MR} and {@link E}.
          */
+        @NotNull
         public abstract <MR> Err<MR, E> as();
 
     }
