@@ -32,6 +32,7 @@ import com.github.jonathanxd.iutils.collection.wrapper.WrapperMaps;
 import com.github.jonathanxd.iutils.object.Pair;
 import com.github.jonathanxd.iutils.object.Pairs;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -169,6 +170,20 @@ public class Maps3 {
     }
 
     /**
+     * Creates a {@link Map} of {@link K}-{@link V} and add {@code keyValuePairs} to it.
+     *
+     * @param <K>           Key type.
+     * @param <V>           Value type.
+     * @param keyValuePairs Pair of keys and values.
+     * @return {@link Map} of {@link K}-{@link V} with {@code keyValuePairs}.
+     */
+    @SafeVarargs
+    public static <K, V> Map<K, V> mapOf(Pair<K, V>... keyValuePairs) {
+        return Maps3.mapOf(HashMap::new, keyValuePairs);
+    }
+
+
+    /**
      * Creates a {@link ImmutableMap} of {@link K}-{@link V} and add {@code keyValuePairs} to it.
      *
      * @param factory       Map factory.
@@ -179,13 +194,81 @@ public class Maps3 {
      */
     @SafeVarargs
     public static <K, V> ImmutableMap<K, V> immutableMapOf(Supplier<? extends Map<K, V>> factory, Pair<K, V>... keyValuePairs) {
-        Map<K, V> map = factory.get();
-
-        for (Pair<K, V> keyValuePair : keyValuePairs) {
-            map.put(keyValuePair.getFirst(), keyValuePair.getSecond());
-        }
-
-        return WrapperMaps.immutableMap(map);
+        return WrapperMaps.immutableMap(Maps3.mapOf(factory, keyValuePairs));
     }
 
+    /**
+     * Creates a {@link ImmutableMap} of {@link K}-{@link V} and add {@code keyValuePairs} to it.
+     *
+     * @param <K>           Key type.
+     * @param <V>           Value type.
+     * @param keyValuePairs Pair of keys and values.
+     * @return {@link Map} of {@link K}-{@link V} with {@code keyValuePairs}.
+     */
+    @SafeVarargs
+    public static <K, V> ImmutableMap<K, V> immutableMapOf(Pair<K, V>... keyValuePairs) {
+        return WrapperMaps.immutableMap(Maps3.mapOf(keyValuePairs));
+    }
+
+    /**
+     * Creates a {@link Map} of all elements of {@code maps}.
+     *
+     * @param factory Map factory.
+     * @param <K>     Key type.
+     * @param <V>     Value type.
+     * @param maps    Maps with values to add to new map.
+     * @return {@link Map} of all elements of {@code maps}.
+     */
+    @SafeVarargs
+    public static <K, V> Map<K, V> concat(Supplier<? extends Map<K, V>> factory,
+                                          Map<K, V>... maps) {
+        Map<K, V> map = factory.get();
+
+        for (Map<K, V> kvMap : maps) {
+            map.putAll(kvMap);
+        }
+
+        return map;
+    }
+
+    /**
+     * Creates a {@link Map} of all elements of {@code maps}.
+     *
+     * @param <K>     Key type.
+     * @param <V>     Value type.
+     * @param maps    Maps with values to add to new map.
+     * @return {@link Map} of all elements of {@code maps}.
+     */
+    @SafeVarargs
+    public static <K, V> Map<K, V> concat(Map<K, V>... maps) {
+        return Maps3.concat(HashMap::new, maps);
+    }
+
+    /**
+     * Creates a {@link ImmutableMap} of all elements of {@code maps}.
+     *
+     * @param factory       Map factory.
+     * @param <K>           Key type.
+     * @param <V>           Value type.
+     * @param maps    Maps with values to add to new map.
+     * @return {@link Map} of all elements of {@code maps}.
+     */
+    @SafeVarargs
+    public static <K, V> ImmutableMap<K, V> immutableConcat(Supplier<? extends Map<K, V>> factory,
+                                                            Map<K, V>... maps) {
+        return WrapperMaps.immutableMap(Maps3.concat(factory, maps));
+    }
+
+    /**
+     * Creates a {@link ImmutableMap} of all elements of {@code maps}.
+     *
+     * @param <K>           Key type.
+     * @param <V>           Value type.
+     * @param maps    Maps with values to add to new map.
+     * @return {@link Map} of all elements of {@code maps}.
+     */
+    @SafeVarargs
+    public static <K, V> ImmutableMap<K, V> immutableConcat(Map<K, V>... maps) {
+        return WrapperMaps.immutableMap(Maps3.concat(maps));
+    }
 }

@@ -546,4 +546,117 @@ public class Collections3 {
 
         return list;
     }
+
+    /**
+     * Creates a {@link List} of {@link E} with elements of {@code lists}.
+     *
+     * @param factory Factory of new list to use to add elements (must be mutable).
+     * @param lists   Lists with elements to add to new list.
+     * @param <E>     Element type.
+     * @return {@link List} of {@link E} with elements of {@code lists}.
+     */
+    @SafeVarargs
+    public static <E> List<E> concat(Supplier<? extends List<E>> factory, List<E>... lists) {
+        List<E> list = factory.get();
+
+        for (List<E> es : lists) {
+            list.addAll(es);
+        }
+
+        return list;
+    }
+
+
+    /**
+     * Creates a {@link List} of {@link E} with elements of {@code lists}.
+     *
+     * @param lists Lists with elements to add to new list.
+     * @param <E>   Element type.
+     * @return {@link List} of {@link E} with elements of {@code lists}.
+     */
+    @SafeVarargs
+    public static <E> List<E> concat(List<E>... lists) {
+        return Collections3.concat(ArrayList::new, lists);
+    }
+
+    /**
+     * Creates a {@link Set} of {@link E} with elements of {@code sets}.
+     *
+     * @param factory Factory of new set to use to add elements (must be mutable).
+     * @param sets    Sets with elements to add to new set.
+     * @param <E>     Element type.
+     * @return {@link Set} of {@link E} with elements of {@code sets}.
+     */
+    @SafeVarargs
+    public static <E> Set<E> concat(Supplier<? extends Set<E>> factory, Set<E>... sets) {
+        Set<E> set = factory.get();
+
+        for (Set<E> es : sets) {
+            set.addAll(es);
+        }
+
+        return set;
+    }
+
+    /**
+     * Creates a {@link Set} of {@link E} with elements of {@code sets}.
+     *
+     * @param sets Sets with elements to add to new set.
+     * @param <E>  Element type.
+     * @return {@link Set} of {@link E} with elements of {@code sets}.
+     */
+    @SafeVarargs
+    public static <E> Set<E> concat(Set<E>... sets) {
+        return Collections3.concat(HashSet::new, sets);
+    }
+
+    /**
+     * Creates a {@link ImmutableList} of {@link E} with elements of {@code lists}.
+     *
+     * @param factory Factory of new list to use to add elements (must be mutable).
+     * @param lists   Lists with elements to add to new list.
+     * @param <E>     Element type.
+     * @return {@link ImmutableList} of {@link E} with elements of {@code lists}.
+     */
+    @SafeVarargs
+    public static <E> ImmutableList<E> immutableConcat(Supplier<? extends List<E>> factory, List<E>... lists) {
+        return WrapperCollections.immutableList(Collections3.concat(factory, lists));
+    }
+
+    /**
+     * Creates a {@link ImmutableSet} of {@link E} with elements of {@code sets}.
+     *
+     * @param factory Factory of new set to use to add elements (must be mutable).
+     * @param sets    Sets with elements to add to new set.
+     * @param <E>     Element type.
+     * @return {@link Set} of {@link E} with elements of {@code sets}.
+     */
+    @SafeVarargs
+    public static <E> ImmutableSet<E> immutableConcat(Supplier<? extends Set<E>> factory, Set<E>... sets) {
+        return WrapperCollections.immutableSet(Collections3.concat(factory, sets));
+    }
+
+    /**
+     * Creates a {@link ImmutableList} of {@link E} with elements of {@code lists}.
+     *
+     * @param lists Lists with elements to add to new list.
+     * @param <E>   Element type.
+     * @return {@link ImmutableList} of {@link E} with elements of {@code lists}.
+     */
+    @SafeVarargs
+    public static <E> ImmutableList<E> immutableConcat(List<E>... lists) {
+        return WrapperCollections.immutableList(Collections3.concat(lists));
+    }
+
+    /**
+     * Creates a {@link ImmutableSet} of {@link E} with elements of {@code sets}.
+     *
+     * @param sets Sets with elements to add to new set.
+     * @param <E>  Element type.
+     * @return {@link ImmutableSet} of {@link E} with elements of {@code sets}.
+     */
+    @SafeVarargs
+    public static <E> ImmutableSet<E> immutableConcat(Set<E>... sets) {
+        return WrapperCollections.immutableSet(Collections3.concat(sets));
+    }
 }
