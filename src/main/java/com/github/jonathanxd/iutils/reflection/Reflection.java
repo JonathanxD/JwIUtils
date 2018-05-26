@@ -29,11 +29,18 @@ package com.github.jonathanxd.iutils.reflection;
 
 import com.github.jonathanxd.iutils.annotation.Singleton;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 
 public final class Reflection {
 
@@ -140,5 +147,78 @@ public final class Reflection {
         return null;
     }
 
+    /**
+     * Returns whether {@code clazz} has any method with same signature as {@code method} (compared
+     * with {@link #signatureMatch(Method, Method)}).
+     *
+     * @param method Method to check.
+     * @param clazz  Class to check.
+     * @return Whether {@code clazz} has any method with same signature as {@code method}.
+     */
+    public static boolean hasMethod(Method method, Class<?> clazz) {
+        for (Method declaredMethod : clazz.getDeclaredMethods()) {
+            if (Reflection.signatureMatch(declaredMethod, method))
+                return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Returns whether signature of {@code first} matches signature of {@code second} (ignores
+     * declaring class).
+     *
+     * This method compares {@link Method#getName()}, {@link Method#getReturnType()} and {@link
+     * Method#getParameterTypes()} (but does not consider inheritance of those elements).
+     *
+     * @param first  First method.
+     * @param second Second method.
+     * @return Whether signature of {@code first} matches signature of {@code second}.
+     */
+    public static boolean signatureMatch(@NotNull Method first, @NotNull Method second) {
+        return Objects.equals(first, second)
+                ||
+                (Objects.equals(first.getName(), second.getName())
+                        && Objects.equals(first.getReturnType(), second.getReturnType())
+                        && Arrays.equals(first.getParameterTypes(), second.getParameterTypes())
+                );
+    }
+
+    /**
+     * Gets methods of {@code clazz} (union of {@link Class#getMethods()} and {@link
+     * Class#getDeclaredMethods()}).
+     *
+     * @param clazz Class to retrieve methods.
+     * @return Methods of {@code clazz}.
+     */
+    public static List<Method> getMethods(Class<?> clazz) {
+        List<Method> methods = new ArrayList<>();
+        Collections.addAll(methods, clazz.getDeclaredMethods());
+
+        for (Method method : clazz.getMethods()) {
+            if (methods.stream().noneMatch(m2 -> signatureMatch(method, m2))) {
+                methods.add(method);
+            }
+        }
+
+        return methods;
+    }
+
+    /**
+     * Gets all methods of {@code clazz} (including those of super-classes (of super-classes of
+     * super-classes and so on)).
+     *
+     * @param clazz Class to retrieve methods.
+     * @return Methods of {@code clazz}.
+     */
+    public static List<Method> getAllMethods(Class<?> clazz) {
+        List<Method> methods = new ArrayList<>();
+
+        for (Class<?> sortedSuperType : ClassUtil.getSortedSuperTypes(clazz)) {
+            Collections.addAll(methods, sortedSuperType.getDeclaredMethods());
+        }
+
+        return methods;
+    }
 
 }

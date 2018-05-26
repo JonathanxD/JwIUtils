@@ -33,6 +33,7 @@ import com.github.jonathanxd.iutils.list.UniqueList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public final class ClassUtil {
@@ -213,11 +214,16 @@ public final class ClassUtil {
             if (obj instanceof Leveled) {
                 Leveled obj0 = (Leveled) obj;
 
-                return this.getValue().equals(obj0.getValue())
-                        && this.getLevel() < obj0.getLevel();
+                return Objects.equals(this.getValue(), obj0.getValue())
+                        && this.getLevel() == obj0.getLevel();
             }
 
             return super.equals(obj);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(this.getLevel(), this.getValue());
         }
 
         @Override
