@@ -27,6 +27,8 @@
  */
 package com.github.jonathanxd.iutils;
 
+import com.github.jonathanxd.iutils.function.combiner.Combiners;
+import com.github.jonathanxd.iutils.object.Pair;
 import com.github.jonathanxd.iutils.object.result.Result;
 
 import org.junit.Assert;
@@ -55,6 +57,114 @@ public class ResultTypeTest {
 
     private Result<byte[], Fail> readFile(String file) {
         return Result.Err(new PermissionDenied());
+    }
+
+    @Test
+    public void combineSuccessAndError_Success() {
+        Result<String, Throwable> result = Result.ok("Hello");
+        Result<String, Throwable> result2 = Result.ok("Hello 2");
+
+        Object combineSuccess = result.combineSuccess(result2, Combiners.pair())
+                .getSuccessOrError(f -> f, f -> f);
+
+        Object combineError = result.combineError(result2, Combiners.pair())
+                .getSuccessOrError(f -> f, f -> f);
+
+        Assert.assertEquals(Pair.of("Hello", "Hello 2"), combineSuccess);
+        Assert.assertEquals("Hello", combineError);
+    }
+
+    @Test
+    public void combineSuccessAndError_SuccessAndError() {
+        RuntimeException runtimeException = new RuntimeException();
+        Result<String, Throwable> result = Result.ok("Hello");
+        Result<String, Throwable> result2 = Result.error(runtimeException);
+
+        Object combineSuccess = result.combineSuccess(result2, Combiners.pair())
+                .getSuccessOrError(f -> f, f -> f);
+
+        Object combineError = result.combineError(result2, Combiners.pair())
+                .getSuccessOrError(f -> f, f -> f);
+
+        Assert.assertEquals(Pair.of("Hello", null), combineSuccess);
+        Assert.assertEquals(Pair.of(null, runtimeException), combineError);
+    }
+
+    @Test
+    public void combineSuccessAndError_ErrorAndError() {
+        RuntimeException runtimeException = new RuntimeException();
+        Result<String, Throwable> result = Result.error(runtimeException);
+        Result<String, Throwable> result2 = Result.error(runtimeException);
+
+        Object combineSuccess = result.combineSuccess(result2, Combiners.pair())
+                .getSuccessOrError(f -> f, f -> f);
+
+        Object combineError = result.combineError(result2, Combiners.pair())
+                .getSuccessOrError(f -> f, f -> f);
+
+        Assert.assertEquals(runtimeException, combineSuccess);
+        Assert.assertEquals(Pair.of(runtimeException, runtimeException), combineError);
+    }
+
+    @Test
+    public void combineSuccessAndError_ErrorAndSuccess() {
+        RuntimeException runtimeException = new RuntimeException();
+        Result<String, Throwable> result = Result.error(runtimeException);
+        Result<String, Throwable> result2 = Result.ok("Hello 2");
+
+        Object combineSuccess = result.combineSuccess(result2, Combiners.pair())
+                .getSuccessOrError(f -> f, f -> f);
+
+        Object combineError = result.combineError(result2, Combiners.pair())
+                .getSuccessOrError(f -> f, f -> f);
+
+        Assert.assertEquals(Pair.of(null, "Hello 2"), combineSuccess);
+        Assert.assertEquals(Pair.of(runtimeException, null), combineError);
+    }
+
+    @Test
+    public void combine_Success() {
+        Result<String, Throwable> result = Result.ok("Hello");
+        Result<String, Throwable> result2 = Result.ok("Hello 2");
+
+        Object combine = result.combine(result2, Combiners.pair(), Combiners.pair())
+                .getSuccessOrError(f -> f, f -> f);
+
+        Assert.assertEquals(Pair.of("Hello", "Hello 2"), combine);
+    }
+
+    @Test
+    public void combine_SuccessAndError() {
+        Result<String, Throwable> result = Result.ok("Hello");
+        Result<String, Throwable> result2 = Result.error(new RuntimeException());
+
+        Object combine = result.combine(result2, Combiners.pair(), Combiners.pair())
+                .getSuccessOrError(f -> f, f -> f);
+
+        Assert.assertEquals(Pair.of("Hello", null), combine);
+    }
+
+    @Test
+    public void combine_ErrorAndSuccess() {
+        Result<String, Throwable> result = Result.error(new RuntimeException());
+        Result<String, Throwable> result2 = Result.ok("Hello 2");
+
+        Object combine = result.combine(result2, Combiners.pair(), Combiners.pair())
+                .getSuccessOrError(f -> f, f -> f);
+
+        Assert.assertEquals(Pair.of(null, "Hello 2"), combine);
+    }
+
+    @Test
+    public void combine_ErrorAndError() {
+        RuntimeException runtimeException = new RuntimeException();
+        Result<String, Throwable> result = Result.error(runtimeException);
+        Result<String, Throwable> result2 = Result.error(runtimeException);
+
+        Object combine = result.combine(result2, Combiners.pair(), Combiners.pair())
+                .getSuccessOrError(f -> f, f -> f);
+
+        Assert.assertEquals(Pair.of(runtimeException, runtimeException), combine);
     }
 
     static class Fail {

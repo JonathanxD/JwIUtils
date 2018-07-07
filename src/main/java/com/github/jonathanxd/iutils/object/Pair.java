@@ -144,4 +144,12 @@ public abstract class Pair<A, B> {
         return Objects.equals(this.getFirst(), pair.getFirst())
                 && Objects.equals(this.getSecond(), pair.getSecond());
     }
+
+    @Override
+    public String toString() {
+        return "Pair(" +
+                this.component1() +
+                ", " + this.component2() +
+                ')';
+    }
 }

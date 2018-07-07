@@ -36,6 +36,7 @@ import com.github.jonathanxd.iutils.collection.wrapper.impl.ImmutableWrapperSet;
 import com.github.jonathanxd.iutils.collection.wrapper.impl.SuppliedWrapperList;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
@@ -93,5 +94,25 @@ public class WrapperCollections {
      */
     public static <E> ImmutableSet<E> immutableSet(Set<E> set) {
         return new ImmutableWrapperSet<>(set);
+    }
+
+    /**
+     * Creates an empty immutable list.
+     *
+     * @param <E>  Element type.
+     * @return Empty immutable list.
+     */
+    public static <E> ImmutableList<E> emptyImmutableList() {
+        return new ImmutableWrapperList<>(Collections.emptyList());
+    }
+
+    /**
+     * Creates an empty immutable set.
+     *
+     * @param <E> Element type.
+     * @return Empty immutable set.
+     */
+    public static <E> ImmutableSet<E> emptyImmutableSet() {
+        return new ImmutableWrapperSet<>(Collections.emptySet());
     }
 }

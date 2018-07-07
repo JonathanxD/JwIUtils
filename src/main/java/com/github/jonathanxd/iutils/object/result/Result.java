@@ -28,10 +28,13 @@
 package com.github.jonathanxd.iutils.object.result;
 
 import com.github.jonathanxd.iutils.function.checked.supplier.CSupplier;
+import com.github.jonathanxd.iutils.function.combiner.Combiner;
+import com.github.jonathanxd.iutils.function.combiner.Combiners;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -526,6 +529,240 @@ public abstract class Result<R, E> {
      */
     @NotNull
     public abstract Result<E, R> swap();
+
+    /**
+     * Combines {@code this} {@link Result result} with {@code other} {@link Result result}. Both
+     * {@code this} and {@code other} must be the same type of {@link Result result} ({@link
+     * Result.Ok success} or {@link Result.Err error}), if they are not, {@link Result.Ok success result} will be returned.
+     *
+     * @param other           Other result to combine.
+     * @param successCombiner Function which maps both success results into a combined one, either
+     *                        first or second value may be {@code null} in case of absence.
+     * @param errorCombiner   Function which maps both errors result into a combined one, either
+     *                        first or second value may be {@code null} in case of absence.
+     * @param <MR>            Other success result type.
+     * @param <ME>            Other error result type.
+     * @param <CR>            Combined success result type.
+     * @param <CE>            Combined error result type.
+     * @return Result with combined success and error.
+     */
+    @NotNull
+    public abstract <MR, ME, CR, CE> Result<CR, CE> combine(@NotNull Result<MR, ME> other,
+                                                            @NotNull Combiner<R, MR, CR> successCombiner,
+                                                            @NotNull Combiner<E, ME, CE> errorCombiner);
+
+    /**
+     * Combines {@code this} {@link Result result} with {@code other} {@link Result result}. Both
+     * {@code this} and {@code other} must be the same type of {@link Result result} ({@link
+     * Result.Ok success} or {@link Result.Err error}), if they are not, {@link Result.Ok success result} will be returned.
+     *
+     * @param other           Other result to combine.
+     * @param successCombiner Function which maps both success results into a combined one, either
+     *                        first or second value may be {@code null} in case of absence.
+     * @param errorCombiner   Function which maps both errors result into a combined one, either
+     *                        first or second value may be {@code null} in case of absence.
+     * @param <MR>            Other success result type.
+     * @param <ME>            Other error result type.
+     * @param <CR>            Combined success result type.
+     * @param <CE>            Combined error result type.
+     * @return Result with combined success and error.
+     */
+    @NotNull
+    public final <MR, ME, CR, CE> Result<CR, CE> combine(@NotNull Result<MR, ME> other,
+                                                         @NotNull BiFunction<@Nullable R, @Nullable MR, CR> successCombiner,
+                                                         @NotNull BiFunction<@Nullable E, @Nullable ME, CE> errorCombiner) {
+        return this.combine(other, Combiners.biFunctionAsCombiner(successCombiner), Combiners.biFunctionAsCombiner(errorCombiner));
+    }
+
+    /**
+     * Combines {@code this} {@link Result result} with {@code other} {@link Result result}. Both
+     * {@code this} and {@code other} must be the same type of {@link Result result} ({@link
+     * Result.Ok success} or {@link Result.Err error}), if they are not, then {@code
+     * singleThisSuccessCombiner}, {@code singleThisErrorCombiner}, {@code
+     * singleOtherSuccessCombiner} or {@code singleOtherErrorCombiner} will be used to create a
+     * {@link Result} with combined results and a {@link Result.Ok success result} will be returned.
+     *
+     * @param other                      Other result to combine.
+     * @param successCombiner            Function which maps both success results into a combined
+     *                                   one.
+     * @param errorCombiner              Function which maps both errors result into a combined
+     *                                   one.
+     * @param singleThisSuccessCombiner  Function which maps a single success result of {@code this}
+     *                                   into a combined one.
+     * @param singleThisErrorCombiner    Function which maps a single error result of {@code this}
+     *                                   into a combined one.
+     * @param singleOtherSuccessCombiner Function which maps a single success result of {@code
+     *                                   other} into a combined one.
+     * @param singleOtherErrorCombiner   Function which maps a single error result of {@code other}
+     *                                   into a combined one.
+     * @param <MR>                       Other success result type.
+     * @param <ME>                       Other error result type.
+     * @param <CR>                       Combined success result type.
+     * @param <CE>                       Combined error result type.
+     * @return Result with combined success and error.
+     */
+    @NotNull
+    public final <MR, ME, CR, CE> Result<CR, CE> combine(@NotNull Result<MR, ME> other,
+                                                         @NotNull BiFunction<R, MR, CR> successCombiner,
+                                                         @NotNull BiFunction<E, ME, CE> errorCombiner,
+                                                         @NotNull Function<R, CR> singleThisSuccessCombiner,
+                                                         @NotNull Function<E, CE> singleThisErrorCombiner,
+                                                         @NotNull Function<MR, CR> singleOtherSuccessCombiner,
+                                                         @NotNull Function<ME, CE> singleOtherErrorCombiner) {
+        return this.combine(other,
+                (f, s) -> (f != null && s == null)
+                        ? singleThisSuccessCombiner.apply(f)
+                        : (f == null && s != null)
+                        ? singleOtherSuccessCombiner.apply(s)
+                        : successCombiner.apply(f, s),
+
+                (f, s) -> (f != null && s == null)
+                        ? singleThisErrorCombiner.apply(f)
+                        : (f == null && s != null)
+                        ? singleOtherErrorCombiner.apply(s)
+                        : errorCombiner.apply(f, s)
+        );
+    }
+
+    /**
+     * Combines {@code this} {@link Result success result} with {@code other} {@link Result success
+     * result}.
+     *
+     * If {@code this} {@link Result result} is an {@link Result.Err error result}, {@code this}
+     * instance is returned, if {@code other} {@link Result result} is an {@link Result.Err error
+     * result}, the {@code other} instance is returned.
+     *
+     * @param other    Other result to combine.
+     * @param combiner Function which maps both success results into a combined one.
+     * @param <MR>     Other success result type.
+     * @param <CR>     Combined success result type.
+     * @return Result with combined success and error. If both {@code this} and {@code other} is
+     * {@link Result.Err error result}, then a {@link Result.Err error result} will be returned,
+     * otherwise, {@link Result.Ok success result} is always returned.
+     */
+    @NotNull
+    public abstract <MR, CR> Result<CR, E> combineSuccess(@NotNull Result<MR, E> other,
+                                                          @NotNull Combiner<R, MR, CR> combiner);
+
+    /**
+     * Combines {@code this} {@link Result success result} with {@code other} {@link Result success
+     * result}.
+     *
+     * If {@code this} {@link Result result} is an {@link Result.Err error result}, {@code this}
+     * instance is returned, if {@code other} {@link Result result} is an {@link Result.Err error
+     * result}, the {@code other} instance is returned.
+     *
+     * @param other    Other result to combine.
+     * @param combiner Function which maps both success results into a combined one.
+     * @param <MR>     Other success result type.
+     * @param <CR>     Combined success result type.
+     * @return Result with combined success and error. If both {@code this} and {@code other} is
+     * {@link Result.Err error result}, then a {@link Result.Err error result} will be returned,
+     * otherwise, {@link Result.Ok success result} is always returned.
+     */
+    @NotNull
+    public final <MR, CR> Result<CR, E> combineSuccess(@NotNull Result<MR, E> other,
+                                                       @NotNull BiFunction<@Nullable R, @Nullable MR, CR> combiner) {
+        return this.combineSuccess(other, Combiners.biFunctionAsCombiner(combiner));
+    }
+
+    /**
+     * Combines {@code this} {@link Result success result} with {@code other} {@link Result success
+     * result}.
+     *
+     * If {@code this} {@link Result result} is an {@link Result.Err error result}, {@code this}
+     * instance is returned, if {@code other} {@link Result result} is an {@link Result.Err error
+     * result}, the {@code other} instance is returned.
+     *
+     * @param other    Other result to combine.
+     * @param combiner Function which maps both success results into a combined one.
+     * @param <MR>     Other success result type.
+     * @param <CR>     Combined success result type.
+     * @return {@link Result.Ok success result} with combined success and error.
+     */
+    @NotNull
+    public final <MR, CR> Result<CR, E> combineSuccess(@NotNull Result<MR, E> other,
+                                                       @NotNull BiFunction<R, MR, CR> combiner,
+                                                       @NotNull Function<R, CR> singleThisSuccessCombiner,
+                                                       @NotNull Function<MR, CR> singleOtherSuccessCombiner) {
+        return this.combineSuccess(other,
+                (f, s) -> (f != null && s == null)
+                        ? singleThisSuccessCombiner.apply(f)
+                        : (f == null && s != null)
+                        ? singleOtherSuccessCombiner.apply(s)
+                        : combiner.apply(f, s)
+        );
+    }
+
+    /**
+     * Combines {@code this} {@link Result error result} with {@code other} {@link Result error
+     * result}.
+     *
+     * If {@code this} {@link Result result} is an {@link Result.Ok success result}, {@code this}
+     * instance is returned, if {@code other} {@link Result result} is an {@link Result.Ok success
+     * result}, the {@code other} instance is returned.
+     *
+     * @param other    Other result to combine.
+     * @param combiner Function which maps both error results into a combined one.
+     * @param <ME>     Other error result type.
+     * @param <CE>     Combined error result type.
+     * @return Result with combined success and error. If both {@code this} and {@code other} is
+     * {@link Result.Ok success result}, then a {@link Result.Ok success result} will be returned,
+     * otherwise, {@link Result.Err error result} is always returned.
+     */
+    @NotNull
+    public abstract <ME, CE> Result<R, CE> combineError(@NotNull Result<R, ME> other,
+                                                        @NotNull Combiner<E, ME, CE> combiner);
+
+    /**
+     * Combines {@code this} {@link Result error result} with {@code other} {@link Result error
+     * result}.
+     *
+     * If {@code this} {@link Result result} is an {@link Result.Ok success result}, {@code this}
+     * instance is returned, if {@code other} {@link Result result} is an {@link Result.Ok success
+     * result}, the {@code other} instance is returned.
+     *
+     * @param other    Other result to combine.
+     * @param combiner Function which maps both error results into a combined one.
+     * @param <ME>     Other error result type.
+     * @param <CE>     Combined error result type.
+     * @return Result with combined success and error. If both {@code this} and {@code other} is
+     * {@link Result.Ok success result}, then a {@link Result.Ok success result} will be returned,
+     * otherwise, {@link Result.Err error result} is always returned.
+     */
+    @NotNull
+    public final <ME, CE> Result<R, CE> combineError(@NotNull Result<R, ME> other,
+                                                     @NotNull BiFunction<@Nullable E, @Nullable ME, CE> combiner) {
+        return this.combineError(other, Combiners.biFunctionAsCombiner(combiner));
+    }
+
+    /**
+     * Combines {@code this} {@link Result error result} with {@code other} {@link Result error
+     * result}.
+     *
+     * If {@code this} {@link Result result} is an {@link Result.Ok success result}, {@code this}
+     * instance is returned, if {@code other} {@link Result result} is an {@link Result.Ok success
+     * result}, the {@code other} instance is returned.
+     *
+     * @param other    Other result to combine.
+     * @param combiner Function which maps both error results into a combined one.
+     * @param <ME>     Other error result type.
+     * @param <CE>     Combined error result type.
+     * @return {@link Result.Err error result} with combined success and error.
+     */
+    @NotNull
+    public final <ME, CE> Result<R, CE> combineError(@NotNull Result<R, ME> other,
+                                                     @NotNull BiFunction<E, ME, CE> combiner,
+                                                     @NotNull Function<E, CE> singleThisErrorCombiner,
+                                                     @NotNull Function<ME, CE> singleOtherErrorCombiner) {
+        return this.combineError(other,
+                (f, s) -> (f != null && s == null)
+                        ? singleThisErrorCombiner.apply(f)
+                        : (f == null && s != null)
+                        ? singleOtherErrorCombiner.apply(s)
+                        : combiner.apply(f, s)
+        );
+    }
 
     /**
      * Represents the success result.

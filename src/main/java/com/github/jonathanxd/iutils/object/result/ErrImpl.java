@@ -27,9 +27,12 @@
  */
 package com.github.jonathanxd.iutils.object.result;
 
+import com.github.jonathanxd.iutils.function.combiner.Combiner;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -243,5 +246,42 @@ class ErrImpl<R, E> extends Result.Err<R, E> {
     @Override
     public Result<E, R> swap() {
         return Result.ok(this.error());
+    }
+
+    @Override
+    public @NotNull <MR, ME, CR, CE> Result<CR, CE> combine(@NotNull Result<MR, ME> other,
+                                                            @NotNull Combiner<R, MR, CR> successCombiner,
+                                                            @NotNull Combiner<E, ME, CE> errorCombiner) {
+        if (other instanceof Result.Ok<?, ?>) {
+            return Result.ok(successCombiner.combineSecond(((Ok<MR, E>) other).success()));
+        } else if (other instanceof Result.Err<?, ?>) {
+            return Result.error(errorCombiner.combine(this.error(), ((Err<MR, ME>) other).error()));
+        } else {
+            throw new IllegalArgumentException("The 'other' result instance must either implement `Result.Ok<R, E>` or `Result.Err<R, E>`.");
+        }
+    }
+
+    @Override
+    public @NotNull <MR, CR> Result<CR, E> combineSuccess(@NotNull Result<MR, E> other,
+                                                          @NotNull Combiner<R, MR, CR> combiner) {
+        if (other instanceof Result.Ok<?, ?>) {
+            return Result.ok(combiner.combineSecond(((Ok<MR, E>) other).success()));
+        } else if (other instanceof Result.Err<?, ?>) {
+            return this.as();
+        } else {
+            throw new IllegalArgumentException("The 'other' result instance must either implement `Result.Ok<R, E>` or `Result.Err<R, E>`.");
+        }
+    }
+
+    @Override
+    public @NotNull <ME, CE> Result<R, CE> combineError(@NotNull Result<R, ME> other,
+                                                        @NotNull Combiner<E, ME, CE> combiner) {
+        if (other instanceof Result.Ok<?, ?>) {
+            return Result.error(combiner.combineFirst(this.error()));
+        } else if (other instanceof Result.Err<?, ?>) {
+            return Result.error(combiner.combine(this.error(), ((Err<R, ME>) other).error()));
+        } else {
+            throw new IllegalArgumentException("The 'other' result instance must either implement `Result.Ok<R, E>` or `Result.Err<R, E>`.");
+        }
     }
 }
