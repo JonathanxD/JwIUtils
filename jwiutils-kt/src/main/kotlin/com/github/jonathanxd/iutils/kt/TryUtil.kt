@@ -3,7 +3,7 @@
  *
  *         The MIT License (MIT)
  *
- *      Copyright (c) 2018 TheRealBuggy/JonathanxD (https://github.com/JonathanxD/) <jonathan.scripter@programmer.net>
+ *      Copyright (c) 2019 TheRealBuggy/JonathanxD (https://github.com/JonathanxD/) <jonathan.scripter@programmer.net>
  *      Copyright (c) contributors
  *
  *
@@ -33,7 +33,7 @@ import com.github.jonathanxd.iutils.`object`.Either
  * Tries to run function [f]. Returns an [Either] of [Exception] occurred inside
  * [f], or returns value of type [R] returned by function [f].
  */
-inline fun <R> Try(f: () -> R): Either<Exception, R> =
+inline fun <R> TryEither(f: () -> R): Either<Exception, R> =
         try {
             right(f())
         } catch (e: Exception) {
@@ -46,7 +46,7 @@ inline fun <R> Try(f: () -> R): Either<Exception, R> =
  *
  * Not recommended. Use [Try] instead.
  */
-inline fun <R> TryThrowable(f: () -> R): Either<Throwable, R> =
+inline fun <R> TryEitherThrowable(f: () -> R): Either<Throwable, R> =
         try {
             right(f())
         } catch (e: Throwable) {

@@ -3,7 +3,7 @@
  *
  *         The MIT License (MIT)
  *
- *      Copyright (c) 2018 TheRealBuggy/JonathanxD (https://github.com/JonathanxD/) <jonathan.scripter@programmer.net>
+ *      Copyright (c) 2019 TheRealBuggy/JonathanxD (https://github.com/JonathanxD/) <jonathan.scripter@programmer.net>
  *      Copyright (c) contributors
  *
  *
@@ -36,3 +36,14 @@ inline fun <R, E> Ok(result: R): Result<R, E> =
 @Suppress("NOTHING_TO_INLINE", "FunctionName")
 inline fun <R, E> Err(error: E): Result<R, E> =
         Result.Err(error)
+
+inline fun <R, reified E: Throwable> Try(f: () -> R): Result<R, E> =
+        try {
+            Ok(f())
+        } catch (t: Throwable) {
+            if (t is E) {
+                Err(t)
+            } else {
+                throw t
+            }
+        }
