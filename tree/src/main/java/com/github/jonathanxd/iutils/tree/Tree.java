@@ -28,6 +28,7 @@
 package com.github.jonathanxd.iutils.tree;
 
 import com.github.jonathanxd.iutils.tree.immutable.ImmutableNode;
+import com.github.jonathanxd.iutils.tree.immutable.ImmutableTree;
 import com.github.jonathanxd.iutils.tree.mutable.MutableTree;
 
 public interface Tree<T> {
@@ -35,5 +36,5 @@ public interface Tree<T> {
 
     MutableTree<T> toMutable();
 
-    ImmutableNode<T> toImmutable();
+    ImmutableTree<T> toImmutable();
 }

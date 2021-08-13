@@ -25,36 +25,48 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.tree.mutable;
+package com.github.jonathanxd.iutils.tree.immutable;
 
-import com.github.jonathanxd.iutils.collection.immutable.ImmutableList;
-import com.github.jonathanxd.iutils.collection.wrapper.impl.ImmutableWrapperList;
 import com.github.jonathanxd.iutils.tree.Node;
-import com.github.jonathanxd.iutils.tree.immutable.ImmutableNode;
-import com.github.jonathanxd.iutils.tree.immutable.ImmutableNodeImpl;
-import com.github.jonathanxd.iutils.tree.immutable.ImmutableTree;
-import com.github.jonathanxd.iutils.tree.immutable.ImmutableTreeImpl;
+import com.github.jonathanxd.iutils.tree.mutable.MutableNodeImpl;
+import com.github.jonathanxd.iutils.tree.mutable.MutableTree;
+import com.github.jonathanxd.iutils.tree.mutable.MutableTreeImpl;
 
-import java.util.ArrayList;
+public class ImmutableTreeImpl<T> implements ImmutableTree<T> {
 
-public class MutableTreeImpl<T> implements MutableTree<T> {
+    private final ImmutableNode<T> root;
+    private final ImmutableNode<T> left;
+    private final ImmutableNode<T> right;
 
-    private MutableNode<T> root = new MutableNodeImpl<>(null, null);
-    private MutableNode<T> left = new MutableNodeImpl<>(null, null);
-    private MutableNode<T> right = new MutableNodeImpl<>(null, null);
-
-    @Override
-    public MutableNode<T> setRoot(T value) {
-        MutableNode<T> newNode = new MutableNodeImpl<T>(value, this.root.mutableParent(), this.root.mutableChildren());
-        this.root = newNode;
-        return newNode;
+    public ImmutableTreeImpl(ImmutableNode<T> root,
+                             ImmutableNode<T> left,
+                             ImmutableNode<T> right) {
+        this.root = root;
+        this.left = left;
+        this.right = right;
     }
 
     @Override
-    public MutableNode<T> setRoot(Node<T> node) {
-        MutableNode<T> oldRoot = this.root;
-        this.root = this.root.toMutable();
-        return oldRoot;
+    public ImmutableTree<T> withRoot(T value) {
+        return new ImmutableTreeImpl<>(
+                new ImmutableNodeImpl<>(value, this.root.immutableParent(), this.root.immutableChildren()),
+                this.left,
+                this.right
+        );
+    }
+
+    @Override
+    public ImmutableTree<T> withRoot(Node<T> value) {
+        return new ImmutableTreeImpl<>(
+                value.toImmutable(),
+                this.left,
+                this.right
+        );
+    }
+
+    @Override
+    public ImmutableTree<T> toImmutable() {
+        return this;
     }
 
     @Override
@@ -64,15 +76,8 @@ public class MutableTreeImpl<T> implements MutableTree<T> {
 
     @Override
     public MutableTree<T> toMutable() {
-        return this;
-    }
+        return new MutableTreeImpl<>(
 
-    @Override
-    public ImmutableTree<T> toImmutable() {
-        if (this.root == null) {
-            return null;
-        } else {
-            return new ImmutableTreeImpl<>(this.root.toImmutable(), this.left.toImmutable(), this.right.toImmutable());
-        }
+        );
     }
 }

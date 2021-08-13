@@ -47,6 +47,12 @@ public class MutableNodeImpl<T> implements MutableNode<T> {
         this.value = value;
     }
 
+    public MutableNodeImpl(T value, MutableNode<T> parent, List<MutableNode<T>> children) {
+        this.parent = parent == null ? this : parent;
+        this.value = value;
+        this.children.addAll(children);
+    }
+
     @Override
     public void setValue(T value) {
         this.value = value;

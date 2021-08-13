@@ -25,12 +25,11 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.box;
+package com.github.jonathanxd.iutils.stream;
 
-/**
- * A type of {@link BaseBox} that could be emptied.
- *
- * @param <T> Type of data inside the box.
- */
-public interface EmptiableBaseBox<T> extends BaseBox<T>, UnknownEmptiableBox<T> {
+import com.github.jonathanxd.iutils.object.Pair;
+
+import java.util.stream.BaseStream;
+
+public interface BiStream<A, B> extends BaseStream<Pair<A, B>, BiStream<A, B>> {
 }

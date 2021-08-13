@@ -14,6 +14,7 @@ buildscript {
 
 apply plugin: 'kotlin'
 apply plugin: 'license'
+apply plugin: 'maven-publish'
 
 jar {
     manifest {
@@ -82,5 +83,32 @@ license {
     mapping {
         java = 'SLASHSTAR_STYLE'
         kt = 'SLASHSTAR_STYLE'
+    }
+}
+
+
+publishing {
+    repositories {
+        maven {
+            name = "Local"
+            // change to point to your repo, e.g. http://my.org/repo
+            url = "$buildDir/repo"
+        }
+        maven {
+            name = "GitHubPackages"
+            url = "https://maven.pkg.github.com/JonathanxD/jwiutils"
+            credentials {
+                username = System.getenv("USERNAME")
+                password = System.getenv("TOKEN")
+            }
+        }
+    }
+    publications {
+        maven(MavenPublication) {
+            artifactId 'jwiutils-kt'
+            from components.kotlin
+
+            artifact sourcesJar
+        }
     }
 }

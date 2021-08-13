@@ -1,5 +1,5 @@
 /*
- *      JwIUtils-Tree - Tree data structure JwIUtils module <https://github.com/JonathanxD/JwIUtils/>
+ *      JwIUtils - Java utilities library <https://github.com/JonathanxD/JwIUtils>
  *
  *         The MIT License (MIT)
  *
@@ -25,36 +25,7 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package com.github.jonathanxd.iutils.tree.immutable;
+package com.github.jonathanxd.iutils.stream;
 
-import com.github.jonathanxd.iutils.tree.Node;
-
-public class MutableTreeImpl<T> implements ImmutableTree<T> {
-
-    private ImmutableNode<T> root;
-
-    @Override
-    public ImmutableNode<T> setRoot(T value) {
-        ImmutableNode<T> newNode = new ImmutableNodeImpl<>(null, value);
-        this.root = newNode;
-        return newNode;
-    }
-
-    @Override
-    public ImmutableNode<T> setRoot(Node<T> node) {
-        ImmutableNode<T> newNode = new ImmutableNodeImpl<>(node.parent().toMutable(), node.value());
-        this.root = newNode;
-        newNode.addChildrenNodes(node.children());
-        return newNode;
-    }
-
-    @Override
-    public Node<T> root() {
-        return this.root;
-    }
-
-    @Override
-    public ImmutableTree<T> toMutable() {
-        return this;
-    }
+public interface TriStream {
 }

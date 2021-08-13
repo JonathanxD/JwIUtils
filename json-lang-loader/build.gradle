@@ -15,10 +15,10 @@ repositories {
 }
 
 dependencies {
-    compile rootProject
-    compile "com.googlecode.json-simple:json-simple:1.1.1"
+    implementation rootProject
+    implementation "com.googlecode.json-simple:json-simple:1.1.1"
     compileOnly "org.jetbrains:annotations:15.0"
-    testCompile group: 'junit', name:'junit', version: '4.11'
+    testImplementation group: 'junit', name:'junit', version: '4.11'
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {
@@ -62,5 +62,31 @@ license {
 
     mapping {
         java = 'SLASHSTAR_STYLE'
+    }
+}
+
+publishing {
+    repositories {
+        maven {
+            name = "Local"
+            // change to point to your repo, e.g. http://my.org/repo
+            url = "$buildDir/repo"
+        }
+        maven {
+            name = "GitHubPackages"
+            url = "https://maven.pkg.github.com/JonathanxD/jwiutils"
+            credentials {
+                username = System.getenv("USERNAME")
+                password = System.getenv("TOKEN")
+            }
+        }
+    }
+    publications {
+        maven(MavenPublication) {
+            artifactId 'json-lang-loader'
+            from components.java
+
+            artifact sourcesJar
+        }
     }
 }
