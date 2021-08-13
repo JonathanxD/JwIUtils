@@ -2,6 +2,7 @@ group 'com.github.jonathanxd'
 
 apply plugin: 'java'
 apply plugin: 'license'
+apply plugin: 'maven-publish'
 
 jar {
     manifest {
