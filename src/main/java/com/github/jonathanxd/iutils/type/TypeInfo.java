@@ -55,7 +55,7 @@ public class TypeInfo<T> implements Comparable<TypeInfo> {
     /**
      * Accessed and modified via reflection in {@link AbstractTypeInfo} Class literal.
      */
-    private final String classLiteral;
+    protected String classLiteral;
 
     /**
      * Contains information of type parameters.
@@ -65,7 +65,7 @@ public class TypeInfo<T> implements Comparable<TypeInfo> {
     /**
      * Cached class instance.
      */
-    private Class<T> cachedAClass;
+    protected Class<T> cachedAClass;
 
     /**
      * Cached type variables.
@@ -98,6 +98,14 @@ public class TypeInfo<T> implements Comparable<TypeInfo> {
     TypeInfo(String classLiteral, List<TypeInfo<?>> typeParameters) {
         this.classLiteral = TypeUtil.fixName(classLiteral);
         this.typeParameters = Collections.unmodifiableList(new ArrayList<>(typeParameters));
+    }
+
+    void setClassLiteral(String classLiteral) {
+        this.classLiteral = classLiteral;
+    }
+
+    void setCachedAClass(Class<T> cachedAClass) {
+        this.cachedAClass = cachedAClass;
     }
 
     /**

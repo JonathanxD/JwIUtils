@@ -260,13 +260,13 @@ public class TypeUtil {
             String fullName = (arrays + "L" + name) + ";";
 
             try {
-                Reflection.changeFinalField(TypeInfo.class, typeInfo, "classLiteral", fullName);
+                typeInfo.setClassLiteral(fullName);
 
                 if (typeInfo.isResolved()) {
                     ClassLoader loader = typeInfo.getTypeClass().getClassLoader();
 
                     Class<?> arrayCached = loader == null ? Class.forName(fullName) : loader.loadClass(fullName);
-                    Reflection.changeFinalField(TypeInfo.class, typeInfo, "cachedAClass", arrayCached);
+                    ((TypeInfo)typeInfo).setCachedAClass(arrayCached);
                 }
 
             } catch (Exception e) {
