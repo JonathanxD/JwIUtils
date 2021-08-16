@@ -40,7 +40,7 @@ test:
       - .gradle
 
 deploy:
-  image: gradle:6.5-jdk11
+  image: gradle:jdk16
   script:
     - 'gradle publish'
   only:
