@@ -44,6 +44,4 @@ deploy:
   script:
     - 'gradle publishAllPublicationsToGitLabRepository'
   only:
-    refs:
-      - tags
-      - master
+    - tags
