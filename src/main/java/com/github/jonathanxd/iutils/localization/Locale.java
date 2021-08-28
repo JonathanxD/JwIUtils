@@ -60,7 +60,6 @@ public interface Locale {
      * @param path        Path to resource directory.
      * @param baseName    Base name of resource.
      * @param classLoader Class loader.
-     * @return True if loaded with success.
      */
     default void load(Path path, String baseName, ClassLoader classLoader) throws LocaleLoadException {
         LocaleLoaders.langLoader().loadFromResource(this, path, baseName, classLoader);
@@ -75,7 +74,6 @@ public interface Locale {
      * @param path        Path to resource directory.
      * @param baseName    Base name of resource.
      * @param classLoader Class loader.
-     * @return True if loaded with success.
      */
     default void loadMap(Path path, String baseName, ClassLoader classLoader) throws LocaleLoadException {
         LocaleLoaders.langMapLoader().loadFromResource(this, path, baseName, classLoader);

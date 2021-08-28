@@ -1,0 +1,10 @@
+types = ["javadoc"]
+
+[index]
+group = "com.github.jonathanxd.jwiutils"
+
+[javadoc]
+path = "javadoc/"
+
+[javadoc.index]
+group = "com.github.jonathanxd.jwiutils.javadoc"

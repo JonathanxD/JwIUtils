@@ -267,7 +267,6 @@ public class TextUtil {
      *
      * @param textComponent Component to convert to plain string.
      * @param sb            String buffer to put result characters.
-     * @return Plain serialized string of component.
      */
     public static void toString(TextComponent textComponent, StringBuilder sb) {
 

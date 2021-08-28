@@ -38,6 +38,11 @@ task javadocJar(type: Jar, dependsOn: classes) {
     from javadoc.destinationDir
 }
 
+javadoc {
+    destinationDir = file("javadoc/")
+    options.addBooleanOption('html5', true)
+}
+
 artifacts {
     archives sourcesJar
     archives javadocJar
