@@ -320,6 +320,23 @@ public class TypeUtil {
                         typeInfoBuilder.of(typeInfo);
                         continue;
                     }
+                } else if (type instanceof WildcardType) {
+                    WildcardType wildcardType = (WildcardType) type;
+                    boolean anyUpper = false;
+                    boolean anyLower = false;
+                    for (Type upperBound : wildcardType.getUpperBounds()) {
+                        typeInfoBuilder.of(toTypeInfo(upperBound, names));
+                        anyUpper = true;
+                    }
+
+                    if (!anyUpper) {
+                        for (Type upperBound : wildcardType.getLowerBounds()) {
+                            typeInfoBuilder.of(toTypeInfo(upperBound, names));
+                            anyLower = true;
+                        }
+                    }
+                    if (anyUpper || anyLower)
+                        continue;
                 }
 
                 Class<?> from = TypeUtil.from(type, names);

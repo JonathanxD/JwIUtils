@@ -30,6 +30,7 @@ package com.github.jonathanxd.iutils.kt.test
 import com.github.jonathanxd.iutils.kt.left
 import com.github.jonathanxd.iutils.kt.right
 import com.github.jonathanxd.iutils.kt.some
+import com.github.jonathanxd.iutils.kt.typeInfo
 import org.junit.Assert
 import org.junit.Test
 
@@ -49,5 +50,12 @@ class Tests {
 
         Assert.assertTrue(value.isLeft)
         Assert.assertTrue(value2.isRight)
+    }
+
+    @Test
+    fun testTInfo() {
+        val t = typeInfo<Map<String, Map<String, String>>>()
+
+        Assert.assertEquals("java.util.Map<java.lang.String, java.util.Map<java.lang.String, java.lang.String>>", t.toFullString())
     }
 }
