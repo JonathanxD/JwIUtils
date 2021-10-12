@@ -42,6 +42,6 @@ test:
 deploy:
   image: gradle:jdk16
   script:
-    - 'gradle publishAllPublicationsToGitLabRepository'
+    - 'gradle publishAllPublicationsToGitLabRepository publishAllPublicationsToGitLabJgangRepository'
   only:
     - tags
